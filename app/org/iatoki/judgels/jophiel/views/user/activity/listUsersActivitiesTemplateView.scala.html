@@ -59,7 +59,7 @@
     <tbody>
         @for(userActivity <- page.getData) {
             <tr>
-                <td>@JudgelsUtils.formatDetailedDate(userActivity.getTime)</td>
+                <td><time class="display-time" datetime="@JudgelsUtils.formatISOUTCDateTime(userActivity.getTime)">@JudgelsUtils.formatDetailedDateTime(userActivity.getTime)</time></td>
                 @if(filterUser) {
                     <td>@userActivity.getUsername</td>
                 }
@@ -71,6 +71,7 @@
             </tr>
         }
     </tbody>
+    <input type="hidden" id="display-lang" value="@Messages.get("commons.moment.locale")"/>
 }
 
 @paginationView(page, orderBy, orderDir, filterString, listFunc)
@@ -80,3 +81,4 @@
     var userAutoCompleteUrl = "@org.iatoki.judgels.jophiel.controllers.apis.routes.UserAPIController.userAutoCompleteList()";
 </script>
 <script type="text/javascript" src="@controllers.routes.Assets.versioned("javascripts/clientAndUserMultiComplete.js")"></script>
+<script type="text/javascript" src="@controllers.routes.Assets.versioned("javascripts/display-time.js")"></script>
