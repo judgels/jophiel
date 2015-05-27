@@ -1,4 +1,4 @@
-package org.iatoki.judgels.jophiel;
+package org.iatoki.judgels.jophiel.commons.exceptions;
 
 import org.iatoki.judgels.commons.EntityNotFoundException;
 

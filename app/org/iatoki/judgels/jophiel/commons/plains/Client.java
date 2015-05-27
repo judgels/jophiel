@@ -1,4 +1,4 @@
-package org.iatoki.judgels.jophiel;
+package org.iatoki.judgels.jophiel.commons.plains;
 
 import java.util.List;
 import java.util.Set;

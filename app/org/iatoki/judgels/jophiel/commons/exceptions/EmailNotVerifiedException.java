@@ -1,4 +1,4 @@
-package org.iatoki.judgels.jophiel;
+package org.iatoki.judgels.jophiel.commons.exceptions;
 
 public final class EmailNotVerifiedException extends Exception {
 

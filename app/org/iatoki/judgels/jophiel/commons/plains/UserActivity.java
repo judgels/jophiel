@@ -1,4 +1,4 @@
-package org.iatoki.judgels.jophiel.commons;
+package org.iatoki.judgels.jophiel.commons.plains;
 
 public final class UserActivity {
 
