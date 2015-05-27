@@ -12,19 +12,20 @@ import org.iatoki.judgels.jophiel.controllers.security.Authorized;
 import org.iatoki.judgels.jophiel.controllers.security.HasRole;
 import org.iatoki.judgels.jophiel.controllers.security.LoggedIn;
 import org.iatoki.judgels.jophiel.views.html.activationView;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import play.db.jpa.Transactional;
 import play.mvc.Result;
 
 @Transactional
+@Component
 public final class UserEmailController extends BaseController {
 
-    private final UserService userService;
-    private final UserEmailService userEmailService;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private UserEmailService userEmailService;
 
-    public UserEmailController(UserService userService, UserEmailService userEmailService) {
-        this.userService = userService;
-        this.userEmailService = userEmailService;
-    }
 
     public Result verifyEmail(String emailCode) {
         if (userEmailService.activateEmail(emailCode)) {

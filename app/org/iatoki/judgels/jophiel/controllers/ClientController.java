@@ -23,6 +23,8 @@ import org.iatoki.judgels.jophiel.views.html.client.createClientView;
 import org.iatoki.judgels.jophiel.views.html.client.listClientsView;
 import org.iatoki.judgels.jophiel.views.html.client.updateClientView;
 import org.iatoki.judgels.jophiel.views.html.client.viewClientView;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import play.data.Form;
 import play.db.jpa.Transactional;
 import play.filters.csrf.AddCSRFToken;
@@ -36,16 +38,16 @@ import java.util.Arrays;
 @Authenticated(value = {LoggedIn.class, HasRole.class})
 @Authorized(value = {"admin"})
 @Transactional
+@Component
 public final class ClientController extends BaseController {
 
-    private static final long PAGE_SIZE = 20;
-    private final ClientService clientService;
-    private final UserActivityService userActivityService;
 
-    public ClientController(ClientService clientService, UserActivityService userActivityService) {
-        this.clientService = clientService;
-        this.userActivityService = userActivityService;
-    }
+    private static final long PAGE_SIZE = 20;
+    @Autowired
+    private ClientService clientService;
+    @Autowired
+    private UserActivityService userActivityService;
+
 
     public Result index() {
         return listClients(0, "id", "asc", "");
@@ -82,8 +84,8 @@ public final class ClientController extends BaseController {
         content.appendLayout(c -> headingWithActionLayout.render(Messages.get("client.client") + " #" + clientId + ": " + client.getName(), new InternalLink(Messages.get("commons.update"), routes.ClientController.updateClient(clientId)), c));
         ControllerUtils.getInstance().appendSidebarLayout(content);
         ControllerUtils.getInstance().appendBreadcrumbsLayout(content, ImmutableList.of(
-              new InternalLink(Messages.get("client.clients"), routes.ClientController.index()),
-              new InternalLink(Messages.get("client.view"), routes.ClientController.viewClient(clientId))
+                new InternalLink(Messages.get("client.clients"), routes.ClientController.index()),
+                new InternalLink(Messages.get("client.view"), routes.ClientController.viewClient(clientId))
         ));
         ControllerUtils.getInstance().appendTemplateLayout(content, "Client - View");
 
@@ -99,7 +101,7 @@ public final class ClientController extends BaseController {
         content.appendLayout(c -> headingWithActionLayout.render(Messages.get("client.list"), new InternalLink(Messages.get("commons.create"), routes.ClientController.createClient()), c));
         ControllerUtils.getInstance().appendSidebarLayout(content);
         ControllerUtils.getInstance().appendBreadcrumbsLayout(content, ImmutableList.of(
-              new InternalLink(Messages.get("client.clients"), routes.ClientController.index())
+                new InternalLink(Messages.get("client.clients"), routes.ClientController.index())
         ));
         ControllerUtils.getInstance().appendTemplateLayout(content, "Clients");
 
@@ -154,8 +156,8 @@ public final class ClientController extends BaseController {
         content.appendLayout(c -> headingLayout.render(Messages.get("client.create"), c));
         ControllerUtils.getInstance().appendSidebarLayout(content);
         ControllerUtils.getInstance().appendBreadcrumbsLayout(content, ImmutableList.of(
-              new InternalLink(Messages.get("client.clients"), routes.ClientController.index()),
-              new InternalLink(Messages.get("client.create"), routes.ClientController.createClient())
+                new InternalLink(Messages.get("client.clients"), routes.ClientController.index()),
+                new InternalLink(Messages.get("client.create"), routes.ClientController.createClient())
         ));
         ControllerUtils.getInstance().appendTemplateLayout(content, "Client - Create");
         return ControllerUtils.getInstance().lazyOk(content);
@@ -166,8 +168,8 @@ public final class ClientController extends BaseController {
         content.appendLayout(c -> headingLayout.render(Messages.get("client.client") + " #" + clientId + ": " + clientName, c));
         ControllerUtils.getInstance().appendSidebarLayout(content);
         ControllerUtils.getInstance().appendBreadcrumbsLayout(content, ImmutableList.of(
-              new InternalLink(Messages.get("client.clients"), routes.ClientController.index()),
-              new InternalLink(Messages.get("client.update"), routes.ClientController.updateClient(clientId))
+                new InternalLink(Messages.get("client.clients"), routes.ClientController.index()),
+                new InternalLink(Messages.get("client.update"), routes.ClientController.updateClient(clientId))
         ));
         ControllerUtils.getInstance().appendTemplateLayout(content, "Client - Update");
         return ControllerUtils.getInstance().lazyOk(content);

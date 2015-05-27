@@ -9,6 +9,8 @@ import org.iatoki.judgels.commons.AutoComplete;
 import org.iatoki.judgels.jophiel.services.UserService;
 import org.iatoki.judgels.jophiel.controllers.security.Authenticated;
 import org.iatoki.judgels.jophiel.controllers.security.LoggedIn;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import play.data.DynamicForm;
 import play.db.jpa.Transactional;
 import play.libs.Json;
@@ -17,15 +19,13 @@ import play.mvc.Result;
 
 import java.util.List;
 
+@Component
 public final class ClientAPIController extends Controller {
 
-    private final ClientService clientService;
-    private final UserService userService;
-
-    public ClientAPIController(ClientService clientService, UserService userService) {
-        this.clientService = clientService;
-        this.userService = userService;
-    }
+    @Autowired
+    private ClientService clientService;
+    @Autowired
+    private UserService userService;
 
     public Result preClientAutocompleteList() {
         response().setHeader("Access-Control-Allow-Origin", "*");       // Need to add the correct domain in here!!

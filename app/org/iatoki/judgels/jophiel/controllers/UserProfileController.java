@@ -22,6 +22,8 @@ import org.iatoki.judgels.jophiel.services.UserService;
 import org.iatoki.judgels.jophiel.views.html.editProfileView;
 import org.iatoki.judgels.jophiel.views.html.serviceEditProfileView;
 import org.iatoki.judgels.jophiel.views.html.viewProfileView;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import play.Logger;
 import play.data.Form;
 import play.db.jpa.Transactional;
@@ -35,11 +37,15 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 @Transactional
+@Component
 public final class UserProfileController extends BaseController {
 
-    private final UserService userService;
-    private final UserProfileService userProfileService;
-    private final UserActivityService userActivityService;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private UserProfileService userProfileService;
+    @Autowired
+    private UserActivityService userActivityService;
 
     public UserProfileController(UserService userService, UserProfileService userProfileService, UserActivityService userActivityService) {
         this.userService = userService;
@@ -69,7 +75,7 @@ public final class UserProfileController extends BaseController {
                 content.appendLayout(c -> headingLayout.render(user.getUsername(), c));
                 ControllerUtils.getInstance().appendSidebarLayout(content);
                 ControllerUtils.getInstance().appendBreadcrumbsLayout(content, ImmutableList.of(
-                      new InternalLink(Messages.get("profile.profile"), routes.UserProfileController.viewProfile(username))
+                        new InternalLink(Messages.get("profile.profile"), routes.UserProfileController.viewProfile(username))
                 ));
             } else {
                 content.appendLayout(c -> headingLayout.render(user.getUsername(), c));
@@ -201,11 +207,11 @@ public final class UserProfileController extends BaseController {
         ControllerUtils.getInstance().appendSidebarLayout(content);
         if (continueUrl == null) {
             ControllerUtils.getInstance().appendBreadcrumbsLayout(content, ImmutableList.of(
-                  new InternalLink(Messages.get("profile.profile"), routes.UserProfileController.profile())
+                    new InternalLink(Messages.get("profile.profile"), routes.UserProfileController.profile())
             ));
         } else {
             ControllerUtils.getInstance().appendBreadcrumbsLayout(content, ImmutableList.of(
-                  new InternalLink(Messages.get("profile.profile"), routes.UserProfileController.serviceProfile(continueUrl))
+                    new InternalLink(Messages.get("profile.profile"), routes.UserProfileController.serviceProfile(continueUrl))
             ));
         }
         ControllerUtils.getInstance().appendTemplateLayout(content, "Profile");
