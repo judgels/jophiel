@@ -9,8 +9,7 @@ import org.iatoki.judgels.commons.views.html.layouts.sidebarLayout;
 import org.iatoki.judgels.commons.views.html.layouts.profileView;
 import org.iatoki.judgels.commons.views.html.layouts.menusLayout;
 import org.iatoki.judgels.jophiel.JophielUtils;
-import org.iatoki.judgels.jophiel.UserActivityService;
-import org.iatoki.judgels.jophiel.UserService;
+import org.iatoki.judgels.jophiel.services.UserActivityService;
 import play.i18n.Messages;
 import play.mvc.Http;
 

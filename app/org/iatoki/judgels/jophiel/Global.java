@@ -10,6 +10,10 @@ import org.iatoki.judgels.jophiel.controllers.*;
 import org.iatoki.judgels.jophiel.controllers.apis.ClientAPIController;
 import org.iatoki.judgels.jophiel.controllers.apis.UserAPIController;
 import org.iatoki.judgels.jophiel.controllers.apis.UserActivityAPIController;
+import org.iatoki.judgels.jophiel.factories.JophielControllerFactory;
+import org.iatoki.judgels.jophiel.factories.impls.DefaultJophielControllerFactory;
+import org.iatoki.judgels.jophiel.factories.impls.DefaultJophielServiceFactory;
+import org.iatoki.judgels.jophiel.factories.impls.HibernateJophielDaoFactory;
 import play.Application;
 import play.mvc.Controller;
 

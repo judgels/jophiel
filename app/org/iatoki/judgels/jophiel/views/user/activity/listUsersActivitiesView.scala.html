@@ -1,4 +1,4 @@
-@(page: org.iatoki.judgels.commons.Page[org.iatoki.judgels.jophiel.commons.UserActivity], orderBy: String, orderDir: String, filterString: String, clientNames: String, usernames: String)
+@(page: org.iatoki.judgels.commons.Page[org.iatoki.judgels.jophiel.commons.plains.UserActivity], orderBy: String, orderDir: String, filterString: String, clientNames: String, usernames: String)
 
 @listFunc(newPageIndex: scala.Long, newOrderBy: String, newOrderDir: String, newFilterString: String) = @{org.iatoki.judgels.jophiel.controllers.routes.UserActivityController.listUsersActivities(newPageIndex, newOrderBy, newOrderDir, newFilterString, clientNames, usernames)}
 

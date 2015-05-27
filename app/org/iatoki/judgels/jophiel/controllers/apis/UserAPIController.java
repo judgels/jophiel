@@ -6,15 +6,16 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.iatoki.judgels.commons.IdentityUtils;
-import org.iatoki.judgels.jophiel.AccessToken;
+import org.iatoki.judgels.jophiel.commons.plains.AccessToken;
 import org.iatoki.judgels.commons.AutoComplete;
-import org.iatoki.judgels.jophiel.Client;
-import org.iatoki.judgels.jophiel.ClientService;
-import org.iatoki.judgels.jophiel.IdToken;
-import org.iatoki.judgels.jophiel.RefreshToken;
-import org.iatoki.judgels.jophiel.User;
-import org.iatoki.judgels.jophiel.UserProfileService;
-import org.iatoki.judgels.jophiel.UserService;
+import org.iatoki.judgels.jophiel.commons.plains.Client;
+import org.iatoki.judgels.jophiel.services.ClientService;
+import org.iatoki.judgels.jophiel.commons.plains.IdToken;
+import org.iatoki.judgels.jophiel.commons.plains.RefreshToken;
+import org.iatoki.judgels.jophiel.commons.plains.User;
+import org.iatoki.judgels.jophiel.services.UserProfileService;
+import org.iatoki.judgels.jophiel.services.UserService;
+import org.iatoki.judgels.jophiel.commons.plains.AuthorizationCode;
 import org.iatoki.judgels.jophiel.controllers.security.Authenticated;
 import org.iatoki.judgels.jophiel.controllers.security.LoggedIn;
 import play.data.DynamicForm;
@@ -210,7 +211,7 @@ public final class UserAPIController extends Controller {
     private Result processTokenAuthCodeRequest(DynamicForm form) {
         String code = form.get("code");
         String redirectUri = form.get("redirect_uri");
-        org.iatoki.judgels.jophiel.AuthorizationCode authorizationCode = clientService.findAuthorizationCodeByCode(code);
+        AuthorizationCode authorizationCode = clientService.findAuthorizationCodeByCode(code);
 
         if ((authorizationCode.getRedirectURI().equals(redirectUri)) && (!authorizationCode.isExpired())) {
             String scope = form.get("scope");

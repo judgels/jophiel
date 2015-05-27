@@ -2,31 +2,29 @@ package org.iatoki.judgels.jophiel.controllers;
 
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.iatoki.judgels.commons.IdentityUtils;
 import org.iatoki.judgels.commons.InternalLink;
 import org.iatoki.judgels.commons.LazyHtml;
-import org.iatoki.judgels.commons.Page;
 import org.iatoki.judgels.commons.controllers.BaseController;
 import org.iatoki.judgels.commons.views.html.layouts.centerLayout;
 import org.iatoki.judgels.commons.views.html.layouts.headingLayout;
-import org.iatoki.judgels.commons.views.html.layouts.headingWithActionLayout;
 import org.iatoki.judgels.commons.views.html.layouts.tabLayout;
-import org.iatoki.judgels.jophiel.*;
+import org.iatoki.judgels.jophiel.commons.plains.User;
+import org.iatoki.judgels.jophiel.controllers.forms.UserProfileForm;
+import org.iatoki.judgels.jophiel.controllers.forms.UserProfilePictureForm;
 import org.iatoki.judgels.jophiel.controllers.security.Authenticated;
 import org.iatoki.judgels.jophiel.controllers.security.Authorized;
 import org.iatoki.judgels.jophiel.controllers.security.HasRole;
 import org.iatoki.judgels.jophiel.controllers.security.LoggedIn;
-import org.iatoki.judgels.jophiel.views.html.activationView;
+import org.iatoki.judgels.jophiel.services.UserActivityService;
+import org.iatoki.judgels.jophiel.services.UserProfileService;
+import org.iatoki.judgels.jophiel.services.UserService;
 import org.iatoki.judgels.jophiel.views.html.editProfileView;
 import org.iatoki.judgels.jophiel.views.html.serviceEditProfileView;
-import org.iatoki.judgels.jophiel.views.html.user.*;
 import org.iatoki.judgels.jophiel.views.html.viewProfileView;
 import play.Logger;
 import play.data.Form;
 import play.db.jpa.Transactional;
-import play.filters.csrf.AddCSRFToken;
-import play.filters.csrf.RequireCSRFCheck;
 import play.i18n.Messages;
 import play.mvc.BodyParser;
 import play.mvc.Http;
@@ -35,7 +33,6 @@ import play.mvc.Result;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Arrays;
 
 @Transactional
 public final class UserProfileController extends BaseController {

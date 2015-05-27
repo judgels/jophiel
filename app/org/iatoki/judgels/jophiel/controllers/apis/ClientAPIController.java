@@ -2,11 +2,11 @@ package org.iatoki.judgels.jophiel.controllers.apis;
 
 import com.google.common.collect.ImmutableList;
 import org.iatoki.judgels.commons.IdentityUtils;
-import org.iatoki.judgels.jophiel.Client;
-import org.iatoki.judgels.jophiel.ClientService;
-import org.iatoki.judgels.jophiel.User;
+import org.iatoki.judgels.jophiel.commons.plains.Client;
+import org.iatoki.judgels.jophiel.services.ClientService;
+import org.iatoki.judgels.jophiel.commons.plains.User;
 import org.iatoki.judgels.commons.AutoComplete;
-import org.iatoki.judgels.jophiel.UserService;
+import org.iatoki.judgels.jophiel.services.UserService;
 import org.iatoki.judgels.jophiel.controllers.security.Authenticated;
 import org.iatoki.judgels.jophiel.controllers.security.LoggedIn;
 import play.data.DynamicForm;
