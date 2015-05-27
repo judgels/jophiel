@@ -4,12 +4,14 @@ import org.iatoki.judgels.commons.models.daos.hibernate.AbstractHibernateDao;
 import org.iatoki.judgels.jophiel.models.daos.AccessTokenDao;
 import org.iatoki.judgels.jophiel.models.domains.AccessTokenModel;
 import org.iatoki.judgels.jophiel.models.domains.AccessTokenModel_;
+import org.springframework.stereotype.Repository;
 import play.db.jpa.JPA;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
+@Repository("accessTokenDao")
 public final class AccessTokenHibernateDao extends AbstractHibernateDao<Long, AccessTokenModel> implements AccessTokenDao {
 
     public AccessTokenHibernateDao() {

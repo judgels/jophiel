@@ -4,12 +4,14 @@ import org.iatoki.judgels.commons.models.daos.hibernate.AbstractHibernateDao;
 import org.iatoki.judgels.jophiel.models.daos.UserForgotPasswordDao;
 import org.iatoki.judgels.jophiel.models.domains.UserForgotPasswordModel;
 import org.iatoki.judgels.jophiel.models.domains.UserForgotPasswordModel_;
+import org.springframework.stereotype.Repository;
 import play.db.jpa.JPA;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
+@Repository("userForgotPasswordDao")
 public final class UserForgotPasswordHibernateDao extends AbstractHibernateDao<Long, UserForgotPasswordModel> implements UserForgotPasswordDao {
 
     public UserForgotPasswordHibernateDao() {

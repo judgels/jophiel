@@ -5,6 +5,7 @@ import org.iatoki.judgels.commons.models.daos.hibernate.AbstractJudgelsHibernate
 import org.iatoki.judgels.jophiel.models.daos.ClientDao;
 import org.iatoki.judgels.jophiel.models.domains.ClientModel;
 import org.iatoki.judgels.jophiel.models.domains.ClientModel_;
+import org.springframework.stereotype.Repository;
 import play.db.jpa.JPA;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -14,6 +15,7 @@ import javax.persistence.metamodel.SingularAttribute;
 import java.util.Collection;
 import java.util.List;
 
+@Repository("clientDao")
 public final class ClientHibernateDao extends AbstractJudgelsHibernateDao<ClientModel> implements ClientDao {
 
     public ClientHibernateDao() {

@@ -5,6 +5,7 @@ import org.iatoki.judgels.commons.models.daos.hibernate.AbstractJudgelsHibernate
 import org.iatoki.judgels.jophiel.models.daos.UserDao;
 import org.iatoki.judgels.jophiel.models.domains.UserModel;
 import org.iatoki.judgels.jophiel.models.domains.UserModel_;
+import org.springframework.stereotype.Repository;
 import play.db.jpa.JPA;
 
 import javax.persistence.NoResultException;
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+@Repository("userDao")
 public final class UserHibernateDao extends AbstractJudgelsHibernateDao<UserModel> implements UserDao {
 
     public UserHibernateDao() {
