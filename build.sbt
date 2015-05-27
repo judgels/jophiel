@@ -5,8 +5,8 @@ import sbtbuildinfo.Plugin._
 lazy val jophiel = (project in file("."))
     .enablePlugins(PlayJava, SbtWeb)
     .disablePlugins(sbt.plugins.JUnitXmlReportPlugin)
-    .dependsOn(playcommons)
-    .aggregate(playcommons)
+    .dependsOn(jophielcommons)
+    .aggregate(jophielcommons)
     .settings(
         name := "jophiel",
         version := IO.read(file("version.properties")).trim,
@@ -43,4 +43,4 @@ lazy val jophiel = (project in file("."))
         buildInfoPackage := "org.iatoki.judgels.jophiel"
     )
 
-lazy val playcommons = RootProject(file("../judgels-play-commons"))
+lazy val jophielcommons = RootProject(file("../judgels-jophiel-commons"))
