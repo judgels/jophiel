@@ -47,11 +47,6 @@ public final class UserProfileController extends BaseController {
     @Autowired
     private UserActivityService userActivityService;
 
-    public UserProfileController(UserService userService, UserProfileService userProfileService, UserActivityService userActivityService) {
-        this.userService = userService;
-        this.userProfileService = userProfileService;
-        this.userActivityService = userActivityService;
-    }
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
     public Result profile() {

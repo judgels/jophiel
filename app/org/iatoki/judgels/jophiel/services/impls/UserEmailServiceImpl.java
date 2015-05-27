@@ -23,11 +23,6 @@ public final class UserEmailServiceImpl implements UserEmailService {
     @Autowired
     private UserEmailDao userEmailDao;
 
-    public UserEmailServiceImpl(UserDao userDao, UserEmailDao userEmailDao) {
-        this.userDao = userDao;
-        this.userEmailDao = userEmailDao;
-    }
-
     @Override
     public boolean isEmailOwnedByUser(String email, String username) {
         UserModel userModel = userDao.findByUsername(username);

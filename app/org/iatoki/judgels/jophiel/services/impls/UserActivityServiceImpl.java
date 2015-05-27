@@ -28,12 +28,6 @@ public final class UserActivityServiceImpl implements UserActivityService {
     @Autowired
     private UserActivityDao userActivityDao;
 
-    public UserActivityServiceImpl(ClientDao clientDao, UserDao userDao, UserActivityDao userActivityDao) {
-        this.clientDao = clientDao;
-        this.userDao = userDao;
-        this.userActivityDao = userActivityDao;
-    }
-
     @Override
     public Page<UserActivity> pageUserActivities(long pageIndex, long pageSize, String orderBy, String orderDir, String filterString, Set<String> clientsNames, String username) {
         List<String> clientJids = clientDao.findClientJidsByNames(clientsNames);
