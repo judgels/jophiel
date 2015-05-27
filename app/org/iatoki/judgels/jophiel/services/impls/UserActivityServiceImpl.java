@@ -10,17 +10,23 @@ import org.iatoki.judgels.jophiel.models.daos.UserActivityDao;
 import org.iatoki.judgels.jophiel.models.daos.UserDao;
 import org.iatoki.judgels.jophiel.models.domains.*;
 import org.iatoki.judgels.jophiel.services.UserActivityService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import javax.persistence.metamodel.SingularAttribute;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+@Service("userActivityService")
 public final class UserActivityServiceImpl implements UserActivityService {
 
-    private final ClientDao clientDao;
-    private final UserDao userDao;
-    private final UserActivityDao userActivityDao;
+    @Autowired
+    private ClientDao clientDao;
+    @Autowired
+    private UserDao userDao;
+    @Autowired
+    private UserActivityDao userActivityDao;
 
     public UserActivityServiceImpl(ClientDao clientDao, UserDao userDao, UserActivityDao userActivityDao) {
         this.clientDao = clientDao;

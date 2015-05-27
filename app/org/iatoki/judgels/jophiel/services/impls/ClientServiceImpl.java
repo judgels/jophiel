@@ -38,6 +38,8 @@ import org.iatoki.judgels.jophiel.models.domains.IdTokenModel;
 import org.iatoki.judgels.jophiel.models.domains.RedirectURIModel;
 import org.iatoki.judgels.jophiel.models.domains.RefreshTokenModel;
 import org.iatoki.judgels.jophiel.services.ClientService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.io.UnsupportedEncodingException;
 import java.security.KeyFactory;
@@ -53,23 +55,22 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+@Service("clientService")
 public final class ClientServiceImpl implements ClientService {
 
-    private final ClientDao clientDao;
-    private final RedirectURIDao redirectURIDao;
-    private final AuthorizationCodeDao authorizationCodeDao;
-    private final AccessTokenDao accessTokenDao;
-    private final RefreshTokenDao refreshTokenDao;
-    private final IdTokenDao idTokenDao;
+    @Autowired
+    private ClientDao clientDao;
+    @Autowired
+    private RedirectURIDao redirectURIDao;
+    @Autowired
+    private AuthorizationCodeDao authorizationCodeDao;
+    @Autowired
+    private AccessTokenDao accessTokenDao;
+    @Autowired
+    private RefreshTokenDao refreshTokenDao;
+    @Autowired
+    private IdTokenDao idTokenDao;
 
-    public ClientServiceImpl(ClientDao clientDao, RedirectURIDao redirectURIDao, AuthorizationCodeDao authorizationCodeDao, AccessTokenDao accessTokenDao, RefreshTokenDao refreshTokenDao, IdTokenDao idTokenDao) {
-        this.clientDao = clientDao;
-        this.redirectURIDao = redirectURIDao;
-        this.authorizationCodeDao = authorizationCodeDao;
-        this.accessTokenDao = accessTokenDao;
-        this.refreshTokenDao = refreshTokenDao;
-        this.idTokenDao = idTokenDao;
-    }
 
     @Override
     public List<Client> findAll() {

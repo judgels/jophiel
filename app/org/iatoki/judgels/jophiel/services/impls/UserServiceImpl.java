@@ -13,6 +13,8 @@ import org.iatoki.judgels.jophiel.models.daos.UserDao;
 import org.iatoki.judgels.jophiel.models.domains.UserEmailModel;
 import org.iatoki.judgels.jophiel.models.domains.UserModel;
 import org.iatoki.judgels.jophiel.services.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import play.mvc.Http;
 
 import java.net.MalformedURLException;
@@ -20,15 +22,14 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 
+@Service("userService")
 public final class UserServiceImpl implements UserService {
 
-    private final UserDao userDao;
-    private final UserEmailDao userEmailDao;
+    @Autowired
+    private UserDao userDao;
+    @Autowired
+    private UserEmailDao userEmailDao;
 
-    public UserServiceImpl(UserDao userDao, UserEmailDao userEmailDao) {
-        this.userDao = userDao;
-        this.userEmailDao = userEmailDao;
-    }
 
     @Override
     public boolean existByUsername(String username) {
@@ -46,7 +47,7 @@ public final class UserServiceImpl implements UserService {
         ImmutableList.Builder<User> userBuilder = ImmutableList.builder();
 
         for (UserModel userRecord : userModels) {
-            UserEmailModel emailRecord  = userEmailDao.findByUserJid(userRecord.jid);
+            UserEmailModel emailRecord = userEmailDao.findByUserJid(userRecord.jid);
             userBuilder.add(new User(userRecord.id, userRecord.jid, userRecord.username, userRecord.name, emailRecord.email, getAvatarImageUrl(userRecord.profilePictureImageName), Arrays.asList(userRecord.roles.split(","))));
         }
 
