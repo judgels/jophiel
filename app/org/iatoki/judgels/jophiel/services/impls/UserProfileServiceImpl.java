@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import play.mvc.Http;
 
+import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -24,7 +25,8 @@ public final class UserProfileServiceImpl implements UserProfileService {
     @Autowired
     private FileSystemProvider avatarFileProvider;
 
-    public UserProfileServiceImpl() {
+    @PostConstruct
+    public  void init() {
         if (!avatarFileProvider.fileExists(ImmutableList.of("avatar-default.png"))) {
             try {
                 avatarFileProvider.uploadFileFromStream(ImmutableList.of(), getClass().getResourceAsStream("/public/images/avatar/avatar-default.png"), "avatar-default.png");
