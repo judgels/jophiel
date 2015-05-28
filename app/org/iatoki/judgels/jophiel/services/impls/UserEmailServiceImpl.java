@@ -8,20 +8,20 @@ import org.iatoki.judgels.jophiel.models.daos.UserDao;
 import org.iatoki.judgels.jophiel.models.domains.UserEmailModel;
 import org.iatoki.judgels.jophiel.models.domains.UserModel;
 import org.iatoki.judgels.jophiel.services.UserEmailService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import play.Play;
 import play.i18n.Messages;
 import play.libs.mailer.Email;
 import play.libs.mailer.MailerPlugin;
 
+@Service("userEmailService")
 public final class UserEmailServiceImpl implements UserEmailService {
 
-    private final UserDao userDao;
-    private final UserEmailDao userEmailDao;
-
-    public UserEmailServiceImpl(UserDao userDao, UserEmailDao userEmailDao) {
-        this.userDao = userDao;
-        this.userEmailDao = userEmailDao;
-    }
+    @Autowired
+    private UserDao userDao;
+    @Autowired
+    private UserEmailDao userEmailDao;
 
     @Override
     public boolean isEmailOwnedByUser(String email, String username) {

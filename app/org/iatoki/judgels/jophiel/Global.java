@@ -1,72 +1,69 @@
 package org.iatoki.judgels.jophiel;
 
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.google.common.collect.ImmutableMap;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import org.iatoki.judgels.commons.*;
-import org.iatoki.judgels.jophiel.controllers.*;
-import org.iatoki.judgels.jophiel.controllers.apis.ClientAPIController;
-import org.iatoki.judgels.jophiel.controllers.apis.UserAPIController;
-import org.iatoki.judgels.jophiel.controllers.apis.UserActivityAPIController;
-import org.iatoki.judgels.jophiel.factories.JophielControllerFactory;
-import org.iatoki.judgels.jophiel.factories.impls.DefaultJophielControllerFactory;
-import org.iatoki.judgels.jophiel.factories.impls.DefaultJophielServiceFactory;
-import org.iatoki.judgels.jophiel.factories.impls.HibernateJophielDaoFactory;
+import org.iatoki.judgels.jophiel.config.ControllerConfig;
+import org.iatoki.judgels.jophiel.config.PersistenceConfig;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import play.Application;
-import play.mvc.Controller;
 
-import java.util.Map;
+import java.util.Optional;
 
 public final class Global extends org.iatoki.judgels.commons.Global {
-    private Map<Class<?>, Controller> controllersRegistry;
+    private ApplicationContext applicationContext;
 
+    /**
+     * Initialize Spring Application Context at onStart Lifecycle
+     *
+     * @param application Application Object from Play Framework
+     */
     @Override
     public void onStart(Application application) {
-        org.iatoki.judgels.jophiel.BuildInfo$ buildInfo = org.iatoki.judgels.jophiel.BuildInfo$.MODULE$;
-        JudgelsProperties.buildInstance(buildInfo.name(), buildInfo.version(), ConfigFactory.load());
-
-        Config config = ConfigFactory.load();
-        JophielProperties.buildInstance(config);
-
-        FileSystemProvider avatarProvider;
-        if (JophielProperties.getInstance().isAvatarUsingAWSS3()) {
-            AmazonS3Client s3Client;
-            if (JophielProperties.getInstance().isAvatarAWSUsingKeys()) {
-                s3Client = new AmazonS3Client(new BasicAWSCredentials(JophielProperties.getInstance().getAvatarAWSAccessKey(), JophielProperties.getInstance().getAvatarAWSSecretKey()));
-            } else {
-                s3Client = new AmazonS3Client();
-            }
-            avatarProvider = new AWSFileSystemProvider(s3Client, JophielProperties.getInstance().getAvatarAWSS3BucketName(), JophielProperties.getInstance().getAvatarAWSCloudFrontUrl(), JophielProperties.getInstance().getAvatarAWSS3BucketRegion());
-        } else {
-            avatarProvider = new LocalFileSystemProvider(JophielProperties.getInstance().getAvatarLocalDir());
-        }
-        JophielControllerFactory jophielControllerFactory = new DefaultJophielControllerFactory(new DefaultJophielServiceFactory(new HibernateJophielDaoFactory(), avatarProvider));
-
-        controllersRegistry = ImmutableMap.<Class<?>, Controller> builder()
-                .put(ApplicationController.class, jophielControllerFactory.createApplicationController())
-                .put(ClientController.class, jophielControllerFactory.createClientController())
-                .put(UserAccountController.class, jophielControllerFactory.createUserAccountController())
-                .put(UserActivityController.class, jophielControllerFactory.createUserActivityController())
-                .put(UserController.class, jophielControllerFactory.createUserController())
-                .put(UserEmailController.class, jophielControllerFactory.createUserEmailController())
-                .put(UserProfileController.class, jophielControllerFactory.createUserProfileController())
-                .put(UserAPIController.class, jophielControllerFactory.createUserAPIController())
-                .put(ClientAPIController.class, jophielControllerFactory.createClientAPIController())
-                .put(UserActivityAPIController.class, jophielControllerFactory.createUserActivityAPIController())
-                .build();
-
+        applicationContext = new AnnotationConfigApplicationContext(PersistenceConfig.class, ControllerConfig.class);
         super.onStart(application);
     }
 
+
+    /**
+     * Helper method to wrap applicationContext.getBean with Optional Container.
+     * Return Optional.empty() if NoSuchDefinitionException throws to allow system finding instance from other registry
+     * <p>
+     * See https://docs.oracle.com/javase/8/docs/api/java/util/Optional.html
+     * See http://www.oracle.com/technetwork/articles/java/java8-optional-2175753.html
+     *
+     * @param controllerClass Class Definition to find
+     * @return Object From Application Context or Empty if NoSuchDefinitionException throws.
+     * @throws Exception When application context throws errors besides NoSuchBeanDefinition
+     */
+    private <A> Optional<A> getContextBean(Class<A> controllerClass) throws Exception {
+        if (applicationContext == null) {
+            throw new Exception("Application Context not Initialized");
+        } else {
+            try {
+                return Optional.of(applicationContext.getBean(controllerClass));
+            } catch (NoSuchBeanDefinitionException ex) {
+                return Optional.empty();
+            }
+        }
+    }
+
+    /**
+     * Base Play Framework Integration with Spring Context.
+     * Controller Instance fetched from Spring Context.
+     * Controller with composition Action will be fetched from Global Controller registry
+     * Such as @EntityNotFoundGuard and @UnsupportedOperationGuard
+     * <p>
+     * See org.iatoki.judgels.commons.controllers.BaseController
+     * See https://www.playframework.com/documentation/2.3.x/JavaActionsComposition
+     * <p>
+     *
+     * @param controllerClass Class Definition to find
+     * @return Controller Instance to used by Play Framework
+     * @throws Exception
+     */
     @Override
     public <A> A getControllerInstance(Class<A> controllerClass) throws Exception {
-        if (!controllersRegistry.containsKey(controllerClass)) {
-            return super.getControllerInstance(controllerClass);
-        } else {
-            return controllerClass.cast(controllersRegistry.get(controllerClass));
-        }
+        return getContextBean(controllerClass).orElse(super.getControllerInstance(controllerClass));
     }
 
 }

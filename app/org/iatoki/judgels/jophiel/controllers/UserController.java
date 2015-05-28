@@ -25,6 +25,8 @@ import org.iatoki.judgels.jophiel.views.html.user.listUnverifiedUsersView;
 import org.iatoki.judgels.jophiel.views.html.user.listUsersView;
 import org.iatoki.judgels.jophiel.views.html.user.updateUserView;
 import org.iatoki.judgels.jophiel.views.html.user.viewUserView;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import play.data.Form;
 import play.db.jpa.Transactional;
 import play.filters.csrf.AddCSRFToken;
@@ -36,16 +38,15 @@ import play.mvc.Result;
 import java.util.Arrays;
 
 @Transactional
+@Component
 public final class UserController extends BaseController {
 
     private static final long PAGE_SIZE = 20;
-    private final UserService userService;
-    private final UserActivityService userActivityService;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private UserActivityService userActivityService;
 
-    public UserController(UserService userService, UserActivityService userActivityService) {
-        this.userService = userService;
-        this.userActivityService = userActivityService;
-    }
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Authorized(value = {"admin"})
@@ -60,13 +61,13 @@ public final class UserController extends BaseController {
 
         LazyHtml content = new LazyHtml(listUsersView.render(currentPage, orderBy, orderDir, filterString));
         content.appendLayout(c -> tabLayout.render(ImmutableList.of(
-              new InternalLink(Messages.get("user.users"), routes.UserController.index()),
-              new InternalLink(Messages.get("user.unverifiedUsers"), routes.UserController.viewUnverifiedUsers())
+                new InternalLink(Messages.get("user.users"), routes.UserController.index()),
+                new InternalLink(Messages.get("user.unverifiedUsers"), routes.UserController.viewUnverifiedUsers())
         ), c));
         content.appendLayout(c -> headingWithActionLayout.render(Messages.get("user.list"), new InternalLink(Messages.get("commons.create"), routes.UserController.createUser()), c));
         ControllerUtils.getInstance().appendSidebarLayout(content);
         ControllerUtils.getInstance().appendBreadcrumbsLayout(content, ImmutableList.of(
-              new InternalLink(Messages.get("user.users"), routes.UserController.index())
+                new InternalLink(Messages.get("user.users"), routes.UserController.index())
         ));
         ControllerUtils.getInstance().appendTemplateLayout(content, "Users");
 
@@ -88,13 +89,13 @@ public final class UserController extends BaseController {
 
         LazyHtml content = new LazyHtml(listUnverifiedUsersView.render(currentPage, orderBy, orderDir, filterString));
         content.appendLayout(c -> tabLayout.render(ImmutableList.of(
-              new InternalLink(Messages.get("user.users"), routes.UserController.index()),
-              new InternalLink(Messages.get("user.unverifiedUsers"), routes.UserController.viewUnverifiedUsers())
+                new InternalLink(Messages.get("user.users"), routes.UserController.index()),
+                new InternalLink(Messages.get("user.unverifiedUsers"), routes.UserController.viewUnverifiedUsers())
         ), c));
         content.appendLayout(c -> headingLayout.render(Messages.get("user.unverifiedUsers.list"), c));
         ControllerUtils.getInstance().appendSidebarLayout(content);
         ControllerUtils.getInstance().appendBreadcrumbsLayout(content, ImmutableList.of(
-              new InternalLink(Messages.get("user.unverifiedUsers"), routes.UserController.viewUnverifiedUsers())
+                new InternalLink(Messages.get("user.unverifiedUsers"), routes.UserController.viewUnverifiedUsers())
         ));
         ControllerUtils.getInstance().appendTemplateLayout(content, "Users");
 
@@ -111,8 +112,8 @@ public final class UserController extends BaseController {
         content.appendLayout(c -> headingWithActionLayout.render(Messages.get("user.user") + " #" + userId + ": " + user.getName(), new InternalLink(Messages.get("commons.update"), routes.UserController.updateUser(userId)), c));
         ControllerUtils.getInstance().appendSidebarLayout(content);
         ControllerUtils.getInstance().appendBreadcrumbsLayout(content, ImmutableList.of(
-              new InternalLink(Messages.get("user.users"), routes.UserController.index()),
-              new InternalLink(Messages.get("user.view"), routes.UserController.viewUser(userId))
+                new InternalLink(Messages.get("user.users"), routes.UserController.index()),
+                new InternalLink(Messages.get("user.view"), routes.UserController.viewUser(userId))
         ));
         ControllerUtils.getInstance().appendTemplateLayout(content, "User - View");
 

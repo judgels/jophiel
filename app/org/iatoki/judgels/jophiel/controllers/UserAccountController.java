@@ -26,6 +26,8 @@ import org.iatoki.judgels.jophiel.controllers.security.HasRole;
 import org.iatoki.judgels.jophiel.controllers.security.LoggedIn;
 import org.iatoki.judgels.jophiel.services.*;
 import org.iatoki.judgels.jophiel.views.html.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import play.Logger;
 import play.data.Form;
 import play.db.jpa.Transactional;
@@ -39,22 +41,21 @@ import java.net.URI;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+@Component
 @Transactional
 public final class UserAccountController extends BaseController {
 
-    private final ClientService clientService;
-    private final UserService userService;
-    private final UserEmailService userEmailService;
-    private final UserAccountService userAccountService;
-    private final UserActivityService userActivityService;
+    @Autowired
+    private ClientService clientService;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private UserEmailService userEmailService;
+    @Autowired
+    private UserAccountService userAccountService;
+    @Autowired
+    private UserActivityService userActivityService;
 
-    public UserAccountController(ClientService clientService, UserService userService, UserEmailService userEmailService, UserAccountService userAccountService, UserActivityService userActivityService) {
-        this.clientService = clientService;
-        this.userService = userService;
-        this.userEmailService = userEmailService;
-        this.userAccountService = userAccountService;
-        this.userActivityService = userActivityService;
-    }
 
     @AddCSRFToken
     public Result register() {
@@ -90,7 +91,7 @@ public final class UserAccountController extends BaseController {
                         userEmailService.sendActivationEmail(registerData.name, registerData.email, org.iatoki.judgels.jophiel.controllers.routes.UserEmailController.verifyEmail(emailCode).absoluteURL(request(), request().secure()));
 
                         return redirect(routes.UserAccountController.afterRegister(registerData.email));
-                    } catch (IllegalStateException e){
+                    } catch (IllegalStateException e) {
                         form.reject("register.error.usernameOrEmailExists");
                         return showRegister(form);
                     }

@@ -21,24 +21,25 @@ import org.iatoki.judgels.jophiel.services.UserService;
 import org.iatoki.judgels.jophiel.views.html.user.activity.listOwnActivitiesView;
 import org.iatoki.judgels.jophiel.views.html.user.activity.listUserActivitiesView;
 import org.iatoki.judgels.jophiel.views.html.user.activity.listUsersActivitiesView;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import play.db.jpa.Transactional;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.mvc.Result;
 
 @Transactional
+@Component
 public final class UserActivityController extends BaseController {
 
     private static final long PAGE_SIZE = 20;
-    private final ClientService clientService;
-    private final UserService userService;
-    private final UserActivityService userActivityService;
+    @Autowired
+    private ClientService clientService;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private UserActivityService userActivityService;
 
-    public UserActivityController(ClientService clientService, UserService userService, UserActivityService userActivityService) {
-        this.clientService = clientService;
-        this.userService = userService;
-        this.userActivityService = userActivityService;
-    }
 
     @Authenticated({LoggedIn.class, HasRole.class})
     @Authorized("admin")
@@ -49,14 +50,14 @@ public final class UserActivityController extends BaseController {
     @Authenticated({LoggedIn.class, HasRole.class})
     @Authorized("admin")
     public Result listUsersActivities(long page, String orderBy, String orderDir, String filterString, String clientNames, String usernames) {
-        String [] clientName = clientNames.split(",");
+        String[] clientName = clientNames.split(",");
         ImmutableSet.Builder<String> clientNamesSetBuilder = ImmutableSet.builder();
         for (String client : clientName) {
             if ((!"".equals(client)) && (clientService.clientExistByClientName(client))) {
                 clientNamesSetBuilder.add(client);
             }
         }
-        String [] username = usernames.split(",");
+        String[] username = usernames.split(",");
         ImmutableSet.Builder<String> usernamesSetBuilder = ImmutableSet.builder();
         for (String user : username) {
             if ((!"".equals(user)) && (userService.existByUsername(user))) {
@@ -70,7 +71,7 @@ public final class UserActivityController extends BaseController {
         content.appendLayout(c -> headingLayout.render(Messages.get("user.activity.list"), c));
         ControllerUtils.getInstance().appendSidebarLayout(content);
         ControllerUtils.getInstance().appendBreadcrumbsLayout(content, ImmutableList.of(
-              new InternalLink(Messages.get("user.activities"), routes.UserActivityController.index())
+                new InternalLink(Messages.get("user.activities"), routes.UserActivityController.index())
         ));
         ControllerUtils.getInstance().appendTemplateLayout(content, "User - Activities");
 
@@ -103,8 +104,8 @@ public final class UserActivityController extends BaseController {
         content.appendLayout(c -> headingLayout.render("user.activities", c));
         ControllerUtils.getInstance().appendSidebarLayout(content);
         ControllerUtils.getInstance().appendBreadcrumbsLayout(content, ImmutableList.of(
-              new InternalLink(Messages.get("profile.profile"), routes.UserProfileController.profile()),
-              new InternalLink(Messages.get("user.activities"), routes.UserActivityController.viewOwnActivities())
+                new InternalLink(Messages.get("profile.profile"), routes.UserProfileController.profile()),
+                new InternalLink(Messages.get("user.activities"), routes.UserActivityController.viewOwnActivities())
         ));
         ControllerUtils.getInstance().appendTemplateLayout(content, "User - Activities");
 
@@ -139,8 +140,8 @@ public final class UserActivityController extends BaseController {
             content.appendLayout(c -> headingLayout.render(username, c));
             ControllerUtils.getInstance().appendSidebarLayout(content);
             ControllerUtils.getInstance().appendBreadcrumbsLayout(content, ImmutableList.of(
-                  new InternalLink(Messages.get("profile.profile"), routes.UserProfileController.viewProfile(username)),
-                  new InternalLink(Messages.get("user.activities"), routes.UserActivityController.viewUserActivities(username))
+                    new InternalLink(Messages.get("profile.profile"), routes.UserProfileController.viewProfile(username)),
+                    new InternalLink(Messages.get("user.activities"), routes.UserActivityController.viewUserActivities(username))
             ));
             ControllerUtils.getInstance().appendTemplateLayout(content, "User - Activities");
 

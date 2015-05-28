@@ -18,6 +18,8 @@ import org.iatoki.judgels.jophiel.services.UserService;
 import org.iatoki.judgels.jophiel.commons.plains.AuthorizationCode;
 import org.iatoki.judgels.jophiel.controllers.security.Authenticated;
 import org.iatoki.judgels.jophiel.controllers.security.LoggedIn;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import play.data.DynamicForm;
 import play.db.jpa.Transactional;
 import play.libs.Json;
@@ -40,17 +42,16 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+@Component
 public final class UserAPIController extends Controller {
 
-    private final ClientService clientService;
-    private final UserService userService;
-    private final UserProfileService userProfileService;
+    @Autowired
+    private ClientService clientService;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private UserProfileService userProfileService;
 
-    public UserAPIController(ClientService clientService, UserService userService, UserProfileService userProfileService) {
-        this.clientService = clientService;
-        this.userService = userService;
-        this.userProfileService = userProfileService;
-    }
 
     public Result preUserAutocompleteList() {
         response().setHeader("Access-Control-Allow-Origin", "*");       // Need to add the correct domain in here!!
@@ -231,8 +232,8 @@ public final class UserAPIController extends Controller {
                 Client client = clientService.findClientByJid(clientId);
                 if ((client.getSecret().equals(clientSecret)) && (authorizationCode.getClientJid().equals(client.getJid()))) {
                     Set<String> addedSet = Arrays.asList(scope.split(" ")).stream()
-                          .filter(s -> (!"".equals(s)) && (!client.getScopes().contains(StringUtils.upperCase(s))))
-                          .collect(Collectors.toSet());
+                            .filter(s -> (!"".equals(s)) && (!client.getScopes().contains(StringUtils.upperCase(s))))
+                            .collect(Collectors.toSet());
                     if (addedSet.isEmpty()) {
                         ObjectNode result = Json.newObject();
                         AccessToken accessToken = clientService.findAccessTokenByCode(code);

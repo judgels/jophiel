@@ -4,6 +4,7 @@ import org.iatoki.judgels.commons.models.daos.hibernate.AbstractHibernateDao;
 import org.iatoki.judgels.jophiel.models.daos.UserEmailDao;
 import org.iatoki.judgels.jophiel.models.domains.UserEmailModel;
 import org.iatoki.judgels.jophiel.models.domains.UserEmailModel_;
+import org.springframework.stereotype.Repository;
 import play.db.jpa.JPA;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -16,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+@Repository("userEmailDao")
 public final class UserEmailHibernateDao extends AbstractHibernateDao<Long, UserEmailModel> implements UserEmailDao {
 
     public UserEmailHibernateDao() {

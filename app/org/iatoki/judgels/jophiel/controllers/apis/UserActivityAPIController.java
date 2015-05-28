@@ -9,23 +9,24 @@ import org.iatoki.judgels.jophiel.commons.plains.UserActivity;
 import org.iatoki.judgels.jophiel.services.ClientService;
 import org.iatoki.judgels.jophiel.services.UserActivityService;
 import org.iatoki.judgels.jophiel.services.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import play.data.DynamicForm;
 import play.db.jpa.Transactional;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
 
+@Component
 public final class UserActivityAPIController extends Controller {
 
-    private final ClientService clientService;
-    private final UserService userService;
-    private final UserActivityService userActivityService;
+    @Autowired
+    private ClientService clientService;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private UserActivityService userActivityService;
 
-    public UserActivityAPIController(ClientService clientService, UserService userService, UserActivityService userActivityService) {
-        this.clientService = clientService;
-        this.userService = userService;
-        this.userActivityService = userActivityService;
-    }
 
     @Transactional
     public Result postCreateUserActivity() {
@@ -43,7 +44,7 @@ public final class UserActivityAPIController extends Controller {
             User user = userService.findUserByUserJid(accessToken.getUserJid());
             String userActivitiesString = form.get("userActivities");
             JsonNode jsonNode = Json.parse(userActivitiesString);
-            for (int i=0;i<jsonNode.size();++i) {
+            for (int i = 0; i < jsonNode.size(); ++i) {
                 UserActivity userActivity = Json.fromJson(jsonNode.get(i), UserActivity.class);
                 userActivityService.createUserActivity(accessToken.getClientJid(), user.getJid(), userActivity.getTime(), userActivity.getLog(), userActivity.getIpAddress());
             }

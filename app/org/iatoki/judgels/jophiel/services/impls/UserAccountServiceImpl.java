@@ -12,6 +12,8 @@ import org.iatoki.judgels.jophiel.models.domains.UserEmailModel;
 import org.iatoki.judgels.jophiel.models.domains.UserForgotPasswordModel;
 import org.iatoki.judgels.jophiel.models.domains.UserModel;
 import org.iatoki.judgels.jophiel.services.UserAccountService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import play.mvc.Http;
 
 import javax.persistence.NoResultException;
@@ -21,17 +23,16 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.UUID;
 
+@Service("userAccountService")
 public final class UserAccountServiceImpl implements UserAccountService {
 
-    private final UserDao userDao;
-    private final UserEmailDao userEmailDao;
-    private final UserForgotPasswordDao userForgotPasswordDao;
+    @Autowired
+    private UserDao userDao;
+    @Autowired
+    private UserEmailDao userEmailDao;
+    @Autowired
+    private UserForgotPasswordDao userForgotPasswordDao;
 
-    public UserAccountServiceImpl(UserDao userDao, UserEmailDao userEmailDao, UserForgotPasswordDao userForgotPasswordDao) {
-        this.userDao = userDao;
-        this.userEmailDao = userEmailDao;
-        this.userForgotPasswordDao = userForgotPasswordDao;
-    }
 
     @Override
     public String registerUser(String username, String name, String email, String password) throws IllegalStateException {

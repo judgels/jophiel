@@ -4,12 +4,14 @@ import org.iatoki.judgels.commons.models.daos.hibernate.AbstractHibernateDao;
 import org.iatoki.judgels.jophiel.models.daos.RefreshTokenDao;
 import org.iatoki.judgels.jophiel.models.domains.RefreshTokenModel;
 import org.iatoki.judgels.jophiel.models.domains.RefreshTokenModel_;
+import org.springframework.stereotype.Repository;
 import play.db.jpa.JPA;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
+@Repository("refreshTokenDao")
 public final class RefreshTokenHibernateDao extends AbstractHibernateDao<Long, RefreshTokenModel> implements RefreshTokenDao {
 
     public RefreshTokenHibernateDao() {

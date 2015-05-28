@@ -4,12 +4,14 @@ import org.iatoki.judgels.commons.models.daos.hibernate.AbstractHibernateDao;
 import org.iatoki.judgels.jophiel.models.daos.AuthorizationCodeDao;
 import org.iatoki.judgels.jophiel.models.domains.AuthorizationCodeModel;
 import org.iatoki.judgels.jophiel.models.domains.AuthorizationCodeModel_;
+import org.springframework.stereotype.Repository;
 import play.db.jpa.JPA;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
+@Repository("authorizationCodeDao")
 public final class AuthorizationCodeHibernateDao extends AbstractHibernateDao<Long, AuthorizationCodeModel> implements AuthorizationCodeDao {
 
     public AuthorizationCodeHibernateDao() {

@@ -13,6 +13,7 @@ lazy val jophiel = (project in file("."))
         scalaVersion := "2.11.1",
         libraryDependencies ++= Seq(
             "org.webjars" % "jquery-textcomplete" % "0.3.7",
+            "org.springframework" % "spring-context" % "4.1.6.RELEASE",
             "com.typesafe.play" %% "play-mailer" % "2.4.0"
         )
     )
