@@ -89,7 +89,7 @@ public final class ClientServiceImpl implements ClientService {
 
     @Override
     public List<Client> findAllClientByTerm(String term) {
-        List<ClientModel> clientModels = clientDao.findSortedByFilters("id", "asc", term, ImmutableMap.of(), 0, -1);
+        List<ClientModel> clientModels = clientDao.findSortedByFilters("id", "asc", term, ImmutableMap.of(), ImmutableMap.of(), 0, -1);
         ImmutableList.Builder<Client> clientBuilder = ImmutableList.builder();
 
         for (ClientModel clientModel : clientModels) {
@@ -406,8 +406,8 @@ public final class ClientServiceImpl implements ClientService {
 
     @Override
     public Page<Client> pageClients(long pageIndex, long pageSize, String orderBy, String orderDir, String filterString) {
-        long totalPages = clientDao.countByFilters(filterString, ImmutableMap.of());
-        List<ClientModel> clientModels = clientDao.findSortedByFilters(orderBy, orderDir, filterString, ImmutableMap.of(), pageIndex * pageSize, pageSize);
+        long totalPages = clientDao.countByFilters(filterString, ImmutableMap.of(), ImmutableMap.of());
+        List<ClientModel> clientModels = clientDao.findSortedByFilters(orderBy, orderDir, filterString, ImmutableMap.of(), ImmutableMap.of(), pageIndex * pageSize, pageSize);
 
         List<Client> clients = Lists.transform(clientModels, m -> createClientFromModel(m, ImmutableSet.copyOf(m.scopes.split(",")), ImmutableList.of()));
 

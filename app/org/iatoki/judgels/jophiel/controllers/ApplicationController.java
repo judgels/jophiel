@@ -3,7 +3,6 @@ package org.iatoki.judgels.jophiel.controllers;
 import org.iatoki.judgels.commons.controllers.BaseController;
 import org.springframework.stereotype.Component;
 import play.db.jpa.Transactional;
-import play.mvc.Controller;
 import play.mvc.Result;
 
 @Component
