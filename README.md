@@ -1,5 +1,7 @@
 #Judgels Jophiel
 
+[![Build Status](https://travis-ci.org/ia-toki/judgels-jophiel.svg?branch=master)](https://travis-ci.org/ia-toki/judgels-jophiel)
+
 ##Description
 Jophiel is an application built using [Play Framework](https://www.playframework.com/) to provide single sign on functions and services.
 
@@ -13,9 +15,9 @@ To set up Jophiel, you need to:
         - judgels-play-commons
         - judgels-jophiel
 
-2. Copy conf/application_default.conf into conf/application.conf and change the configuration accordingly. **Refer to the default configuration file for explanation of the configuration keys.** 
+2. Copy conf/application_default.conf into conf/application.conf and change the configuration accordingly. **Refer to the default configuration file for explanation of the configuration keys.**
 
-3. Copy conf/db_default.conf into conf/db.conf and change the configuration accordingly. **Refer to the default configuration file for explanation of the configuration keys.** 
+3. Copy conf/db_default.conf into conf/db.conf and change the configuration accordingly. **Refer to the default configuration file for explanation of the configuration keys.**
 
 To run Jophiel, just run "activator" then it will check and download all dependencies and enter Play Console.
 In Play Console use "run" command to run Jophiel. By default it will listen on port 9000. For more information of Play Console, please read the [documentation](https://www.playframework.com/documentation/2.3.x/PlayConsole).
