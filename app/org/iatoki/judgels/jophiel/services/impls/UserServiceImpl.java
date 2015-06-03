@@ -4,12 +4,12 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import org.apache.commons.lang3.StringUtils;
 import org.iatoki.judgels.commons.IdentityUtils;
-import org.iatoki.judgels.commons.JudgelsUtils;
 import org.iatoki.judgels.commons.Page;
+import org.iatoki.judgels.jophiel.PasswordHash;
 import org.iatoki.judgels.jophiel.commons.exceptions.UserNotFoundException;
 import org.iatoki.judgels.jophiel.commons.plains.User;
-import org.iatoki.judgels.jophiel.models.daos.UserEmailDao;
 import org.iatoki.judgels.jophiel.models.daos.UserDao;
+import org.iatoki.judgels.jophiel.models.daos.UserEmailDao;
 import org.iatoki.judgels.jophiel.models.domains.UserEmailModel;
 import org.iatoki.judgels.jophiel.models.domains.UserModel;
 import org.iatoki.judgels.jophiel.services.UserService;
@@ -19,6 +19,8 @@ import play.mvc.Http;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -163,19 +165,23 @@ public final class UserServiceImpl implements UserService {
 
     @Override
     public void createUser(String username, String name, String email, String password, List<String> roles) {
-        UserModel userModel = new UserModel();
-        userModel.username = username;
-        userModel.name = name;
-        userModel.password = JudgelsUtils.hashSHA256(password);
-        userModel.profilePictureImageName = "avatar-default.png";
-        userModel.roles = StringUtils.join(roles, ",");
+        try {
+            UserModel userModel = new UserModel();
+            userModel.username = username;
+            userModel.name = name;
+            userModel.password = PasswordHash.createHash(password);
+            userModel.profilePictureImageName = "avatar-default.png";
+            userModel.roles = StringUtils.join(roles, ",");
 
-        userDao.persist(userModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
+            userDao.persist(userModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
 
-        UserEmailModel emailModel = new UserEmailModel(email, true);
-        emailModel.userJid = userModel.jid;
+            UserEmailModel emailModel = new UserEmailModel(email, true);
+            emailModel.userJid = userModel.jid;
 
-        userEmailDao.persist(emailModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
+            userEmailDao.persist(emailModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     @Override
@@ -202,18 +208,22 @@ public final class UserServiceImpl implements UserService {
     public void updateUser(long userId, String username, String name, String email, String password, List<String> roles) throws UserNotFoundException {
         UserModel userModel = userDao.findById(userId);
         if (userModel != null) {
-            UserEmailModel emailModel = userEmailDao.findByUserJid(userModel.jid);
+            try {
+                UserEmailModel emailModel = userEmailDao.findByUserJid(userModel.jid);
 
-            userModel.username = username;
-            userModel.name = name;
-            userModel.password = JudgelsUtils.hashSHA256(password);
-            userModel.roles = StringUtils.join(roles, ",");
+                userModel.username = username;
+                userModel.name = name;
+                userModel.password = PasswordHash.createHash(password);
+                userModel.roles = StringUtils.join(roles, ",");
 
-            userDao.edit(userModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
+                userDao.edit(userModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
 
-            emailModel.email = email;
+                emailModel.email = email;
 
-            userEmailDao.edit(emailModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
+                userEmailDao.edit(emailModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
+            } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+                throw new IllegalStateException(e);
+            }
         } else {
             throw new UserNotFoundException("User not found.");
         }

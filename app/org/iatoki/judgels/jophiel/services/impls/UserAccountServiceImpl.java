@@ -2,12 +2,13 @@ package org.iatoki.judgels.jophiel.services.impls;
 
 import org.iatoki.judgels.commons.IdentityUtils;
 import org.iatoki.judgels.commons.JudgelsUtils;
+import org.iatoki.judgels.jophiel.PasswordHash;
 import org.iatoki.judgels.jophiel.commons.exceptions.EmailNotVerifiedException;
 import org.iatoki.judgels.jophiel.commons.exceptions.UserNotFoundException;
 import org.iatoki.judgels.jophiel.commons.plains.User;
+import org.iatoki.judgels.jophiel.models.daos.UserDao;
 import org.iatoki.judgels.jophiel.models.daos.UserEmailDao;
 import org.iatoki.judgels.jophiel.models.daos.UserForgotPasswordDao;
-import org.iatoki.judgels.jophiel.models.daos.UserDao;
 import org.iatoki.judgels.jophiel.models.domains.UserEmailModel;
 import org.iatoki.judgels.jophiel.models.domains.UserForgotPasswordModel;
 import org.iatoki.judgels.jophiel.models.domains.UserModel;
@@ -20,6 +21,8 @@ import javax.persistence.NoResultException;
 import javax.validation.ConstraintViolationException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
 import java.util.UUID;
 
@@ -40,7 +43,7 @@ public final class UserAccountServiceImpl implements UserAccountService {
             UserModel userModel = new UserModel();
             userModel.username = username;
             userModel.name = name;
-            userModel.password = JudgelsUtils.hashSHA256(password);
+            userModel.password = PasswordHash.createHash(password);
             userModel.profilePictureImageName = "avatar-default.png";
             userModel.roles = "user";
 
@@ -53,7 +56,7 @@ public final class UserAccountServiceImpl implements UserAccountService {
             userEmailDao.persist(emailModel, "guest", IdentityUtils.getIpAddress());
 
             return emailCode;
-        } catch (ConstraintViolationException e) {
+        } catch (ConstraintViolationException | NoSuchAlgorithmException | InvalidKeySpecException e) {
             throw new IllegalStateException(e);
         }
     }
@@ -79,15 +82,19 @@ public final class UserAccountServiceImpl implements UserAccountService {
 
     @Override
     public void changePassword(String code, String password) {
-        UserForgotPasswordModel forgotPasswordModel = userForgotPasswordDao.findByCode(code);
-        forgotPasswordModel.used = true;
+        try {
+            UserForgotPasswordModel forgotPasswordModel = userForgotPasswordDao.findByCode(code);
+            forgotPasswordModel.used = true;
 
-        userForgotPasswordDao.edit(forgotPasswordModel, "guest", IdentityUtils.getIpAddress());
+            userForgotPasswordDao.edit(forgotPasswordModel, "guest", IdentityUtils.getIpAddress());
 
-        UserModel userModel = userDao.findByJid(forgotPasswordModel.userJid);
-        userModel.password = JudgelsUtils.hashSHA256(password);
+            UserModel userModel = userDao.findByJid(forgotPasswordModel.userJid);
+            userModel.password = PasswordHash.createHash(password);
 
-        userDao.edit(userModel, "guest", IdentityUtils.getIpAddress());
+            userDao.edit(userModel, "guest", IdentityUtils.getIpAddress());
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     @Override
@@ -105,7 +112,16 @@ public final class UserAccountServiceImpl implements UserAccountService {
                 throw new UserNotFoundException();
             }
 
-            if (userModel.password.equals(JudgelsUtils.hashSHA256(password))) {
+            if ((userModel.password.contains(":")) && (PasswordHash.validatePassword(password, userModel.password))) {
+                if (emailModel.emailVerified) {
+                    return createUserFromModels(userModel, emailModel);
+                } else {
+                    throw new EmailNotVerifiedException();
+                }
+            } else if (userModel.password.equals(JudgelsUtils.hashSHA256(password))) {
+                userModel.password = PasswordHash.createHash(password);
+
+                userDao.edit(userModel, "guest", IdentityUtils.getIpAddress());
                 if (emailModel.emailVerified) {
                     return createUserFromModels(userModel, emailModel);
                 } else {
@@ -114,17 +130,21 @@ public final class UserAccountServiceImpl implements UserAccountService {
             } else {
                 return null;
             }
-        } catch (NoResultException e) {
+        } catch (NoResultException | NoSuchAlgorithmException | InvalidKeySpecException e) {
             throw new UserNotFoundException();
         }
     }
 
     @Override
     public void updatePassword(String userJid, String password) {
-        UserModel userModel = userDao.findByJid(userJid);
-        userModel.password = JudgelsUtils.hashSHA256(password);
+        try {
+            UserModel userModel = userDao.findByJid(userJid);
+            userModel.password = PasswordHash.createHash(password);
 
-        userDao.edit(userModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
+            userDao.edit(userModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     private User createUserFromModels(UserModel userModel, UserEmailModel emailModel) {
