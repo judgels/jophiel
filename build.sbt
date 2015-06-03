@@ -14,7 +14,8 @@ lazy val jophiel = (project in file("."))
         libraryDependencies ++= Seq(
             "org.webjars" % "jquery-textcomplete" % "0.3.7",
             "org.springframework" % "spring-context" % "4.1.6.RELEASE",
-            "com.typesafe.play" %% "play-mailer" % "2.4.0"
+            "com.typesafe.play" %% "play-mailer" % "2.4.0",
+            "org.webjars" % "zxcvbn" % "1.0"
         )
     )
     .settings(TestNGPlugin.testNGSettings: _*)

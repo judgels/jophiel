@@ -20,6 +20,10 @@ public final class JophielProperties {
     private String noreplyName;
     private String noreplyEmail;
 
+    private boolean registrationUsingRecaptcha;
+    private String registrationRecaptchaSiteKey;
+    private String registrationRecaptchaSecretKey;
+
     private boolean avatarUsingAWSS3;
     private File avatarLocalDir;
     private boolean avatarAWSUsingKeys;
@@ -98,6 +102,24 @@ public final class JophielProperties {
         return avatarAWSCloudFrontUrl;
     }
 
+    public boolean isRegistrationUsingRecaptcha() {
+        return registrationUsingRecaptcha;
+    }
+
+    public String getRegistrationRecaptchaSiteKey() {
+        if (!isRegistrationUsingRecaptcha()) {
+            throw new UnsupportedOperationException("Registration is not using Recaptcha");
+        }
+        return registrationRecaptchaSiteKey;
+    }
+
+    public String getRegistrationRecaptchaSecretKey() {
+        if (!isRegistrationUsingRecaptcha()) {
+            throw new UnsupportedOperationException("Registration is not using Recaptcha");
+        }
+        return registrationRecaptchaSecretKey;
+    }
+
     private JophielProperties(Config config) {
         this.config = config;
     }
@@ -149,6 +171,13 @@ public final class JophielProperties {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+        }
+
+        registrationUsingRecaptcha = requireBooleanValue("recaptcha.registration.use");
+
+        if (registrationUsingRecaptcha) {
+            registrationRecaptchaSiteKey = requireStringValue("recaptcha.registration.key.site");
+            registrationRecaptchaSecretKey = requireStringValue("recaptcha.registration.key.secret");
         }
     }
 

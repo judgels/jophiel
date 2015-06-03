@@ -12,7 +12,7 @@ public interface UserAccountService {
 
     String forgotPassword(String username, String email);
 
-    boolean existForgotPassByCode(String code);
+    boolean isValidToChangePassword(String code, long currentMillis);
 
     void changePassword(String code, String password);
 

@@ -35,6 +35,7 @@ register.error.usernameExists=Username already exists
 register.error.emailExists=Email already exists
 register.error.passwordsDidntMatch=Passwords didn''t match
 register.error.usernameOrEmailExists=Username or email already exists
+register.error.invalidRegistration=Invalid Registration
 
 registrationEmail.userRegistration=User Registration
 registrationEmail.thankYou=Thank you for registering in

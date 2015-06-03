@@ -76,8 +76,8 @@ public final class UserAccountServiceImpl implements UserAccountService {
     }
 
     @Override
-    public boolean existForgotPassByCode(String code) {
-        return userForgotPasswordDao.isExistByCode(code);
+    public boolean isValidToChangePassword(String code, long currentMillis) {
+        return userForgotPasswordDao.isCodeValid(code, currentMillis);
     }
 
     @Override

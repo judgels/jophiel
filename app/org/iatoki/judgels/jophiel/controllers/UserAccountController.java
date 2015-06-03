@@ -1,5 +1,6 @@
 package org.iatoki.judgels.jophiel.controllers;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import com.nimbusds.oauth2.sdk.ResponseType;
 import com.nimbusds.oauth2.sdk.Scope;
@@ -14,6 +15,7 @@ import org.iatoki.judgels.commons.controllers.BaseController;
 import org.iatoki.judgels.commons.views.html.layouts.centerLayout;
 import org.iatoki.judgels.commons.views.html.layouts.headingLayout;
 import org.iatoki.judgels.commons.views.html.layouts.messageView;
+import org.iatoki.judgels.jophiel.JophielProperties;
 import org.iatoki.judgels.jophiel.JophielUtils;
 import org.iatoki.judgels.jophiel.commons.exceptions.EmailNotVerifiedException;
 import org.iatoki.judgels.jophiel.commons.exceptions.UserNotFoundException;
@@ -40,11 +42,14 @@ import org.iatoki.judgels.jophiel.views.html.serviceLoginView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import play.Logger;
+import play.data.DynamicForm;
 import play.data.Form;
 import play.db.jpa.Transactional;
 import play.filters.csrf.AddCSRFToken;
 import play.filters.csrf.RequireCSRFCheck;
 import play.i18n.Messages;
+import play.libs.F;
+import play.libs.ws.WS;
 import play.mvc.Http;
 import play.mvc.Result;
 
@@ -97,14 +102,29 @@ public final class UserAccountController extends BaseController {
                     form.reject("register.error.passwordsDidntMatch");
                     return showRegister(form);
                 } else {
-                    try {
-                        String emailCode = userAccountService.registerUser(registerData.username, registerData.name, registerData.email, registerData.password);
-                        userEmailService.sendActivationEmail(registerData.name, registerData.email, org.iatoki.judgels.jophiel.controllers.routes.UserEmailController.verifyEmail(emailCode).absoluteURL(request(), request().secure()));
+                    boolean valid = true;
+                    if (JophielProperties.getInstance().isRegistrationUsingRecaptcha()) {
+                        DynamicForm dynamicForm = DynamicForm.form().bindFromRequest();
+                        F.Promise<JsonNode> jsonPromise = WS.url("https://www.google.com/recaptcha/api/siteverify").setContentType("application/x-www-form-urlencoded").post("secret=" + JophielProperties.getInstance().getRegistrationRecaptchaSecretKey() + "&response=" + dynamicForm.get("g-recaptcha-response") + "&remoteip=" + IdentityUtils.getIpAddress()).map(response -> {
+                            return response.asJson();
+                        });;
+                        JsonNode response = jsonPromise.get(1, TimeUnit.MINUTES);
+                        valid = response.get("success").asBoolean();
+                    }
 
-                        return redirect(routes.UserAccountController.afterRegister(registerData.email));
-                    } catch (IllegalStateException e) {
-                        form.reject("register.error.usernameOrEmailExists");
+                    if (!valid) {
+                        form.reject("register.error.invalidRegistration");
                         return showRegister(form);
+                    } else {
+                        try {
+                            String emailCode = userAccountService.registerUser(registerData.username, registerData.name, registerData.email, registerData.password);
+                            userEmailService.sendActivationEmail(registerData.name, registerData.email, org.iatoki.judgels.jophiel.controllers.routes.UserEmailController.verifyEmail(emailCode).absoluteURL(request(), request().secure()));
+
+                            return redirect(routes.UserAccountController.afterRegister(registerData.email));
+                        } catch (IllegalStateException e) {
+                            form.reject("register.error.usernameOrEmailExists");
+                            return showRegister(form);
+                        }
                     }
                 }
             }
@@ -172,7 +192,7 @@ public final class UserAccountController extends BaseController {
     @AddCSRFToken
     public Result changePassword(String code) {
         if ((IdentityUtils.getUserJid() == null) || (!userService.existsByUserJid(IdentityUtils.getUserJid()))) {
-            if (userAccountService.existForgotPassByCode(code)) {
+            if (userAccountService.isValidToChangePassword(code, System.currentTimeMillis())) {
                 Form<ChangePasswordForm> form = Form.form(ChangePasswordForm.class);
                 return showChangePassword(form, code);
             } else {
@@ -187,7 +207,7 @@ public final class UserAccountController extends BaseController {
     public Result postChangePassword(String code) {
         if ((IdentityUtils.getUserJid() == null) || (!userService.existsByUserJid(IdentityUtils.getUserJid()))) {
             Form<ChangePasswordForm> form = Form.form(ChangePasswordForm.class).bindFromRequest();
-            if (userAccountService.existForgotPassByCode(code)) {
+            if (userAccountService.isValidToChangePassword(code, System.currentTimeMillis())) {
                 if (form.hasErrors()) {
                     return showChangePassword(form, code);
                 } else {
