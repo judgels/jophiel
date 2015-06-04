@@ -314,7 +314,7 @@ public final class UserAccountController extends BaseController {
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
     public Result serviceLogout(String returnUri) {
-        ControllerUtils.getInstance().addActivityLog(userActivityService, "Logout <a href=\"\" + \"http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
+        ControllerUtils.getInstance().addActivityLog(userActivityService, "Logout <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
 
         session().clear();
         if (returnUri == null) {
@@ -325,14 +325,12 @@ public final class UserAccountController extends BaseController {
     }
 
     public Result serviceAuthRequest() {
-        String redirectURI = request().uri().substring(request().uri().indexOf("?") + 1);
         if ((IdentityUtils.getUserJid() == null) || (!userService.existsByUserJid(IdentityUtils.getUserJid()))) {
             return redirect((routes.UserAccountController.serviceLogin("http" + (request().secure() ? "s" : "") + "://" + request().host() + request().uri())));
         } else {
+            String path = request().uri().substring(request().uri().indexOf("?") + 1);
             try {
-                String path = request().uri().substring(request().uri().indexOf("?") + 1);
-
-                AuthenticationRequest req = AuthenticationRequest.parse(redirectURI);
+                AuthenticationRequest req = AuthenticationRequest.parse(path);
                 ClientID clientID = req.getClientID();
                 if (clientService.clientExistByClientJid(clientID.toString())) {
                     Client client = clientService.findClientByJid(clientID.toString());
@@ -345,16 +343,16 @@ public final class UserAccountController extends BaseController {
                         content.appendLayout(c -> centerLayout.render(c));
                         ControllerUtils.getInstance().appendTemplateLayout(content, "Auth");
 
-                        ControllerUtils.getInstance().addActivityLog(userActivityService, "Try authorize client " + client.getName() + " <a href=\"\" + \"http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
+                        ControllerUtils.getInstance().addActivityLog(userActivityService, "Try authorize client " + client.getName() + " <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
 
                         return ControllerUtils.getInstance().lazyOk(content);
                     }
                 } else {
-                    return redirect(redirectURI + "?error=unauthorized_client");
+                    return redirect(path + "?error=unauthorized_client");
                 }
             } catch (com.nimbusds.oauth2.sdk.ParseException e) {
                 Logger.error("Exception when parsing authentication request.", e);
-                return redirect(redirectURI + "?error=invalid_request");
+                return redirect(path + "?error=invalid_request");
             }
         }
     }
