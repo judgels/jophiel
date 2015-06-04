@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.iatoki.judgels.commons.IdentityUtils;
 import org.iatoki.judgels.commons.JudgelsUtils;
+import org.iatoki.judgels.commons.Page;
 import org.iatoki.judgels.commons.models.domains.AbstractModel;
 import org.iatoki.judgels.jophiel.JophielProperties;
 import org.iatoki.judgels.jophiel.commons.exceptions.ClientNotFoundException;
@@ -669,6 +670,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         accessTokenModel.id = tokenId;
         accessTokenModel.redeemed = false;
         accessTokenModel.expireTime = System.currentTimeMillis() + (60L * 60L * 1L); // one hour from now
+        accessTokenModel.timeCreate = System.currentTimeMillis();
 
         String getUserJid = "JIDU0101";
         String getIpAddress = "10.10.10.10";
@@ -679,7 +681,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         Mockito.when(accessTokenDao.findById(tokenId)).thenReturn(accessTokenModel);
         Mockito.doAnswer(invocation -> {
             AccessTokenModel accessTokenModel1 = (AccessTokenModel) invocation.getArguments()[0];
-            persistAbstractModel(accessTokenModel1, invocation);
+            editAbstractModel(accessTokenModel1, invocation);
 
             return null;
         }).when(accessTokenDao).edit(Mockito.any(), Mockito.anyString(), Mockito.anyString());
@@ -688,8 +690,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
 
         Assert.assertTrue(remainingTime <= (60L * 60L * 1L), "Remaining cannot greater than 3600");
         Assert.assertTrue(accessTokenModel.redeemed, "Access token has not been redeemed");
-        Assert.assertNotNull(accessTokenModel.userCreate, "User create must not be null ");
-        Assert.assertNotNull(accessTokenModel.ipCreate, "IP create must not be null");
+        Assert.assertTrue(accessTokenModel.timeUpdate > accessTokenModel.timeCreate, "Time update not updated");
     }
 
     @Test(expectedExceptions = RuntimeException.class)
@@ -715,6 +716,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         RefreshTokenModel refreshTokenModel = new RefreshTokenModel();
         refreshTokenModel.id = tokenId;
         refreshTokenModel.redeemed = false;
+        refreshTokenModel.timeCreate = System.currentTimeMillis();
 
         String getUserJid = "JIDU0101";
         String getIpAddress = "10.10.10.10";
@@ -725,7 +727,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         Mockito.when(refreshTokenDao.findById(tokenId)).thenReturn(refreshTokenModel);
         Mockito.doAnswer(invocation -> {
             RefreshTokenModel refreshTokenModel1 = (RefreshTokenModel) invocation.getArguments()[0];
-            persistAbstractModel(refreshTokenModel, invocation);
+            editAbstractModel(refreshTokenModel1, invocation);
 
             return null;
         }).when(refreshTokenDao).edit(Mockito.any(), Mockito.anyString(), Mockito.anyString());
@@ -733,8 +735,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         clientService.redeemRefreshTokenById(tokenId);
 
         Assert.assertTrue(refreshTokenModel.redeemed, "Refresh token has not been redeemed");
-        Assert.assertNotNull(refreshTokenModel.userCreate, "User create must not be null");
-        Assert.assertNotNull(refreshTokenModel.ipCreate, "IP create must not be null");
+        Assert.assertTrue(refreshTokenModel.timeUpdate > refreshTokenModel.timeCreate, "Time update not updated");
     }
 
     @Test(expectedExceptions = RuntimeException.class)
@@ -759,6 +760,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         IdTokenModel idTokenModel = new IdTokenModel();
         idTokenModel.id = tokenId;
         idTokenModel.redeemed = false;
+        idTokenModel.timeCreate = System.currentTimeMillis();
 
         String getUserJid = "JIDU0101";
         String getIpAddress = "10.10.10.10";
@@ -769,7 +771,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         Mockito.when(idTokenDao.findById(tokenId)).thenReturn(idTokenModel);
         Mockito.doAnswer(invocation -> {
             IdTokenModel idTokenModel1 = (IdTokenModel) invocation.getArguments()[0];
-            persistAbstractModel(idTokenModel1, invocation);
+            editAbstractModel(idTokenModel1, invocation);
 
             return null;
         }).when(idTokenDao).edit(Mockito.any(), Mockito.anyString(), Mockito.anyString());
@@ -777,8 +779,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         clientService.redeemIdTokenById(tokenId);
 
         Assert.assertTrue(idTokenModel.redeemed, "Id token has not been redeemed");
-        Assert.assertNotNull(idTokenModel.userCreate, "User create must not be null");
-        Assert.assertNotNull(idTokenModel.ipCreate, "IP create must not be null");
+        Assert.assertTrue(idTokenModel.timeUpdate > idTokenModel.timeCreate, "Time update not updated");
     }
 
     @Test(expectedExceptions = RuntimeException.class)
@@ -855,6 +856,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         clientModel.id = clientId;
         clientModel.name = "Alice";
         clientModel.scopes = StringUtils.join(Arrays.asList("OPENID", "OFFLINE_ACCESS"), ",");
+        clientModel.timeCreate = System.currentTimeMillis();
 
         List<String> oldRedirectUris = Arrays.asList("http://alice.com/verify");
         List<RedirectURIModel> oldRedirectURIModels = createRedirectURIModel(1L, oldRedirectUris, clientModel.jid);
@@ -865,8 +867,8 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         Mockito.when(clientDao.findById(clientId)).thenReturn(clientModel);
         Mockito.when(redirectURIDao.findByClientJid(clientModel.jid)).thenReturn(oldRedirectURIModels);
         Mockito.doAnswer(invocation -> {
-            ClientModel clientModel1 = (ClientModel)invocation.getArguments()[0];
-            persistAbstractModel(clientModel1, invocation);
+            ClientModel clientModel1 = (ClientModel) invocation.getArguments()[0];
+            editAbstractModel(clientModel1, invocation);
 
             return null;
         }).when(clientDao).edit(Mockito.any(), Mockito.anyString(), Mockito.anyString());
@@ -877,8 +879,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         Assert.assertEquals(scopesString, clientModel.scopes, "Client scopes not changed");
         Mockito.verify(redirectURIDao, Mockito.times(oldRedirectURIModels.size())).remove(Mockito.any());
         Mockito.verify(redirectURIDao, Mockito.times(redirectURIs.size())).persist(Mockito.any(), Mockito.anyString(), Mockito.anyString());
-        Assert.assertNotNull(clientModel.userCreate, "User create must not be null");
-        Assert.assertNotNull(clientModel.ipCreate, "Client create must not be null");
+        Assert.assertTrue(clientModel.timeUpdate > clientModel.timeCreate, "Time update not updated");
     }
 
     @Test
@@ -904,6 +905,62 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         clientService.deleteClient(clientId);
 
         Assert.fail("Unreachable");
+    }
+
+    @Test
+    public void pageClients_PageClientsParameter_ReturnsPagedClients() {
+        long pageIndex = 0L;
+        long pageSize = 10L;
+        String orderBy = "id";
+        String orderDir = "asc";
+        String filterString = "";
+
+        ClientModel firstClientModel = new ClientModel();
+        firstClientModel.id = 1L;
+        firstClientModel.jid = "JIDC0001";
+        firstClientModel.name = "Client 1";
+        firstClientModel.secret = "CLIENT_1_SECRET";
+        firstClientModel.applicationType = "Web Server";
+        firstClientModel.scopes = "OPENID";
+        ClientModel secondClientModel = new ClientModel();
+        secondClientModel.id = 2L;
+        secondClientModel.jid = "JIDC0002";
+        secondClientModel.name = "Client 2";
+        secondClientModel.secret = "CLIENT_2_SECRET";
+        secondClientModel.applicationType = "Web Server";
+        secondClientModel.scopes = "OPENID,OFFLINE_ACCESS";
+        List<ClientModel> clientModels = Arrays.asList(firstClientModel, secondClientModel);
+        Mockito.when(clientDao.findSortedByFilters(Mockito.eq(orderBy), Mockito.eq(orderDir), Mockito.eq(filterString), Mockito.anyMap(), Mockito.eq(pageIndex * pageSize), Mockito.eq(pageSize)))
+                .thenReturn(clientModels);
+
+        long totalRows = clientModels.size();
+        Mockito.when(clientDao.countByFilters(Mockito.eq(filterString), Mockito.anyMap())).thenReturn(totalRows);
+
+        Page<Client> clientPage = clientService.pageClients(pageIndex, pageSize, orderBy, orderDir, filterString);
+
+        Assert.assertNotNull(clientPage.getData(), "Page data must not be null");
+        Assert.assertEquals(clientModels.size(), clientPage.getTotalRowsCount(), "Page total rows count not equal");
+    }
+
+    @Test
+    public void pageClients_OtherPageClientsParameter_ReturnsEmptyPagedClient() {
+        long pageIndex = 5L;
+        long pageSize = 10L;
+        String orderBy = "id";
+        String orderDir = "asc";
+        String filterString = "asdfasdf";
+
+        List<ClientModel> clientModels = Arrays.asList();
+        Mockito.when(clientDao.findSortedByFilters(Mockito.eq(orderBy), Mockito.eq(orderDir), Mockito.eq(filterString), Mockito.anyMap(), Mockito.eq(pageIndex * pageSize), Mockito.eq(pageSize)))
+                .thenReturn(clientModels);
+
+        long totalRows = clientModels.size();
+        Mockito.when(clientDao.countByFilters(Mockito.eq(filterString), Mockito.anyMap())).thenReturn(totalRows);
+
+        Page<Client> clientPage = clientService.pageClients(pageIndex, pageSize, orderBy, orderDir, filterString);
+
+        Assert.assertNotNull(clientPage.getData(), "Page data must not be null");
+        Assert.assertEquals(clientModels.size(), clientPage.getTotalRowsCount(), "Page total rows count not equal");
     }
 
     private boolean idTokenIsEquals(IdToken a, IdToken b) {
@@ -956,6 +1013,15 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         equalsBuilder.append(a.getScopes(), b.getScopes());
 
         return equalsBuilder.isEquals();
+    }
+
+    private void editAbstractModel(AbstractModel abstractModel, InvocationOnMock invocation) {
+        String userJid = (String) invocation.getArguments()[1];
+        String ipAddress = (String) invocation.getArguments()[2];
+
+        abstractModel.timeUpdate = System.currentTimeMillis();
+        abstractModel.userUpdate = userJid;
+        abstractModel.ipUpdate = ipAddress;
     }
 
     private void persistAbstractModel(AbstractModel abstractModel, InvocationOnMock invocation) {
