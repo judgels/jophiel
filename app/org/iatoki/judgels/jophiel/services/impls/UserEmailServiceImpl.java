@@ -77,7 +77,7 @@ public final class UserEmailServiceImpl implements UserEmailService {
     @Override
     public void sendChangePasswordEmail(String email, String link) {
         Email mail = new Email();
-        mail.setSubject(Play.application().configuration().getString("application.copyright") + " " + Messages.get("forgotPasswordEmail.forgotPassword"));
+        mail.setSubject(JudgelsProperties.getInstance().getAppCopyright() + " " + Messages.get("forgotPasswordEmail.forgotPassword"));
         mail.setFrom(JophielProperties.getInstance().getNoreplyName() + " <" + JophielProperties.getInstance().getNoreplyEmail() + ">");
         mail.addTo(email);
         mail.setBodyHtml("<p>" + Messages.get("forgotPasswordEmail.request") + " " + JudgelsProperties.getInstance().getAppCopyright() + ".</p><p>" + Messages.get("forgotPasswordEmail.changePassword") + " <a href='" + link + "'>here</a>.</p>");
