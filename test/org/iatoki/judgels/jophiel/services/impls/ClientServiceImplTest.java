@@ -26,6 +26,7 @@ import org.iatoki.judgels.jophiel.models.domains.IdTokenModel;
 import org.iatoki.judgels.jophiel.models.domains.RedirectURIModel;
 import org.iatoki.judgels.jophiel.models.domains.RefreshTokenModel;
 import org.mockito.InjectMocks;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -37,10 +38,13 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import javax.persistence.metamodel.SingularAttribute;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -107,7 +111,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         List<ClientModel> clientDaoFindAllClientByTermResult = expected.stream().map(client ->
                 createClientModelFromClient(client))
                 .collect(Collectors.toList());
-        Mockito.when(clientDao.findSortedByFilters(Mockito.anyString(), Mockito.anyString(), Mockito.eq(emptyStringTerm), Mockito.anyMap(), Mockito.anyLong(), Mockito.anyLong()))
+        Mockito.when(clientDao.findSortedByFilters(Mockito.anyString(), Mockito.anyString(), Mockito.eq(emptyStringTerm), Matchers.<Map<SingularAttribute<? super ClientModel, String>, String>> any(), Matchers.<Map<SingularAttribute<? super ClientModel, String>, Set<String>>> any(), Mockito.anyLong(), Mockito.anyLong()))
                 .thenReturn(clientDaoFindAllClientByTermResult);
 
         mockRedirectURIDaoFromClients(expected);
@@ -119,7 +123,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
     @Test
     public void findAllClientByTerm_SomeTermNotContainedInClients_ReturnsEmptyList() {
         String randomTerm = "asdfasdf";
-        Mockito.when(clientDao.findSortedByFilters(Mockito.anyString(), Mockito.anyString(), Mockito.eq(randomTerm), Mockito.anyMap(), Mockito.anyLong(), Mockito.anyLong()))
+        Mockito.when(clientDao.findSortedByFilters(Mockito.anyString(), Mockito.anyString(), Mockito.eq(randomTerm), Matchers.<Map<SingularAttribute<? super ClientModel, String>, String>> any(), Matchers.<Map<SingularAttribute<? super ClientModel, String>, Set<String>>> any(), Mockito.anyLong(), Mockito.anyLong()))
                 .thenReturn(Collections.emptyList());
 
         List<Client> result = clientService.findAllClientByTerm(randomTerm);
@@ -137,7 +141,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         List<ClientModel> clientModelsFromExpected = expected.stream().map(client ->
                 createClientModelFromClient(client))
                 .collect(Collectors.toList());
-        Mockito.when(clientDao.findSortedByFilters(Mockito.anyString(), Mockito.anyString(), Mockito.eq(containedTerm), Mockito.anyMap(), Mockito.anyLong(), Mockito.anyLong()))
+        Mockito.when(clientDao.findSortedByFilters(Mockito.anyString(), Mockito.anyString(), Mockito.eq(containedTerm), Matchers.<Map<SingularAttribute<? super ClientModel, String>, String>> any(), Matchers.<Map<SingularAttribute<? super ClientModel, String>, Set<String>>> any(), Mockito.anyLong(), Mockito.anyLong()))
                 .thenReturn(clientModelsFromExpected);
 
         mockRedirectURIDaoFromClients(expected);
@@ -930,11 +934,11 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         secondClientModel.applicationType = "Web Server";
         secondClientModel.scopes = "OPENID,OFFLINE_ACCESS";
         List<ClientModel> clientModels = Arrays.asList(firstClientModel, secondClientModel);
-        Mockito.when(clientDao.findSortedByFilters(Mockito.eq(orderBy), Mockito.eq(orderDir), Mockito.eq(filterString), Mockito.anyMap(), Mockito.eq(pageIndex * pageSize), Mockito.eq(pageSize)))
+        Mockito.when(clientDao.findSortedByFilters(Mockito.eq(orderBy), Mockito.eq(orderDir), Mockito.eq(filterString), Matchers.<Map<SingularAttribute<? super ClientModel, String>, String>> any(), Matchers.<Map<SingularAttribute<? super ClientModel, String>, Set<String>>> any(), Mockito.eq(pageIndex * pageSize), Mockito.eq(pageSize)))
                 .thenReturn(clientModels);
 
         long totalRows = clientModels.size();
-        Mockito.when(clientDao.countByFilters(Mockito.eq(filterString), Mockito.anyMap())).thenReturn(totalRows);
+        Mockito.when(clientDao.countByFilters(Mockito.eq(filterString), Matchers.<Map<SingularAttribute<? super ClientModel, String>, String>> any(), Matchers.<Map<SingularAttribute<? super ClientModel, String>, Set<String>>> any())).thenReturn(totalRows);
 
         Page<Client> clientPage = clientService.pageClients(pageIndex, pageSize, orderBy, orderDir, filterString);
 
@@ -951,11 +955,11 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         String filterString = "asdfasdf";
 
         List<ClientModel> clientModels = Arrays.asList();
-        Mockito.when(clientDao.findSortedByFilters(Mockito.eq(orderBy), Mockito.eq(orderDir), Mockito.eq(filterString), Mockito.anyMap(), Mockito.eq(pageIndex * pageSize), Mockito.eq(pageSize)))
+        Mockito.when(clientDao.findSortedByFilters(Mockito.eq(orderBy), Mockito.eq(orderDir), Mockito.eq(filterString), Matchers.<Map<SingularAttribute<? super ClientModel, String>, String>> any(), Matchers.<Map<SingularAttribute<? super ClientModel, String>, Set<String>>> any(), Mockito.eq(pageIndex * pageSize), Mockito.eq(pageSize)))
                 .thenReturn(clientModels);
 
         long totalRows = clientModels.size();
-        Mockito.when(clientDao.countByFilters(Mockito.eq(filterString), Mockito.anyMap())).thenReturn(totalRows);
+        Mockito.when(clientDao.countByFilters(Mockito.eq(filterString), Matchers.<Map<SingularAttribute<? super ClientModel, String>, String>> any(), Matchers.<Map<SingularAttribute<? super ClientModel, String>, Set<String>>> any())).thenReturn(totalRows);
 
         Page<Client> clientPage = clientService.pageClients(pageIndex, pageSize, orderBy, orderDir, filterString);
 

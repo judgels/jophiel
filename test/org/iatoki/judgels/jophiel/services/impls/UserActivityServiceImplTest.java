@@ -11,6 +11,7 @@ import org.iatoki.judgels.jophiel.models.domains.UserActivityModel;
 import org.iatoki.judgels.jophiel.models.domains.UserActivityModel_;
 import org.iatoki.judgels.jophiel.models.domains.UserModel;
 import org.mockito.InjectMocks;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -22,7 +23,9 @@ import org.testng.annotations.Test;
 
 import javax.persistence.metamodel.SingularAttribute;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -82,13 +85,13 @@ public class UserActivityServiceImplTest extends PowerMockTestCase {
         secondUserActivityModel.userCreate = "JIDU0101";
         secondUserActivityModel.ipCreate = "10.10.10.10";
         List<UserActivityModel> userActivityModels = Arrays.asList(firstUserActivityModel, secondUserActivityModel);
-        Mockito.when(userActivityDao.findSortedByFilters(Mockito.eq(orderBy), Mockito.eq(orderDir), Mockito.eq(filterString), Mockito.anyMap(), Mockito.anyMap(), Mockito.eq(pageIndex * pageSize), Mockito.eq(pageSize)))
+        Mockito.when(userActivityDao.findSortedByFilters(Mockito.eq(orderBy), Mockito.eq(orderDir), Mockito.eq(filterString), Matchers.<Map<SingularAttribute<? super UserActivityModel, String>, String>> any(), Matchers.<Map<SingularAttribute<? super UserActivityModel, String>, ? extends Collection<String>>> any(), Mockito.eq(pageIndex * pageSize), Mockito.eq(pageSize)))
                 .thenReturn(userActivityModels);
         Mockito.when(clientDao.existsByJid(firstUserActivityModel.clientJid)).thenReturn(true);
         Mockito.when(clientDao.existsByJid(secondUserActivityModel.clientJid)).thenReturn(false);
 
         long totalRow = userActivityModels.size();
-        Mockito.when(userActivityDao.countByFilters(Mockito.eq(filterString), Mockito.anyMap(), Mockito.anyMap())).thenReturn(totalRow);
+        Mockito.when(userActivityDao.countByFilters(Mockito.eq(filterString), Matchers.<Map<SingularAttribute<? super UserActivityModel, String>, String>> any(), Matchers.<Map<SingularAttribute<? super UserActivityModel, String>, Set<String>>> any())).thenReturn(totalRow);
 
         ClientModel firstClientModel = new ClientModel();
         firstClientModel.jid = "JID0001";
@@ -135,7 +138,7 @@ public class UserActivityServiceImplTest extends PowerMockTestCase {
         secondUserActivityModel.userCreate = "guest";
         secondUserActivityModel.ipCreate = "10.10.10.10";
         List<UserActivityModel> userActivityModels = Arrays.asList(firstUserActivityModel, secondUserActivityModel);
-        Mockito.when(userActivityDao.findSortedByFilters(Mockito.eq(orderBy), Mockito.eq(orderDir), Mockito.eq(filterString), Mockito.anyMap(), Mockito.anyMap(), Mockito.eq(pageIndex * pageSize), Mockito.eq(pageSize)))
+        Mockito.when(userActivityDao.findSortedByFilters(Mockito.eq(orderBy), Mockito.eq(orderDir), Mockito.eq(filterString), Matchers.<Map<SingularAttribute<? super UserActivityModel, String>, String>> any(), Matchers.<Map<SingularAttribute<? super UserActivityModel, String>, ? extends Collection<String>>> any(), Mockito.eq(pageIndex * pageSize), Mockito.eq(pageSize)))
                 .thenReturn(userActivityModels);
         Mockito.when(userDao.existsByJid(firstUserActivityModel.userCreate)).thenReturn(true);
         Mockito.when(userDao.existsByJid(secondUserActivityModel.userCreate)).thenReturn(false);
@@ -153,7 +156,7 @@ public class UserActivityServiceImplTest extends PowerMockTestCase {
         Mockito.when(clientDao.findByJid(firstUserActivityModel.clientJid)).thenReturn(firstClientModel);
 
         long totalRow = userActivityModels.size();
-        Mockito.when(userActivityDao.countByFilters(Mockito.eq(filterString), Mockito.anyMap(), Mockito.anyMap())).thenReturn(totalRow);
+        Mockito.when(userActivityDao.countByFilters(Mockito.eq(filterString), Matchers.<Map<SingularAttribute<? super UserActivityModel, String>, String>> any(), Matchers.<Map<SingularAttribute<? super UserActivityModel, String>, ? extends Collection<String>>> any())).thenReturn(totalRow);
 
         Page<UserActivity> userActivityPage = userActivityService.pageUsersActivities(pageIndex, pageSize, orderBy, orderDir, filterString, clientNames, usernames);
 
