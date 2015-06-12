@@ -4,7 +4,6 @@ import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.iatoki.judgels.commons.IdentityUtils;
-import org.iatoki.judgels.commons.JudgelsUtils;
 import org.iatoki.judgels.commons.Page;
 import org.iatoki.judgels.commons.models.domains.AbstractModel;
 import org.iatoki.judgels.jophiel.JophielProperties;
@@ -51,7 +50,7 @@ import java.util.stream.IntStream;
 /**
  * Created by bagus.seto on 5/25/2015.
  */
-@PrepareForTest({IdentityUtils.class, JophielProperties.class, JudgelsUtils.class})
+@PrepareForTest({IdentityUtils.class, JophielProperties.class})
 public class ClientServiceImplTest extends PowerMockTestCase {
     @Mock
     ClientDao clientDao;
@@ -814,9 +813,6 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         String getUserJid = "JIDU0101";
         String getIpAddress = "10.10.10.10";
 
-        PowerMockito.mockStatic(JudgelsUtils.class);
-        Mockito.when(JudgelsUtils.generateNewSecret()).thenReturn(newSecret);
-
         Mockito.when(IdentityUtils.getUserJid()).thenReturn(getUserJid);
         Mockito.when(IdentityUtils.getIpAddress()).thenReturn(getIpAddress);
 
@@ -838,7 +834,6 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         clientService.createClient(name, applicationType, scopes, redirectURIs);
 
         Assert.assertEquals(clientJid, clientModel.jid, "Client model JID mismatch");
-        Assert.assertEquals(newSecret, clientModel.secret, "Client model secret mismatch");
         Mockito.verify(redirectURIDao, Mockito.times(redirectURIs.size())).persist(Mockito.any(), Mockito.anyString(), Mockito.anyString());
         Assert.assertNotNull(clientModel.userCreate, "User create must not be null");
         Assert.assertNotNull(clientModel.ipCreate, "IP create must not be null");
