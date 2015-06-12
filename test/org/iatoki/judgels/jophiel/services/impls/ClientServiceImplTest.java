@@ -31,6 +31,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.testng.PowerMockTestCase;
 import org.testng.Assert;
@@ -51,6 +52,7 @@ import java.util.stream.IntStream;
  * Created by bagus.seto on 5/25/2015.
  */
 @PrepareForTest({IdentityUtils.class, JophielProperties.class})
+@PowerMockIgnore("javax.crypto.*")
 public class ClientServiceImplTest extends PowerMockTestCase {
     @Mock
     ClientDao clientDao;
