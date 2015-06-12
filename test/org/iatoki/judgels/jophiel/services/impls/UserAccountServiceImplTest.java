@@ -3,6 +3,7 @@ package org.iatoki.judgels.jophiel.services.impls;
 import org.iatoki.judgels.commons.IdentityUtils;
 import org.iatoki.judgels.commons.JudgelsUtils;
 import org.iatoki.judgels.commons.models.domains.AbstractModel;
+import org.iatoki.judgels.jophiel.PasswordHash;
 import org.iatoki.judgels.jophiel.commons.exceptions.EmailNotVerifiedException;
 import org.iatoki.judgels.jophiel.commons.exceptions.UserNotFoundException;
 import org.iatoki.judgels.jophiel.commons.plains.User;
@@ -26,6 +27,8 @@ import org.testng.annotations.Test;
 import play.mvc.Http;
 
 import javax.validation.ConstraintViolationException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 
 /**
  * Created by bagus.seto on 6/3/2015.
@@ -51,7 +54,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void registerUser_NewUser_ReturnsEmailActivationCode() {
+    public void registerUser_NewUser_ReturnsEmailActivationCode() throws NoSuchAlgorithmException, InvalidKeySpecException {
         String username = "alice123";
         String name = "Alice";
         String email = "alice@email.com";
@@ -94,7 +97,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
         String emailActivationCode = userAccountService.registerUser(username, name, email, password);
 
         Assert.assertNotNull(emailActivationCode, "Email activation code must not be null");
-        Assert.assertEquals(JudgelsUtils.hashSHA256(password), userModel.password, "Password not hashed");
+        Assert.assertTrue(PasswordHash.validatePassword(password, userModel.password), "Password not hashed");
         Assert.assertEquals("avatar-default.png", userModel.profilePictureImageName, "Profile picture not avatar-default.png");
         Assert.assertEquals("user", userModel.roles, "Roles not user");
         Assert.assertEquals("guest", userModel.userCreate, "User create must be guest");
@@ -172,7 +175,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void changePassword_ValidCode_PasswordChanged() {
+    public void changePassword_ValidCode_PasswordChanged() throws NoSuchAlgorithmException, InvalidKeySpecException {
         String code = "FORGOT_PASS_CODE";
         String newPassword = "alice456";
 
@@ -209,7 +212,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
 
         Assert.assertTrue(userForgotPasswordModel.used, "Forgot password code not used");
         Assert.assertTrue(userForgotPasswordModel.timeUpdate > userForgotPasswordModel.timeCreate, "Forgot password not updated");
-        Assert.assertEquals(JudgelsUtils.hashSHA256(newPassword), userModel.password, "User password not changed");
+        Assert.assertTrue(PasswordHash.validatePassword(newPassword, userModel.password), "User password not changed");
         Assert.assertTrue(userModel.timeUpdate > userModel.timeCreate, "User password not updated");
     }
 
@@ -342,7 +345,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void updatePassword_ValidUserNewPassword_PasswordUpdated() {
+    public void updatePassword_ValidUserNewPassword_PasswordUpdated() throws NoSuchAlgorithmException, InvalidKeySpecException {
         String userJid = "JIDU0101";
         String newPassword = "newalicepassword";
 
@@ -368,7 +371,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
 
         userAccountService.updatePassword(userJid, newPassword);
 
-        Assert.assertEquals(JudgelsUtils.hashSHA256(newPassword), userModel.password, "Password not changed");
+        Assert.assertTrue(PasswordHash.validatePassword(newPassword, userModel.password), "Password not changed");
         Assert.assertNotEquals(userModel.userCreate, userModel.userUpdate, "User update not updated");
         Assert.assertTrue(userModel.timeUpdate > userModel.timeCreate, "Time update not updated");
     }
