@@ -240,16 +240,6 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         Assert.assertTrue(clientIsEquals(existingClient, result), "Client find by Id not equal");
     }
 
-    @Test(expectedExceptions = ClientNotFoundException.class)
-    public void findClientById_NonExistingClientId_ThrowsClientNotFoundException() throws ClientNotFoundException {
-        long nonExistingClientId = -10000L;
-
-        Mockito.when(clientDao.findById(nonExistingClientId)).thenReturn(null);
-
-        Client result = clientService.findClientById(nonExistingClientId);
-        Assert.fail("Unreachable");
-    }
-
     @Test
     public void findClientByJid_ExistingClientJid_ReturnsClient() {
         String existingClientJid = "JIDC1010";
@@ -263,16 +253,6 @@ public class ClientServiceImplTest extends PowerMockTestCase {
 
         Client result = clientService.findClientByJid(existingClientJid);
         Assert.assertTrue(clientIsEquals(existingClient, result), "Client find by Jid not equal");
-    }
-
-    @Test(expectedExceptions = ClientNotFoundException.class)
-    public void findClientByJid_NonExistingClientJid_ThrowsClientNotFoundException() throws ClientNotFoundException {
-        String nonExistingClientJid = "JIDC9999";
-
-        Mockito.when(clientDao.findByJid(nonExistingClientJid)).thenReturn(null);
-
-        Client result = clientService.findClientByJid(nonExistingClientJid);
-        Assert.fail("Unreachable");
     }
 
     @Test
