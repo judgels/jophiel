@@ -157,18 +157,18 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
     public void existForgotPassByCode_ExistingCode_ReturnsTrue() {
         String code = "FORGOT_PASS_CODE";
 
-        Mockito.when(userForgotPasswordDao.isExistByCode(code)).thenReturn(true);
+        Mockito.when(userForgotPasswordDao.isCodeValid(Mockito.eq(code), Mockito.anyInt())).thenReturn(true);
 
-        Assert.assertTrue(userAccountService.existForgotPassByCode(code), "Forgot password code not exist");
+        Assert.assertTrue(userAccountService.isValidToChangePassword(code, 0), "Forgot password code not exist");
     }
 
     @Test
     public void existForgotPassByCode_NonExistingCode_ReturnsFalse() {
         String code = "NOT_FORGOT_PASS_CODE";
 
-        Mockito.when(userForgotPasswordDao.isExistByCode(code)).thenReturn(false);
+        Mockito.when(userForgotPasswordDao.isCodeValid(Mockito.eq(code), Mockito.anyInt())).thenReturn(false);
 
-        Assert.assertFalse(userAccountService.existForgotPassByCode(code), "Forgot password code exist");
+        Assert.assertFalse(userAccountService.isValidToChangePassword(code, 0), "Forgot password code exist");
     }
 
     @Test
