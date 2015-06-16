@@ -4,8 +4,9 @@ import org.iatoki.judgels.commons.IdentityUtils;
 import org.iatoki.judgels.commons.JudgelsUtils;
 import org.iatoki.judgels.commons.models.domains.AbstractModel;
 import org.iatoki.judgels.jophiel.PasswordHash;
-import org.iatoki.judgels.jophiel.commons.exceptions.EmailNotVerifiedException;
-import org.iatoki.judgels.jophiel.commons.exceptions.UserNotFoundException;
+import org.iatoki.judgels.jophiel.EmailNotVerifiedException;
+import org.iatoki.judgels.jophiel.UserInfo;
+import org.iatoki.judgels.jophiel.UserNotFoundException;
 import org.iatoki.judgels.jophiel.User;
 import org.iatoki.judgels.jophiel.models.daos.UserDao;
 import org.iatoki.judgels.jophiel.models.daos.UserEmailDao;
@@ -245,7 +246,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
         Mockito.when(Http.Context.current()).thenReturn(context);
         Mockito.when(context.request()).thenReturn(request);
 
-        User user = userAccountService.login(username, password);
+        UserInfo user = userAccountService.login(username, password);
 
         Assert.assertNotNull(user, "UserInfo must not be null");
         Assert.assertEquals(username, user.getUsername(), "Username not equals");
@@ -281,7 +282,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
         Mockito.when(Http.Context.current()).thenReturn(context);
         Mockito.when(context.request()).thenReturn(request);
 
-        User user = userAccountService.login(email, password);
+        UserInfo user = userAccountService.login(email, password);
 
         Assert.assertNotNull(user, "UserInfo must not be null");
         Assert.assertEquals(email, user.getEmail(), "Email not equals");
@@ -295,7 +296,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
         Mockito.when(userDao.existByUsername(username)).thenReturn(false);
         Mockito.when(userEmailDao.isExistByEmail(username)).thenReturn(false);
 
-        User user = userAccountService.login(username, password);
+        UserInfo user = userAccountService.login(username, password);
 
         Assert.fail("Unreachable");
     }
@@ -317,7 +318,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
         userEmailModel.emailVerified = false;
         Mockito.when(userEmailDao.findByUserJid(userEmailModel.userJid)).thenReturn(userEmailModel);
 
-        User user = userAccountService.login(username, password);
+        UserInfo user = userAccountService.login(username, password);
 
         Assert.fail("Unreachable");
     }
@@ -339,7 +340,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
         userEmailModel.userJid = userModel.jid;
         Mockito.when(userEmailDao.findByUserJid(userEmailModel.userJid)).thenReturn(userEmailModel);
 
-        User user = userAccountService.login(username, password);
+        UserInfo user = userAccountService.login(username, password);
 
         Assert.assertNull(user, "UserInfo not null");
     }

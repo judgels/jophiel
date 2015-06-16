@@ -2,7 +2,7 @@ package org.iatoki.judgels.jophiel.services.impls;
 
 import org.iatoki.judgels.commons.Page;
 import org.iatoki.judgels.commons.models.domains.AbstractModel;
-import org.iatoki.judgels.jophiel.commons.plains.UserActivity;
+import org.iatoki.judgels.jophiel.UserActivity;
 import org.iatoki.judgels.jophiel.models.daos.ClientDao;
 import org.iatoki.judgels.jophiel.models.daos.UserActivityDao;
 import org.iatoki.judgels.jophiel.models.daos.UserDao;

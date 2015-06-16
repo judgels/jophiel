@@ -7,11 +7,11 @@ import org.iatoki.judgels.commons.IdentityUtils;
 import org.iatoki.judgels.commons.Page;
 import org.iatoki.judgels.commons.models.domains.AbstractModel;
 import org.iatoki.judgels.jophiel.JophielProperties;
-import org.iatoki.judgels.jophiel.commons.exceptions.ClientNotFoundException;
-import org.iatoki.judgels.jophiel.commons.plains.AccessToken;
-import org.iatoki.judgels.jophiel.commons.plains.Client;
-import org.iatoki.judgels.jophiel.commons.plains.IdToken;
-import org.iatoki.judgels.jophiel.commons.plains.RefreshToken;
+import org.iatoki.judgels.jophiel.ClientNotFoundException;
+import org.iatoki.judgels.jophiel.AccessToken;
+import org.iatoki.judgels.jophiel.Client;
+import org.iatoki.judgels.jophiel.IdToken;
+import org.iatoki.judgels.jophiel.RefreshToken;
 import org.iatoki.judgels.jophiel.models.daos.AccessTokenDao;
 import org.iatoki.judgels.jophiel.models.daos.AuthorizationCodeDao;
 import org.iatoki.judgels.jophiel.models.daos.ClientDao;
@@ -432,11 +432,11 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         authorizationCodeModel.expireTime = 600L;
         authorizationCodeModel.redirectURI = "http://alice.com/verify";
         authorizationCodeModel.scopes = StringUtils.join(Arrays.asList("OPENID"), ",");
-        org.iatoki.judgels.jophiel.commons.plains.AuthorizationCode authorizationCode = new org.iatoki.judgels.jophiel.commons.plains.AuthorizationCode(authorizationCodeModel);
+        org.iatoki.judgels.jophiel.AuthorizationCode authorizationCode = createAuthorizationCodeFromModel(authorizationCodeModel);
 
         Mockito.when(authorizationCodeDao.findByCode(validCode)).thenReturn(authorizationCodeModel);
 
-        org.iatoki.judgels.jophiel.commons.plains.AuthorizationCode result = clientService.findAuthorizationCodeByCode(validCode);
+        org.iatoki.judgels.jophiel.AuthorizationCode result = clientService.findAuthorizationCodeByCode(validCode);
 
         Assert.assertTrue(authorizationCodeIsEquals(authorizationCode, result), "Authorization code not equals");
     }
@@ -447,7 +447,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
 
         Mockito.when(authorizationCodeDao.findByCode(invalidCode)).thenReturn(null);
 
-        org.iatoki.judgels.jophiel.commons.plains.AuthorizationCode result = clientService.findAuthorizationCodeByCode(invalidCode);
+        org.iatoki.judgels.jophiel.AuthorizationCode result = clientService.findAuthorizationCodeByCode(invalidCode);
 
         Assert.fail("Unreachable");
     }
@@ -499,7 +499,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         accessTokenModel.expireTime = 600L;
         accessTokenModel.scopes = StringUtils.join(Arrays.asList("OPENID"), ",");
         accessTokenModel.token = validToken;
-        AccessToken accessToken = new AccessToken(accessTokenModel);
+        AccessToken accessToken = createAccessTokenFromModel(accessTokenModel);
 
         Mockito.when(accessTokenDao.findByToken(validToken)).thenReturn(accessTokenModel);
 
@@ -532,7 +532,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         accessTokenModel.expireTime = 600L;
         accessTokenModel.scopes = StringUtils.join(Arrays.asList("OPENID"), ",");
         accessTokenModel.token = "THIS_IS_ACCESS_TOKEN";
-        AccessToken accessToken = new AccessToken(accessTokenModel);
+        AccessToken accessToken = createAccessTokenFromModel(accessTokenModel);
 
         Mockito.when(accessTokenDao.findByCode(validCode)).thenReturn(accessTokenModel);
 
@@ -564,7 +564,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         refreshTokenModel.redeemed = false;
         refreshTokenModel.scopes = StringUtils.join(Arrays.asList("OPENID"), ",");
         refreshTokenModel.token = validRefreshToken;
-        RefreshToken refreshToken = new RefreshToken(refreshTokenModel);
+        RefreshToken refreshToken = createRefreshTokenFromModel(refreshTokenModel);
 
         Mockito.when(refreshTokenDao.findByToken(validRefreshToken)).thenReturn(refreshTokenModel);
 
@@ -596,7 +596,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         refreshTokenModel.redeemed = false;
         refreshTokenModel.scopes = StringUtils.join(Arrays.asList("OPENID"), ",");
         refreshTokenModel.token = "THIS_IS_REFRESH_TOKEN";
-        RefreshToken refreshToken = new RefreshToken(refreshTokenModel);
+        RefreshToken refreshToken = createRefreshTokenFromModel(refreshTokenModel);
 
         Mockito.when(refreshTokenDao.findByCode(validCode)).thenReturn(refreshTokenModel);
 
@@ -627,7 +627,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         idTokenModel.code = validCode;
         idTokenModel.redeemed = false;
         idTokenModel.token = "THIS_IS_ID_TOKEN";
-        IdToken idToken = new IdToken(idTokenModel);
+        IdToken idToken = createIdTokenFromModel(idTokenModel);
 
         Mockito.when(idTokenDao.findByCode(validCode)).thenReturn(idTokenModel);
 
@@ -983,7 +983,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         return equalsBuilder.isEquals();
     }
 
-    private boolean authorizationCodeIsEquals(org.iatoki.judgels.jophiel.commons.plains.AuthorizationCode a, org.iatoki.judgels.jophiel.commons.plains.AuthorizationCode b) {
+    private boolean authorizationCodeIsEquals(org.iatoki.judgels.jophiel.AuthorizationCode a, org.iatoki.judgels.jophiel.AuthorizationCode b) {
         EqualsBuilder equalsBuilder = new EqualsBuilder();
         equalsBuilder.append(a.getId(), b.getId());
         equalsBuilder.append(a.getClientJid(), b.getClientJid());
@@ -1067,5 +1067,26 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         }).collect(Collectors.toList());
 
         return redirectURIModelList;
+    }
+
+
+    private Client createClientFromModel(ClientModel clientModel, Set<String> scopeString, List<String> redirectURIs) {
+        return new Client(clientModel.id, clientModel.jid, clientModel.name, clientModel.secret, clientModel.applicationType.toString(), scopeString, redirectURIs);
+    }
+
+    private org.iatoki.judgels.jophiel.AuthorizationCode createAuthorizationCodeFromModel(AuthorizationCodeModel authorizationCodeModel) {
+        return new org.iatoki.judgels.jophiel.AuthorizationCode(authorizationCodeModel.id, authorizationCodeModel.userJid, authorizationCodeModel.clientJid, authorizationCodeModel.code, authorizationCodeModel.redirectURI, authorizationCodeModel.expireTime, authorizationCodeModel.scopes);
+    }
+
+    private AccessToken createAccessTokenFromModel(AccessTokenModel accessTokenModel) {
+        return new AccessToken(accessTokenModel.id, accessTokenModel.code, accessTokenModel.userJid, accessTokenModel.clientJid, accessTokenModel.token, accessTokenModel.expireTime, accessTokenModel.redeemed, accessTokenModel.scopes);
+    }
+
+    private RefreshToken createRefreshTokenFromModel(RefreshTokenModel refreshTokenModel) {
+        return new RefreshToken(refreshTokenModel.id, refreshTokenModel.code, refreshTokenModel.userJid, refreshTokenModel.clientJid, refreshTokenModel.token, refreshTokenModel.scopes, refreshTokenModel.redeemed);
+    }
+
+    private IdToken createIdTokenFromModel(IdTokenModel idTokenModel) {
+        return new IdToken(idTokenModel.id, idTokenModel.code, idTokenModel.userJid, idTokenModel.clientJid, idTokenModel.token, idTokenModel.redeemed);
     }
 }
