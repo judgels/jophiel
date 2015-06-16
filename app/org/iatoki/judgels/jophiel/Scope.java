@@ -1,4 +1,4 @@
-package org.iatoki.judgels.jophiel.commons.enums;
+package org.iatoki.judgels.jophiel;
 
 public enum Scope {
 
