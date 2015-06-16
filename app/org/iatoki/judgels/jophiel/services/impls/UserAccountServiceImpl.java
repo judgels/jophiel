@@ -2,16 +2,16 @@ package org.iatoki.judgels.jophiel.services.impls;
 
 import org.iatoki.judgels.commons.IdentityUtils;
 import org.iatoki.judgels.commons.JudgelsUtils;
+import org.iatoki.judgels.jophiel.UserInfo;
 import org.iatoki.judgels.jophiel.PasswordHash;
-import org.iatoki.judgels.jophiel.commons.exceptions.EmailNotVerifiedException;
-import org.iatoki.judgels.jophiel.commons.exceptions.UserNotFoundException;
-import org.iatoki.judgels.jophiel.commons.plains.User;
+import org.iatoki.judgels.jophiel.EmailNotVerifiedException;
+import org.iatoki.judgels.jophiel.UserNotFoundException;
 import org.iatoki.judgels.jophiel.models.daos.UserDao;
 import org.iatoki.judgels.jophiel.models.daos.UserEmailDao;
 import org.iatoki.judgels.jophiel.models.daos.UserForgotPasswordDao;
-import org.iatoki.judgels.jophiel.models.domains.UserEmailModel;
-import org.iatoki.judgels.jophiel.models.domains.UserForgotPasswordModel;
-import org.iatoki.judgels.jophiel.models.domains.UserModel;
+import org.iatoki.judgels.jophiel.models.entities.UserEmailModel;
+import org.iatoki.judgels.jophiel.models.entities.UserForgotPasswordModel;
+import org.iatoki.judgels.jophiel.models.entities.UserModel;
 import org.iatoki.judgels.jophiel.services.UserAccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -98,7 +98,7 @@ public final class UserAccountServiceImpl implements UserAccountService {
     }
 
     @Override
-    public User login(String usernameOrEmail, String password) throws UserNotFoundException, EmailNotVerifiedException {
+    public UserInfo login(String usernameOrEmail, String password) throws UserNotFoundException, EmailNotVerifiedException {
         try {
             UserModel userModel;
             UserEmailModel emailModel;
@@ -147,8 +147,8 @@ public final class UserAccountServiceImpl implements UserAccountService {
         }
     }
 
-    private User createUserFromModels(UserModel userModel, UserEmailModel emailModel) {
-        return new User(userModel.id, userModel.jid, userModel.username, userModel.name, emailModel.email, getAvatarImageUrl(userModel.profilePictureImageName), Arrays.asList(userModel.roles.split(",")));
+    private UserInfo createUserFromModels(UserModel userModel, UserEmailModel emailModel) {
+        return new UserInfo(userModel.id, userModel.jid, userModel.username, userModel.name, emailModel.email, getAvatarImageUrl(userModel.profilePictureImageName), Arrays.asList(userModel.roles.split(",")));
     }
 
     private URL getAvatarImageUrl(String imageName) {

@@ -19,24 +19,24 @@ import org.iatoki.judgels.commons.IdentityUtils;
 import org.iatoki.judgels.commons.JudgelsUtils;
 import org.iatoki.judgels.commons.Page;
 import org.iatoki.judgels.jophiel.JophielProperties;
-import org.iatoki.judgels.jophiel.commons.enums.Scope;
-import org.iatoki.judgels.jophiel.commons.exceptions.ClientNotFoundException;
-import org.iatoki.judgels.jophiel.commons.plains.AccessToken;
-import org.iatoki.judgels.jophiel.commons.plains.Client;
-import org.iatoki.judgels.jophiel.commons.plains.IdToken;
-import org.iatoki.judgels.jophiel.commons.plains.RefreshToken;
+import org.iatoki.judgels.jophiel.Scope;
+import org.iatoki.judgels.jophiel.ClientNotFoundException;
+import org.iatoki.judgels.jophiel.AccessToken;
+import org.iatoki.judgels.jophiel.Client;
+import org.iatoki.judgels.jophiel.IdToken;
+import org.iatoki.judgels.jophiel.RefreshToken;
 import org.iatoki.judgels.jophiel.models.daos.AccessTokenDao;
 import org.iatoki.judgels.jophiel.models.daos.AuthorizationCodeDao;
 import org.iatoki.judgels.jophiel.models.daos.ClientDao;
 import org.iatoki.judgels.jophiel.models.daos.IdTokenDao;
 import org.iatoki.judgels.jophiel.models.daos.RedirectURIDao;
 import org.iatoki.judgels.jophiel.models.daos.RefreshTokenDao;
-import org.iatoki.judgels.jophiel.models.domains.AccessTokenModel;
-import org.iatoki.judgels.jophiel.models.domains.AuthorizationCodeModel;
-import org.iatoki.judgels.jophiel.models.domains.ClientModel;
-import org.iatoki.judgels.jophiel.models.domains.IdTokenModel;
-import org.iatoki.judgels.jophiel.models.domains.RedirectURIModel;
-import org.iatoki.judgels.jophiel.models.domains.RefreshTokenModel;
+import org.iatoki.judgels.jophiel.models.entities.AccessTokenModel;
+import org.iatoki.judgels.jophiel.models.entities.AuthorizationCodeModel;
+import org.iatoki.judgels.jophiel.models.entities.ClientModel;
+import org.iatoki.judgels.jophiel.models.entities.IdTokenModel;
+import org.iatoki.judgels.jophiel.models.entities.RedirectURIModel;
+import org.iatoki.judgels.jophiel.models.entities.RefreshTokenModel;
 import org.iatoki.judgels.jophiel.services.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -259,10 +259,10 @@ public final class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public org.iatoki.judgels.jophiel.commons.plains.AuthorizationCode findAuthorizationCodeByCode(String code) {
+    public org.iatoki.judgels.jophiel.AuthorizationCode findAuthorizationCodeByCode(String code) {
         AuthorizationCodeModel authorizationCodeModel = authorizationCodeDao.findByCode(code);
 
-        return new org.iatoki.judgels.jophiel.commons.plains.AuthorizationCode(authorizationCodeModel);
+        return new org.iatoki.judgels.jophiel.AuthorizationCode(authorizationCodeModel);
     }
 
     @Override

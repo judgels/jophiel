@@ -3,8 +3,8 @@ package org.iatoki.judgels.jophiel.models.daos.impls;
 import com.google.common.collect.ImmutableList;
 import org.iatoki.judgels.commons.models.daos.hibernate.AbstractHibernateDao;
 import org.iatoki.judgels.jophiel.models.daos.UserActivityDao;
-import org.iatoki.judgels.jophiel.models.domains.UserActivityModel;
-import org.iatoki.judgels.jophiel.models.domains.UserActivityModel_;
+import org.iatoki.judgels.jophiel.models.entities.UserActivityModel;
+import org.iatoki.judgels.jophiel.models.entities.UserActivityModel_;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.metamodel.SingularAttribute;

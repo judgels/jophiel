@@ -2,8 +2,8 @@ package org.iatoki.judgels.jophiel.models.daos.impls;
 
 import org.iatoki.judgels.commons.models.daos.hibernate.AbstractHibernateDao;
 import org.iatoki.judgels.jophiel.models.daos.AuthorizationCodeDao;
-import org.iatoki.judgels.jophiel.models.domains.AuthorizationCodeModel;
-import org.iatoki.judgels.jophiel.models.domains.AuthorizationCodeModel_;
+import org.iatoki.judgels.jophiel.models.entities.AuthorizationCodeModel;
+import org.iatoki.judgels.jophiel.models.entities.AuthorizationCodeModel_;
 import org.springframework.stereotype.Repository;
 import play.db.jpa.JPA;
 

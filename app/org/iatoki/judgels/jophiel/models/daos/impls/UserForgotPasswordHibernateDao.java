@@ -2,8 +2,8 @@ package org.iatoki.judgels.jophiel.models.daos.impls;
 
 import org.iatoki.judgels.commons.models.daos.hibernate.AbstractHibernateDao;
 import org.iatoki.judgels.jophiel.models.daos.UserForgotPasswordDao;
-import org.iatoki.judgels.jophiel.models.domains.UserForgotPasswordModel;
-import org.iatoki.judgels.jophiel.models.domains.UserForgotPasswordModel_;
+import org.iatoki.judgels.jophiel.models.entities.UserForgotPasswordModel;
+import org.iatoki.judgels.jophiel.models.entities.UserForgotPasswordModel_;
 import org.springframework.stereotype.Repository;
 import play.db.jpa.JPA;
 

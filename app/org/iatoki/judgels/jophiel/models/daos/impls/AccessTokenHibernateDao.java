@@ -2,8 +2,8 @@ package org.iatoki.judgels.jophiel.models.daos.impls;
 
 import org.iatoki.judgels.commons.models.daos.hibernate.AbstractHibernateDao;
 import org.iatoki.judgels.jophiel.models.daos.AccessTokenDao;
-import org.iatoki.judgels.jophiel.models.domains.AccessTokenModel;
-import org.iatoki.judgels.jophiel.models.domains.AccessTokenModel_;
+import org.iatoki.judgels.jophiel.models.entities.AccessTokenModel;
+import org.iatoki.judgels.jophiel.models.entities.AccessTokenModel_;
 import org.springframework.stereotype.Repository;
 import play.db.jpa.JPA;
 

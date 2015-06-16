@@ -1,7 +1,7 @@
 package org.iatoki.judgels.jophiel.models.daos;
 
 import org.iatoki.judgels.commons.models.daos.interfaces.Dao;
-import org.iatoki.judgels.jophiel.models.domains.UserForgotPasswordModel;
+import org.iatoki.judgels.jophiel.models.entities.UserForgotPasswordModel;
 
 public interface UserForgotPasswordDao extends Dao<Long, UserForgotPasswordModel> {
 

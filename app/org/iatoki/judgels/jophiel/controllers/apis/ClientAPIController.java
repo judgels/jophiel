@@ -2,13 +2,13 @@ package org.iatoki.judgels.jophiel.controllers.apis;
 
 import com.google.common.collect.ImmutableList;
 import org.iatoki.judgels.commons.IdentityUtils;
-import org.iatoki.judgels.jophiel.commons.plains.Client;
+import org.iatoki.judgels.jophiel.UserInfo;
+import org.iatoki.judgels.jophiel.Client;
 import org.iatoki.judgels.jophiel.services.ClientService;
-import org.iatoki.judgels.jophiel.commons.plains.User;
 import org.iatoki.judgels.commons.AutoComplete;
 import org.iatoki.judgels.jophiel.services.UserService;
-import org.iatoki.judgels.jophiel.controllers.security.Authenticated;
-import org.iatoki.judgels.jophiel.controllers.security.LoggedIn;
+import org.iatoki.judgels.jophiel.controllers.securities.Authenticated;
+import org.iatoki.judgels.jophiel.controllers.securities.LoggedIn;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import play.data.DynamicForm;
@@ -41,7 +41,7 @@ public final class ClientAPIController extends Controller {
         response().setHeader("Access-Control-Allow-Origin", "*");
 
         DynamicForm form = DynamicForm.form().bindFromRequest();
-        User user = userService.findUserByUserJid(IdentityUtils.getUserJid());
+        UserInfo user = userService.findUserByUserJid(IdentityUtils.getUserJid());
         String term = form.get("term");
         List<Client> clients = clientService.findAllClientByTerm(term);
         ImmutableList.Builder<AutoComplete> responseBuilder = ImmutableList.builder();

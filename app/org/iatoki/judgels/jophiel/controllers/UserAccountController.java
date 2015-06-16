@@ -15,30 +15,30 @@ import org.iatoki.judgels.commons.controllers.BaseController;
 import org.iatoki.judgels.commons.views.html.layouts.centerLayout;
 import org.iatoki.judgels.commons.views.html.layouts.headingLayout;
 import org.iatoki.judgels.commons.views.html.layouts.messageView;
+import org.iatoki.judgels.jophiel.UserInfo;
 import org.iatoki.judgels.jophiel.JophielProperties;
 import org.iatoki.judgels.jophiel.JophielUtils;
-import org.iatoki.judgels.jophiel.commons.exceptions.EmailNotVerifiedException;
-import org.iatoki.judgels.jophiel.commons.exceptions.UserNotFoundException;
-import org.iatoki.judgels.jophiel.commons.plains.Client;
-import org.iatoki.judgels.jophiel.commons.plains.User;
+import org.iatoki.judgels.jophiel.EmailNotVerifiedException;
+import org.iatoki.judgels.jophiel.UserNotFoundException;
+import org.iatoki.judgels.jophiel.Client;
 import org.iatoki.judgels.jophiel.controllers.forms.ChangePasswordForm;
 import org.iatoki.judgels.jophiel.controllers.forms.ForgotPasswordForm;
 import org.iatoki.judgels.jophiel.controllers.forms.LoginForm;
 import org.iatoki.judgels.jophiel.controllers.forms.RegisterForm;
-import org.iatoki.judgels.jophiel.controllers.security.Authenticated;
-import org.iatoki.judgels.jophiel.controllers.security.HasRole;
-import org.iatoki.judgels.jophiel.controllers.security.LoggedIn;
+import org.iatoki.judgels.jophiel.controllers.securities.Authenticated;
+import org.iatoki.judgels.jophiel.controllers.securities.HasRole;
+import org.iatoki.judgels.jophiel.controllers.securities.LoggedIn;
 import org.iatoki.judgels.jophiel.services.ClientService;
 import org.iatoki.judgels.jophiel.services.UserAccountService;
 import org.iatoki.judgels.jophiel.services.UserActivityService;
 import org.iatoki.judgels.jophiel.services.UserEmailService;
 import org.iatoki.judgels.jophiel.services.UserService;
-import org.iatoki.judgels.jophiel.views.html.changePasswordView;
-import org.iatoki.judgels.jophiel.views.html.forgotPasswordView;
-import org.iatoki.judgels.jophiel.views.html.loginView;
-import org.iatoki.judgels.jophiel.views.html.registerView;
-import org.iatoki.judgels.jophiel.views.html.serviceAuthView;
-import org.iatoki.judgels.jophiel.views.html.serviceLoginView;
+import org.iatoki.judgels.jophiel.views.html.account.changePasswordView;
+import org.iatoki.judgels.jophiel.views.html.account.forgotPasswordView;
+import org.iatoki.judgels.jophiel.views.html.account.loginView;
+import org.iatoki.judgels.jophiel.views.html.account.registerView;
+import org.iatoki.judgels.jophiel.views.html.account.serviceAuthView;
+import org.iatoki.judgels.jophiel.views.html.account.serviceLoginView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import play.Logger;
@@ -272,7 +272,7 @@ public final class UserAccountController extends BaseController {
             } else {
                 try {
                     LoginForm loginData = form.get();
-                    User user = userAccountService.login(loginData.usernameOrEmail, loginData.password);
+                    UserInfo user = userAccountService.login(loginData.usernameOrEmail, loginData.password);
                     if (user != null) {
                         // TODO add expiry time and remember me options
                         session("userJid", user.getJid());

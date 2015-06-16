@@ -3,15 +3,15 @@ package org.iatoki.judgels.jophiel.controllers;
 import org.iatoki.judgels.commons.LazyHtml;
 import org.iatoki.judgels.commons.controllers.BaseController;
 import org.iatoki.judgels.commons.views.html.layouts.centerLayout;
-import org.iatoki.judgels.jophiel.commons.plains.User;
+import org.iatoki.judgels.jophiel.UserInfo;
 import org.iatoki.judgels.jophiel.services.UserEmailService;
-import org.iatoki.judgels.jophiel.commons.exceptions.UserNotFoundException;
+import org.iatoki.judgels.jophiel.UserNotFoundException;
 import org.iatoki.judgels.jophiel.services.UserService;
-import org.iatoki.judgels.jophiel.controllers.security.Authenticated;
-import org.iatoki.judgels.jophiel.controllers.security.Authorized;
-import org.iatoki.judgels.jophiel.controllers.security.HasRole;
-import org.iatoki.judgels.jophiel.controllers.security.LoggedIn;
-import org.iatoki.judgels.jophiel.views.html.activationView;
+import org.iatoki.judgels.jophiel.controllers.securities.Authenticated;
+import org.iatoki.judgels.jophiel.controllers.securities.Authorized;
+import org.iatoki.judgels.jophiel.controllers.securities.HasRole;
+import org.iatoki.judgels.jophiel.controllers.securities.LoggedIn;
+import org.iatoki.judgels.jophiel.views.html.account.activationView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import play.db.jpa.Transactional;
@@ -41,7 +41,7 @@ public final class UserEmailController extends BaseController {
     @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Authorized(value = {"admin"})
     public Result resendEmailVerification(long userId) throws UserNotFoundException {
-        User user = userService.findUserById(userId);
+        UserInfo user = userService.findUserById(userId);
         if (userEmailService.isEmailNotVerified(user.getJid())) {
             String code = userEmailService.getEmailCodeOfUnverifiedEmail(user.getJid());
             userEmailService.sendActivationEmail(user.getName(), user.getEmail(), org.iatoki.judgels.jophiel.controllers.routes.UserEmailController.verifyEmail(code).absoluteURL(request(), request().secure()));
@@ -55,7 +55,7 @@ public final class UserEmailController extends BaseController {
     @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Authorized(value = {"admin"})
     public Result activateMainEmail(long userId) throws UserNotFoundException {
-        User user = userService.findUserById(userId);
+        UserInfo user = userService.findUserById(userId);
         if (userEmailService.isEmailNotVerified(user.getJid())) {
             String code = userEmailService.getEmailCodeOfUnverifiedEmail(user.getJid());
             userEmailService.activateEmail(code);

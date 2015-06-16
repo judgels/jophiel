@@ -2,11 +2,11 @@ package org.iatoki.judgels.jophiel.services;
 
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import org.iatoki.judgels.commons.Page;
-import org.iatoki.judgels.jophiel.commons.exceptions.ClientNotFoundException;
-import org.iatoki.judgels.jophiel.commons.plains.AccessToken;
-import org.iatoki.judgels.jophiel.commons.plains.Client;
-import org.iatoki.judgels.jophiel.commons.plains.IdToken;
-import org.iatoki.judgels.jophiel.commons.plains.RefreshToken;
+import org.iatoki.judgels.jophiel.ClientNotFoundException;
+import org.iatoki.judgels.jophiel.AccessToken;
+import org.iatoki.judgels.jophiel.Client;
+import org.iatoki.judgels.jophiel.IdToken;
+import org.iatoki.judgels.jophiel.RefreshToken;
 
 import java.util.List;
 
@@ -36,7 +36,7 @@ public interface ClientService {
 
     void generateIdToken(String code, String userId, String clientId, String nonce, long authTime, String accessToken, long expireTime);
 
-    org.iatoki.judgels.jophiel.commons.plains.AuthorizationCode findAuthorizationCodeByCode(String code);
+    org.iatoki.judgels.jophiel.AuthorizationCode findAuthorizationCodeByCode(String code);
 
     AccessToken regenerateAccessToken(String code, String userId, String clientId, List<String> scopes, long expireTime);
 

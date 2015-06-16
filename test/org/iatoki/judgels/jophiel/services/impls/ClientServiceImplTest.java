@@ -18,12 +18,12 @@ import org.iatoki.judgels.jophiel.models.daos.ClientDao;
 import org.iatoki.judgels.jophiel.models.daos.IdTokenDao;
 import org.iatoki.judgels.jophiel.models.daos.RedirectURIDao;
 import org.iatoki.judgels.jophiel.models.daos.RefreshTokenDao;
-import org.iatoki.judgels.jophiel.models.domains.AccessTokenModel;
-import org.iatoki.judgels.jophiel.models.domains.AuthorizationCodeModel;
-import org.iatoki.judgels.jophiel.models.domains.ClientModel;
-import org.iatoki.judgels.jophiel.models.domains.IdTokenModel;
-import org.iatoki.judgels.jophiel.models.domains.RedirectURIModel;
-import org.iatoki.judgels.jophiel.models.domains.RefreshTokenModel;
+import org.iatoki.judgels.jophiel.models.entities.AccessTokenModel;
+import org.iatoki.judgels.jophiel.models.entities.AuthorizationCodeModel;
+import org.iatoki.judgels.jophiel.models.entities.ClientModel;
+import org.iatoki.judgels.jophiel.models.entities.IdTokenModel;
+import org.iatoki.judgels.jophiel.models.entities.RedirectURIModel;
+import org.iatoki.judgels.jophiel.models.entities.RefreshTokenModel;
 import org.mockito.InjectMocks;
 import org.mockito.Matchers;
 import org.mockito.Mock;
@@ -290,7 +290,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         AuthorizationCode authorizationCode = clientService.generateAuthorizationCode(clientJid, redirectURI, responseType, scopes, expireTime);
 
         Assert.assertNotNull(authorizationCode, "Authorization code null");
-        Assert.assertNotNull(authorizationCodeModel.userCreate, "User Create must not be null");
+        Assert.assertNotNull(authorizationCodeModel.userCreate, "UserInfo Create must not be null");
         Assert.assertNotNull(authorizationCodeModel.ipCreate, "IP Create must not be null");
     }
 
@@ -348,7 +348,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         String token = clientService.generateAccessToken(code, userId, clientId, scopes, expireTime);
 
         Assert.assertNotNull(token, "Token can not be null");
-        Assert.assertNotNull(accessTokenModel.userCreate, "User create must not be null");
+        Assert.assertNotNull(accessTokenModel.userCreate, "UserInfo create must not be null");
         Assert.assertNotNull(accessTokenModel.ipCreate, "IP create must not be null");
     }
 
@@ -377,7 +377,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
 
         clientService.generateRefreshToken(code, userId, clientId, scopes);
 
-        Assert.assertNotNull(refreshTokenModel.userCreate, "User Create must not be null");
+        Assert.assertNotNull(refreshTokenModel.userCreate, "UserInfo Create must not be null");
         Assert.assertNotNull(refreshTokenModel.ipCreate, "IP Create must not be null");
     }
 
@@ -416,7 +416,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
 
         clientService.generateIdToken(code, userId, clientId, nonce, authTime, accessToken, expireTime);
 
-        Assert.assertNotNull(idTokenModel.userCreate, "User Create must not be null");
+        Assert.assertNotNull(idTokenModel.userCreate, "UserInfo Create must not be null");
         Assert.assertNotNull(idTokenModel.ipCreate, "IP Create must not be null");
     }
 
@@ -481,7 +481,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         AccessToken accessToken = clientService.regenerateAccessToken(code, userId, clientId, scopes, expireTime);
 
         Assert.assertFalse(accessToken.isRedeemed(), "Access token is redeemed");
-        Assert.assertNotNull(accessTokenModel.userCreate, "User create must not be null");
+        Assert.assertNotNull(accessTokenModel.userCreate, "UserInfo create must not be null");
         Assert.assertNotNull(accessTokenModel.ipCreate, "IP create must not be null");
 
     }
@@ -817,7 +817,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
 
         Assert.assertEquals(clientJid, clientModel.jid, "Client model JID mismatch");
         Mockito.verify(redirectURIDao, Mockito.times(redirectURIs.size())).persist(Mockito.any(), Mockito.anyString(), Mockito.anyString());
-        Assert.assertNotNull(clientModel.userCreate, "User create must not be null");
+        Assert.assertNotNull(clientModel.userCreate, "UserInfo create must not be null");
         Assert.assertNotNull(clientModel.ipCreate, "IP create must not be null");
     }
 

@@ -1,8 +1,8 @@
 package org.iatoki.judgels.jophiel.services;
 
-import org.iatoki.judgels.jophiel.commons.exceptions.EmailNotVerifiedException;
-import org.iatoki.judgels.jophiel.commons.exceptions.UserNotFoundException;
-import org.iatoki.judgels.jophiel.commons.plains.User;
+import org.iatoki.judgels.jophiel.UserInfo;
+import org.iatoki.judgels.jophiel.EmailNotVerifiedException;
+import org.iatoki.judgels.jophiel.UserNotFoundException;
 
 import javax.persistence.NoResultException;
 
@@ -16,7 +16,7 @@ public interface UserAccountService {
 
     void changePassword(String code, String password);
 
-    User login(String usernameOrEmail, String password) throws NoResultException, UserNotFoundException, EmailNotVerifiedException;
+    UserInfo login(String usernameOrEmail, String password) throws NoResultException, UserNotFoundException, EmailNotVerifiedException;
 
     void updatePassword(String userJid, String password);
 

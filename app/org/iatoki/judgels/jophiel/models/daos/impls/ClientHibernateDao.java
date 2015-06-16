@@ -3,8 +3,8 @@ package org.iatoki.judgels.jophiel.models.daos.impls;
 import com.google.common.collect.ImmutableList;
 import org.iatoki.judgels.commons.models.daos.hibernate.AbstractJudgelsHibernateDao;
 import org.iatoki.judgels.jophiel.models.daos.ClientDao;
-import org.iatoki.judgels.jophiel.models.domains.ClientModel;
-import org.iatoki.judgels.jophiel.models.domains.ClientModel_;
+import org.iatoki.judgels.jophiel.models.entities.ClientModel;
+import org.iatoki.judgels.jophiel.models.entities.ClientModel_;
 import org.springframework.stereotype.Repository;
 import play.db.jpa.JPA;
 

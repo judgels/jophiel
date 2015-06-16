@@ -2,8 +2,8 @@ package org.iatoki.judgels.jophiel.models.daos.impls;
 
 import org.iatoki.judgels.commons.models.daos.hibernate.AbstractHibernateDao;
 import org.iatoki.judgels.jophiel.models.daos.RefreshTokenDao;
-import org.iatoki.judgels.jophiel.models.domains.RefreshTokenModel;
-import org.iatoki.judgels.jophiel.models.domains.RefreshTokenModel_;
+import org.iatoki.judgels.jophiel.models.entities.RefreshTokenModel;
+import org.iatoki.judgels.jophiel.models.entities.RefreshTokenModel_;
 import org.springframework.stereotype.Repository;
 import play.db.jpa.JPA;
 

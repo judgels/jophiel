@@ -9,19 +9,19 @@ import org.iatoki.judgels.commons.controllers.BaseController;
 import org.iatoki.judgels.commons.views.html.layouts.centerLayout;
 import org.iatoki.judgels.commons.views.html.layouts.headingLayout;
 import org.iatoki.judgels.commons.views.html.layouts.tabLayout;
-import org.iatoki.judgels.jophiel.commons.plains.User;
+import org.iatoki.judgels.jophiel.UserInfo;
 import org.iatoki.judgels.jophiel.controllers.forms.UserProfileForm;
 import org.iatoki.judgels.jophiel.controllers.forms.UserProfilePictureForm;
-import org.iatoki.judgels.jophiel.controllers.security.Authenticated;
-import org.iatoki.judgels.jophiel.controllers.security.Authorized;
-import org.iatoki.judgels.jophiel.controllers.security.HasRole;
-import org.iatoki.judgels.jophiel.controllers.security.LoggedIn;
+import org.iatoki.judgels.jophiel.controllers.securities.Authenticated;
+import org.iatoki.judgels.jophiel.controllers.securities.Authorized;
+import org.iatoki.judgels.jophiel.controllers.securities.HasRole;
+import org.iatoki.judgels.jophiel.controllers.securities.LoggedIn;
 import org.iatoki.judgels.jophiel.services.UserActivityService;
 import org.iatoki.judgels.jophiel.services.UserProfileService;
 import org.iatoki.judgels.jophiel.services.UserService;
-import org.iatoki.judgels.jophiel.views.html.editProfileView;
-import org.iatoki.judgels.jophiel.views.html.serviceEditProfileView;
-import org.iatoki.judgels.jophiel.views.html.viewProfileView;
+import org.iatoki.judgels.jophiel.views.html.profile.editProfileView;
+import org.iatoki.judgels.jophiel.views.html.profile.serviceEditProfileView;
+import org.iatoki.judgels.jophiel.views.html.profile.viewProfileView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import play.Logger;
@@ -62,7 +62,7 @@ public final class UserProfileController extends BaseController {
     @Authorized("admin")
     public Result viewProfile(String username) {
         if (userService.existByUsername(username)) {
-            User user = userService.findUserByUsername(username);
+            UserInfo user = userService.findUserByUsername(username);
 
             LazyHtml content = new LazyHtml(viewProfileView.render(user));
             if (IdentityUtils.getUserJid() != null) {
@@ -96,7 +96,7 @@ public final class UserProfileController extends BaseController {
         Form<UserProfileForm> form = Form.form(UserProfileForm.class);
         Form<UserProfilePictureForm> form2 = Form.form(UserProfilePictureForm.class);
 
-        User user = userService.findUserByUserJid(IdentityUtils.getUserJid());
+        UserInfo user = userService.findUserByUserJid(IdentityUtils.getUserJid());
         UserProfileForm userProfileForm = new UserProfileForm();
         userProfileForm.name = user.getName();
 

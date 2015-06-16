@@ -5,13 +5,13 @@ import com.google.common.collect.ImmutableSet;
 import org.apache.commons.lang3.StringUtils;
 import org.iatoki.judgels.commons.IdentityUtils;
 import org.iatoki.judgels.commons.Page;
+import org.iatoki.judgels.jophiel.UserInfo;
 import org.iatoki.judgels.jophiel.PasswordHash;
-import org.iatoki.judgels.jophiel.commons.exceptions.UserNotFoundException;
-import org.iatoki.judgels.jophiel.commons.plains.User;
+import org.iatoki.judgels.jophiel.UserNotFoundException;
 import org.iatoki.judgels.jophiel.models.daos.UserDao;
 import org.iatoki.judgels.jophiel.models.daos.UserEmailDao;
-import org.iatoki.judgels.jophiel.models.domains.UserEmailModel;
-import org.iatoki.judgels.jophiel.models.domains.UserModel;
+import org.iatoki.judgels.jophiel.models.entities.UserEmailModel;
+import org.iatoki.judgels.jophiel.models.entities.UserModel;
 import org.iatoki.judgels.jophiel.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -44,20 +44,20 @@ public final class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> findAllUserByTerm(String term) {
+    public List<UserInfo> findAllUserByTerm(String term) {
         List<UserModel> userModels = userDao.findSortedByFilters("id", "asc", term, 0, -1);
-        ImmutableList.Builder<User> userBuilder = ImmutableList.builder();
+        ImmutableList.Builder<UserInfo> userBuilder = ImmutableList.builder();
 
         for (UserModel userRecord : userModels) {
             UserEmailModel emailRecord = userEmailDao.findByUserJid(userRecord.jid);
-            userBuilder.add(new User(userRecord.id, userRecord.jid, userRecord.username, userRecord.name, emailRecord.email, getAvatarImageUrl(userRecord.profilePictureImageName), Arrays.asList(userRecord.roles.split(","))));
+            userBuilder.add(new UserInfo(userRecord.id, userRecord.jid, userRecord.username, userRecord.name, emailRecord.email, getAvatarImageUrl(userRecord.profilePictureImageName), Arrays.asList(userRecord.roles.split(","))));
         }
 
         return userBuilder.build();
     }
 
     @Override
-    public Page<User> pageUsers(long pageIndex, long pageSize, String orderBy, String orderDir, String filterString) {
+    public Page<UserInfo> pageUsers(long pageIndex, long pageSize, String orderBy, String orderDir, String filterString) {
         List<String> userUserJid = userDao.findUserJidsByFilter(filterString);
         List<String> emailUserJid = userEmailDao.findUserJidsByFilter(filterString);
 
@@ -67,7 +67,7 @@ public final class UserServiceImpl implements UserService {
 
         ImmutableSet<String> userJidSet = setBuilder.build();
         long totalRow = userJidSet.size();
-        ImmutableList.Builder<User> listBuilder = ImmutableList.builder();
+        ImmutableList.Builder<UserInfo> listBuilder = ImmutableList.builder();
 
         if (totalRow > 0) {
             List<String> sortedUserJids;
@@ -83,7 +83,7 @@ public final class UserServiceImpl implements UserService {
             for (int i = 0; i < userModels.size(); ++i) {
                 UserModel userModel = userModels.get(i);
                 UserEmailModel userEmailModel = userEmailModels.get(i);
-                listBuilder.add(new User(userModel.id, userModel.jid, userModel.username, userModel.name, userEmailModel.email, getAvatarImageUrl(userModel.profilePictureImageName), Arrays.asList(userModel.roles.split(","))));
+                listBuilder.add(new UserInfo(userModel.id, userModel.jid, userModel.username, userModel.name, userEmailModel.email, getAvatarImageUrl(userModel.profilePictureImageName), Arrays.asList(userModel.roles.split(","))));
             }
         }
 
@@ -91,7 +91,7 @@ public final class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Page<User> pageUnverifiedUsers(long pageIndex, long pageSize, String orderBy, String orderDir, String filterString) {
+    public Page<UserInfo> pageUnverifiedUsers(long pageIndex, long pageSize, String orderBy, String orderDir, String filterString) {
         List<String> unverifiedEmailUserJids = userEmailDao.findUserJidsWithUnverifiedEmail();
         List<String> userUserJids = userDao.findUserJidsByFilter(filterString);
         List<String> emailUserJids = userEmailDao.findUserJidsByFilter(filterString);
@@ -105,7 +105,7 @@ public final class UserServiceImpl implements UserService {
 
         ImmutableSet<String> userJidSet = setBuilder.build();
         long totalRow = userJidSet.size();
-        ImmutableList.Builder<User> listBuilder = ImmutableList.builder();
+        ImmutableList.Builder<UserInfo> listBuilder = ImmutableList.builder();
 
         if (totalRow > 0) {
             List<String> sortedUserJid;
@@ -121,7 +121,7 @@ public final class UserServiceImpl implements UserService {
             for (int i = 0; i < userModels.size(); ++i) {
                 UserModel userModel = userModels.get(i);
                 UserEmailModel emailModel = emailModels.get(i);
-                listBuilder.add(new User(userModel.id, userModel.jid, userModel.username, userModel.name, emailModel.email, getAvatarImageUrl(userModel.profilePictureImageName), Arrays.asList(userModel.roles.split(","))));
+                listBuilder.add(new UserInfo(userModel.id, userModel.jid, userModel.username, userModel.name, emailModel.email, getAvatarImageUrl(userModel.profilePictureImageName), Arrays.asList(userModel.roles.split(","))));
             }
         }
 
@@ -129,19 +129,19 @@ public final class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findUserById(long userId) throws UserNotFoundException {
+    public UserInfo findUserById(long userId) throws UserNotFoundException {
         UserModel userModel = userDao.findById(userId);
         if (userModel != null) {
             UserEmailModel emailModel = userEmailDao.findByUserJid(userModel.jid);
 
             return createUserFromModels(userModel, emailModel);
         } else {
-            throw new UserNotFoundException("User not found.");
+            throw new UserNotFoundException("UserInfo not found.");
         }
     }
 
     @Override
-    public User findUserByUserJid(String userJid) {
+    public UserInfo findUserByUserJid(String userJid) {
         UserModel userModel = userDao.findByJid(userJid);
         UserEmailModel emailModel = userEmailDao.findByUserJid(userModel.jid);
 
@@ -149,14 +149,14 @@ public final class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findPublicUserByUserJid(String userJid) {
+    public UserInfo findPublicUserByUserJid(String userJid) {
         UserModel userModel = userDao.findByJid(userJid);
 
         return createPublicUserFromModels(userModel);
     }
 
     @Override
-    public User findUserByUsername(String username) {
+    public UserInfo findUserByUsername(String username) {
         UserModel userModel = userDao.findByUsername(username);
         UserEmailModel emailModel = userEmailDao.findByUserJid(userModel.jid);
 
@@ -200,7 +200,7 @@ public final class UserServiceImpl implements UserService {
 
             userEmailDao.edit(emailModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
         } else {
-            throw new UserNotFoundException("User not found.");
+            throw new UserNotFoundException("UserInfo not found.");
         }
     }
 
@@ -225,7 +225,7 @@ public final class UserServiceImpl implements UserService {
                 throw new IllegalStateException(e);
             }
         } else {
-            throw new UserNotFoundException("User not found.");
+            throw new UserNotFoundException("UserInfo not found.");
         }
     }
 
@@ -238,12 +238,12 @@ public final class UserServiceImpl implements UserService {
         userDao.remove(userModel);
     }
 
-    private User createPublicUserFromModels(UserModel userModel) {
-        return new User(userModel.jid, userModel.username, userModel.name, getAvatarImageUrl(userModel.profilePictureImageName));
+    private UserInfo createPublicUserFromModels(UserModel userModel) {
+        return new UserInfo(userModel.jid, userModel.username, userModel.name, getAvatarImageUrl(userModel.profilePictureImageName));
     }
 
-    private User createUserFromModels(UserModel userModel, UserEmailModel emailModel) {
-        return new User(userModel.id, userModel.jid, userModel.username, userModel.name, emailModel.email, getAvatarImageUrl(userModel.profilePictureImageName), Arrays.asList(userModel.roles.split(",")));
+    private UserInfo createUserFromModels(UserModel userModel, UserEmailModel emailModel) {
+        return new UserInfo(userModel.id, userModel.jid, userModel.username, userModel.name, emailModel.email, getAvatarImageUrl(userModel.profilePictureImageName), Arrays.asList(userModel.roles.split(",")));
     }
 
     private URL getAvatarImageUrl(String imageName) {

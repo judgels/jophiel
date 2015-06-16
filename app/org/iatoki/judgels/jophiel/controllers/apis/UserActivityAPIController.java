@@ -3,9 +3,9 @@ package org.iatoki.judgels.jophiel.controllers.apis;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.codec.binary.Base64;
-import org.iatoki.judgels.jophiel.commons.plains.AccessToken;
-import org.iatoki.judgels.jophiel.commons.plains.User;
-import org.iatoki.judgels.jophiel.commons.plains.UserActivity;
+import org.iatoki.judgels.jophiel.AccessToken;
+import org.iatoki.judgels.jophiel.UserInfo;
+import org.iatoki.judgels.jophiel.UserActivity;
 import org.iatoki.judgels.jophiel.services.ClientService;
 import org.iatoki.judgels.jophiel.services.UserActivityService;
 import org.iatoki.judgels.jophiel.services.UserService;
@@ -41,7 +41,7 @@ public final class UserActivityAPIController extends Controller {
         if (clientService.isValidAccessTokenExist(token)) {
             AccessToken accessToken = clientService.findAccessTokenByAccessToken(token);
 
-            User user = userService.findUserByUserJid(accessToken.getUserJid());
+            UserInfo user = userService.findUserByUserJid(accessToken.getUserJid());
             String userActivitiesString = form.get("userActivities");
             JsonNode jsonNode = Json.parse(userActivitiesString);
             for (int i = 0; i < jsonNode.size(); ++i) {

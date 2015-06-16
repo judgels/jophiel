@@ -1,8 +1,8 @@
 package org.iatoki.judgels.jophiel.services;
 
 import org.iatoki.judgels.commons.Page;
-import org.iatoki.judgels.jophiel.commons.exceptions.UserNotFoundException;
-import org.iatoki.judgels.jophiel.commons.plains.User;
+import org.iatoki.judgels.jophiel.UserInfo;
+import org.iatoki.judgels.jophiel.UserNotFoundException;
 
 import java.util.List;
 
@@ -12,19 +12,19 @@ public interface UserService {
 
     boolean existsByUserJid(String userJid);
 
-    List<User> findAllUserByTerm(String term);
+    List<UserInfo> findAllUserByTerm(String term);
 
-    Page<User> pageUsers(long pageIndex, long pageSize, String orderBy, String orderDir, String filterString);
+    Page<UserInfo> pageUsers(long pageIndex, long pageSize, String orderBy, String orderDir, String filterString);
 
-    Page<User> pageUnverifiedUsers(long pageIndex, long pageSize, String orderBy, String orderDir, String filterString);
+    Page<UserInfo> pageUnverifiedUsers(long pageIndex, long pageSize, String orderBy, String orderDir, String filterString);
 
-    User findUserById(long userId) throws UserNotFoundException;
+    UserInfo findUserById(long userId) throws UserNotFoundException;
 
-    User findUserByUserJid(String userJid);
+    UserInfo findUserByUserJid(String userJid);
 
-    User findPublicUserByUserJid(String userJid);
+    UserInfo findPublicUserByUserJid(String userJid);
 
-    User findUserByUsername(String username);
+    UserInfo findUserByUsername(String username);
 
     void createUser(String username, String name, String email, String password, List<String> roles);
 
