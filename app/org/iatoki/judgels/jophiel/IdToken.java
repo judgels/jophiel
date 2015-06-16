@@ -1,7 +1,5 @@
 package org.iatoki.judgels.jophiel;
 
-import org.iatoki.judgels.jophiel.models.domains.IdTokenModel;
-
 public final class IdToken {
 
     private final long id;
@@ -16,13 +14,13 @@ public final class IdToken {
 
     private final boolean redeemed;
 
-    public IdToken(IdTokenModel idTokenModel) {
-        this.id = idTokenModel.id;
-        this.code = idTokenModel.code;
-        this.userJid = idTokenModel.userJid;
-        this.clientJid = idTokenModel.clientJid;
-        this.token = idTokenModel.token;
-        this.redeemed = idTokenModel.redeemed;
+    public IdToken(long id, String code, String userJid, String clientJid, String token, boolean redeemed) {
+        this.id = id;
+        this.code = code;
+        this.userJid = userJid;
+        this.clientJid = clientJid;
+        this.token = token;
+        this.redeemed = redeemed;
     }
 
     public long getId() {

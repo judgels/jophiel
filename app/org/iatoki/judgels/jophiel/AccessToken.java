@@ -1,7 +1,5 @@
 package org.iatoki.judgels.jophiel;
 
-import org.iatoki.judgels.jophiel.models.domains.AccessTokenModel;
-
 public final class AccessToken {
 
     private final long id;
@@ -20,15 +18,15 @@ public final class AccessToken {
 
     private final String scopes;
 
-    public AccessToken(AccessTokenModel accessTokenModel) {
-        this.id = accessTokenModel.id;
-        this.code = accessTokenModel.code;
-        this.userJid = accessTokenModel.userJid;
-        this.clientJid = accessTokenModel.clientJid;
-        this.token = accessTokenModel.token;
-        this.expireTime = accessTokenModel.expireTime;
-        this.redeemed = accessTokenModel.redeemed;
-        this.scopes = accessTokenModel.scopes;
+    public AccessToken(long id, String code, String userJid, String clientJid, String token, long expireTime, boolean redeemed, String scopes) {
+        this.id = id;
+        this.code = code;
+        this.userJid = userJid;
+        this.clientJid = clientJid;
+        this.token = token;
+        this.expireTime = expireTime;
+        this.redeemed = redeemed;
+        this.scopes = scopes;
     }
 
     public long getId() {

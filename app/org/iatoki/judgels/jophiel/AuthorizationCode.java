@@ -1,9 +1,6 @@
 package org.iatoki.judgels.jophiel;
 
-import org.iatoki.judgels.commons.models.domains.AbstractModel;
-import org.iatoki.judgels.jophiel.models.domains.AuthorizationCodeModel;
-
-public final class AuthorizationCode extends AbstractModel {
+public final class AuthorizationCode {
 
     private final long id;
 
@@ -19,14 +16,14 @@ public final class AuthorizationCode extends AbstractModel {
 
     private final String scopes;
 
-    public AuthorizationCode(AuthorizationCodeModel authorizationCodeModel) {
-        this.id = authorizationCodeModel.id;
-        this.userJid = authorizationCodeModel.userJid;
-        this.clientJid = authorizationCodeModel.clientJid;
-        this.code = authorizationCodeModel.code;
-        this.redirectURI = authorizationCodeModel.redirectURI;
-        this.expireTime = authorizationCodeModel.expireTime;
-        this.scopes = authorizationCodeModel.scopes;
+    public AuthorizationCode(long id, String userJid, String clientJid, String code, String redirectURI, long expireTime, String scopes) {
+        this.id = id;
+        this.userJid = userJid;
+        this.clientJid = clientJid;
+        this.code = code;
+        this.redirectURI = redirectURI;
+        this.expireTime = expireTime;
+        this.scopes = scopes;
     }
 
     public long getId() {
