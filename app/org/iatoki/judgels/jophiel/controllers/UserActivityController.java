@@ -9,18 +9,18 @@ import org.iatoki.judgels.commons.Page;
 import org.iatoki.judgels.commons.controllers.BaseController;
 import org.iatoki.judgels.commons.views.html.layouts.headingLayout;
 import org.iatoki.judgels.commons.views.html.layouts.tabLayout;
-import org.iatoki.judgels.jophiel.commons.plains.User;
-import org.iatoki.judgels.jophiel.commons.plains.UserActivity;
-import org.iatoki.judgels.jophiel.controllers.security.Authenticated;
-import org.iatoki.judgels.jophiel.controllers.security.Authorized;
-import org.iatoki.judgels.jophiel.controllers.security.HasRole;
-import org.iatoki.judgels.jophiel.controllers.security.LoggedIn;
+import org.iatoki.judgels.jophiel.UserInfo;
+import org.iatoki.judgels.jophiel.UserActivity;
+import org.iatoki.judgels.jophiel.controllers.securities.Authenticated;
+import org.iatoki.judgels.jophiel.controllers.securities.Authorized;
+import org.iatoki.judgels.jophiel.controllers.securities.HasRole;
+import org.iatoki.judgels.jophiel.controllers.securities.LoggedIn;
 import org.iatoki.judgels.jophiel.services.ClientService;
 import org.iatoki.judgels.jophiel.services.UserActivityService;
 import org.iatoki.judgels.jophiel.services.UserService;
-import org.iatoki.judgels.jophiel.views.html.user.activity.listOwnActivitiesView;
-import org.iatoki.judgels.jophiel.views.html.user.activity.listUserActivitiesView;
-import org.iatoki.judgels.jophiel.views.html.user.activity.listUsersActivitiesView;
+import org.iatoki.judgels.jophiel.views.html.activity.listOwnActivitiesView;
+import org.iatoki.judgels.jophiel.views.html.activity.listUserActivitiesView;
+import org.iatoki.judgels.jophiel.views.html.activity.listUsersActivitiesView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import play.db.jpa.Transactional;
@@ -124,7 +124,7 @@ public final class UserActivityController extends BaseController {
     @Authorized("admin")
     public Result listUserActivities(String username, long page, String orderBy, String orderDir, String filterString, String clientNames) {
         if (userService.existByUsername(username)) {
-            User user = userService.findUserByUsername(username);
+            UserInfo user = userService.findUserByUsername(username);
             String[] clientName = clientNames.split(",");
             ImmutableSet.Builder<String> clientNamesSetBuilder = ImmutableSet.builder();
             for (String client : clientName) {

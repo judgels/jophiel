@@ -9,17 +9,17 @@ import org.iatoki.judgels.commons.controllers.BaseController;
 import org.iatoki.judgels.commons.views.html.layouts.headingLayout;
 import org.iatoki.judgels.commons.views.html.layouts.headingWithActionLayout;
 import org.iatoki.judgels.commons.views.html.layouts.tabLayout;
+import org.iatoki.judgels.jophiel.UserInfo;
 import org.iatoki.judgels.jophiel.JophielUtils;
-import org.iatoki.judgels.jophiel.commons.plains.User;
 import org.iatoki.judgels.jophiel.services.UserActivityService;
 import org.iatoki.judgels.jophiel.controllers.forms.UserCreateForm;
-import org.iatoki.judgels.jophiel.commons.exceptions.UserNotFoundException;
+import org.iatoki.judgels.jophiel.UserNotFoundException;
 import org.iatoki.judgels.jophiel.services.UserService;
 import org.iatoki.judgels.jophiel.controllers.forms.UserUpdateForm;
-import org.iatoki.judgels.jophiel.controllers.security.Authenticated;
-import org.iatoki.judgels.jophiel.controllers.security.Authorized;
-import org.iatoki.judgels.jophiel.controllers.security.HasRole;
-import org.iatoki.judgels.jophiel.controllers.security.LoggedIn;
+import org.iatoki.judgels.jophiel.controllers.securities.Authenticated;
+import org.iatoki.judgels.jophiel.controllers.securities.Authorized;
+import org.iatoki.judgels.jophiel.controllers.securities.HasRole;
+import org.iatoki.judgels.jophiel.controllers.securities.LoggedIn;
 import org.iatoki.judgels.jophiel.views.html.user.createUserView;
 import org.iatoki.judgels.jophiel.views.html.user.listUnverifiedUsersView;
 import org.iatoki.judgels.jophiel.views.html.user.listUsersView;
@@ -57,7 +57,7 @@ public final class UserController extends BaseController {
     @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Authorized(value = {"admin"})
     public Result listUsers(long pageIndex, String orderBy, String orderDir, String filterString) {
-        Page<User> currentPage = userService.pageUsers(pageIndex, PAGE_SIZE, orderBy, orderDir, filterString);
+        Page<UserInfo> currentPage = userService.pageUsers(pageIndex, PAGE_SIZE, orderBy, orderDir, filterString);
 
         LazyHtml content = new LazyHtml(listUsersView.render(currentPage, orderBy, orderDir, filterString));
         content.appendLayout(c -> tabLayout.render(ImmutableList.of(
@@ -85,7 +85,7 @@ public final class UserController extends BaseController {
     @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Authorized(value = {"admin"})
     public Result listUnverifiedUsers(long pageIndex, String orderBy, String orderDir, String filterString) {
-        Page<User> currentPage = userService.pageUnverifiedUsers(pageIndex, PAGE_SIZE, orderBy, orderDir, filterString);
+        Page<UserInfo> currentPage = userService.pageUnverifiedUsers(pageIndex, PAGE_SIZE, orderBy, orderDir, filterString);
 
         LazyHtml content = new LazyHtml(listUnverifiedUsersView.render(currentPage, orderBy, orderDir, filterString));
         content.appendLayout(c -> tabLayout.render(ImmutableList.of(
@@ -107,7 +107,7 @@ public final class UserController extends BaseController {
     @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Authorized(value = {"admin"})
     public Result viewUser(long userId) throws UserNotFoundException {
-        User user = userService.findUserById(userId);
+        UserInfo user = userService.findUserById(userId);
         LazyHtml content = new LazyHtml(viewUserView.render(user));
         content.appendLayout(c -> headingWithActionLayout.render(Messages.get("user.user") + " #" + userId + ": " + user.getName(), new InternalLink(Messages.get("commons.update"), routes.UserController.updateUser(userId)), c));
         ControllerUtils.getInstance().appendSidebarLayout(content);
@@ -156,7 +156,7 @@ public final class UserController extends BaseController {
     @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Authorized(value = {"admin"})
     public Result updateUser(long userId) throws UserNotFoundException {
-        User user = userService.findUserById(userId);
+        UserInfo user = userService.findUserById(userId);
         UserUpdateForm userUpdateForm = new UserUpdateForm(user);
         Form<UserUpdateForm> form = Form.form(UserUpdateForm.class).fill(userUpdateForm);
 
@@ -169,7 +169,7 @@ public final class UserController extends BaseController {
     @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Authorized(value = {"admin"})
     public Result postUpdateUser(long userId) throws UserNotFoundException {
-        User user = userService.findUserById(userId);
+        UserInfo user = userService.findUserById(userId);
         Form<UserUpdateForm> form = Form.form(UserUpdateForm.class).bindFromRequest();
 
         if (form.hasErrors() || form.hasGlobalErrors()) {
@@ -191,7 +191,7 @@ public final class UserController extends BaseController {
     @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Authorized(value = {"admin"})
     public Result deleteUser(long userId) throws UserNotFoundException {
-        User user = userService.findUserById(userId);
+        UserInfo user = userService.findUserById(userId);
         userService.deleteUser(user.getId());
 
         ControllerUtils.getInstance().addActivityLog(userActivityService, "Delete user " + user.getUsername() + " <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
@@ -211,7 +211,7 @@ public final class UserController extends BaseController {
         return ControllerUtils.getInstance().lazyOk(content);
     }
 
-    private Result showUpdateUser(Form<UserUpdateForm> form, User user) {
+    private Result showUpdateUser(Form<UserUpdateForm> form, UserInfo user) {
         LazyHtml content = new LazyHtml(updateUserView.render(form, user.getId()));
         content.appendLayout(c -> headingLayout.render(Messages.get("user.user") + " #" + user.getId() + ": " + user.getUsername(), c));
         ControllerUtils.getInstance().appendSidebarLayout(content);

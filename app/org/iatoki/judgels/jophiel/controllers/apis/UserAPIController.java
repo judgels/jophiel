@@ -6,18 +6,18 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.iatoki.judgels.commons.IdentityUtils;
-import org.iatoki.judgels.jophiel.commons.plains.AccessToken;
+import org.iatoki.judgels.jophiel.AccessToken;
 import org.iatoki.judgels.commons.AutoComplete;
-import org.iatoki.judgels.jophiel.commons.plains.Client;
+import org.iatoki.judgels.jophiel.Client;
+import org.iatoki.judgels.jophiel.UserInfo;
 import org.iatoki.judgels.jophiel.services.ClientService;
-import org.iatoki.judgels.jophiel.commons.plains.IdToken;
-import org.iatoki.judgels.jophiel.commons.plains.RefreshToken;
-import org.iatoki.judgels.jophiel.commons.plains.User;
+import org.iatoki.judgels.jophiel.IdToken;
+import org.iatoki.judgels.jophiel.RefreshToken;
 import org.iatoki.judgels.jophiel.services.UserProfileService;
 import org.iatoki.judgels.jophiel.services.UserService;
-import org.iatoki.judgels.jophiel.commons.plains.AuthorizationCode;
-import org.iatoki.judgels.jophiel.controllers.security.Authenticated;
-import org.iatoki.judgels.jophiel.controllers.security.LoggedIn;
+import org.iatoki.judgels.jophiel.AuthorizationCode;
+import org.iatoki.judgels.jophiel.controllers.securities.Authenticated;
+import org.iatoki.judgels.jophiel.controllers.securities.LoggedIn;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import play.data.DynamicForm;
@@ -68,12 +68,12 @@ public final class UserAPIController extends Controller {
         response().setContentType("application/javascript");
 
         DynamicForm form = DynamicForm.form().bindFromRequest();
-        User user = userService.findUserByUserJid(IdentityUtils.getUserJid());
+        UserInfo user = userService.findUserByUserJid(IdentityUtils.getUserJid());
         String term = form.get("term");
-        List<User> users = userService.findAllUserByTerm(term);
+        List<UserInfo> users = userService.findAllUserByTerm(term);
         ImmutableList.Builder<AutoComplete> responseBuilder = ImmutableList.builder();
 
-        for (User user1 : users) {
+        for (UserInfo user1 : users) {
             responseBuilder.add(new AutoComplete(user1.getJid(), user1.getUsername(), user1.getUsername() + " (" + user1.getName() + ")"));
         }
 
@@ -110,7 +110,7 @@ public final class UserAPIController extends Controller {
 
         if (clientService.isValidAccessTokenExist(token)) {
             AccessToken accessToken = clientService.findAccessTokenByAccessToken(token);
-            User user = userService.findUserByUserJid(accessToken.getUserJid());
+            UserInfo user = userService.findUserByUserJid(accessToken.getUserJid());
             ObjectNode result = Json.newObject();
             result.put("sub", user.getJid());
             result.put("name", user.getName());
@@ -145,7 +145,7 @@ public final class UserAPIController extends Controller {
                 String username = form.get("username");
 
                 if (userService.existByUsername(username)) {
-                    User user1 = userService.findUserByUsername(username);
+                    UserInfo user1 = userService.findUserByUsername(username);
 
                     ObjectNode objectNode = Json.newObject();
                     objectNode.put("success", true);
@@ -189,7 +189,7 @@ public final class UserAPIController extends Controller {
             if (client.getSecret().equals(clientSecret)) {
                 String userJid = form.get("userJid");
                 if (userService.existsByUserJid(userJid)) {
-                    User response = userService.findPublicUserByUserJid(userJid);
+                    UserInfo response = userService.findPublicUserByUserJid(userJid);
 
                     return ok(Json.toJson(response));
                 } else {

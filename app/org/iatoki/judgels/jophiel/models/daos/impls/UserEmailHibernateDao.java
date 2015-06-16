@@ -2,8 +2,8 @@ package org.iatoki.judgels.jophiel.models.daos.impls;
 
 import org.iatoki.judgels.commons.models.daos.hibernate.AbstractHibernateDao;
 import org.iatoki.judgels.jophiel.models.daos.UserEmailDao;
-import org.iatoki.judgels.jophiel.models.domains.UserEmailModel;
-import org.iatoki.judgels.jophiel.models.domains.UserEmailModel_;
+import org.iatoki.judgels.jophiel.models.entities.UserEmailModel;
+import org.iatoki.judgels.jophiel.models.entities.UserEmailModel_;
 import org.springframework.stereotype.Repository;
 import play.db.jpa.JPA;
 

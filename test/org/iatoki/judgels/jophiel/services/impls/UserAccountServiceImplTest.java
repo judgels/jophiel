@@ -4,15 +4,16 @@ import org.iatoki.judgels.commons.IdentityUtils;
 import org.iatoki.judgels.commons.JudgelsUtils;
 import org.iatoki.judgels.commons.models.domains.AbstractModel;
 import org.iatoki.judgels.jophiel.PasswordHash;
-import org.iatoki.judgels.jophiel.commons.exceptions.EmailNotVerifiedException;
-import org.iatoki.judgels.jophiel.commons.exceptions.UserNotFoundException;
-import org.iatoki.judgels.jophiel.commons.plains.User;
+import org.iatoki.judgels.jophiel.EmailNotVerifiedException;
+import org.iatoki.judgels.jophiel.UserInfo;
+import org.iatoki.judgels.jophiel.UserNotFoundException;
+import org.iatoki.judgels.jophiel.User;
 import org.iatoki.judgels.jophiel.models.daos.UserDao;
 import org.iatoki.judgels.jophiel.models.daos.UserEmailDao;
 import org.iatoki.judgels.jophiel.models.daos.UserForgotPasswordDao;
-import org.iatoki.judgels.jophiel.models.domains.UserEmailModel;
-import org.iatoki.judgels.jophiel.models.domains.UserForgotPasswordModel;
-import org.iatoki.judgels.jophiel.models.domains.UserModel;
+import org.iatoki.judgels.jophiel.models.entities.UserEmailModel;
+import org.iatoki.judgels.jophiel.models.entities.UserForgotPasswordModel;
+import org.iatoki.judgels.jophiel.models.entities.UserModel;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -100,10 +101,10 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
         Assert.assertTrue(PasswordHash.validatePassword(password, userModel.password), "Password not hashed");
         Assert.assertEquals("avatar-default.png", userModel.profilePictureImageName, "Profile picture not avatar-default.png");
         Assert.assertEquals("user", userModel.roles, "Roles not user");
-        Assert.assertEquals("guest", userModel.userCreate, "User create must be guest");
+        Assert.assertEquals("guest", userModel.userCreate, "UserInfo create must be guest");
         Assert.assertNotNull(userModel.ipCreate, "IP create must not be null");
-        Assert.assertEquals("guest", userEmailModel.userCreate, "User Email create must be guest");
-        Assert.assertNotNull(userEmailModel.ipCreate, "User Email IP create must not be null");
+        Assert.assertEquals("guest", userEmailModel.userCreate, "UserInfo Email create must be guest");
+        Assert.assertNotNull(userEmailModel.ipCreate, "UserInfo Email IP create must not be null");
     }
 
     @Test(expectedExceptions = IllegalStateException.class)
@@ -212,8 +213,8 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
 
         Assert.assertTrue(userForgotPasswordModel.used, "Forgot password code not used");
         Assert.assertTrue(userForgotPasswordModel.timeUpdate > userForgotPasswordModel.timeCreate, "Forgot password not updated");
-        Assert.assertTrue(PasswordHash.validatePassword(newPassword, userModel.password), "User password not changed");
-        Assert.assertTrue(userModel.timeUpdate > userModel.timeCreate, "User password not updated");
+        Assert.assertTrue(PasswordHash.validatePassword(newPassword, userModel.password), "UserInfo password not changed");
+        Assert.assertTrue(userModel.timeUpdate > userModel.timeCreate, "UserInfo password not updated");
     }
 
     @Test
@@ -245,9 +246,9 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
         Mockito.when(Http.Context.current()).thenReturn(context);
         Mockito.when(context.request()).thenReturn(request);
 
-        User user = userAccountService.login(username, password);
+        UserInfo user = userAccountService.login(username, password);
 
-        Assert.assertNotNull(user, "User must not be null");
+        Assert.assertNotNull(user, "UserInfo must not be null");
         Assert.assertEquals(username, user.getUsername(), "Username not equals");
     }
 
@@ -281,9 +282,9 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
         Mockito.when(Http.Context.current()).thenReturn(context);
         Mockito.when(context.request()).thenReturn(request);
 
-        User user = userAccountService.login(email, password);
+        UserInfo user = userAccountService.login(email, password);
 
-        Assert.assertNotNull(user, "User must not be null");
+        Assert.assertNotNull(user, "UserInfo must not be null");
         Assert.assertEquals(email, user.getEmail(), "Email not equals");
     }
 
@@ -295,7 +296,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
         Mockito.when(userDao.existByUsername(username)).thenReturn(false);
         Mockito.when(userEmailDao.isExistByEmail(username)).thenReturn(false);
 
-        User user = userAccountService.login(username, password);
+        UserInfo user = userAccountService.login(username, password);
 
         Assert.fail("Unreachable");
     }
@@ -317,7 +318,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
         userEmailModel.emailVerified = false;
         Mockito.when(userEmailDao.findByUserJid(userEmailModel.userJid)).thenReturn(userEmailModel);
 
-        User user = userAccountService.login(username, password);
+        UserInfo user = userAccountService.login(username, password);
 
         Assert.fail("Unreachable");
     }
@@ -339,9 +340,9 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
         userEmailModel.userJid = userModel.jid;
         Mockito.when(userEmailDao.findByUserJid(userEmailModel.userJid)).thenReturn(userEmailModel);
 
-        User user = userAccountService.login(username, password);
+        UserInfo user = userAccountService.login(username, password);
 
-        Assert.assertNull(user, "User not null");
+        Assert.assertNull(user, "UserInfo not null");
     }
 
     @Test
@@ -372,7 +373,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
         userAccountService.updatePassword(userJid, newPassword);
 
         Assert.assertTrue(PasswordHash.validatePassword(newPassword, userModel.password), "Password not changed");
-        Assert.assertNotEquals(userModel.userCreate, userModel.userUpdate, "User update not updated");
+        Assert.assertNotEquals(userModel.userCreate, userModel.userUpdate, "UserInfo update not updated");
         Assert.assertTrue(userModel.timeUpdate > userModel.timeCreate, "Time update not updated");
     }
 

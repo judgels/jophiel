@@ -2,14 +2,14 @@ package org.iatoki.judgels.jophiel.services.impls;
 
 import org.iatoki.judgels.commons.Page;
 import org.iatoki.judgels.commons.models.domains.AbstractModel;
-import org.iatoki.judgels.jophiel.commons.plains.UserActivity;
+import org.iatoki.judgels.jophiel.UserActivity;
 import org.iatoki.judgels.jophiel.models.daos.ClientDao;
 import org.iatoki.judgels.jophiel.models.daos.UserActivityDao;
 import org.iatoki.judgels.jophiel.models.daos.UserDao;
-import org.iatoki.judgels.jophiel.models.domains.ClientModel;
-import org.iatoki.judgels.jophiel.models.domains.UserActivityModel;
-import org.iatoki.judgels.jophiel.models.domains.UserActivityModel_;
-import org.iatoki.judgels.jophiel.models.domains.UserModel;
+import org.iatoki.judgels.jophiel.models.entities.ClientModel;
+import org.iatoki.judgels.jophiel.models.entities.UserActivityModel;
+import org.iatoki.judgels.jophiel.models.entities.UserActivityModel_;
+import org.iatoki.judgels.jophiel.models.entities.UserModel;
 import org.mockito.InjectMocks;
 import org.mockito.Matchers;
 import org.mockito.Mock;
@@ -100,8 +100,8 @@ public class UserActivityServiceImplTest extends PowerMockTestCase {
 
         Page<UserActivity> userActivityPage = userActivityService.pageUserActivities(pageIndex, pageSize, orderBy, orderDir, filterString, clientNames, username);
 
-        Assert.assertNotNull(userActivityPage.getData(), "User activity page data must not be null");
-        Assert.assertEquals(totalRow, userActivityPage.getTotalRowsCount(), "User activity page total rows count not match");
+        Assert.assertNotNull(userActivityPage.getData(), "UserInfo activity page data must not be null");
+        Assert.assertEquals(totalRow, userActivityPage.getTotalRowsCount(), "UserInfo activity page total rows count not match");
 
         UserActivity secondElement = userActivityPage.getData().get(1);
         Assert.assertEquals(secondElement.getClientJid(), secondElement.getClientName(), "Second element client name must equals client jid");
@@ -160,8 +160,8 @@ public class UserActivityServiceImplTest extends PowerMockTestCase {
 
         Page<UserActivity> userActivityPage = userActivityService.pageUsersActivities(pageIndex, pageSize, orderBy, orderDir, filterString, clientNames, usernames);
 
-        Assert.assertNotNull(userActivityPage.getData(), "User activity page data must not be null");
-        Assert.assertEquals(totalRow, userActivityPage.getTotalRowsCount(), "User activity page total rows count not match");
+        Assert.assertNotNull(userActivityPage.getData(), "UserInfo activity page data must not be null");
+        Assert.assertEquals(totalRow, userActivityPage.getTotalRowsCount(), "UserInfo activity page total rows count not match");
 
         UserActivity secondElement = userActivityPage.getData().get(1);
         Assert.assertEquals(secondElement.getUserJid(), secondElement.getUsername(), "Second element username must equals user jid");
@@ -193,7 +193,7 @@ public class UserActivityServiceImplTest extends PowerMockTestCase {
         Assert.assertEquals(clientJid, userActivityModel.clientJid, "Client jid not equals");
         Assert.assertEquals(time, userActivityModel.time, "Time not equals");
         Assert.assertEquals(log, userActivityModel.log, "Log not equals");
-        Assert.assertEquals(userJid, userActivityModel.userCreate, "User create not equals");
+        Assert.assertEquals(userJid, userActivityModel.userCreate, "UserInfo create not equals");
         Assert.assertEquals(ipAddress, userActivityModel.ipCreate, "IP create not equals");
     }
 

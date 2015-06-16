@@ -1,7 +1,7 @@
 package org.iatoki.judgels.jophiel.models.daos;
 
 import org.iatoki.judgels.commons.models.daos.interfaces.JudgelsDao;
-import org.iatoki.judgels.jophiel.models.domains.UserModel;
+import org.iatoki.judgels.jophiel.models.entities.UserModel;
 
 import java.util.Collection;
 import java.util.List;

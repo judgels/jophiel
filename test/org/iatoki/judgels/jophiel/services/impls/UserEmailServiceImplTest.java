@@ -5,8 +5,8 @@ import org.iatoki.judgels.commons.JudgelsProperties;
 import org.iatoki.judgels.jophiel.JophielProperties;
 import org.iatoki.judgels.jophiel.models.daos.UserDao;
 import org.iatoki.judgels.jophiel.models.daos.UserEmailDao;
-import org.iatoki.judgels.jophiel.models.domains.UserEmailModel;
-import org.iatoki.judgels.jophiel.models.domains.UserModel;
+import org.iatoki.judgels.jophiel.models.entities.UserEmailModel;
+import org.iatoki.judgels.jophiel.models.entities.UserModel;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -123,7 +123,7 @@ public class UserEmailServiceImplTest extends PowerMockTestCase {
         }).when(userEmailDao).edit(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 
         Assert.assertTrue(userEmailService.activateEmail(emailCode), "Invalid email code or email has been activated");
-        Assert.assertNotEquals(userEmailModel.userCreate, userEmailModel.userUpdate, "User update not updated");
+        Assert.assertNotEquals(userEmailModel.userCreate, userEmailModel.userUpdate, "UserInfo update not updated");
         Assert.assertTrue(userEmailModel.timeUpdate > userEmailModel.timeCreate, "Time update ot updated");
     }
 
@@ -152,7 +152,7 @@ public class UserEmailServiceImplTest extends PowerMockTestCase {
         String unverifiedUserJid = "JIDU0101";
         Mockito.when(userEmailDao.isExistNotVerifiedByUserJid(unverifiedUserJid)).thenReturn(true);
 
-        Assert.assertTrue(userEmailService.isEmailNotVerified(unverifiedUserJid), "User is verified");
+        Assert.assertTrue(userEmailService.isEmailNotVerified(unverifiedUserJid), "UserInfo is verified");
     }
 
     @Test
@@ -160,7 +160,7 @@ public class UserEmailServiceImplTest extends PowerMockTestCase {
         String verifiedUserJid = "JIDU1111";
         Mockito.when(userEmailDao.isExistNotVerifiedByUserJid(verifiedUserJid)).thenReturn(false);
 
-        Assert.assertFalse(userEmailService.isEmailNotVerified(verifiedUserJid), "User is not verified");
+        Assert.assertFalse(userEmailService.isEmailNotVerified(verifiedUserJid), "UserInfo is not verified");
     }
 
     @Test

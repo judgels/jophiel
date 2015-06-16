@@ -1,7 +1,7 @@
 package org.iatoki.judgels.jophiel.models.daos;
 
 import org.iatoki.judgels.commons.models.daos.interfaces.Dao;
-import org.iatoki.judgels.jophiel.models.domains.AuthorizationCodeModel;
+import org.iatoki.judgels.jophiel.models.entities.AuthorizationCodeModel;
 
 public interface AuthorizationCodeDao extends Dao<Long, AuthorizationCodeModel> {
 
