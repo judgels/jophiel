@@ -262,7 +262,7 @@ public final class ClientServiceImpl implements ClientService {
     public org.iatoki.judgels.jophiel.AuthorizationCode findAuthorizationCodeByCode(String code) {
         AuthorizationCodeModel authorizationCodeModel = authorizationCodeDao.findByCode(code);
 
-        return new org.iatoki.judgels.jophiel.AuthorizationCode(authorizationCodeModel);
+        return createAuthorizationCodeFromModel(authorizationCodeModel);
     }
 
     @Override
@@ -281,42 +281,42 @@ public final class ClientServiceImpl implements ClientService {
 
         accessTokenDao.persist(accessTokenModel1, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
 
-        return new AccessToken(accessTokenModel1);
+        return createAccessTokenFromModel(accessTokenModel1);
     }
 
     @Override
     public AccessToken findAccessTokenByAccessToken(String token) {
         AccessTokenModel accessTokenModel = accessTokenDao.findByToken(token);
 
-        return new AccessToken(accessTokenModel);
+        return createAccessTokenFromModel(accessTokenModel);
     }
 
     @Override
     public AccessToken findAccessTokenByCode(String code) {
         AccessTokenModel accessTokenModel = accessTokenDao.findByCode(code);
 
-        return new AccessToken(accessTokenModel);
+        return createAccessTokenFromModel(accessTokenModel);
     }
 
     @Override
     public RefreshToken findRefreshTokenByRefreshToken(String token) {
         RefreshTokenModel refreshTokenModel = refreshTokenDao.findByToken(token);
 
-        return new RefreshToken(refreshTokenModel);
+        return createRefreshTokenFromModel(refreshTokenModel);
     }
 
     @Override
     public RefreshToken findRefreshTokenByCode(String code) {
         RefreshTokenModel refreshTokenModel = refreshTokenDao.findByCode(code);
 
-        return new RefreshToken(refreshTokenModel);
+        return createRefreshTokenFromModel(refreshTokenModel);
     }
 
     @Override
     public IdToken findIdTokenByCode(String code) {
         IdTokenModel idTokenModel = idTokenDao.findByCode(code);
 
-        return new IdToken(idTokenModel);
+        return createIdTokenFromModel(idTokenModel);
     }
 
     @Override
@@ -416,5 +416,21 @@ public final class ClientServiceImpl implements ClientService {
 
     private Client createClientFromModel(ClientModel clientModel, Set<String> scopeString, List<String> redirectURIs) {
         return new Client(clientModel.id, clientModel.jid, clientModel.name, clientModel.secret, clientModel.applicationType.toString(), scopeString, redirectURIs);
+    }
+
+    private org.iatoki.judgels.jophiel.AuthorizationCode createAuthorizationCodeFromModel(AuthorizationCodeModel authorizationCodeModel) {
+        return new org.iatoki.judgels.jophiel.AuthorizationCode(authorizationCodeModel.id, authorizationCodeModel.userJid, authorizationCodeModel.clientJid, authorizationCodeModel.code, authorizationCodeModel.redirectURI, authorizationCodeModel.expireTime, authorizationCodeModel.scopes);
+    }
+
+    private AccessToken createAccessTokenFromModel(AccessTokenModel accessTokenModel) {
+        return new AccessToken(accessTokenModel.id, accessTokenModel.code, accessTokenModel.userJid, accessTokenModel.clientJid, accessTokenModel.token, accessTokenModel.expireTime, accessTokenModel.redeemed, accessTokenModel.scopes);
+    }
+
+    private RefreshToken createRefreshTokenFromModel(RefreshTokenModel refreshTokenModel) {
+        return new RefreshToken(refreshTokenModel.id, refreshTokenModel.code, refreshTokenModel.userJid, refreshTokenModel.clientJid, refreshTokenModel.token, refreshTokenModel.scopes, refreshTokenModel.redeemed);
+    }
+
+    private IdToken createIdTokenFromModel(IdTokenModel idTokenModel) {
+        return new IdToken(idTokenModel.id, idTokenModel.code, idTokenModel.userJid, idTokenModel.clientJid, idTokenModel.token, idTokenModel.redeemed);
     }
 }
