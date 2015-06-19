@@ -5,7 +5,9 @@ import com.google.common.collect.ImmutableList;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.auth.UsernamePasswordCredentials;
 import org.iatoki.judgels.commons.IdentityUtils;
+import org.iatoki.judgels.commons.JudgelsUtils;
 import org.iatoki.judgels.jophiel.AccessToken;
 import org.iatoki.judgels.commons.AutoComplete;
 import org.iatoki.judgels.jophiel.Client;
@@ -127,41 +129,41 @@ public final class UserAPIController extends Controller {
 
     @Transactional
     public Result verifyUsername() {
-        DynamicForm form = DynamicForm.form().bindFromRequest();
-        String clientId;
-        String clientSecret;
-        if ((request().getHeader("Authorization") != null) && ("Basic".equals(request().getHeader("Authorization").split(" ")[0]))) {
-            String[] userPass = new String(Base64.decodeBase64(request().getHeader("Authorization").split(" ")[1])).split(":");
-            clientId = userPass[0];
-            clientSecret = userPass[1];
-        } else {
-            clientId = form.get("client_id");
-            clientSecret = form.get("client_secret");
-        }
+        UsernamePasswordCredentials credentials = JudgelsUtils.parseBasicAuthFromRequest(request());
 
-        if ((clientId != null) && (clientService.clientExistByClientJid(clientId))) {
-            Client client = clientService.findClientByJid(clientId);
-            if (client.getSecret().equals(clientSecret)) {
-                String username = form.get("username");
+        if (credentials != null) {
+            String clientJid = credentials.getUserName();
+            String clientSecret = credentials.getPassword();
 
-                if (userService.existByUsername(username)) {
-                    UserInfo user1 = userService.findUserByUsername(username);
+            DynamicForm form = DynamicForm.form().bindFromRequest();
+            if ((clientJid != null) && (clientService.clientExistByClientJid(clientJid))) {
+                Client client = clientService.findClientByJid(clientJid);
+                if (client.getSecret().equals(clientSecret)) {
+                    String username = form.get("username");
 
-                    ObjectNode objectNode = Json.newObject();
-                    objectNode.put("success", true);
-                    objectNode.put("jid", user1.getJid());
+                    if (userService.existByUsername(username)) {
+                        UserInfo user1 = userService.findUserByUsername(username);
 
-                    return ok(objectNode);
+                        ObjectNode objectNode = Json.newObject();
+                        objectNode.put("success", true);
+                        objectNode.put("jid", user1.getJid());
+
+                        return ok(objectNode);
+                    } else {
+                        ObjectNode objectNode = Json.newObject();
+                        objectNode.put("success", false);
+
+                        return ok(objectNode);
+                    }
                 } else {
-                    ObjectNode objectNode = Json.newObject();
-                    objectNode.put("success", false);
-
-                    return ok(objectNode);
+                    ObjectNode node = Json.newObject();
+                    node.put("error", "unauthorized_client");
+                    return unauthorized(node);
                 }
             } else {
                 ObjectNode node = Json.newObject();
-                node.put("error", "unauthorized_client");
-                return unauthorized(node);
+                node.put("error", "invalid_client");
+                return badRequest(node);
             }
         } else {
             ObjectNode node = Json.newObject();
@@ -172,35 +174,35 @@ public final class UserAPIController extends Controller {
 
     @Transactional
     public Result userInfoByUserJid() {
-        DynamicForm form = DynamicForm.form().bindFromRequest();
-        String clientId;
-        String clientSecret;
-        if ((request().getHeader("Authorization") != null) && ("Basic".equals(request().getHeader("Authorization").split(" ")[0]))) {
-            String[] userPass = new String(Base64.decodeBase64(request().getHeader("Authorization").split(" ")[1])).split(":");
-            clientId = userPass[0];
-            clientSecret = userPass[1];
-        } else {
-            clientId = form.get("client_id");
-            clientSecret = form.get("client_secret");
-        }
+        UsernamePasswordCredentials credentials = JudgelsUtils.parseBasicAuthFromRequest(request());
 
-        if ((clientId != null) && (clientService.clientExistByClientJid(clientId))) {
-            Client client = clientService.findClientByJid(clientId);
-            if (client.getSecret().equals(clientSecret)) {
-                String userJid = form.get("userJid");
-                if (userService.existsByUserJid(userJid)) {
-                    UserInfo response = userService.findPublicUserByUserJid(userJid);
+        if (credentials != null) {
+            String clientJid = credentials.getUserName();
+            String clientSecret = credentials.getPassword();
 
-                    return ok(Json.toJson(response));
+            DynamicForm form = DynamicForm.form().bindFromRequest();
+            if ((clientJid != null) && (clientService.clientExistByClientJid(clientJid))) {
+                Client client = clientService.findClientByJid(clientJid);
+                if (client.getSecret().equals(clientSecret)) {
+                    String userJid = form.get("userJid");
+                    if (userService.existsByUserJid(userJid)) {
+                        UserInfo response = userService.findPublicUserByUserJid(userJid);
+
+                        return ok(Json.toJson(response));
+                    } else {
+                        ObjectNode node = Json.newObject();
+                        node.put("error", "invalid_user");
+                        return unauthorized(node);
+                    }
                 } else {
                     ObjectNode node = Json.newObject();
-                    node.put("error", "invalid_user");
+                    node.put("error", "unauthorized_client");
                     return unauthorized(node);
                 }
             } else {
                 ObjectNode node = Json.newObject();
-                node.put("error", "unauthorized_client");
-                return unauthorized(node);
+                node.put("error", "invalid_client");
+                return badRequest(node);
             }
         } else {
             ObjectNode node = Json.newObject();
@@ -216,56 +218,56 @@ public final class UserAPIController extends Controller {
 
         if ((authorizationCode.getRedirectURI().equals(redirectUri)) && (!authorizationCode.isExpired())) {
             String scope = form.get("scope");
-            String clientId;
-            String clientSecret;
-            if ((request().getHeader("Authorization") != null) && ("Basic".equals(request().getHeader("Authorization").split(" ")[0]))) {
-                String[] userPass = new String(Base64.decodeBase64(request().getHeader("Authorization").split(" ")[1])).split(":");
-                clientId = userPass[0];
-                clientSecret = userPass[1];
-            } else {
-                clientId = form.get("client_id");
-                clientSecret = form.get("client_secret");
-            }
+            UsernamePasswordCredentials credentials = JudgelsUtils.parseBasicAuthFromRequest(request());
 
-            if ((clientId != null) && (clientService.clientExistByClientJid(clientId))) {
-                // TODO check if auth code is expired
-                Client client = clientService.findClientByJid(clientId);
-                if ((client.getSecret().equals(clientSecret)) && (authorizationCode.getClientJid().equals(client.getJid()))) {
-                    Set<String> addedSet = Arrays.asList(scope.split(" ")).stream()
-                            .filter(s -> (!"".equals(s)) && (!client.getScopes().contains(StringUtils.upperCase(s))))
-                            .collect(Collectors.toSet());
-                    if (addedSet.isEmpty()) {
-                        ObjectNode result = Json.newObject();
-                        AccessToken accessToken = clientService.findAccessTokenByCode(code);
-                        if (!accessToken.isRedeemed()) {
-                            result.put("access_token", accessToken.getToken());
-                            if (client.getScopes().contains("OFFLINE_ACCESS")) {
-                                RefreshToken refreshToken = clientService.findRefreshTokenByCode(code);
-                                result.put("refresh_token", refreshToken.getToken());
-                                clientService.redeemRefreshTokenById(refreshToken.getId());
+            if (credentials != null) {
+                String clientJid = credentials.getUserName();
+                String clientSecret = credentials.getPassword();
+
+                if ((clientJid != null) && (clientService.clientExistByClientJid(clientJid))) {
+                    // TODO check if auth code is expired
+                    Client client = clientService.findClientByJid(clientJid);
+                    if ((client.getSecret().equals(clientSecret)) && (authorizationCode.getClientJid().equals(client.getJid()))) {
+                        Set<String> addedSet = Arrays.asList(scope.split(" ")).stream()
+                                .filter(s -> (!"".equals(s)) && (!client.getScopes().contains(StringUtils.upperCase(s))))
+                                .collect(Collectors.toSet());
+                        if (addedSet.isEmpty()) {
+                            ObjectNode result = Json.newObject();
+                            AccessToken accessToken = clientService.findAccessTokenByCode(code);
+                            if (!accessToken.isRedeemed()) {
+                                result.put("access_token", accessToken.getToken());
+                                if (client.getScopes().contains("OFFLINE_ACCESS")) {
+                                    RefreshToken refreshToken = clientService.findRefreshTokenByCode(code);
+                                    result.put("refresh_token", refreshToken.getToken());
+                                    clientService.redeemRefreshTokenById(refreshToken.getId());
+                                }
+                                if (client.getScopes().contains("OPENID")) {
+                                    IdToken idToken = clientService.findIdTokenByCode(code);
+                                    result.put("id_token", idToken.getToken());
+                                    clientService.redeemIdTokenById(idToken.getId());
+                                }
+                                result.put("token_type", "Bearer");
+                                result.put("expire_in", clientService.redeemAccessTokenById(accessToken.getId()));
+                                return ok(result);
+                            } else {
+                                ObjectNode node = Json.newObject();
+                                node.put("error", "invalid_client");
+                                return badRequest(node);
                             }
-                            if (client.getScopes().contains("OPENID")) {
-                                IdToken idToken = clientService.findIdTokenByCode(code);
-                                result.put("id_token", idToken.getToken());
-                                clientService.redeemIdTokenById(idToken.getId());
-                            }
-                            result.put("token_type", "Bearer");
-                            result.put("expire_in", clientService.redeemAccessTokenById(accessToken.getId()));
-                            return ok(result);
                         } else {
                             ObjectNode node = Json.newObject();
-                            node.put("error", "invalid_client");
+                            node.put("error", "invalid_scope");
                             return badRequest(node);
                         }
                     } else {
                         ObjectNode node = Json.newObject();
-                        node.put("error", "invalid_scope");
-                        return badRequest(node);
+                        node.put("error", "unauthorized_client");
+                        return unauthorized(node);
                     }
                 } else {
                     ObjectNode node = Json.newObject();
-                    node.put("error", "unauthorized_client");
-                    return unauthorized(node);
+                    node.put("error", "invalid_client");
+                    return badRequest(node);
                 }
             } else {
                 ObjectNode node = Json.newObject();
@@ -333,41 +335,40 @@ public final class UserAPIController extends Controller {
 
         RefreshToken refreshToken1 = clientService.findRefreshTokenByRefreshToken(refreshToken);
         if ((refreshToken1.getToken().equals(refreshToken)) && (refreshToken1.isRedeemed())) {
-            String clientId;
-            String clientSecret;
-            if ((request().getHeader("Authorization") != null) && ("Basic".equals(request().getHeader("Authorization").split(" ")[0]))) {
-                String[] userPass = new String(Base64.decodeBase64(request().getHeader("Authorization").split(" ")[1])).split(":");
-                clientId = userPass[0];
-                clientSecret = userPass[1];
-            } else {
-                clientId = form.get("client_id");
-                clientSecret = form.get("client_secret");
-            }
+            UsernamePasswordCredentials credentials = JudgelsUtils.parseBasicAuthFromRequest(request());
 
-            if ((clientId != null) && (clientService.clientExistByClientJid(clientId))) {
-                Client client = clientService.findClientByJid(clientId);
-                if ((client.getSecret().equals(clientSecret)) && (refreshToken1.getClientJid().equals(client.getJid()))) {
-                    ObjectNode result = Json.newObject();
-                    if (refreshToken1.isRedeemed()) {
-                        AccessToken accessToken = clientService.regenerateAccessToken(refreshToken1.getCode(), refreshToken1.getUserJid(), refreshToken1.getClientJid(), Arrays.asList(refreshToken1.getScopes().split(",")), System.currentTimeMillis() + TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES));
-                        result.put("access_token", accessToken.getToken());
-                        if (client.getScopes().contains("OPENID")) {
-                            IdToken idToken = clientService.findIdTokenByCode(refreshToken1.getCode());
-                            result.put("id_token", idToken.getToken());
-                            clientService.redeemIdTokenById(idToken.getId());
+            if (credentials != null) {
+                String clientJid = credentials.getUserName();
+                String clientSecret = credentials.getPassword();
+                if ((clientJid != null) && (clientService.clientExistByClientJid(clientJid))) {
+                    Client client = clientService.findClientByJid(clientJid);
+                    if ((client.getSecret().equals(clientSecret)) && (refreshToken1.getClientJid().equals(client.getJid()))) {
+                        ObjectNode result = Json.newObject();
+                        if (refreshToken1.isRedeemed()) {
+                            AccessToken accessToken = clientService.regenerateAccessToken(refreshToken1.getCode(), refreshToken1.getUserJid(), refreshToken1.getClientJid(), Arrays.asList(refreshToken1.getScopes().split(",")), System.currentTimeMillis() + TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES));
+                            result.put("access_token", accessToken.getToken());
+                            if (client.getScopes().contains("OPENID")) {
+                                IdToken idToken = clientService.findIdTokenByCode(refreshToken1.getCode());
+                                result.put("id_token", idToken.getToken());
+                                clientService.redeemIdTokenById(idToken.getId());
+                            }
+                            result.put("token_type", "Bearer");
+                            result.put("expire_in", clientService.redeemAccessTokenById(accessToken.getId()));
+                            return ok(result);
+                        } else {
+                            ObjectNode node = Json.newObject();
+                            node.put("error", "invalid_client");
+                            return badRequest(node);
                         }
-                        result.put("token_type", "Bearer");
-                        result.put("expire_in", clientService.redeemAccessTokenById(accessToken.getId()));
-                        return ok(result);
                     } else {
                         ObjectNode node = Json.newObject();
-                        node.put("error", "invalid_client");
-                        return badRequest(node);
+                        node.put("error", "unauthorized_client");
+                        return unauthorized(node);
                     }
                 } else {
                     ObjectNode node = Json.newObject();
-                    node.put("error", "unauthorized_client");
-                    return unauthorized(node);
+                    node.put("error", "invalid_client");
+                    return badRequest(node);
                 }
             } else {
                 ObjectNode node = Json.newObject();
