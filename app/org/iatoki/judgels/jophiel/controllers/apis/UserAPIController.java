@@ -166,9 +166,8 @@ public final class UserAPIController extends Controller {
                 return badRequest(node);
             }
         } else {
-            ObjectNode node = Json.newObject();
-            node.put("error", "invalid_client");
-            return badRequest(node);
+            response().setHeader("WWW-Authenticate", "Basic realm=\"" + request().host() + "\"");
+            return unauthorized();
         }
     }
 
@@ -205,9 +204,8 @@ public final class UserAPIController extends Controller {
                 return badRequest(node);
             }
         } else {
-            ObjectNode node = Json.newObject();
-            node.put("error", "invalid_client");
-            return badRequest(node);
+            response().setHeader("WWW-Authenticate", "Basic realm=\"" + request().host() + "\"");
+            return unauthorized();
         }
     }
 
@@ -270,9 +268,8 @@ public final class UserAPIController extends Controller {
                     return badRequest(node);
                 }
             } else {
-                ObjectNode node = Json.newObject();
-                node.put("error", "invalid_client");
-                return badRequest(node);
+                response().setHeader("WWW-Authenticate", "Basic realm=\"" + request().host() + "\"");
+                return unauthorized();
             }
         } else {
             ObjectNode node = Json.newObject();
@@ -371,9 +368,8 @@ public final class UserAPIController extends Controller {
                     return badRequest(node);
                 }
             } else {
-                ObjectNode node = Json.newObject();
-                node.put("error", "invalid_client");
-                return badRequest(node);
+                response().setHeader("WWW-Authenticate", "Basic realm=\"" + request().host() + "\"");
+                return unauthorized();
             }
         } else {
             ObjectNode node = Json.newObject();
