@@ -1,4 +1,4 @@
-package org.iatoki.judgels.jophiel.services.impls;
+package org.iatoki.judgels.jophiel.unit.service.impls;
 
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import org.apache.commons.lang3.StringUtils;
@@ -6,11 +6,11 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.iatoki.judgels.commons.IdentityUtils;
 import org.iatoki.judgels.commons.Page;
 import org.iatoki.judgels.commons.models.domains.AbstractModel;
-import org.iatoki.judgels.jophiel.JophielProperties;
-import org.iatoki.judgels.jophiel.ClientNotFoundException;
 import org.iatoki.judgels.jophiel.AccessToken;
 import org.iatoki.judgels.jophiel.Client;
+import org.iatoki.judgels.jophiel.ClientNotFoundException;
 import org.iatoki.judgels.jophiel.IdToken;
+import org.iatoki.judgels.jophiel.JophielProperties;
 import org.iatoki.judgels.jophiel.RefreshToken;
 import org.iatoki.judgels.jophiel.models.daos.AccessTokenDao;
 import org.iatoki.judgels.jophiel.models.daos.AuthorizationCodeDao;
@@ -24,6 +24,7 @@ import org.iatoki.judgels.jophiel.models.entities.ClientModel;
 import org.iatoki.judgels.jophiel.models.entities.IdTokenModel;
 import org.iatoki.judgels.jophiel.models.entities.RedirectURIModel;
 import org.iatoki.judgels.jophiel.models.entities.RefreshTokenModel;
+import org.iatoki.judgels.jophiel.services.impls.ClientServiceImpl;
 import org.mockito.InjectMocks;
 import org.mockito.Matchers;
 import org.mockito.Mock;

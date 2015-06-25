@@ -1,19 +1,19 @@
-package org.iatoki.judgels.jophiel.services.impls;
+package org.iatoki.judgels.jophiel.unit.service.impls;
 
 import org.iatoki.judgels.commons.IdentityUtils;
 import org.iatoki.judgels.commons.JudgelsUtils;
 import org.iatoki.judgels.commons.models.domains.AbstractModel;
-import org.iatoki.judgels.jophiel.PasswordHash;
 import org.iatoki.judgels.jophiel.EmailNotVerifiedException;
+import org.iatoki.judgels.jophiel.PasswordHash;
 import org.iatoki.judgels.jophiel.UserInfo;
 import org.iatoki.judgels.jophiel.UserNotFoundException;
-import org.iatoki.judgels.jophiel.User;
 import org.iatoki.judgels.jophiel.models.daos.UserDao;
 import org.iatoki.judgels.jophiel.models.daos.UserEmailDao;
 import org.iatoki.judgels.jophiel.models.daos.UserForgotPasswordDao;
 import org.iatoki.judgels.jophiel.models.entities.UserEmailModel;
 import org.iatoki.judgels.jophiel.models.entities.UserForgotPasswordModel;
 import org.iatoki.judgels.jophiel.models.entities.UserModel;
+import org.iatoki.judgels.jophiel.services.impls.UserAccountServiceImpl;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;

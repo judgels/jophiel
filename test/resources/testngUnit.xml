@@ -3,7 +3,7 @@
 <suite name="TestNG" verbose="1">
   <test name="Unit">
     <packages>
-      <package name=".*"/>
-   </packages>
- </test>
+      <package name="org.iatoki.judgels.jophiel.unit.*"/>
+    </packages>
+  </test>
 </suite>

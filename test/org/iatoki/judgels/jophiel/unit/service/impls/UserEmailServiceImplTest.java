@@ -1,4 +1,4 @@
-package org.iatoki.judgels.jophiel.services.impls;
+package org.iatoki.judgels.jophiel.unit.service.impls;
 
 import org.iatoki.judgels.commons.IdentityUtils;
 import org.iatoki.judgels.commons.JudgelsProperties;
@@ -7,6 +7,7 @@ import org.iatoki.judgels.jophiel.models.daos.UserDao;
 import org.iatoki.judgels.jophiel.models.daos.UserEmailDao;
 import org.iatoki.judgels.jophiel.models.entities.UserEmailModel;
 import org.iatoki.judgels.jophiel.models.entities.UserModel;
+import org.iatoki.judgels.jophiel.services.impls.UserEmailServiceImpl;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
