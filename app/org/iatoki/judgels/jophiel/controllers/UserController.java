@@ -37,7 +37,6 @@ import play.mvc.Result;
 
 import java.util.Arrays;
 
-@Transactional
 @Component
 public final class UserController extends BaseController {
 
@@ -50,12 +49,14 @@ public final class UserController extends BaseController {
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Authorized(value = {"admin"})
+    @Transactional
     public Result index() {
         return listUsers(0, "id", "asc", "");
     }
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Authorized(value = {"admin"})
+    @Transactional
     public Result listUsers(long pageIndex, String orderBy, String orderDir, String filterString) {
         Page<UserInfo> currentPage = userService.pageUsers(pageIndex, PAGE_SIZE, orderBy, orderDir, filterString);
 
@@ -78,12 +79,14 @@ public final class UserController extends BaseController {
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Authorized(value = {"admin"})
+    @Transactional
     public Result viewUnverifiedUsers() {
         return listUnverifiedUsers(0, "id", "asc", "");
     }
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Authorized(value = {"admin"})
+    @Transactional
     public Result listUnverifiedUsers(long pageIndex, String orderBy, String orderDir, String filterString) {
         Page<UserInfo> currentPage = userService.pageUnverifiedUsers(pageIndex, PAGE_SIZE, orderBy, orderDir, filterString);
 
@@ -106,6 +109,7 @@ public final class UserController extends BaseController {
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Authorized(value = {"admin"})
+    @Transactional
     public Result viewUser(long userId) throws UserNotFoundException {
         UserInfo user = userService.findUserById(userId);
         LazyHtml content = new LazyHtml(viewUserView.render(user));
@@ -122,9 +126,10 @@ public final class UserController extends BaseController {
         return ControllerUtils.getInstance().lazyOk(content);
     }
 
-    @AddCSRFToken
     @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Authorized(value = {"admin"})
+    @Transactional
+    @AddCSRFToken
     public Result createUser() {
         UserCreateForm data = new UserCreateForm();
         data.roles = StringUtils.join(JophielUtils.getDefaultRoles(), ",");
@@ -137,6 +142,7 @@ public final class UserController extends BaseController {
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Authorized(value = {"admin"})
+    @Transactional
     public Result postCreateUser() {
         Form<UserCreateForm> form = Form.form(UserCreateForm.class).bindFromRequest();
 
@@ -152,9 +158,10 @@ public final class UserController extends BaseController {
         }
     }
 
-    @AddCSRFToken
     @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Authorized(value = {"admin"})
+    @Transactional
+    @AddCSRFToken
     public Result updateUser(long userId) throws UserNotFoundException {
         UserInfo user = userService.findUserById(userId);
         UserUpdateForm userUpdateForm = new UserUpdateForm(user);
@@ -165,9 +172,10 @@ public final class UserController extends BaseController {
         return showUpdateUser(form, user);
     }
 
-    @RequireCSRFCheck
     @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Authorized(value = {"admin"})
+    @Transactional
+    @RequireCSRFCheck
     public Result postUpdateUser(long userId) throws UserNotFoundException {
         UserInfo user = userService.findUserById(userId);
         Form<UserUpdateForm> form = Form.form(UserUpdateForm.class).bindFromRequest();
@@ -190,6 +198,7 @@ public final class UserController extends BaseController {
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Authorized(value = {"admin"})
+    @Transactional
     public Result deleteUser(long userId) throws UserNotFoundException {
         UserInfo user = userService.findUserById(userId);
         userService.deleteUser(user.getId());

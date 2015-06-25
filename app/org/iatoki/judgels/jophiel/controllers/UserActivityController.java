@@ -28,7 +28,6 @@ import play.i18n.Messages;
 import play.mvc.Http;
 import play.mvc.Result;
 
-@Transactional
 @Component
 public final class UserActivityController extends BaseController {
 
@@ -43,12 +42,14 @@ public final class UserActivityController extends BaseController {
 
     @Authenticated({LoggedIn.class, HasRole.class})
     @Authorized("admin")
+    @Transactional
     public Result index() {
         return listUsersActivities(0, "time", "desc", "", "", "");
     }
 
     @Authenticated({LoggedIn.class, HasRole.class})
     @Authorized("admin")
+    @Transactional
     public Result listUsersActivities(long page, String orderBy, String orderDir, String filterString, String clientNames, String usernames) {
         String[] clientName = clientNames.split(",");
         ImmutableSet.Builder<String> clientNamesSetBuilder = ImmutableSet.builder();
@@ -81,11 +82,13 @@ public final class UserActivityController extends BaseController {
     }
 
     @Authenticated(LoggedIn.class)
+    @Transactional
     public Result viewOwnActivities() {
         return listOwnActivities(0, "time", "desc", "", "");
     }
 
     @Authenticated(LoggedIn.class)
+    @Transactional
     public Result listOwnActivities(long page, String orderBy, String orderDir, String filterString, String clientNames) {
         String username = IdentityUtils.getUsername();
 
@@ -116,12 +119,14 @@ public final class UserActivityController extends BaseController {
 
     @Authenticated({LoggedIn.class, HasRole.class})
     @Authorized("admin")
+    @Transactional
     public Result viewUserActivities(String username) {
         return listUserActivities(username, 0, "time", "desc", "", "");
     }
 
     @Authenticated({LoggedIn.class, HasRole.class})
     @Authorized("admin")
+    @Transactional
     public Result listUserActivities(String username, long page, String orderBy, String orderDir, String filterString, String clientNames) {
         if (userService.existByUsername(username)) {
             UserInfo user = userService.findUserByUsername(username);

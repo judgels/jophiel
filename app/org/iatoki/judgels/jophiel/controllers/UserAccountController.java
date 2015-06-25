@@ -58,7 +58,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Component
-@Transactional
 public final class UserAccountController extends BaseController {
 
     @Autowired
@@ -73,6 +72,7 @@ public final class UserAccountController extends BaseController {
     private UserActivityService userActivityService;
 
 
+    @Transactional(readOnly = true)
     @AddCSRFToken
     public Result register() {
         if ((IdentityUtils.getUserJid() == null) || (!userService.existsByUserJid(IdentityUtils.getUserJid()))) {
@@ -83,6 +83,7 @@ public final class UserAccountController extends BaseController {
         }
     }
 
+    @Transactional
     @RequireCSRFCheck
     public Result postRegister() {
         if ((IdentityUtils.getUserJid() == null) || (!userService.existsByUserJid(IdentityUtils.getUserJid()))) {
@@ -138,9 +139,11 @@ public final class UserAccountController extends BaseController {
         content.appendLayout(c -> headingLayout.render(Messages.get("register.successful"), c));
         content.appendLayout(c -> centerLayout.render(c));
         ControllerUtils.getInstance().appendTemplateLayout(content, "After Register");
+
         return ControllerUtils.getInstance().lazyOk(content);
     }
 
+    @Transactional(readOnly = true)
     @AddCSRFToken
     public Result forgotPassword() {
         if ((IdentityUtils.getUserJid() == null) || (!userService.existsByUserJid(IdentityUtils.getUserJid()))) {
@@ -151,6 +154,7 @@ public final class UserAccountController extends BaseController {
         }
     }
 
+    @Transactional
     @RequireCSRFCheck
     public Result postForgotPassword() {
         if ((IdentityUtils.getUserJid() == null) || (!userService.existsByUserJid(IdentityUtils.getUserJid()))) {
@@ -186,9 +190,11 @@ public final class UserAccountController extends BaseController {
         content.appendLayout(c -> headingLayout.render(Messages.get("forgotPassword.successful"), c));
         content.appendLayout(c -> centerLayout.render(c));
         ControllerUtils.getInstance().appendTemplateLayout(content, "After Forgot Password");
+
         return ControllerUtils.getInstance().lazyOk(content);
     }
 
+    @Transactional(readOnly = true)
     @AddCSRFToken
     public Result changePassword(String code) {
         if ((IdentityUtils.getUserJid() == null) || (!userService.existsByUserJid(IdentityUtils.getUserJid()))) {
@@ -203,6 +209,7 @@ public final class UserAccountController extends BaseController {
         }
     }
 
+    @Transactional
     @RequireCSRFCheck
     public Result postChangePassword(String code) {
         if ((IdentityUtils.getUserJid() == null) || (!userService.existsByUserJid(IdentityUtils.getUserJid()))) {
@@ -237,16 +244,19 @@ public final class UserAccountController extends BaseController {
         return ControllerUtils.getInstance().lazyOk(content);
     }
 
+    @Transactional(readOnly = true)
     @AddCSRFToken
     public Result login() {
         return serviceLogin(null);
     }
 
+    @Transactional
     @RequireCSRFCheck
     public Result postLogin() {
         return postServiceLogin(null);
     }
 
+    @Transactional(readOnly = true)
     @AddCSRFToken
     public Result serviceLogin(String continueUrl) {
         if ((IdentityUtils.getUserJid() == null) || (!userService.existsByUserJid(IdentityUtils.getUserJid()))) {
@@ -262,6 +272,7 @@ public final class UserAccountController extends BaseController {
         }
     }
 
+    @Transactional
     @RequireCSRFCheck
     public Result postServiceLogin(String continueUrl) {
         if ((IdentityUtils.getUserJid() == null) || (!userService.existsByUserJid(IdentityUtils.getUserJid()))) {
@@ -308,11 +319,13 @@ public final class UserAccountController extends BaseController {
     }
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
+    @Transactional
     public Result logout() {
         return serviceLogout(null);
     }
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
+    @Transactional
     public Result serviceLogout(String returnUri) {
         ControllerUtils.getInstance().addActivityLog(userActivityService, "Logout <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
 
@@ -324,6 +337,7 @@ public final class UserAccountController extends BaseController {
         }
     }
 
+    @Transactional
     public Result serviceAuthRequest() {
         if ((IdentityUtils.getUserJid() == null) || (!userService.existsByUserJid(IdentityUtils.getUserJid()))) {
             return redirect((routes.UserAccountController.serviceLogin("http" + (request().secure() ? "s" : "") + "://" + request().host() + request().uri())));

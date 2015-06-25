@@ -6,20 +6,20 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.auth.UsernamePasswordCredentials;
+import org.iatoki.judgels.commons.AutoComplete;
 import org.iatoki.judgels.commons.IdentityUtils;
 import org.iatoki.judgels.commons.JudgelsUtils;
 import org.iatoki.judgels.jophiel.AccessToken;
-import org.iatoki.judgels.commons.AutoComplete;
+import org.iatoki.judgels.jophiel.AuthorizationCode;
 import org.iatoki.judgels.jophiel.Client;
-import org.iatoki.judgels.jophiel.UserInfo;
-import org.iatoki.judgels.jophiel.services.ClientService;
 import org.iatoki.judgels.jophiel.IdToken;
 import org.iatoki.judgels.jophiel.RefreshToken;
-import org.iatoki.judgels.jophiel.services.UserProfileService;
-import org.iatoki.judgels.jophiel.services.UserService;
-import org.iatoki.judgels.jophiel.AuthorizationCode;
+import org.iatoki.judgels.jophiel.UserInfo;
 import org.iatoki.judgels.jophiel.controllers.securities.Authenticated;
 import org.iatoki.judgels.jophiel.controllers.securities.LoggedIn;
+import org.iatoki.judgels.jophiel.services.ClientService;
+import org.iatoki.judgels.jophiel.services.UserProfileService;
+import org.iatoki.judgels.jophiel.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import play.data.DynamicForm;
@@ -64,7 +64,7 @@ public final class UserAPIController extends Controller {
     }
 
     @Authenticated(LoggedIn.class)
-    @Transactional
+    @Transactional(readOnly = true)
     public Result userAutoCompleteList() {
         response().setHeader("Access-Control-Allow-Origin", "*");
         response().setContentType("application/javascript");
@@ -100,7 +100,7 @@ public final class UserAPIController extends Controller {
         }
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Result userInfo() {
         DynamicForm form = DynamicForm.form().bindFromRequest();
         String token;
@@ -127,7 +127,7 @@ public final class UserAPIController extends Controller {
         }
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Result verifyUsername() {
         UsernamePasswordCredentials credentials = JudgelsUtils.parseBasicAuthFromRequest(request());
 
@@ -171,7 +171,7 @@ public final class UserAPIController extends Controller {
         }
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Result userInfoByUserJid() {
         UsernamePasswordCredentials credentials = JudgelsUtils.parseBasicAuthFromRequest(request());
 
@@ -206,6 +206,55 @@ public final class UserAPIController extends Controller {
         } else {
             response().setHeader("WWW-Authenticate", "Basic realm=\"" + request().host() + "\"");
             return unauthorized();
+        }
+    }
+
+    public Result renderAvatarImage(String imageName) {
+        response().setHeader("Cache-Control", "no-transform,public,max-age=300,s-maxage=900");
+
+        String avatarURL = userProfileService.getAvatarImageUrlString(imageName);
+        try {
+            new URL(avatarURL);
+            return temporaryRedirect(avatarURL);
+        } catch (MalformedURLException e) {
+            File avatarFile = new File(avatarURL);
+            if (avatarFile.exists()) {
+                SimpleDateFormat sdf = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z");
+                response().setHeader("Last-Modified", sdf.format(new Date(avatarFile.lastModified())));
+
+                if (request().hasHeader("If-Modified-Since")) {
+                    try {
+                        Date lastUpdate = sdf.parse(request().getHeader("If-Modified-Since"));
+                        if (avatarFile.lastModified() > lastUpdate.getTime()) {
+                            BufferedImage in = ImageIO.read(avatarFile);
+                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+                            String type = FilenameUtils.getExtension(avatarFile.getAbsolutePath());
+
+                            ImageIO.write(in, type, baos);
+                            return ok(baos.toByteArray()).as("image/" + type);
+                        } else {
+                            return status(304);
+                        }
+                    } catch (ParseException | IOException e2) {
+                        throw new RuntimeException(e2);
+                    }
+                } else {
+                    try {
+                        BufferedImage in = ImageIO.read(avatarFile);
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+                        String type = FilenameUtils.getExtension(avatarFile.getAbsolutePath());
+
+                        ImageIO.write(in, type, baos);
+                        return ok(baos.toByteArray()).as("image/" + type);
+                    } catch (IOException e2) {
+                        return internalServerError();
+                    }
+                }
+            } else {
+                return notFound();
+            }
         }
     }
 
@@ -275,55 +324,6 @@ public final class UserAPIController extends Controller {
             ObjectNode node = Json.newObject();
             node.put("error", "invalid_request");
             return badRequest(node);
-        }
-    }
-
-    public Result renderAvatarImage(String imageName) {
-        response().setHeader("Cache-Control", "no-transform,public,max-age=300,s-maxage=900");
-
-        String avatarURL = userProfileService.getAvatarImageUrlString(imageName);
-        try {
-            new URL(avatarURL);
-            return temporaryRedirect(avatarURL);
-        } catch (MalformedURLException e) {
-            File avatarFile = new File(avatarURL);
-            if (avatarFile.exists()) {
-                SimpleDateFormat sdf = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z");
-                response().setHeader("Last-Modified", sdf.format(new Date(avatarFile.lastModified())));
-
-                if (request().hasHeader("If-Modified-Since")) {
-                    try {
-                        Date lastUpdate = sdf.parse(request().getHeader("If-Modified-Since"));
-                        if (avatarFile.lastModified() > lastUpdate.getTime()) {
-                            BufferedImage in = ImageIO.read(avatarFile);
-                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-                            String type = FilenameUtils.getExtension(avatarFile.getAbsolutePath());
-
-                            ImageIO.write(in, type, baos);
-                            return ok(baos.toByteArray()).as("image/" + type);
-                        } else {
-                            return status(304);
-                        }
-                    } catch (ParseException | IOException e2) {
-                        throw new RuntimeException(e2);
-                    }
-                } else {
-                    try {
-                        BufferedImage in = ImageIO.read(avatarFile);
-                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-                        String type = FilenameUtils.getExtension(avatarFile.getAbsolutePath());
-
-                        ImageIO.write(in, type, baos);
-                        return ok(baos.toByteArray()).as("image/" + type);
-                    } catch (IOException e2) {
-                        return internalServerError();
-                    }
-                }
-            } else {
-                return notFound();
-            }
         }
     }
 

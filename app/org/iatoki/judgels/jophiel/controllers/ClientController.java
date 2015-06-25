@@ -9,8 +9,8 @@ import org.iatoki.judgels.commons.Page;
 import org.iatoki.judgels.commons.controllers.BaseController;
 import org.iatoki.judgels.commons.views.html.layouts.headingLayout;
 import org.iatoki.judgels.commons.views.html.layouts.headingWithActionLayout;
-import org.iatoki.judgels.jophiel.ClientNotFoundException;
 import org.iatoki.judgels.jophiel.Client;
+import org.iatoki.judgels.jophiel.ClientNotFoundException;
 import org.iatoki.judgels.jophiel.controllers.forms.ClientCreateForm;
 import org.iatoki.judgels.jophiel.controllers.forms.ClientUpdateForm;
 import org.iatoki.judgels.jophiel.controllers.securities.Authenticated;
@@ -37,10 +37,8 @@ import java.util.Arrays;
 
 @Authenticated(value = {LoggedIn.class, HasRole.class})
 @Authorized(value = {"admin"})
-@Transactional
 @Component
 public final class ClientController extends BaseController {
-
 
     private static final long PAGE_SIZE = 20;
     @Autowired
@@ -53,6 +51,7 @@ public final class ClientController extends BaseController {
         return listClients(0, "id", "asc", "");
     }
 
+    @Transactional
     @AddCSRFToken
     public Result createClient() {
         Form<ClientCreateForm> form = Form.form(ClientCreateForm.class);
@@ -62,6 +61,7 @@ public final class ClientController extends BaseController {
         return showCreateClient(form);
     }
 
+    @Transactional
     @RequireCSRFCheck
     public Result postCreateClient() {
         Form<ClientCreateForm> form = Form.form(ClientCreateForm.class).bindFromRequest();
@@ -78,6 +78,7 @@ public final class ClientController extends BaseController {
         }
     }
 
+    @Transactional
     public Result viewClient(long clientId) throws ClientNotFoundException {
         Client client = clientService.findClientById(clientId);
         LazyHtml content = new LazyHtml(viewClientView.render(client));
@@ -94,6 +95,7 @@ public final class ClientController extends BaseController {
         return ControllerUtils.getInstance().lazyOk(content);
     }
 
+    @Transactional
     public Result listClients(long page, String orderBy, String orderDir, String filterString) {
         Page<Client> currentPage = clientService.pageClients(page, PAGE_SIZE, orderBy, orderDir, filterString);
 
@@ -110,6 +112,7 @@ public final class ClientController extends BaseController {
         return ControllerUtils.getInstance().lazyOk(content);
     }
 
+    @Transactional
     @AddCSRFToken
     public Result updateClient(long clientId) throws ClientNotFoundException {
         Client client = clientService.findClientById(clientId);
@@ -126,6 +129,7 @@ public final class ClientController extends BaseController {
         return showUpdateClient(form, clientId, client.getName());
     }
 
+    @Transactional
     public Result postUpdateClient(long clientId) throws ClientNotFoundException {
         Client client = clientService.findClientById(clientId);
         Form<ClientUpdateForm> form = Form.form(ClientUpdateForm.class).bindFromRequest();
@@ -142,6 +146,7 @@ public final class ClientController extends BaseController {
         }
     }
 
+    @Transactional
     public Result deleteClient(long clientId) throws ClientNotFoundException {
         Client client = clientService.findClientById(clientId);
         clientService.deleteClient(client.getId());

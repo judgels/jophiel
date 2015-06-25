@@ -36,7 +36,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-@Transactional
 @Component
 public final class UserProfileController extends BaseController {
 
@@ -49,17 +48,20 @@ public final class UserProfileController extends BaseController {
 
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
+    @Transactional
     public Result profile() {
         return serviceProfile(null);
     }
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
+    @Transactional
     public Result postProfile() {
         return postServiceProfile(null);
     }
 
     @Authenticated({LoggedIn.class, HasRole.class})
     @Authorized("admin")
+    @Transactional
     public Result viewProfile(String username) {
         if (userService.existByUsername(username)) {
             UserInfo user = userService.findUserByUsername(username);
@@ -86,12 +88,15 @@ public final class UserProfileController extends BaseController {
         }
     }
 
+    @BodyParser.Of(value = BodyParser.MultipartFormData.class, maxLength = (2 << 20))
     @Authenticated(value = {LoggedIn.class, HasRole.class})
+    @Transactional
     public Result postAvatar() {
         return postServiceAvatar(null);
     }
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
+    @Transactional
     public Result serviceProfile(String continueUrl) {
         Form<UserProfileForm> form = Form.form(UserProfileForm.class);
         Form<UserProfilePictureForm> form2 = Form.form(UserProfilePictureForm.class);
@@ -108,6 +113,7 @@ public final class UserProfileController extends BaseController {
     }
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
+    @Transactional
     public Result postServiceProfile(String continueUrl) {
         Form<UserProfileForm> form = Form.form(UserProfileForm.class).bindFromRequest();
 
@@ -138,8 +144,9 @@ public final class UserProfileController extends BaseController {
         }
     }
 
-    @Authenticated(value = {LoggedIn.class, HasRole.class})
     @BodyParser.Of(value = BodyParser.MultipartFormData.class, maxLength = (2 << 20))
+    @Authenticated(value = {LoggedIn.class, HasRole.class})
+    @Transactional
     public Result postServiceAvatar(String continueUrl) {
         if (request().body().isMaxSizeExceeded()) {
             Form<UserProfileForm> form = Form.form(UserProfileForm.class);

@@ -36,7 +36,7 @@ public final class ClientAPIController extends Controller {
     }
 
     @Authenticated(LoggedIn.class)
-    @Transactional
+    @Transactional(readOnly = true)
     public Result clientAutoCompleteList() {
         response().setHeader("Access-Control-Allow-Origin", "*");
 

@@ -17,7 +17,6 @@ import org.springframework.stereotype.Component;
 import play.db.jpa.Transactional;
 import play.mvc.Result;
 
-@Transactional
 @Component
 public final class UserEmailController extends BaseController {
 
@@ -27,6 +26,7 @@ public final class UserEmailController extends BaseController {
     private UserEmailService userEmailService;
 
 
+    @Transactional
     public Result verifyEmail(String emailCode) {
         if (userEmailService.activateEmail(emailCode)) {
             LazyHtml content = new LazyHtml(activationView.render());
@@ -40,6 +40,7 @@ public final class UserEmailController extends BaseController {
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Authorized(value = {"admin"})
+    @Transactional(readOnly = true)
     public Result resendEmailVerification(long userId) throws UserNotFoundException {
         UserInfo user = userService.findUserById(userId);
         if (userEmailService.isEmailNotVerified(user.getJid())) {
@@ -54,6 +55,7 @@ public final class UserEmailController extends BaseController {
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Authorized(value = {"admin"})
+    @Transactional
     public Result activateMainEmail(long userId) throws UserNotFoundException {
         UserInfo user = userService.findUserById(userId);
         if (userEmailService.isEmailNotVerified(user.getJid())) {
