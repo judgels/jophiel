@@ -47,6 +47,7 @@ public final class ClientController extends BaseController {
     private UserActivityService userActivityService;
 
 
+    @Transactional
     public Result index() {
         return listClients(0, "id", "asc", "");
     }
