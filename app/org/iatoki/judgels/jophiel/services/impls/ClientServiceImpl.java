@@ -18,13 +18,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.iatoki.judgels.commons.IdentityUtils;
 import org.iatoki.judgels.commons.JudgelsUtils;
 import org.iatoki.judgels.commons.Page;
-import org.iatoki.judgels.jophiel.JophielProperties;
-import org.iatoki.judgels.jophiel.Scope;
-import org.iatoki.judgels.jophiel.ClientNotFoundException;
 import org.iatoki.judgels.jophiel.AccessToken;
 import org.iatoki.judgels.jophiel.Client;
+import org.iatoki.judgels.jophiel.ClientNotFoundException;
 import org.iatoki.judgels.jophiel.IdToken;
+import org.iatoki.judgels.jophiel.JophielProperties;
 import org.iatoki.judgels.jophiel.RefreshToken;
+import org.iatoki.judgels.jophiel.Scope;
 import org.iatoki.judgels.jophiel.models.daos.AccessTokenDao;
 import org.iatoki.judgels.jophiel.models.daos.AuthorizationCodeDao;
 import org.iatoki.judgels.jophiel.models.daos.ClientDao;
@@ -38,9 +38,10 @@ import org.iatoki.judgels.jophiel.models.entities.IdTokenModel;
 import org.iatoki.judgels.jophiel.models.entities.RedirectURIModel;
 import org.iatoki.judgels.jophiel.models.entities.RefreshTokenModel;
 import org.iatoki.judgels.jophiel.services.ClientService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.io.UnsupportedEncodingException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
@@ -55,22 +56,26 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-@Service("clientService")
+@Singleton
+@Named("clientService")
 public final class ClientServiceImpl implements ClientService {
 
-    @Autowired
-    private ClientDao clientDao;
-    @Autowired
-    private RedirectURIDao redirectURIDao;
-    @Autowired
-    private AuthorizationCodeDao authorizationCodeDao;
-    @Autowired
-    private AccessTokenDao accessTokenDao;
-    @Autowired
-    private RefreshTokenDao refreshTokenDao;
-    @Autowired
-    private IdTokenDao idTokenDao;
+    private final ClientDao clientDao;
+    private final RedirectURIDao redirectURIDao;
+    private final AuthorizationCodeDao authorizationCodeDao;
+    private final AccessTokenDao accessTokenDao;
+    private final RefreshTokenDao refreshTokenDao;
+    private final IdTokenDao idTokenDao;
 
+    @Inject
+    public ClientServiceImpl(ClientDao clientDao, RedirectURIDao redirectURIDao, AuthorizationCodeDao authorizationCodeDao, AccessTokenDao accessTokenDao, RefreshTokenDao refreshTokenDao, IdTokenDao idTokenDao) {
+        this.clientDao = clientDao;
+        this.redirectURIDao = redirectURIDao;
+        this.authorizationCodeDao = authorizationCodeDao;
+        this.accessTokenDao = accessTokenDao;
+        this.refreshTokenDao = refreshTokenDao;
+        this.idTokenDao = idTokenDao;
+    }
 
     @Override
     public List<Client> findAll() {

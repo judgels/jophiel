@@ -1,31 +1,37 @@
 package org.iatoki.judgels.jophiel.controllers.apis;
 
 import com.google.common.collect.ImmutableList;
-import org.iatoki.judgels.commons.IdentityUtils;
-import org.iatoki.judgels.jophiel.UserInfo;
-import org.iatoki.judgels.jophiel.Client;
-import org.iatoki.judgels.jophiel.services.ClientService;
 import org.iatoki.judgels.commons.AutoComplete;
-import org.iatoki.judgels.jophiel.services.UserService;
+import org.iatoki.judgels.commons.IdentityUtils;
+import org.iatoki.judgels.jophiel.Client;
+import org.iatoki.judgels.jophiel.UserInfo;
 import org.iatoki.judgels.jophiel.controllers.securities.Authenticated;
 import org.iatoki.judgels.jophiel.controllers.securities.LoggedIn;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.iatoki.judgels.jophiel.services.ClientService;
+import org.iatoki.judgels.jophiel.services.UserService;
 import play.data.DynamicForm;
 import play.db.jpa.Transactional;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.util.List;
 
-@Component
+@Singleton
+@Named
 public final class ClientAPIController extends Controller {
 
-    @Autowired
-    private ClientService clientService;
-    @Autowired
-    private UserService userService;
+    private final ClientService clientService;
+    private final UserService userService;
+
+    @Inject
+    public ClientAPIController(ClientService clientService, UserService userService) {
+        this.clientService = clientService;
+        this.userService = userService;
+    }
 
     public Result preClientAutocompleteList() {
         response().setHeader("Access-Control-Allow-Origin", "*");       // Need to add the correct domain in here!!

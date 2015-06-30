@@ -3,24 +3,31 @@ package org.iatoki.judgels.jophiel.services.impls;
 import org.iatoki.judgels.commons.IdentityUtils;
 import org.iatoki.judgels.commons.JudgelsProperties;
 import org.iatoki.judgels.jophiel.JophielProperties;
-import org.iatoki.judgels.jophiel.models.daos.UserEmailDao;
 import org.iatoki.judgels.jophiel.models.daos.UserDao;
+import org.iatoki.judgels.jophiel.models.daos.UserEmailDao;
 import org.iatoki.judgels.jophiel.models.entities.UserEmailModel;
 import org.iatoki.judgels.jophiel.models.entities.UserModel;
 import org.iatoki.judgels.jophiel.services.UserEmailService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import play.i18n.Messages;
 import play.libs.mailer.Email;
 import play.libs.mailer.MailerPlugin;
 
-@Service("userEmailService")
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named("userEmailService")
 public final class UserEmailServiceImpl implements UserEmailService {
 
-    @Autowired
-    private UserDao userDao;
-    @Autowired
-    private UserEmailDao userEmailDao;
+    private final UserDao userDao;
+    private final UserEmailDao userEmailDao;
+
+    @Inject
+    public UserEmailServiceImpl(UserDao userDao, UserEmailDao userEmailDao) {
+        this.userDao = userDao;
+        this.userEmailDao = userEmailDao;
+    }
 
     @Override
     public boolean isEmailOwnedByUser(String email, String username) {

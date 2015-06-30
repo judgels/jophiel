@@ -22,8 +22,6 @@ import org.iatoki.judgels.jophiel.services.UserService;
 import org.iatoki.judgels.jophiel.views.html.profile.editProfileView;
 import org.iatoki.judgels.jophiel.views.html.profile.serviceEditProfileView;
 import org.iatoki.judgels.jophiel.views.html.profile.viewProfileView;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import play.Logger;
 import play.data.Form;
 import play.db.jpa.Transactional;
@@ -32,20 +30,27 @@ import play.mvc.BodyParser;
 import play.mvc.Http;
 import play.mvc.Result;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-@Component
+@Singleton
+@Named
 public final class UserProfileController extends BaseController {
 
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private UserProfileService userProfileService;
-    @Autowired
-    private UserActivityService userActivityService;
+    private final UserService userService;
+    private final UserProfileService userProfileService;
+    private final UserActivityService userActivityService;
 
+    @Inject
+    public UserProfileController(UserService userService, UserProfileService userProfileService, UserActivityService userActivityService) {
+        this.userService = userService;
+        this.userProfileService = userProfileService;
+        this.userActivityService = userActivityService;
+    }
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Transactional

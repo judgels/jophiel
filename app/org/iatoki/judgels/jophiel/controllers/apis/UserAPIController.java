@@ -20,8 +20,6 @@ import org.iatoki.judgels.jophiel.controllers.securities.LoggedIn;
 import org.iatoki.judgels.jophiel.services.ClientService;
 import org.iatoki.judgels.jophiel.services.UserProfileService;
 import org.iatoki.judgels.jophiel.services.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import play.data.DynamicForm;
 import play.db.jpa.Transactional;
 import play.libs.Json;
@@ -29,6 +27,9 @@ import play.mvc.Controller;
 import play.mvc.Result;
 
 import javax.imageio.ImageIO;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -44,16 +45,20 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-@Component
+@Singleton
+@Named
 public final class UserAPIController extends Controller {
 
-    @Autowired
-    private ClientService clientService;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private UserProfileService userProfileService;
+    private final ClientService clientService;
+    private final UserService userService;
+    private final UserProfileService userProfileService;
 
+    @Inject
+    public UserAPIController(ClientService clientService, UserService userService, UserProfileService userProfileService) {
+        this.clientService = clientService;
+        this.userService = userService;
+        this.userProfileService = userProfileService;
+    }
 
     public Result preUserAutocompleteList() {
         response().setHeader("Access-Control-Allow-Origin", "*");       // Need to add the correct domain in here!!

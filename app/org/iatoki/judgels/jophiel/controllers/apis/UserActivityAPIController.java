@@ -4,29 +4,35 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.codec.binary.Base64;
 import org.iatoki.judgels.jophiel.AccessToken;
-import org.iatoki.judgels.jophiel.UserInfo;
 import org.iatoki.judgels.jophiel.UserActivity;
+import org.iatoki.judgels.jophiel.UserInfo;
 import org.iatoki.judgels.jophiel.services.ClientService;
 import org.iatoki.judgels.jophiel.services.UserActivityService;
 import org.iatoki.judgels.jophiel.services.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import play.data.DynamicForm;
 import play.db.jpa.Transactional;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
 
-@Component
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named
 public final class UserActivityAPIController extends Controller {
 
-    @Autowired
-    private ClientService clientService;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private UserActivityService userActivityService;
+    private final ClientService clientService;
+    private final UserService userService;
+    private final UserActivityService userActivityService;
 
+    @Inject
+    public UserActivityAPIController(ClientService clientService, UserService userService, UserActivityService userActivityService) {
+        this.clientService = clientService;
+        this.userService = userService;
+        this.userActivityService = userActivityService;
+    }
 
     @Transactional
     public Result postCreateUserActivity() {

@@ -15,12 +15,12 @@ import org.iatoki.judgels.commons.controllers.BaseController;
 import org.iatoki.judgels.commons.views.html.layouts.centerLayout;
 import org.iatoki.judgels.commons.views.html.layouts.headingLayout;
 import org.iatoki.judgels.commons.views.html.layouts.messageView;
-import org.iatoki.judgels.jophiel.UserInfo;
+import org.iatoki.judgels.jophiel.Client;
+import org.iatoki.judgels.jophiel.EmailNotVerifiedException;
 import org.iatoki.judgels.jophiel.JophielProperties;
 import org.iatoki.judgels.jophiel.JophielUtils;
-import org.iatoki.judgels.jophiel.EmailNotVerifiedException;
+import org.iatoki.judgels.jophiel.UserInfo;
 import org.iatoki.judgels.jophiel.UserNotFoundException;
-import org.iatoki.judgels.jophiel.Client;
 import org.iatoki.judgels.jophiel.controllers.forms.ChangePasswordForm;
 import org.iatoki.judgels.jophiel.controllers.forms.ForgotPasswordForm;
 import org.iatoki.judgels.jophiel.controllers.forms.LoginForm;
@@ -39,8 +39,6 @@ import org.iatoki.judgels.jophiel.views.html.account.loginView;
 import org.iatoki.judgels.jophiel.views.html.account.registerView;
 import org.iatoki.judgels.jophiel.views.html.account.serviceAuthView;
 import org.iatoki.judgels.jophiel.views.html.account.serviceLoginView;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
@@ -53,24 +51,31 @@ import play.libs.ws.WS;
 import play.mvc.Http;
 import play.mvc.Result;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.net.URI;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-@Component
+@Singleton
+@Named
 public final class UserAccountController extends BaseController {
 
-    @Autowired
-    private ClientService clientService;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private UserEmailService userEmailService;
-    @Autowired
-    private UserAccountService userAccountService;
-    @Autowired
-    private UserActivityService userActivityService;
+    private final ClientService clientService;
+    private final UserService userService;
+    private final UserEmailService userEmailService;
+    private final UserAccountService userAccountService;
+    private final UserActivityService userActivityService;
 
+    @Inject
+    public UserAccountController(ClientService clientService, UserService userService, UserEmailService userEmailService, UserAccountService userAccountService, UserActivityService userActivityService) {
+        this.clientService = clientService;
+        this.userService = userService;
+        this.userEmailService = userEmailService;
+        this.userAccountService = userAccountService;
+        this.userActivityService = userActivityService;
+    }
 
     @Transactional(readOnly = true)
     @AddCSRFToken

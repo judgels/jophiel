@@ -4,29 +4,34 @@ import org.iatoki.judgels.commons.LazyHtml;
 import org.iatoki.judgels.commons.controllers.BaseController;
 import org.iatoki.judgels.commons.views.html.layouts.centerLayout;
 import org.iatoki.judgels.jophiel.UserInfo;
-import org.iatoki.judgels.jophiel.services.UserEmailService;
 import org.iatoki.judgels.jophiel.UserNotFoundException;
-import org.iatoki.judgels.jophiel.services.UserService;
 import org.iatoki.judgels.jophiel.controllers.securities.Authenticated;
 import org.iatoki.judgels.jophiel.controllers.securities.Authorized;
 import org.iatoki.judgels.jophiel.controllers.securities.HasRole;
 import org.iatoki.judgels.jophiel.controllers.securities.LoggedIn;
+import org.iatoki.judgels.jophiel.services.UserEmailService;
+import org.iatoki.judgels.jophiel.services.UserService;
 import org.iatoki.judgels.jophiel.views.html.account.activationView;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import play.db.jpa.Transactional;
 import play.mvc.Result;
 
-@Component
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named
 public final class UserEmailController extends BaseController {
 
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private UserEmailService userEmailService;
+    private final UserService userService;
+    private final UserEmailService userEmailService;
 
+    @Inject
+    public UserEmailController(UserService userService, UserEmailService userEmailService) {
+        this.userService = userService;
+        this.userEmailService = userEmailService;
+    }
 
-    @Transactional
     public Result verifyEmail(String emailCode) {
         if (userEmailService.activateEmail(emailCode)) {
             LazyHtml content = new LazyHtml(activationView.render());

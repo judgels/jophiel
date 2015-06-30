@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 
 public final class JophielProperties {
+
     private static JophielProperties INSTANCE;
 
     private final Config config;

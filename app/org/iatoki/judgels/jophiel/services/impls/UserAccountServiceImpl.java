@@ -2,9 +2,9 @@ package org.iatoki.judgels.jophiel.services.impls;
 
 import org.iatoki.judgels.commons.IdentityUtils;
 import org.iatoki.judgels.commons.JudgelsUtils;
-import org.iatoki.judgels.jophiel.UserInfo;
-import org.iatoki.judgels.jophiel.PasswordHash;
 import org.iatoki.judgels.jophiel.EmailNotVerifiedException;
+import org.iatoki.judgels.jophiel.PasswordHash;
+import org.iatoki.judgels.jophiel.UserInfo;
 import org.iatoki.judgels.jophiel.UserNotFoundException;
 import org.iatoki.judgels.jophiel.models.daos.UserDao;
 import org.iatoki.judgels.jophiel.models.daos.UserEmailDao;
@@ -13,10 +13,11 @@ import org.iatoki.judgels.jophiel.models.entities.UserEmailModel;
 import org.iatoki.judgels.jophiel.models.entities.UserForgotPasswordModel;
 import org.iatoki.judgels.jophiel.models.entities.UserModel;
 import org.iatoki.judgels.jophiel.services.UserAccountService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import play.mvc.Http;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import javax.persistence.NoResultException;
 import javax.validation.ConstraintViolationException;
 import java.net.MalformedURLException;
@@ -26,16 +27,20 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
 import java.util.UUID;
 
-@Service("userAccountService")
+@Singleton
+@Named("userAccountService")
 public final class UserAccountServiceImpl implements UserAccountService {
 
-    @Autowired
-    private UserDao userDao;
-    @Autowired
-    private UserEmailDao userEmailDao;
-    @Autowired
-    private UserForgotPasswordDao userForgotPasswordDao;
+    private final UserDao userDao;
+    private final UserEmailDao userEmailDao;
+    private final UserForgotPasswordDao userForgotPasswordDao;
 
+    @Inject
+    public UserAccountServiceImpl(UserDao userDao, UserEmailDao userEmailDao, UserForgotPasswordDao userForgotPasswordDao) {
+        this.userDao = userDao;
+        this.userEmailDao = userEmailDao;
+        this.userForgotPasswordDao = userForgotPasswordDao;
+    }
 
     @Override
     public String registerUser(String username, String name, String email, String password) throws IllegalStateException {

@@ -10,6 +10,7 @@ import play.Application;
 import java.util.Optional;
 
 public final class Global extends org.iatoki.judgels.commons.Global {
+
     private ApplicationContext applicationContext;
 
     /**
@@ -23,6 +24,24 @@ public final class Global extends org.iatoki.judgels.commons.Global {
         super.onStart(application);
     }
 
+    /**
+     * Base Play Framework Integration with Spring Context.
+     * Controller Instance fetched from Spring Context.
+     * Controller with composition Action will be fetched from Global Controller registry
+     * Such as @EntityNotFoundGuard and @UnsupportedOperationGuard
+     * <p>
+     * See org.iatoki.judgels.commons.controllers.BaseController
+     * See https://www.playframework.com/documentation/2.3.x/JavaActionsComposition
+     * <p>
+     *
+     * @param controllerClass Class Definition to find
+     * @return Controller Instance to used by Play Framework
+     * @throws Exception
+     */
+    @Override
+    public <A> A getControllerInstance(Class<A> controllerClass) throws Exception {
+        return getContextBean(controllerClass).orElse(super.getControllerInstance(controllerClass));
+    }
 
     /**
      * Helper method to wrap applicationContext.getBean with Optional Container.
@@ -46,24 +65,4 @@ public final class Global extends org.iatoki.judgels.commons.Global {
             }
         }
     }
-
-    /**
-     * Base Play Framework Integration with Spring Context.
-     * Controller Instance fetched from Spring Context.
-     * Controller with composition Action will be fetched from Global Controller registry
-     * Such as @EntityNotFoundGuard and @UnsupportedOperationGuard
-     * <p>
-     * See org.iatoki.judgels.commons.controllers.BaseController
-     * See https://www.playframework.com/documentation/2.3.x/JavaActionsComposition
-     * <p>
-     *
-     * @param controllerClass Class Definition to find
-     * @return Controller Instance to used by Play Framework
-     * @throws Exception
-     */
-    @Override
-    public <A> A getControllerInstance(Class<A> controllerClass) throws Exception {
-        return getContextBean(controllerClass).orElse(super.getControllerInstance(controllerClass));
-    }
-
 }

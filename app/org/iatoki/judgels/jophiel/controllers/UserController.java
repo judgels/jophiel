@@ -9,24 +9,22 @@ import org.iatoki.judgels.commons.controllers.BaseController;
 import org.iatoki.judgels.commons.views.html.layouts.headingLayout;
 import org.iatoki.judgels.commons.views.html.layouts.headingWithActionLayout;
 import org.iatoki.judgels.commons.views.html.layouts.tabLayout;
-import org.iatoki.judgels.jophiel.UserInfo;
 import org.iatoki.judgels.jophiel.JophielUtils;
-import org.iatoki.judgels.jophiel.services.UserActivityService;
-import org.iatoki.judgels.jophiel.controllers.forms.UserCreateForm;
+import org.iatoki.judgels.jophiel.UserInfo;
 import org.iatoki.judgels.jophiel.UserNotFoundException;
-import org.iatoki.judgels.jophiel.services.UserService;
+import org.iatoki.judgels.jophiel.controllers.forms.UserCreateForm;
 import org.iatoki.judgels.jophiel.controllers.forms.UserUpdateForm;
 import org.iatoki.judgels.jophiel.controllers.securities.Authenticated;
 import org.iatoki.judgels.jophiel.controllers.securities.Authorized;
 import org.iatoki.judgels.jophiel.controllers.securities.HasRole;
 import org.iatoki.judgels.jophiel.controllers.securities.LoggedIn;
+import org.iatoki.judgels.jophiel.services.UserActivityService;
+import org.iatoki.judgels.jophiel.services.UserService;
 import org.iatoki.judgels.jophiel.views.html.user.createUserView;
 import org.iatoki.judgels.jophiel.views.html.user.listUnverifiedUsersView;
 import org.iatoki.judgels.jophiel.views.html.user.listUsersView;
 import org.iatoki.judgels.jophiel.views.html.user.updateUserView;
 import org.iatoki.judgels.jophiel.views.html.user.viewUserView;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import play.data.Form;
 import play.db.jpa.Transactional;
 import play.filters.csrf.AddCSRFToken;
@@ -35,17 +33,25 @@ import play.i18n.Messages;
 import play.mvc.Http;
 import play.mvc.Result;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.util.Arrays;
 
-@Component
+@Singleton
+@Named
 public final class UserController extends BaseController {
 
     private static final long PAGE_SIZE = 20;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private UserActivityService userActivityService;
 
+    private final UserService userService;
+    private final UserActivityService userActivityService;
+
+    @Inject
+    public UserController(UserService userService, UserActivityService userActivityService) {
+        this.userService = userService;
+        this.userActivityService = userActivityService;
+    }
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Authorized(value = {"admin"})

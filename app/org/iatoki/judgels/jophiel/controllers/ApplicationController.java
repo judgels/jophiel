@@ -1,11 +1,13 @@
 package org.iatoki.judgels.jophiel.controllers;
 
 import org.iatoki.judgels.commons.controllers.BaseController;
-import org.springframework.stereotype.Component;
-import play.db.jpa.Transactional;
 import play.mvc.Result;
 
-@Component
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named
 public final class ApplicationController extends BaseController {
 
     public ApplicationController() {
@@ -14,5 +16,4 @@ public final class ApplicationController extends BaseController {
     public Result index() {
         return redirect(routes.UserAccountController.login().absoluteURL(request(), request().secure()));
     }
-
 }

@@ -7,12 +7,15 @@ import org.iatoki.judgels.jophiel.models.entities.UserForgotPasswordModel_;
 import org.springframework.stereotype.Repository;
 import play.db.jpa.JPA;
 
+import javax.inject.Named;
+import javax.inject.Singleton;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import java.util.concurrent.TimeUnit;
 
-@Repository("userForgotPasswordDao")
+@Singleton
+@Named("userForgotPasswordDao")
 public final class UserForgotPasswordHibernateDao extends AbstractHibernateDao<Long, UserForgotPasswordModel> implements UserForgotPasswordDao {
 
     public UserForgotPasswordHibernateDao() {

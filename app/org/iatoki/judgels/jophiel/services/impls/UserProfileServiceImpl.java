@@ -7,23 +7,29 @@ import org.iatoki.judgels.commons.JudgelsUtils;
 import org.iatoki.judgels.jophiel.models.daos.UserDao;
 import org.iatoki.judgels.jophiel.models.entities.UserModel;
 import org.iatoki.judgels.jophiel.services.UserProfileService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import play.mvc.Http;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
-@Service("userProfileService")
+@Singleton
+@Named("userProfileService")
 public final class UserProfileServiceImpl implements UserProfileService {
 
-    @Autowired
-    private UserDao userDao;
-    @Autowired
-    private FileSystemProvider avatarFileProvider;
+    private final UserDao userDao;
+    private final FileSystemProvider avatarFileProvider;
+
+    @Inject
+    public UserProfileServiceImpl(UserDao userDao, FileSystemProvider avatarFileProvider) {
+        this.userDao = userDao;
+        this.avatarFileProvider = avatarFileProvider;
+    }
 
     @PostConstruct
     public  void init() {

@@ -4,14 +4,16 @@ import org.iatoki.judgels.commons.models.daos.hibernate.AbstractHibernateDao;
 import org.iatoki.judgels.jophiel.models.daos.IdTokenDao;
 import org.iatoki.judgels.jophiel.models.entities.IdTokenModel;
 import org.iatoki.judgels.jophiel.models.entities.IdTokenModel_;
-import org.springframework.stereotype.Repository;
 import play.db.jpa.JPA;
 
+import javax.inject.Named;
+import javax.inject.Singleton;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
-@Repository("idTokenDao")
+@Singleton
+@Named("idTokenDao")
 public final class IdTokenHibernateDao extends AbstractHibernateDao<Long, IdTokenModel> implements IdTokenDao {
 
     public IdTokenHibernateDao() {

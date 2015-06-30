@@ -5,18 +5,19 @@ import com.google.common.collect.ImmutableSet;
 import org.apache.commons.lang3.StringUtils;
 import org.iatoki.judgels.commons.IdentityUtils;
 import org.iatoki.judgels.commons.Page;
-import org.iatoki.judgels.jophiel.UserInfo;
 import org.iatoki.judgels.jophiel.PasswordHash;
+import org.iatoki.judgels.jophiel.UserInfo;
 import org.iatoki.judgels.jophiel.UserNotFoundException;
 import org.iatoki.judgels.jophiel.models.daos.UserDao;
 import org.iatoki.judgels.jophiel.models.daos.UserEmailDao;
 import org.iatoki.judgels.jophiel.models.entities.UserEmailModel;
 import org.iatoki.judgels.jophiel.models.entities.UserModel;
 import org.iatoki.judgels.jophiel.services.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import play.mvc.Http;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
@@ -24,14 +25,18 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
 import java.util.List;
 
-@Service("userService")
+@Singleton
+@Named("userService")
 public final class UserServiceImpl implements UserService {
 
-    @Autowired
-    private UserDao userDao;
-    @Autowired
-    private UserEmailDao userEmailDao;
+    private final UserDao userDao;
+    private final UserEmailDao userEmailDao;
 
+    @Inject
+    public UserServiceImpl(UserDao userDao, UserEmailDao userEmailDao) {
+        this.userDao = userDao;
+        this.userEmailDao = userEmailDao;
+    }
 
     @Override
     public boolean existByUsername(String username) {

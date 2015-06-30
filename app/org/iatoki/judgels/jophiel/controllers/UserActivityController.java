@@ -9,8 +9,8 @@ import org.iatoki.judgels.commons.Page;
 import org.iatoki.judgels.commons.controllers.BaseController;
 import org.iatoki.judgels.commons.views.html.layouts.headingLayout;
 import org.iatoki.judgels.commons.views.html.layouts.tabLayout;
-import org.iatoki.judgels.jophiel.UserInfo;
 import org.iatoki.judgels.jophiel.UserActivity;
+import org.iatoki.judgels.jophiel.UserInfo;
 import org.iatoki.judgels.jophiel.controllers.securities.Authenticated;
 import org.iatoki.judgels.jophiel.controllers.securities.Authorized;
 import org.iatoki.judgels.jophiel.controllers.securities.HasRole;
@@ -22,23 +22,31 @@ import org.iatoki.judgels.jophiel.views.html.activity.listOwnActivitiesView;
 import org.iatoki.judgels.jophiel.views.html.activity.listUserActivitiesView;
 import org.iatoki.judgels.jophiel.views.html.activity.listUsersActivitiesView;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import play.db.jpa.Transactional;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.mvc.Result;
 
-@Component
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named
 public final class UserActivityController extends BaseController {
 
     private static final long PAGE_SIZE = 20;
-    @Autowired
-    private ClientService clientService;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private UserActivityService userActivityService;
 
+    private final ClientService clientService;
+    private final UserService userService;
+    private final UserActivityService userActivityService;
+
+    @Inject
+    public UserActivityController(ClientService clientService, UserService userService, UserActivityService userActivityService) {
+        this.clientService = clientService;
+        this.userService = userService;
+        this.userActivityService = userActivityService;
+    }
 
     @Authenticated({LoggedIn.class, HasRole.class})
     @Authorized("admin")

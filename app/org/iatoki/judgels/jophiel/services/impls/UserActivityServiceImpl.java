@@ -14,23 +14,29 @@ import org.iatoki.judgels.jophiel.models.entities.UserActivityModel_;
 import org.iatoki.judgels.jophiel.models.entities.UserModel;
 import org.iatoki.judgels.jophiel.models.entities.UserModel_;
 import org.iatoki.judgels.jophiel.services.UserActivityService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import javax.persistence.metamodel.SingularAttribute;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-@Service("userActivityService")
+@Singleton
+@Named("userActivityService")
 public final class UserActivityServiceImpl implements UserActivityService {
 
-    @Autowired
-    private ClientDao clientDao;
-    @Autowired
-    private UserDao userDao;
-    @Autowired
-    private UserActivityDao userActivityDao;
+    private final ClientDao clientDao;
+    private final UserDao userDao;
+    private final UserActivityDao userActivityDao;
+
+    @Inject
+    public UserActivityServiceImpl(ClientDao clientDao, UserDao userDao, UserActivityDao userActivityDao) {
+        this.clientDao = clientDao;
+        this.userDao = userDao;
+        this.userActivityDao = userActivityDao;
+    }
 
     @Override
     public Page<UserActivity> pageUserActivities(long pageIndex, long pageSize, String orderBy, String orderDir, String filterString, Set<String> clientsNames, String username) {

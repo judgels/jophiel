@@ -23,8 +23,6 @@ import org.iatoki.judgels.jophiel.views.html.client.createClientView;
 import org.iatoki.judgels.jophiel.views.html.client.listClientsView;
 import org.iatoki.judgels.jophiel.views.html.client.updateClientView;
 import org.iatoki.judgels.jophiel.views.html.client.viewClientView;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import play.data.Form;
 import play.db.jpa.Transactional;
 import play.filters.csrf.AddCSRFToken;
@@ -33,19 +31,27 @@ import play.i18n.Messages;
 import play.mvc.Http;
 import play.mvc.Result;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.util.Arrays;
 
 @Authenticated(value = {LoggedIn.class, HasRole.class})
 @Authorized(value = {"admin"})
-@Component
+@Singleton
+@Named
 public final class ClientController extends BaseController {
 
     private static final long PAGE_SIZE = 20;
-    @Autowired
-    private ClientService clientService;
-    @Autowired
-    private UserActivityService userActivityService;
 
+    private final ClientService clientService;
+    private final UserActivityService userActivityService;
+
+    @Inject
+    public ClientController(ClientService clientService, UserActivityService userActivityService) {
+        this.clientService = clientService;
+        this.userActivityService = userActivityService;
+    }
 
     @Transactional
     public Result index() {
