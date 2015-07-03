@@ -11,7 +11,6 @@ import org.iatoki.judgels.jophiel.models.entities.UserActivityModel;
 import org.iatoki.judgels.jophiel.models.entities.UserActivityModel_;
 import org.iatoki.judgels.jophiel.models.entities.UserModel;
 import org.iatoki.judgels.jophiel.services.impls.UserActivityServiceImpl;
-import org.mockito.InjectMocks;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -37,18 +36,19 @@ import java.util.stream.Collectors;
 public class UserActivityServiceImplTest extends PowerMockTestCase {
 
     @Mock
-    ClientDao clientDao;
+    private ClientDao clientDao;
     @Mock
-    UserDao userDao;
+    private UserDao userDao;
     @Mock
-    UserActivityDao userActivityDao;
+    private UserActivityDao userActivityDao;
 
-    @InjectMocks
-    UserActivityServiceImpl userActivityService;
+    private UserActivityServiceImpl userActivityService;
 
     @BeforeMethod
     public void setUp() {
         MockitoAnnotations.initMocks(this);
+
+        userActivityService = new UserActivityServiceImpl(clientDao, userDao, userActivityDao);
     }
 
     @Test

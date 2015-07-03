@@ -8,7 +8,6 @@ import org.iatoki.judgels.jophiel.models.daos.UserEmailDao;
 import org.iatoki.judgels.jophiel.models.entities.UserEmailModel;
 import org.iatoki.judgels.jophiel.models.entities.UserModel;
 import org.iatoki.judgels.jophiel.services.impls.UserEmailServiceImpl;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -20,6 +19,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import play.i18n.Messages;
 import play.libs.mailer.Email;
+import play.libs.mailer.MailerClient;
 import play.libs.mailer.MailerPlugin;
 
 /**
@@ -29,12 +29,13 @@ import play.libs.mailer.MailerPlugin;
 public class UserEmailServiceImplTest extends PowerMockTestCase {
 
     @Mock
-    UserDao userDao;
+    private UserDao userDao;
     @Mock
-    UserEmailDao userEmailDao;
+    private UserEmailDao userEmailDao;
+    @Mock
+    private MailerClient mailerClient;
 
-    @InjectMocks
-    UserEmailServiceImpl userEmailService;
+    private UserEmailServiceImpl userEmailService;
 
     @BeforeMethod
     public void setUp() {
@@ -43,8 +44,9 @@ public class UserEmailServiceImplTest extends PowerMockTestCase {
         PowerMockito.mockStatic(IdentityUtils.class);
         PowerMockito.mockStatic(JudgelsProperties.class);
         PowerMockito.mockStatic(JophielProperties.class);
-        PowerMockito.mockStatic(MailerPlugin.class);
         PowerMockito.mockStatic(Messages.class);
+
+        userEmailService = new UserEmailServiceImpl(userDao, userEmailDao, mailerClient);
     }
 
     @Test
@@ -197,7 +199,7 @@ public class UserEmailServiceImplTest extends PowerMockTestCase {
         Mockito.when(Messages.get("registrationEmail.pleaseActivate")).thenReturn("please activate");
 
         Email sentMail = new Email();
-        Mockito.when(MailerPlugin.send(Mockito.any())).thenAnswer(invocation -> {
+        Mockito.when(mailerClient.send(Mockito.any())).thenAnswer(invocation -> {
             Email insideSentMail = (Email) invocation.getArguments()[0];
             sentMail.setSubject(insideSentMail.getSubject());
             sentMail.setFrom(insideSentMail.getFrom());
@@ -233,7 +235,7 @@ public class UserEmailServiceImplTest extends PowerMockTestCase {
         Mockito.when(Messages.get("registrationEmail.changePassword")).thenReturn("change password");
 
         Email sentMail = new Email();
-        Mockito.when(MailerPlugin.send(Mockito.any())).thenAnswer(invocation -> {
+        Mockito.when(mailerClient.send(Mockito.any())).thenAnswer(invocation -> {
             Email insideSentMail = (Email) invocation.getArguments()[0];
             sentMail.setSubject(insideSentMail.getSubject());
             sentMail.setFrom(insideSentMail.getFrom());

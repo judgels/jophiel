@@ -14,7 +14,6 @@ import org.iatoki.judgels.jophiel.models.entities.UserEmailModel;
 import org.iatoki.judgels.jophiel.models.entities.UserForgotPasswordModel;
 import org.iatoki.judgels.jophiel.models.entities.UserModel;
 import org.iatoki.judgels.jophiel.services.impls.UserAccountServiceImpl;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -38,20 +37,21 @@ import java.security.spec.InvalidKeySpecException;
 public class UserAccountServiceImplTest extends PowerMockTestCase {
 
     @Mock
-    UserDao userDao;
+    private UserDao userDao;
     @Mock
-    UserEmailDao userEmailDao;
+    private UserEmailDao userEmailDao;
     @Mock
-    UserForgotPasswordDao userForgotPasswordDao;
+    private UserForgotPasswordDao userForgotPasswordDao;
 
-    @InjectMocks
-    UserAccountServiceImpl userAccountService;
+    private UserAccountServiceImpl userAccountService;
 
     @BeforeMethod
     public void setUp() {
         MockitoAnnotations.initMocks(this);
 
         PowerMockito.mockStatic(IdentityUtils.class);
+
+        userAccountService = new UserAccountServiceImpl(userDao, userEmailDao, userForgotPasswordDao);
     }
 
     @Test

@@ -55,27 +55,29 @@ import java.util.stream.IntStream;
 @PrepareForTest({IdentityUtils.class, JophielProperties.class})
 @PowerMockIgnore("javax.crypto.*")
 public class ClientServiceImplTest extends PowerMockTestCase {
-    @Mock
-    ClientDao clientDao;
-    @Mock
-    RedirectURIDao redirectURIDao;
-    @Mock
-    AuthorizationCodeDao authorizationCodeDao;
-    @Mock
-    AccessTokenDao accessTokenDao;
-    @Mock
-    RefreshTokenDao refreshTokenDao;
-    @Mock
-    IdTokenDao idTokenDao;
 
-    @InjectMocks
-    ClientServiceImpl clientService;
+    @Mock
+    private ClientDao clientDao;
+    @Mock
+    private RedirectURIDao redirectURIDao;
+    @Mock
+    private AuthorizationCodeDao authorizationCodeDao;
+    @Mock
+    private AccessTokenDao accessTokenDao;
+    @Mock
+    private RefreshTokenDao refreshTokenDao;
+    @Mock
+    private IdTokenDao idTokenDao;
+
+    private ClientServiceImpl clientService;
 
     @BeforeMethod
     public void setUp() {
         MockitoAnnotations.initMocks(this);
 
         PowerMockito.mockStatic(IdentityUtils.class);
+
+        clientService = new ClientServiceImpl(clientDao, redirectURIDao, authorizationCodeDao, accessTokenDao, refreshTokenDao, idTokenDao);
     }
 
     @Test
