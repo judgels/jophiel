@@ -2,48 +2,34 @@ package org.iatoki.judgels.jophiel.config;
 
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3Client;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
 import org.iatoki.judgels.commons.AWSFileSystemProvider;
 import org.iatoki.judgels.commons.FileSystemProvider;
-import org.iatoki.judgels.commons.JudgelsProperties;
 import org.iatoki.judgels.commons.LocalFileSystemProvider;
+import org.iatoki.judgels.commons.config.JudgelsAbstractModule;
 import org.iatoki.judgels.jophiel.JophielProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
 
-/**
- * Created by Deny Prasetyo
- * 26 May 2015
- * Principal Software Development Engineer
- * GDP Labs
- * deny.prasetyo@gdplabs.id
- */
+public class JophielModule extends JudgelsAbstractModule {
 
-@Configuration
-@ComponentScan({
-        "org.iatoki.judgels.jophiel.models.daos",
-        "org.iatoki.judgels.jophiel.services"
-})
-public class PersistenceConfig {
-
-    @Bean
-    public JudgelsProperties judgelsProperties() {
-        org.iatoki.judgels.jophiel.BuildInfo$ buildInfo = org.iatoki.judgels.jophiel.BuildInfo$.MODULE$;
-        JudgelsProperties.buildInstance(buildInfo.name(), buildInfo.version(), ConfigFactory.load());
-        return JudgelsProperties.getInstance();
+    @Override
+    protected void manualBinding() {
+        bind(FileSystemProvider.class).annotatedWith(AvatarFile.class).toInstance(avatarFileSystemProvider());
     }
 
-    @Bean
-    public JophielProperties jophielProperties() {
-        Config config = ConfigFactory.load();
-        JophielProperties.buildInstance(config);
+    @Override
+    protected String getDaosImplPackage() {
+        return "org.iatoki.judgels.jophiel.models.daos.impls";
+    }
+
+    @Override
+    protected String getServicesImplPackage() {
+        return "org.iatoki.judgels.jophiel.services.impls";
+    }
+
+    private JophielProperties jophielProperties() {
         return JophielProperties.getInstance();
     }
 
-    @Bean
-    public FileSystemProvider fileSystemProvider() {
+    private FileSystemProvider avatarFileSystemProvider() {
         FileSystemProvider avatarProvider;
         if (jophielProperties().isAvatarUsingAWSS3()) {
             AmazonS3Client s3Client;
@@ -59,5 +45,4 @@ public class PersistenceConfig {
 
         return avatarProvider;
     }
-
 }

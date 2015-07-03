@@ -1,27 +1,51 @@
 package org.iatoki.judgels.jophiel.it;
 
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import org.fluentlenium.core.Fluent;
+import org.iatoki.judgels.commons.JudgelsProperties;
+import org.iatoki.judgels.jophiel.JophielProperties;
 import org.iatoki.judgels.jophiel.JophielTestProperties;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
-import play.libs.F;
+import play.Application;
 import play.test.Helpers;
 import play.test.TestBrowser;
-import play.test.TestServer;
+import play.test.WithServer;
 
-public final class JophielIT {
+import java.util.Map;
+import java.util.stream.Collectors;
 
-    private static final int TEST_PORT = 3333;
-    private static final String TEST_URL = "http://localhost:" + TEST_PORT;
-    private TestServer testServer;
+public final class JophielIT extends WithServer {
+
+    private String TEST_URL;
+    private TestBrowser browser;
+
+    @Override
+    protected Application provideApplication() {
+        return Helpers.fakeApplication(ConfigFactory.load().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+    }
 
     @BeforeTest
-    public void startServer() {
-        testServer = Helpers.testServer(TEST_PORT);
-        testServer.start();
+    public void beforeTest() {
+        org.iatoki.judgels.jophiel.BuildInfo$ buildInfo = org.iatoki.judgels.jophiel.BuildInfo$.MODULE$;
+        JudgelsProperties.buildInstance(buildInfo.name(), buildInfo.version(), ConfigFactory.load());
 
-        JophielTestProperties.buildInstance(testServer.application().configuration().underlying());
+        Config config = ConfigFactory.load();
+        JophielProperties.buildInstance(config);
+        JophielTestProperties.buildInstance(config);
+
+        this.startServer();
+        TEST_URL = "http://localhost:" + port;
+    }
+
+    @AfterTest
+    public void afterTest() {
+        this.stopServer();
+        this.quitBrowser();
     }
 
     @AfterTest
@@ -29,86 +53,56 @@ public final class JophielIT {
         testServer.stop();
     }
 
+    @BeforeMethod
+    public void startBrowser() {
+        this.browser = Helpers.testBrowser(Helpers.FIREFOX);
+    }
+
+    @AfterMethod
+    public void quitBrowser() {
+        browser.quit();
+    }
+
     @Test
     public void listUsers() {
-        TestBrowser testBrowser = Helpers.testBrowser(Helpers.FIREFOX);
-        try {
-            F.Callback<TestBrowser> callback = browser -> {
-                Fluent fluent = browser.goTo(TEST_URL);
-                long startMillis = System.currentTimeMillis();
-                fluent.await().untilPage().isLoaded();
-                fillAndSubmitLoginCredentials(fluent);
-                fluent.await().untilPage().isLoaded();
-                fluent.goTo(TEST_URL+"/users");
-                fluent.await().untilPage().isLoaded();
-                System.out.println("Open List User Page: " + (System.currentTimeMillis() - startMillis));
-            };
-            callback.invoke(testBrowser);
-        } catch (Throwable t) {
-            throw new RuntimeException(t);
-        } finally {
-            testBrowser.quit();
-        }
+        Fluent fluent = browser.goTo(TEST_URL);
+        long startMillis = System.currentTimeMillis();
+        fluent.await().untilPage().isLoaded();
+        fillAndSubmitLoginCredentials(fluent);
+        fluent.await().untilPage().isLoaded();
+        fluent.goTo(TEST_URL+"/users");
+        fluent.await().untilPage().isLoaded();
+        System.out.println("Open List User Page: " + (System.currentTimeMillis() - startMillis));
     }
 
     @Test
     public void openCreateUserPage() {
-        TestBrowser testBrowser = Helpers.testBrowser(Helpers.FIREFOX);
-        try {
-            F.Callback<TestBrowser> callback = browser -> {
-                Fluent fluent = browser.goTo(TEST_URL);
-                long startMillis = System.currentTimeMillis();
-                fluent.await().untilPage().isLoaded();
-                fillAndSubmitLoginCredentials(fluent);
-                fluent.await().untilPage().isLoaded();
-                fluent.goTo(TEST_URL + "/users/create");
-                fluent.await().untilPage().isLoaded();
-                System.out.println("Open Create User Page: " + (System.currentTimeMillis() - startMillis));
-            };
-            callback.invoke(testBrowser);
-        } catch (Throwable t) {
-            throw new RuntimeException(t);
-        } finally {
-            testBrowser.quit();
-        }
+        Fluent fluent = browser.goTo(TEST_URL);
+        long startMillis = System.currentTimeMillis();
+        fluent.await().untilPage().isLoaded();
+        fillAndSubmitLoginCredentials(fluent);
+        fluent.await().untilPage().isLoaded();
+        fluent.goTo(TEST_URL + "/users/create");
+        fluent.await().untilPage().isLoaded();
+        System.out.println("Open Create User Page: " + (System.currentTimeMillis() - startMillis));
     }
 
     @Test
     public void login() {
-        TestBrowser testBrowser = Helpers.testBrowser(Helpers.FIREFOX);
-        try {
-            F.Callback<TestBrowser> callback = browser -> {
-                Fluent fluent = browser.goTo(TEST_URL);
-                long startMillis = System.currentTimeMillis();
-                fluent.await().untilPage().isLoaded();
-                fillAndSubmitLoginCredentials(fluent);
-                fluent.await().untilPage().isLoaded();
-                System.out.println("Login: " + (System.currentTimeMillis() - startMillis));
-            };
-            callback.invoke(testBrowser);
-        } catch (Throwable t) {
-            throw new RuntimeException(t);
-        } finally {
-            testBrowser.quit();
-        }
+        Fluent fluent = browser.goTo(TEST_URL);
+        long startMillis = System.currentTimeMillis();
+        fluent.await().untilPage().isLoaded();
+        fillAndSubmitLoginCredentials(fluent);
+        fluent.await().untilPage().isLoaded();
+        System.out.println("Login: " + (System.currentTimeMillis() - startMillis));
     }
 
     @Test
     public void openHomePage() {
-        TestBrowser testBrowser = Helpers.testBrowser(Helpers.FIREFOX);
-        try {
-            F.Callback<TestBrowser> callback = browser -> {
-                Fluent fluent = browser.goTo(TEST_URL);
-                long startMillis = System.currentTimeMillis();
-                fluent.await().untilPage().isLoaded();
-                System.out.println("Open Home Page: " + (System.currentTimeMillis() - startMillis));
-            };
-            callback.invoke(testBrowser);
-        } catch (Throwable t) {
-            throw new RuntimeException(t);
-        } finally {
-            testBrowser.quit();
-        }
+        Fluent fluent = browser.goTo(TEST_URL);
+        long startMillis = System.currentTimeMillis();
+        fluent.await().untilPage().isLoaded();
+        System.out.println("Open Home Page: " + (System.currentTimeMillis() - startMillis));
     }
 
     private void fillAndSubmitLoginCredentials(Fluent fluent) {

@@ -1,7 +1,7 @@
 package org.iatoki.judgels.jophiel.services;
 
-import org.iatoki.judgels.jophiel.UserInfo;
 import org.iatoki.judgels.jophiel.EmailNotVerifiedException;
+import org.iatoki.judgels.jophiel.UserInfo;
 import org.iatoki.judgels.jophiel.UserNotFoundException;
 
 import javax.persistence.NoResultException;
@@ -19,6 +19,5 @@ public interface UserAccountService {
     UserInfo login(String usernameOrEmail, String password) throws NoResultException, UserNotFoundException, EmailNotVerifiedException;
 
     void updatePassword(String userJid, String password);
-
 
 }

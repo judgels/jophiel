@@ -10,7 +10,7 @@ import org.iatoki.judgels.jophiel.models.entities.UserModel;
 import org.iatoki.judgels.jophiel.services.UserEmailService;
 import play.i18n.Messages;
 import play.libs.mailer.Email;
-import play.libs.mailer.MailerPlugin;
+import play.libs.mailer.MailerClient;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -22,11 +22,13 @@ public final class UserEmailServiceImpl implements UserEmailService {
 
     private final UserDao userDao;
     private final UserEmailDao userEmailDao;
+    private final MailerClient mailerClient;
 
     @Inject
-    public UserEmailServiceImpl(UserDao userDao, UserEmailDao userEmailDao) {
+    public UserEmailServiceImpl(UserDao userDao, UserEmailDao userEmailDao, MailerClient mailerClient) {
         this.userDao = userDao;
         this.userEmailDao = userEmailDao;
+        this.mailerClient = mailerClient;
     }
 
     @Override
@@ -77,7 +79,7 @@ public final class UserEmailServiceImpl implements UserEmailService {
         mail.setFrom(JophielProperties.getInstance().getNoreplyName() + " <" + JophielProperties.getInstance().getNoreplyEmail() + ">");
         mail.addTo(name + " <" + email + ">");
         mail.setBodyHtml("<p>" + Messages.get("registrationEmail.thankYou") + " " + JudgelsProperties.getInstance().getAppCopyright() + ".</p><p>" + Messages.get("registrationEmail.pleaseActivate") + " <a href='" + link + "'>here</a>.</p>");
-        MailerPlugin.send(mail);
+        mailerClient.send(mail);
     }
 
     @Override
@@ -87,6 +89,6 @@ public final class UserEmailServiceImpl implements UserEmailService {
         mail.setFrom(JophielProperties.getInstance().getNoreplyName() + " <" + JophielProperties.getInstance().getNoreplyEmail() + ">");
         mail.addTo(email);
         mail.setBodyHtml("<p>" + Messages.get("forgotPasswordEmail.request") + " " + JudgelsProperties.getInstance().getAppCopyright() + ".</p><p>" + Messages.get("forgotPasswordEmail.changePassword") + " <a href='" + link + "'>here</a>.</p>");
-        MailerPlugin.send(mail);
+        mailerClient.send(mail);
     }
 }

@@ -150,11 +150,11 @@ public final class JophielProperties {
         noreplyName = requireStringValue("noreply.name");
         noreplyEmail = requireStringValue("noreply.email");
 
-        requireStringValue("smtp.host");
-        requireIntegerValue("smtp.port");
-        requireStringValue("smtp.ssl");
-        requireStringValue("smtp.user");
-        requireStringValue("smtp.password");
+        requireStringValue("play.mailer.host");
+        requireIntegerValue("play.mailer.port");
+        requireStringValue("play.mailer.ssl");
+        requireStringValue("play.mailer.user");
+        requireStringValue("play.mailer.password");
 
         avatarUsingAWSS3 = requireBooleanValue("aws.avatar.s3.use");
 

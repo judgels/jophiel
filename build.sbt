@@ -26,25 +26,20 @@ lazy val jophiel = (project in file("."))
     .settings(
         name := "jophiel",
         version := IO.read(file("version.properties")).trim,
-        scalaVersion := "2.11.1",
+        scalaVersion := "2.11.7",
         libraryDependencies ++= Seq(
+            "com.typesafe.play" %% "play-mailer" % "3.0.1",
             "org.webjars" % "jquery-textcomplete" % "0.3.7",
-            "com.typesafe.play" %% "play-mailer" % "2.4.0",
-            "org.webjars" % "zxcvbn" % "1.0",
-            "org.seleniumhq.selenium" % "selenium-java" % "2.46.0",
-            "org.testng" % "testng" % "6.8.8",
-            "org.yaml" % "snakeyaml" % "1.12",
-            "de.johoop" %% "sbt-testng-interface" % "3.0.2",
-            "com.novocode" % "junit-interface" % "0.11",
-            "org.specs2" %% "specs2-core" % "2.4.14"
-        )
+            "org.webjars" % "zxcvbn" % "1.0"
+        ),
+        routesGenerator := InjectedRoutesGenerator
     )
     .settings(TestNGPlugin.testNGSettings: _*)
     .settings(
         aggregate in test := false,
         aggregate in jacoco.cover := false,
         TestNGPlugin.testNGSuites := Seq("test/resources/testngUnit.xml")
-  )
+    )
     .settings(jacoco.settings: _*)
     .settings(
         parallelExecution in jacoco.Config := false
