@@ -32,6 +32,7 @@ public final class UserEmailController extends BaseController {
         this.userEmailService = userEmailService;
     }
 
+    @Transactional
     public Result verifyEmail(String emailCode) {
         if (userEmailService.activateEmail(emailCode)) {
             LazyHtml content = new LazyHtml(activationView.render());
