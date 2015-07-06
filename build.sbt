@@ -32,7 +32,8 @@ lazy val jophiel = (project in file("."))
             "org.webjars" % "jquery-textcomplete" % "0.3.7",
             "org.webjars" % "zxcvbn" % "1.0"
         ),
-        routesGenerator := InjectedRoutesGenerator
+        routesGenerator := InjectedRoutesGenerator,
+        PlayKeys.externalizeResources := false
     )
     .settings(TestNGPlugin.testNGSettings: _*)
     .settings(
