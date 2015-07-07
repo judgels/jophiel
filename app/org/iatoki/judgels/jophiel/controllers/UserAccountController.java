@@ -84,7 +84,7 @@ public final class UserAccountController extends BaseController {
             Form<RegisterForm> form = Form.form(RegisterForm.class);
             return showRegister(form);
         } else {
-            return redirect(routes.UserProfileController.profile());
+            return redirect(routes.WelcomeController.index());
         }
     }
 
@@ -135,7 +135,7 @@ public final class UserAccountController extends BaseController {
                 }
             }
         } else {
-            return redirect(routes.UserProfileController.profile());
+            return redirect(routes.WelcomeController.index());
         }
     }
 
@@ -155,7 +155,7 @@ public final class UserAccountController extends BaseController {
             Form<ForgotPasswordForm> form = Form.form(ForgotPasswordForm.class);
             return showForgotPassword(form);
         } else {
-            return redirect(routes.UserProfileController.profile());
+            return redirect(routes.WelcomeController.index());
         }
     }
 
@@ -186,7 +186,7 @@ public final class UserAccountController extends BaseController {
                 }
             }
         } else {
-            return redirect(routes.UserProfileController.profile());
+            return redirect(routes.WelcomeController.index());
         }
     }
 
@@ -210,7 +210,7 @@ public final class UserAccountController extends BaseController {
                 return notFound();
             }
         } else {
-            return redirect(routes.UserProfileController.profile());
+            return redirect(routes.WelcomeController.index());
         }
     }
 
@@ -236,7 +236,7 @@ public final class UserAccountController extends BaseController {
                 return notFound();
             }
         } else {
-            return redirect(routes.UserProfileController.profile());
+            return redirect(routes.WelcomeController.index());
         }
     }
 
@@ -270,7 +270,7 @@ public final class UserAccountController extends BaseController {
             return showLogin(form, continueUrl);
         } else {
             if (continueUrl == null) {
-                return redirect(routes.UserProfileController.profile());
+                return redirect(routes.WelcomeController.index());
             } else {
                 return redirect(continueUrl);
             }
@@ -298,7 +298,7 @@ public final class UserAccountController extends BaseController {
                         JophielUtils.saveRoleInSession(user.getRoles());
                         ControllerUtils.getInstance().addActivityLog(userActivityService, "Logged In.");
                         if (continueUrl == null) {
-                            return redirect(routes.UserProfileController.profile());
+                            return redirect(routes.WelcomeController.index());
                         } else {
                             return redirect(continueUrl);
                         }
@@ -316,7 +316,7 @@ public final class UserAccountController extends BaseController {
             }
         } else {
             if (continueUrl == null) {
-                return redirect(routes.UserProfileController.profile());
+                return redirect(routes.WelcomeController.index());
             } else {
                 return redirect(continueUrl);
             }

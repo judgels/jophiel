@@ -6,6 +6,7 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 public final class JophielProperties {
 
@@ -15,6 +16,9 @@ public final class JophielProperties {
 
     private String jophielBaseUrl;
     private File jophielBaseDataDir;
+
+    private List<String> jophielClientLabels;
+    private List<String> jophielClientTargets;
 
     private String idTokenPrivateKey;
 
@@ -36,6 +40,14 @@ public final class JophielProperties {
 
     public String getJophielBaseUrl() {
         return jophielBaseUrl;
+    }
+
+    public List<String> getJophielClientLabels() {
+        return jophielClientLabels;
+    }
+
+    public List<String> getJophielClientTargets() {
+        return jophielClientTargets;
     }
 
     public String getIdTokenPrivateKey() {
@@ -144,6 +156,8 @@ public final class JophielProperties {
     private void build() {
         jophielBaseUrl = requireStringValue("jophiel.baseUrl");
         jophielBaseDataDir = requireDirectoryValue("jophiel.baseDataDir");
+        jophielClientLabels = requireStringListValue("jophiel.client.labels");
+        jophielClientTargets = requireStringListValue("jophiel.client.targets");
 
         idTokenPrivateKey = requireStringValue("jophiel.idToken.key.private");
 
@@ -223,5 +237,9 @@ public final class JophielProperties {
             throw new IllegalStateException("Directory " + dir.getAbsolutePath() + " does not exist");
         }
         return dir;
+    }
+
+    private List<String> requireStringListValue(String key) {
+        return config.getStringList(key);
     }
 }

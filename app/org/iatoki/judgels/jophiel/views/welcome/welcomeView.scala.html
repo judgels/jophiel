@@ -1,0 +1,16 @@
+@import play.i18n.Messages
+@import org.iatoki.judgels.jophiel.JophielProperties
+
+<p>&nbsp;</p>
+
+<p>@Messages.get("welcome.loggedIn", "TLX")</p>
+
+<p>@Messages.get("welcome.goToApps", "TLX")</p>
+
+@for(i <- 0 until JophielProperties.getInstance.getJophielClientLabels.size) {
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <a href="@JophielProperties.getInstance.getJophielClientTargets.get(i)">@JophielProperties.getInstance.getJophielClientLabels.get(i)</a>
+        </div>
+    </div>
+}

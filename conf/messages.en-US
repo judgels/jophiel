@@ -20,6 +20,10 @@ user.username=Username
 user.usernameOrEmail=Username or Email
 user.roles=Roles
 
+welcome.welcome=Welcome
+welcome.loggedIn=Hi, there! You are logged in to {0}.
+welcome.goToApps=You can now visit one of the following {0} applications:
+
 profile.profile=Profile
 profile.avatar=Avatar
 profile.activities=Activities

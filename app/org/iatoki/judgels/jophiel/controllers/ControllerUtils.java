@@ -20,6 +20,7 @@ public final class ControllerUtils extends AbstractControllerUtils {
     @Override
     public void appendSidebarLayout(LazyHtml content) {
         ImmutableList.Builder<InternalLink> internalLinkBuilder = ImmutableList.builder();
+        internalLinkBuilder.add(new InternalLink(Messages.get("welcome.welcome"), routes.WelcomeController.index()));
         internalLinkBuilder.add(new InternalLink(Messages.get("profile.profile"), routes.UserProfileController.profile()));
         if (JophielUtils.hasRole("admin")) {
             internalLinkBuilder.add(new InternalLink(Messages.get("user.users"), routes.UserController.index()));

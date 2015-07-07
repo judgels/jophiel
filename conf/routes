@@ -47,6 +47,8 @@ POST           /serviceLogin                                    @org.iatoki.judg
 GET            /logout                                          @org.iatoki.judgels.jophiel.controllers.UserAccountController.logout()
 GET            /serviceLogout                                   @org.iatoki.judgels.jophiel.controllers.UserAccountController.serviceLogout(continueUrl: String ?= "")
 
+GET            /welcome                                         @org.iatoki.judgels.jophiel.controllers.WelcomeController.index()
+
 GET            /profile                                         @org.iatoki.judgels.jophiel.controllers.UserProfileController.profile()
 POST           /profile                                         @org.iatoki.judgels.jophiel.controllers.UserProfileController.postProfile()
 GET            /profile/:username                               @org.iatoki.judgels.jophiel.controllers.UserProfileController.viewProfile(username: String)
