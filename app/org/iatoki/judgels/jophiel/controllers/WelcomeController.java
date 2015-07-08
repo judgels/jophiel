@@ -1,12 +1,13 @@
 package org.iatoki.judgels.jophiel.controllers;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import org.iatoki.judgels.commons.InternalLink;
 import org.iatoki.judgels.commons.LazyHtml;
 import org.iatoki.judgels.commons.views.html.layouts.headingLayout;
+import org.iatoki.judgels.jophiel.JophielProperties;
 import org.iatoki.judgels.jophiel.services.UserActivityService;
 import org.iatoki.judgels.jophiel.views.html.welcome.welcomeView;
-
 import play.db.jpa.Transactional;
 import play.i18n.Messages;
 import play.mvc.Http;
@@ -29,7 +30,14 @@ public class WelcomeController {
 
     @Transactional
     public Result index() {
-        LazyHtml content = new LazyHtml(welcomeView.render());
+        ImmutableMap.Builder<String, String> clientMapBuilder = ImmutableMap.builder();
+        for (int i=0;i<JophielProperties.getInstance().getJophielClientLabels().size();++i) {
+            String target = JophielProperties.getInstance().getJophielClientTargets().get(i);
+            String label = JophielProperties.getInstance().getJophielClientLabels().get(i);
+            clientMapBuilder.put(target, label);
+        }
+
+        LazyHtml content = new LazyHtml(welcomeView.render(clientMapBuilder.build()));
 
         content.appendLayout(c -> headingLayout.render(Messages.get("welcome.welcome"), c));
 

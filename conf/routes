@@ -72,5 +72,6 @@ OPTIONS        /userAutoComplete                                @org.iatoki.judg
 GET            /userAutoComplete                                @org.iatoki.judgels.jophiel.controllers.apis.UserAPIController.userAutoCompleteList()
 OPTIONS        /clientAutoComplete                              @org.iatoki.judgels.jophiel.controllers.apis.ClientAPIController.preClientAutocompleteList()
 GET            /clientAutoComplete                              @org.iatoki.judgels.jophiel.controllers.apis.ClientAPIController.clientAutoCompleteList()
+GET            /linkedClients                                   @org.iatoki.judgels.jophiel.controllers.apis.ClientAPIController.linkedClientList()
 
 GET            /avatar/:imageName                               @org.iatoki.judgels.jophiel.controllers.apis.UserAPIController.renderAvatarImage(imageName: String)

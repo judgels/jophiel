@@ -1,0 +1,9 @@
+@(clientMap: Map[String, String])
+
+@for((k, v) <- clientMap) {
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <a href="@k">@v</a>
+        </div>
+    </div>
+}

@@ -1,9 +1,12 @@
 package org.iatoki.judgels.jophiel.controllers.apis;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import org.iatoki.judgels.commons.AutoComplete;
 import org.iatoki.judgels.commons.IdentityUtils;
+import org.iatoki.judgels.commons.JudgelsProperties;
 import org.iatoki.judgels.jophiel.Client;
+import org.iatoki.judgels.jophiel.JophielProperties;
 import org.iatoki.judgels.jophiel.UserInfo;
 import org.iatoki.judgels.jophiel.controllers.securities.Authenticated;
 import org.iatoki.judgels.jophiel.controllers.securities.LoggedIn;
@@ -58,4 +61,29 @@ public final class ClientAPIController extends Controller {
         return ok(Json.toJson(responseBuilder.build()));
     }
 
+    @Authenticated(LoggedIn.class)
+    @Transactional(readOnly = true)
+    public Result linkedClientList() {
+        response().setHeader("Access-Control-Allow-Origin", "*");
+        response().setContentType("application/javascript");
+
+        DynamicForm form = DynamicForm.form().bindFromRequest();
+        String callback = form.get("callback");
+
+        String referer = request().getHeader("Referer");
+        ImmutableMap.Builder<String, String> clientMapBuilder = ImmutableMap.builder();
+
+        if (!referer.startsWith(JophielProperties.getInstance().getJophielBaseUrl())) {
+            clientMapBuilder.put(JophielProperties.getInstance().getJophielBaseUrl(), JudgelsProperties.getInstance().getAppTitle());
+        }
+        for (int i=0;i<JophielProperties.getInstance().getJophielClientLabels().size();++i) {
+            String target = JophielProperties.getInstance().getJophielClientTargets().get(i);
+            String label = JophielProperties.getInstance().getJophielClientLabels().get(i);
+            if (!referer.startsWith(target)) {
+                clientMapBuilder.put(target, label);
+            }
+        }
+
+        return ok(callback + "(" + Json.toJson(clientMapBuilder.build()).toString() + ")");
+    }
 }

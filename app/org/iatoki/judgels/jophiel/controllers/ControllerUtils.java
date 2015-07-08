@@ -5,11 +5,12 @@ import org.iatoki.judgels.commons.IdentityUtils;
 import org.iatoki.judgels.commons.InternalLink;
 import org.iatoki.judgels.commons.LazyHtml;
 import org.iatoki.judgels.commons.controllers.AbstractControllerUtils;
-import org.iatoki.judgels.commons.views.html.layouts.sidebarLayout;
-import org.iatoki.judgels.commons.views.html.layouts.profileView;
 import org.iatoki.judgels.commons.views.html.layouts.menusLayout;
+import org.iatoki.judgels.commons.views.html.layouts.profileView;
+import org.iatoki.judgels.commons.views.html.layouts.sidebarLayout;
 import org.iatoki.judgels.jophiel.JophielUtils;
 import org.iatoki.judgels.jophiel.services.UserActivityService;
+import org.iatoki.judgels.jophiel.views.html.client.linkedClientsLayout;
 import play.i18n.Messages;
 import play.mvc.Http;
 
@@ -35,6 +36,7 @@ public final class ControllerUtils extends AbstractControllerUtils {
               org.iatoki.judgels.jophiel.controllers.routes.UserAccountController.logout().absoluteURL(Http.Context.current().request())
         ));
         sidebarContent.appendLayout(c -> menusLayout.render(internalLinkBuilder.build(), c));
+        sidebarContent.appendLayout(c -> linkedClientsLayout.render(org.iatoki.judgels.jophiel.controllers.apis.routes.ClientAPIController.linkedClientList().path(), "lib/jophielcommons/javascripts/linkedClients.js", c));
         content.appendLayout(c -> sidebarLayout.render(sidebarContent.render(), c));
     }
 
