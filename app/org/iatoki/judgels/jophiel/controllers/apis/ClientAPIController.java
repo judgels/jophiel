@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.iatoki.judgels.AutoComplete;
 import org.iatoki.judgels.play.IdentityUtils;
-import org.iatoki.judgels.play.JudgelsProperties;
+import org.iatoki.judgels.play.JudgelsPlayProperties;
 import org.iatoki.judgels.jophiel.Client;
 import org.iatoki.judgels.jophiel.JophielProperties;
 import org.iatoki.judgels.jophiel.UserInfo;
@@ -74,7 +74,7 @@ public final class ClientAPIController extends Controller {
         ImmutableMap.Builder<String, String> clientMapBuilder = ImmutableMap.builder();
 
         if (!referer.startsWith(JophielProperties.getInstance().getJophielBaseUrl())) {
-            clientMapBuilder.put(JophielProperties.getInstance().getJophielBaseUrl(), JudgelsProperties.getInstance().getAppTitle());
+            clientMapBuilder.put(JophielProperties.getInstance().getJophielBaseUrl(), JudgelsPlayProperties.getInstance().getAppTitle());
         }
         for (int i=0;i<JophielProperties.getInstance().getJophielClientLabels().size();++i) {
             String target = JophielProperties.getInstance().getJophielClientTargets().get(i);

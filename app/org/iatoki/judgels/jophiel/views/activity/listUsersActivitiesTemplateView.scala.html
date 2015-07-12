@@ -3,7 +3,7 @@
 @import play.i18n.Messages
 @import org.iatoki.judgels.play.views.html.table.tableView
 @import org.iatoki.judgels.play.views.html.table.tableHeadersView
-@import org.iatoki.judgels.play.JudgelsUtils
+@import org.iatoki.judgels.play.JudgelsPlayUtils
 @import org.iatoki.judgels.play.views.html.table.paginationView
 
 @implicitFieldConstructor = @{ b3.horizontal.fieldConstructor("", "") }
@@ -59,7 +59,7 @@
     <tbody>
         @for(userActivity <- page.getData) {
             <tr>
-                <td><time class="display-time" datetime="@JudgelsUtils.formatISOUTCDateTime(userActivity.getTime)">@JudgelsUtils.formatDetailedDateTime(userActivity.getTime)</time></td>
+                <td><time class="display-time" datetime="@JudgelsPlayUtils.formatISOUTCDateTime(userActivity.getTime)">@JudgelsPlayUtils.formatDetailedDateTime(userActivity.getTime)</time></td>
                 @if(filterUser) {
                     <td>@userActivity.getUsername</td>
                 }

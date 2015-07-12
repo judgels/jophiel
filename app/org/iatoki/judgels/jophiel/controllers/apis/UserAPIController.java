@@ -8,7 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.iatoki.judgels.AutoComplete;
 import org.iatoki.judgels.play.IdentityUtils;
-import org.iatoki.judgels.play.JudgelsUtils;
+import org.iatoki.judgels.play.JudgelsPlayUtils;
 import org.iatoki.judgels.jophiel.AccessToken;
 import org.iatoki.judgels.jophiel.AuthorizationCode;
 import org.iatoki.judgels.jophiel.Client;
@@ -134,7 +134,7 @@ public final class UserAPIController extends Controller {
 
     @Transactional(readOnly = true)
     public Result verifyUsername() {
-        UsernamePasswordCredentials credentials = JudgelsUtils.parseBasicAuthFromRequest(request());
+        UsernamePasswordCredentials credentials = JudgelsPlayUtils.parseBasicAuthFromRequest(request());
 
         if (credentials != null) {
             String clientJid = credentials.getUserName();
@@ -178,7 +178,7 @@ public final class UserAPIController extends Controller {
 
     @Transactional(readOnly = true)
     public Result userInfoByUserJid() {
-        UsernamePasswordCredentials credentials = JudgelsUtils.parseBasicAuthFromRequest(request());
+        UsernamePasswordCredentials credentials = JudgelsPlayUtils.parseBasicAuthFromRequest(request());
 
         if (credentials != null) {
             String clientJid = credentials.getUserName();
@@ -270,7 +270,7 @@ public final class UserAPIController extends Controller {
 
         if ((authorizationCode.getRedirectURI().equals(redirectUri)) && (!authorizationCode.isExpired())) {
             String scope = form.get("scope");
-            UsernamePasswordCredentials credentials = JudgelsUtils.parseBasicAuthFromRequest(request());
+            UsernamePasswordCredentials credentials = JudgelsPlayUtils.parseBasicAuthFromRequest(request());
 
             if (credentials != null) {
                 String clientJid = credentials.getUserName();
@@ -337,7 +337,7 @@ public final class UserAPIController extends Controller {
 
         RefreshToken refreshToken1 = clientService.findRefreshTokenByRefreshToken(refreshToken);
         if ((refreshToken1.getToken().equals(refreshToken)) && (refreshToken1.isRedeemed())) {
-            UsernamePasswordCredentials credentials = JudgelsUtils.parseBasicAuthFromRequest(request());
+            UsernamePasswordCredentials credentials = JudgelsPlayUtils.parseBasicAuthFromRequest(request());
 
             if (credentials != null) {
                 String clientJid = credentials.getUserName();

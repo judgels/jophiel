@@ -1,8 +1,8 @@
 package org.iatoki.judgels.jophiel.unit.service.impls;
 
 import org.iatoki.judgels.play.IdentityUtils;
-import org.iatoki.judgels.play.JudgelsUtils;
-import org.iatoki.judgels.play.models.domains.AbstractModel;
+import org.iatoki.judgels.play.JudgelsPlayUtils;
+import org.iatoki.judgels.play.models.entities.AbstractModel;
 import org.iatoki.judgels.jophiel.EmailNotVerifiedException;
 import org.iatoki.judgels.jophiel.PasswordHash;
 import org.iatoki.judgels.jophiel.UserInfo;
@@ -226,7 +226,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
         userModel.jid = "JIDU0101";
         userModel.username = username;
         userModel.name = "Alice";
-        userModel.password = JudgelsUtils.hashSHA256(password);
+        userModel.password = JudgelsPlayUtils.hashSHA256(password);
         userModel.profilePictureImageName = "avatar-default.png";
         userModel.roles = "user";
         Mockito.when(userDao.existByUsername(username)).thenReturn(true);
@@ -269,7 +269,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
         userModel.jid = userEmailModel.userJid;
         userModel.username = "alice";
         userModel.name = "Alice";
-        userModel.password = JudgelsUtils.hashSHA256(password);
+        userModel.password = JudgelsPlayUtils.hashSHA256(password);
         userModel.profilePictureImageName = "avatar-default.png";
         userModel.roles = "user";
         Mockito.when(userDao.findByJid(userModel.jid)).thenReturn(userModel);
@@ -309,7 +309,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
         UserModel userModel = new UserModel();
         userModel.jid = "JIDU0101";
         userModel.username = username;
-        userModel.password = JudgelsUtils.hashSHA256(password);
+        userModel.password = JudgelsPlayUtils.hashSHA256(password);
         Mockito.when(userDao.existByUsername(username)).thenReturn(true);
         Mockito.when(userDao.findByUsername(username)).thenReturn(userModel);
 
@@ -332,7 +332,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
         UserModel userModel = new UserModel();
         userModel.jid = "JIDU0101";
         userModel.username = username;
-        userModel.password = JudgelsUtils.hashSHA256(validPassword);
+        userModel.password = JudgelsPlayUtils.hashSHA256(validPassword);
         Mockito.when(userDao.existByUsername(username)).thenReturn(true);
         Mockito.when(userDao.findByUsername(username)).thenReturn(userModel);
 

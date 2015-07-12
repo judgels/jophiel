@@ -16,7 +16,7 @@ import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.iatoki.judgels.play.IdentityUtils;
-import org.iatoki.judgels.play.JudgelsUtils;
+import org.iatoki.judgels.play.JudgelsPlayUtils;
 import org.iatoki.judgels.play.Page;
 import org.iatoki.judgels.jophiel.AccessToken;
 import org.iatoki.judgels.jophiel.Client;
@@ -244,7 +244,7 @@ public final class ClientServiceImpl implements ClientService {
             claimsSet.setIssueTime(new Date(System.currentTimeMillis()));
             claimsSet.setExpirationTime(new Date(expireTime));
             claimsSet.setClaim("auth_time", authTime);
-            claimsSet.setClaim("at_hash", JudgelsUtils.hashMD5(accessToken).substring(accessToken.length() / 2));
+            claimsSet.setClaim("at_hash", JudgelsPlayUtils.hashMD5(accessToken).substring(accessToken.length() / 2));
 
             SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.RS512), claimsSet);
             signedJWT.sign(signer);
@@ -363,7 +363,7 @@ public final class ClientServiceImpl implements ClientService {
     public void createClient(String name, String applicationType, List<String> scopes, List<String> redirectURIs) {
         ClientModel clientModel = new ClientModel();
         clientModel.name = name;
-        clientModel.secret = JudgelsUtils.generateNewSecret();
+        clientModel.secret = JudgelsPlayUtils.generateNewSecret();
         clientModel.applicationType = applicationType;
         List<String> scopeList = scopes.stream().filter(s -> ((s != null) && (Scope.valueOf(s) != null))).collect(Collectors.toList());
         clientModel.scopes = StringUtils.join(scopeList, ",");

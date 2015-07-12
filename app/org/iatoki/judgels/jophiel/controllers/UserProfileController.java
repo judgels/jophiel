@@ -5,7 +5,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.iatoki.judgels.play.IdentityUtils;
 import org.iatoki.judgels.play.InternalLink;
 import org.iatoki.judgels.play.LazyHtml;
-import org.iatoki.judgels.play.controllers.BaseController;
+import org.iatoki.judgels.play.controllers.AbstractJudgelsController;
 import org.iatoki.judgels.play.views.html.layouts.centerLayout;
 import org.iatoki.judgels.play.views.html.layouts.headingLayout;
 import org.iatoki.judgels.play.views.html.layouts.tabLayout;
@@ -39,7 +39,7 @@ import java.net.URL;
 
 @Singleton
 @Named
-public final class UserProfileController extends BaseController {
+public final class UserProfileController extends AbstractJudgelsController {
 
     private final UserService userService;
     private final UserProfileService userProfileService;

@@ -1,7 +1,7 @@
 package org.iatoki.judgels.jophiel.controllers;
 
 import org.iatoki.judgels.play.LazyHtml;
-import org.iatoki.judgels.play.controllers.BaseController;
+import org.iatoki.judgels.play.controllers.AbstractJudgelsController;
 import org.iatoki.judgels.play.views.html.layouts.centerLayout;
 import org.iatoki.judgels.jophiel.UserInfo;
 import org.iatoki.judgels.jophiel.UserNotFoundException;
@@ -21,7 +21,7 @@ import javax.inject.Singleton;
 
 @Singleton
 @Named
-public final class UserEmailController extends BaseController {
+public final class UserEmailController extends AbstractJudgelsController {
 
     private final UserService userService;
     private final UserEmailService userEmailService;

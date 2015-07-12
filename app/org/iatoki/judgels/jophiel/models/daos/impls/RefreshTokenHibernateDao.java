@@ -1,6 +1,6 @@
 package org.iatoki.judgels.jophiel.models.daos.impls;
 
-import org.iatoki.judgels.play.models.daos.hibernate.AbstractHibernateDao;
+import org.iatoki.judgels.play.models.daos.impls.AbstractHibernateDao;
 import org.iatoki.judgels.jophiel.models.daos.RefreshTokenDao;
 import org.iatoki.judgels.jophiel.models.entities.RefreshTokenModel;
 import org.iatoki.judgels.jophiel.models.entities.RefreshTokenModel_;

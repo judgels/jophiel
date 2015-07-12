@@ -3,7 +3,7 @@ package org.iatoki.judgels.jophiel.services.impls;
 import com.google.common.collect.ImmutableList;
 import org.iatoki.judgels.FileSystemProvider;
 import org.iatoki.judgels.play.IdentityUtils;
-import org.iatoki.judgels.play.JudgelsUtils;
+import org.iatoki.judgels.play.JudgelsPlayUtils;
 import org.iatoki.judgels.jophiel.config.AvatarFile;
 import org.iatoki.judgels.jophiel.models.daos.UserDao;
 import org.iatoki.judgels.jophiel.models.entities.UserModel;
@@ -57,7 +57,7 @@ public final class UserProfileServiceImpl implements UserProfileService {
     public void updateProfile(String userJid, String name, String password) {
         UserModel userModel = userDao.findByJid(userJid);
         userModel.name = name;
-        userModel.password = JudgelsUtils.hashSHA256(password);
+        userModel.password = JudgelsPlayUtils.hashSHA256(password);
 
         userDao.edit(userModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
         Http.Context.current().session().put("name", userModel.name);
@@ -65,7 +65,7 @@ public final class UserProfileServiceImpl implements UserProfileService {
 
     @Override
     public String updateProfilePicture(String userJid, File imageFile, String extension) throws IOException {
-        String newImageName = IdentityUtils.getUserJid() + "-" + JudgelsUtils.hashMD5(UUID.randomUUID().toString()) + "." + extension;
+        String newImageName = IdentityUtils.getUserJid() + "-" + JudgelsPlayUtils.hashMD5(UUID.randomUUID().toString()) + "." + extension;
         List<String> filePath = ImmutableList.of(newImageName);
         avatarFileSystemProvider.uploadFile(ImmutableList.of(), imageFile, newImageName);
         avatarFileSystemProvider.makeFilePublic(filePath);

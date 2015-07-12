@@ -1,7 +1,7 @@
 package org.iatoki.judgels.jophiel.models.daos.impls;
 
 import com.google.common.collect.ImmutableList;
-import org.iatoki.judgels.play.models.daos.hibernate.AbstractJudgelsHibernateDao;
+import org.iatoki.judgels.play.models.daos.impls.AbstractJudgelsHibernateDao;
 import org.iatoki.judgels.jophiel.models.daos.UserDao;
 import org.iatoki.judgels.jophiel.models.entities.UserModel;
 import org.iatoki.judgels.jophiel.models.entities.UserModel_;

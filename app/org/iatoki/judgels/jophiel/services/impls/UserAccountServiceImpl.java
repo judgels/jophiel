@@ -1,7 +1,7 @@
 package org.iatoki.judgels.jophiel.services.impls;
 
 import org.iatoki.judgels.play.IdentityUtils;
-import org.iatoki.judgels.play.JudgelsUtils;
+import org.iatoki.judgels.play.JudgelsPlayUtils;
 import org.iatoki.judgels.jophiel.EmailNotVerifiedException;
 import org.iatoki.judgels.jophiel.PasswordHash;
 import org.iatoki.judgels.jophiel.UserInfo;
@@ -54,7 +54,7 @@ public final class UserAccountServiceImpl implements UserAccountService {
 
             userDao.persist(userModel, "guest", IdentityUtils.getIpAddress());
 
-            String emailCode = JudgelsUtils.hashMD5(UUID.randomUUID().toString());
+            String emailCode = JudgelsPlayUtils.hashMD5(UUID.randomUUID().toString());
             UserEmailModel emailModel = new UserEmailModel(email, emailCode);
             emailModel.userJid = userModel.jid;
 
@@ -70,7 +70,7 @@ public final class UserAccountServiceImpl implements UserAccountService {
     public String forgotPassword(String username, String email) {
         UserModel userModel = userDao.findByUsername(username);
 
-        String code = JudgelsUtils.hashMD5(UUID.randomUUID().toString());
+        String code = JudgelsPlayUtils.hashMD5(UUID.randomUUID().toString());
         UserForgotPasswordModel forgotPasswordModel = new UserForgotPasswordModel();
         forgotPasswordModel.userJid = userModel.jid;
         forgotPasswordModel.code = code;
@@ -123,7 +123,7 @@ public final class UserAccountServiceImpl implements UserAccountService {
                 } else {
                     throw new EmailNotVerifiedException();
                 }
-            } else if (userModel.password.equals(JudgelsUtils.hashSHA256(password))) {
+            } else if (userModel.password.equals(JudgelsPlayUtils.hashSHA256(password))) {
                 userModel.password = PasswordHash.createHash(password);
 
                 userDao.edit(userModel, "guest", IdentityUtils.getIpAddress());

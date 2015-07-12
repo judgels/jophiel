@@ -6,7 +6,7 @@ import javax.persistence.metamodel.StaticMetamodel;
 
 @Generated(value = "org.hibernate.jpamodelgen.JPAMetaModelEntityProcessor")
 @StaticMetamodel(AccessTokenModel.class)
-public abstract class AccessTokenModel_ extends org.iatoki.judgels.play.models.domains.AbstractModel_ {
+public abstract class AccessTokenModel_ extends org.iatoki.judgels.play.models.entities.AbstractModel_ {
 
         public static volatile SingularAttribute<AccessTokenModel, Long> id;
         public static volatile SingularAttribute<AccessTokenModel, String> code;

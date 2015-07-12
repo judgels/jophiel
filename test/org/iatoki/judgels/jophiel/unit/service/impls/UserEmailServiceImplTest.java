@@ -1,7 +1,7 @@
 package org.iatoki.judgels.jophiel.unit.service.impls;
 
 import org.iatoki.judgels.play.IdentityUtils;
-import org.iatoki.judgels.play.JudgelsProperties;
+import org.iatoki.judgels.play.JudgelsPlayProperties;
 import org.iatoki.judgels.jophiel.JophielProperties;
 import org.iatoki.judgels.jophiel.models.daos.UserDao;
 import org.iatoki.judgels.jophiel.models.daos.UserEmailDao;
@@ -25,7 +25,7 @@ import play.libs.mailer.MailerPlugin;
 /**
  * Created by bagus.seto on 6/9/2015.
  */
-@PrepareForTest({IdentityUtils.class, JophielProperties.class, JudgelsProperties.class, MailerPlugin.class, Messages.class})
+@PrepareForTest({IdentityUtils.class, JophielProperties.class, JudgelsPlayProperties.class, MailerPlugin.class, Messages.class})
 public class UserEmailServiceImplTest extends PowerMockTestCase {
 
     @Mock
@@ -42,7 +42,7 @@ public class UserEmailServiceImplTest extends PowerMockTestCase {
         MockitoAnnotations.initMocks(this);
 
         PowerMockito.mockStatic(IdentityUtils.class);
-        PowerMockito.mockStatic(JudgelsProperties.class);
+        PowerMockito.mockStatic(JudgelsPlayProperties.class);
         PowerMockito.mockStatic(JophielProperties.class);
         PowerMockito.mockStatic(Messages.class);
 
@@ -185,9 +185,9 @@ public class UserEmailServiceImplTest extends PowerMockTestCase {
         String email = "alice@email.com";
         String link = "https://link.to/activate/email";
 
-        JudgelsProperties judgelsProperties = Mockito.mock(JudgelsProperties.class);
-        Mockito.when(JudgelsProperties.getInstance()).thenReturn(judgelsProperties);
-        Mockito.when(judgelsProperties.getAppCopyright()).thenReturn("copyright");
+        JudgelsPlayProperties judgelsPlayProperties = Mockito.mock(JudgelsPlayProperties.class);
+        Mockito.when(JudgelsPlayProperties.getInstance()).thenReturn(judgelsPlayProperties);
+        Mockito.when(judgelsPlayProperties.getAppCopyright()).thenReturn("copyright");
 
         JophielProperties jophielProperties = Mockito.mock(JophielProperties.class);
         Mockito.when(JophielProperties.getInstance()).thenReturn(jophielProperties);
@@ -221,9 +221,9 @@ public class UserEmailServiceImplTest extends PowerMockTestCase {
         String email = "alice@email.com";
         String link = "https://link.to/change/password";
 
-        JudgelsProperties judgelsProperties = Mockito.mock(JudgelsProperties.class);
-        Mockito.when(JudgelsProperties.getInstance()).thenReturn(judgelsProperties);
-        Mockito.when(judgelsProperties.getAppCopyright()).thenReturn("copyright");
+        JudgelsPlayProperties judgelsPlayProperties = Mockito.mock(JudgelsPlayProperties.class);
+        Mockito.when(JudgelsPlayProperties.getInstance()).thenReturn(judgelsPlayProperties);
+        Mockito.when(judgelsPlayProperties.getAppCopyright()).thenReturn("copyright");
 
         JophielProperties jophielProperties = Mockito.mock(JophielProperties.class);
         Mockito.when(JophielProperties.getInstance()).thenReturn(jophielProperties);

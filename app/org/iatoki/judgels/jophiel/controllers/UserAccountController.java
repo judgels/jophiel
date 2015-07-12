@@ -11,7 +11,7 @@ import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
 import com.nimbusds.openid.connect.sdk.AuthenticationSuccessResponse;
 import org.iatoki.judgels.play.IdentityUtils;
 import org.iatoki.judgels.play.LazyHtml;
-import org.iatoki.judgels.play.controllers.BaseController;
+import org.iatoki.judgels.play.controllers.AbstractJudgelsController;
 import org.iatoki.judgels.play.views.html.layouts.centerLayout;
 import org.iatoki.judgels.play.views.html.layouts.headingLayout;
 import org.iatoki.judgels.play.views.html.layouts.messageView;
@@ -60,7 +60,7 @@ import java.util.concurrent.TimeUnit;
 
 @Singleton
 @Named
-public final class UserAccountController extends BaseController {
+public final class UserAccountController extends AbstractJudgelsController {
 
     private final ClientService clientService;
     private final UserService userService;

@@ -3,7 +3,7 @@ package org.iatoki.judgels.jophiel.it;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.fluentlenium.core.Fluent;
-import org.iatoki.judgels.play.JudgelsProperties;
+import org.iatoki.judgels.play.JudgelsPlayProperties;
 import org.iatoki.judgels.jophiel.JophielProperties;
 import org.iatoki.judgels.jophiel.JophielTestProperties;
 import org.testng.annotations.AfterMethod;
@@ -32,7 +32,7 @@ public final class JophielIT extends WithServer {
     @BeforeTest
     public void beforeTest() {
         org.iatoki.judgels.jophiel.BuildInfo$ buildInfo = org.iatoki.judgels.jophiel.BuildInfo$.MODULE$;
-        JudgelsProperties.buildInstance(buildInfo.name(), buildInfo.version(), ConfigFactory.load());
+        JudgelsPlayProperties.buildInstance(buildInfo.name(), buildInfo.version(), ConfigFactory.load());
 
         Config config = ConfigFactory.load();
         JophielProperties.buildInstance(config);

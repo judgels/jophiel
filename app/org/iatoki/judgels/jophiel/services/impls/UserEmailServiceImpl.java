@@ -1,7 +1,7 @@
 package org.iatoki.judgels.jophiel.services.impls;
 
 import org.iatoki.judgels.play.IdentityUtils;
-import org.iatoki.judgels.play.JudgelsProperties;
+import org.iatoki.judgels.play.JudgelsPlayProperties;
 import org.iatoki.judgels.jophiel.JophielProperties;
 import org.iatoki.judgels.jophiel.models.daos.UserDao;
 import org.iatoki.judgels.jophiel.models.daos.UserEmailDao;
@@ -75,20 +75,20 @@ public final class UserEmailServiceImpl implements UserEmailService {
     @Override
     public void sendActivationEmail(String name, String email, String link) {
         Email mail = new Email();
-        mail.setSubject(JudgelsProperties.getInstance().getAppCopyright() + " " + Messages.get("registrationEmail.userRegistration"));
+        mail.setSubject(JudgelsPlayProperties.getInstance().getAppCopyright() + " " + Messages.get("registrationEmail.userRegistration"));
         mail.setFrom(JophielProperties.getInstance().getNoreplyName() + " <" + JophielProperties.getInstance().getNoreplyEmail() + ">");
         mail.addTo(name + " <" + email + ">");
-        mail.setBodyHtml("<p>" + Messages.get("registrationEmail.thankYou") + " " + JudgelsProperties.getInstance().getAppCopyright() + ".</p><p>" + Messages.get("registrationEmail.pleaseActivate") + " <a href='" + link + "'>here</a>.</p>");
+        mail.setBodyHtml("<p>" + Messages.get("registrationEmail.thankYou") + " " + JudgelsPlayProperties.getInstance().getAppCopyright() + ".</p><p>" + Messages.get("registrationEmail.pleaseActivate") + " <a href='" + link + "'>here</a>.</p>");
         mailerClient.send(mail);
     }
 
     @Override
     public void sendChangePasswordEmail(String email, String link) {
         Email mail = new Email();
-        mail.setSubject(JudgelsProperties.getInstance().getAppCopyright() + " " + Messages.get("forgotPasswordEmail.forgotPassword"));
+        mail.setSubject(JudgelsPlayProperties.getInstance().getAppCopyright() + " " + Messages.get("forgotPasswordEmail.forgotPassword"));
         mail.setFrom(JophielProperties.getInstance().getNoreplyName() + " <" + JophielProperties.getInstance().getNoreplyEmail() + ">");
         mail.addTo(email);
-        mail.setBodyHtml("<p>" + Messages.get("forgotPasswordEmail.request") + " " + JudgelsProperties.getInstance().getAppCopyright() + ".</p><p>" + Messages.get("forgotPasswordEmail.changePassword") + " <a href='" + link + "'>here</a>.</p>");
+        mail.setBodyHtml("<p>" + Messages.get("forgotPasswordEmail.request") + " " + JudgelsPlayProperties.getInstance().getAppCopyright() + ".</p><p>" + Messages.get("forgotPasswordEmail.changePassword") + " <a href='" + link + "'>here</a>.</p>");
         mailerClient.send(mail);
     }
 }
