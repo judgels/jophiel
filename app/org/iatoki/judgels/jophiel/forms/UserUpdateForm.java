@@ -1,16 +1,16 @@
-package org.iatoki.judgels.jophiel.controllers.forms;
+package org.iatoki.judgels.jophiel.forms;
 
 import org.apache.commons.lang3.StringUtils;
 import org.iatoki.judgels.jophiel.UserInfo;
 import play.data.validation.Constraints;
 
-public final class UserCreateForm {
+public final class UserUpdateForm {
 
-    public UserCreateForm() {
+    public UserUpdateForm() {
 
     }
 
-    public UserCreateForm(UserInfo user) {
+    public UserUpdateForm(UserInfo user) {
         this.username = user.getUsername();
         this.name = user.getName();
         this.email = user.getEmail();
@@ -30,9 +30,9 @@ public final class UserCreateForm {
     @Constraints.Email
     public String email;
 
-    @Constraints.Required
     public String password;
 
     @Constraints.Required
     public String roles;
+
 }
