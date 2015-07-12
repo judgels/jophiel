@@ -44,7 +44,8 @@ lazy val jophiel = (project in file("."))
     )
     .settings(jacoco.settings: _*)
     .settings(
-        parallelExecution in jacoco.Config := false
+        parallelExecution in jacoco.Config := false,
+        jacoco.reportFormats in jacoco.Config := Seq(de.johoop.jacoco4sbt.XMLReport())
     )
     .settings(
         LessKeys.compress := true,

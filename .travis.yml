@@ -9,4 +9,7 @@ install:
   - git clone https://github.com/ia-toki/judgels-play-commons.git ../judgels-play-commons
 
 script:
-  - ./activator test
+  - ./activator jacoco:cover
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
