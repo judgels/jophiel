@@ -1,6 +1,6 @@
 package org.iatoki.judgels.jophiel.services;
 
-import org.iatoki.judgels.commons.Page;
+import org.iatoki.judgels.play.Page;
 import org.iatoki.judgels.jophiel.UserActivity;
 
 import java.util.Set;

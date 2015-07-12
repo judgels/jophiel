@@ -2,10 +2,10 @@ package org.iatoki.judgels.jophiel.config;
 
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3Client;
-import org.iatoki.judgels.commons.AWSFileSystemProvider;
-import org.iatoki.judgels.commons.FileSystemProvider;
-import org.iatoki.judgels.commons.LocalFileSystemProvider;
-import org.iatoki.judgels.commons.config.JudgelsAbstractModule;
+import org.iatoki.judgels.AWSFileSystemProvider;
+import org.iatoki.judgels.FileSystemProvider;
+import org.iatoki.judgels.LocalFileSystemProvider;
+import org.iatoki.judgels.play.config.JudgelsAbstractModule;
 import org.iatoki.judgels.jophiel.JophielProperties;
 
 public class JophielModule extends JudgelsAbstractModule {

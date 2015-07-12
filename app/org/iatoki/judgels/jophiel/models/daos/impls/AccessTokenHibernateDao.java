@@ -1,6 +1,6 @@
 package org.iatoki.judgels.jophiel.models.daos.impls;
 
-import org.iatoki.judgels.commons.models.daos.hibernate.AbstractHibernateDao;
+import org.iatoki.judgels.play.models.daos.hibernate.AbstractHibernateDao;
 import org.iatoki.judgels.jophiel.models.daos.AccessTokenDao;
 import org.iatoki.judgels.jophiel.models.entities.AccessTokenModel;
 import org.iatoki.judgels.jophiel.models.entities.AccessTokenModel_;

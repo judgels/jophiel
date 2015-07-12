@@ -2,7 +2,7 @@ package org.iatoki.judgels.jophiel.config;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import org.iatoki.judgels.commons.JudgelsProperties;
+import org.iatoki.judgels.play.JudgelsProperties;
 import org.iatoki.judgels.jophiel.JophielProperties;
 import play.inject.guice.GuiceApplicationBuilder;
 import play.inject.guice.GuiceApplicationLoader;

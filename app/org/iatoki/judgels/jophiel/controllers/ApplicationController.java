@@ -1,6 +1,6 @@
 package org.iatoki.judgels.jophiel.controllers;
 
-import org.iatoki.judgels.commons.controllers.BaseController;
+import org.iatoki.judgels.play.controllers.BaseController;
 import play.mvc.Result;
 
 import javax.inject.Named;

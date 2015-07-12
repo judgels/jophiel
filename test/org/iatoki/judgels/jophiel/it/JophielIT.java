@@ -3,7 +3,7 @@ package org.iatoki.judgels.jophiel.it;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.fluentlenium.core.Fluent;
-import org.iatoki.judgels.commons.JudgelsProperties;
+import org.iatoki.judgels.play.JudgelsProperties;
 import org.iatoki.judgels.jophiel.JophielProperties;
 import org.iatoki.judgels.jophiel.JophielTestProperties;
 import org.testng.annotations.AfterMethod;

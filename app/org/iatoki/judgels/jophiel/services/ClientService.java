@@ -1,7 +1,7 @@
 package org.iatoki.judgels.jophiel.services;
 
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
-import org.iatoki.judgels.commons.Page;
+import org.iatoki.judgels.play.Page;
 import org.iatoki.judgels.jophiel.AccessToken;
 import org.iatoki.judgels.jophiel.Client;
 import org.iatoki.judgels.jophiel.ClientNotFoundException;

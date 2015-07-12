@@ -3,7 +3,7 @@ package org.iatoki.judgels.jophiel.services.impls;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import org.iatoki.judgels.commons.Page;
+import org.iatoki.judgels.play.Page;
 import org.iatoki.judgels.jophiel.UserActivity;
 import org.iatoki.judgels.jophiel.models.daos.ClientDao;
 import org.iatoki.judgels.jophiel.models.daos.UserActivityDao;

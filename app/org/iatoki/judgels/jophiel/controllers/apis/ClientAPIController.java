@@ -2,9 +2,9 @@ package org.iatoki.judgels.jophiel.controllers.apis;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import org.iatoki.judgels.commons.AutoComplete;
-import org.iatoki.judgels.commons.IdentityUtils;
-import org.iatoki.judgels.commons.JudgelsProperties;
+import org.iatoki.judgels.AutoComplete;
+import org.iatoki.judgels.play.IdentityUtils;
+import org.iatoki.judgels.play.JudgelsProperties;
 import org.iatoki.judgels.jophiel.Client;
 import org.iatoki.judgels.jophiel.JophielProperties;
 import org.iatoki.judgels.jophiel.UserInfo;

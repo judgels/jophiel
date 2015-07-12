@@ -1,8 +1,8 @@
 package org.iatoki.judgels.jophiel.unit.service.impls;
 
-import org.iatoki.judgels.commons.IdentityUtils;
-import org.iatoki.judgels.commons.JudgelsUtils;
-import org.iatoki.judgels.commons.models.domains.AbstractModel;
+import org.iatoki.judgels.play.IdentityUtils;
+import org.iatoki.judgels.play.JudgelsUtils;
+import org.iatoki.judgels.play.models.domains.AbstractModel;
 import org.iatoki.judgels.jophiel.EmailNotVerifiedException;
 import org.iatoki.judgels.jophiel.PasswordHash;
 import org.iatoki.judgels.jophiel.UserInfo;

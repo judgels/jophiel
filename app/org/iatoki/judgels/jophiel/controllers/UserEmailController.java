@@ -1,8 +1,8 @@
 package org.iatoki.judgels.jophiel.controllers;
 
-import org.iatoki.judgels.commons.LazyHtml;
-import org.iatoki.judgels.commons.controllers.BaseController;
-import org.iatoki.judgels.commons.views.html.layouts.centerLayout;
+import org.iatoki.judgels.play.LazyHtml;
+import org.iatoki.judgels.play.controllers.BaseController;
+import org.iatoki.judgels.play.views.html.layouts.centerLayout;
 import org.iatoki.judgels.jophiel.UserInfo;
 import org.iatoki.judgels.jophiel.UserNotFoundException;
 import org.iatoki.judgels.jophiel.controllers.securities.Authenticated;
