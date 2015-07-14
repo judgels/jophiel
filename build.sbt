@@ -1,19 +1,5 @@
 import de.johoop.testngplugin.TestNGPlugin
 import de.johoop.jacoco4sbt.JacocoPlugin.jacoco
-import sbt.Keys.aggregate
-import sbt.Keys.doc
-import sbt.Keys.javaOptions
-import sbt.Keys.libraryDependencies
-import sbt.Keys.name
-import sbt.Keys.packageDoc
-import sbt.Keys.parallelExecution
-import sbt.Keys.publishArtifact
-import sbt.Keys.scalaVersion
-import sbt.Keys.sourceGenerators
-import sbt.Keys.sources
-import sbt.Keys.test
-import sbt.Keys.testOptions
-import sbt.Keys.version
 import sbtbuildinfo.Plugin._
 
 lazy val ITTest = config("integration") extend(Test)
