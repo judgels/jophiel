@@ -5,10 +5,10 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import org.iatoki.judgels.AWSFileSystemProvider;
 import org.iatoki.judgels.FileSystemProvider;
 import org.iatoki.judgels.LocalFileSystemProvider;
-import org.iatoki.judgels.play.config.AbstractJudgelsModule;
+import org.iatoki.judgels.play.config.AbstractJudgelsPlayModule;
 import org.iatoki.judgels.jophiel.JophielProperties;
 
-public class JophielModule extends AbstractJudgelsModule {
+public class JophielModule extends AbstractJudgelsPlayModule {
 
     @Override
     protected void manualBinding() {
