@@ -1,0 +1,3 @@
+@(form: Form[org.iatoki.judgels.jophiel.forms.LoginForm], continueUrl: String)
+
+@loginTemplateView(form, org.iatoki.judgels.jophiel.controllers.routes.UserAccountController.postServiceLogin(continueUrl))

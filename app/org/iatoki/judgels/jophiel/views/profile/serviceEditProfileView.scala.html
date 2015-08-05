@@ -1,0 +1,3 @@
+@(form: Form[org.iatoki.judgels.jophiel.forms.UserProfileForm], form2: Form[org.iatoki.judgels.jophiel.forms.UserProfilePictureForm], returnURI: String)
+
+@editProfileTemplateView(form, form2, org.iatoki.judgels.jophiel.controllers.routes.UserProfileController.postServiceAvatar(returnURI), org.iatoki.judgels.jophiel.controllers.routes.UserProfileController.postServiceProfile(returnURI))

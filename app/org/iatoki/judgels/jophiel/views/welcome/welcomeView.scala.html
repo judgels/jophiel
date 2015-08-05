@@ -1,0 +1,12 @@
+@(clientMap: Map[String, String])
+
+@import play.i18n.Messages
+@import org.iatoki.judgels.jophiel.views.html.client.linkedClientView
+
+<p>&nbsp;</p>
+
+<p>@Messages.get("welcome.loggedIn", "TLX")</p>
+
+<p>@Messages.get("welcome.goToApps", "TLX")</p>
+
+@linkedClientView(clientMap)

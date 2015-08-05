@@ -1,0 +1,96 @@
+user.user=User
+user.users=Users
+user.unverifiedUsers=Unverified Users
+
+user.list=Users
+user.create=Create User
+user.update=Update User
+user.view=View User
+
+user.unverifiedUsers.list=Unverified Users
+user.email.resendVerification=Resend
+user.email.activate=Activate
+
+user.username=Username
+user.name=Name
+user.email=Email
+user.password=Password
+user.confirmPassword=Confirm Password
+user.username=Username
+user.usernameOrEmail=Username or Email
+user.roles=Roles
+
+welcome.welcome=Welcome
+welcome.loggedIn=Hi, there! You are logged in to {0}.
+welcome.goToApps=You can now visit one of the following {0} applications:
+
+profile.profile=Profile
+profile.avatar=Avatar
+profile.activities=Activities
+
+profile.error.passwordsDidntMatch=Passwords didn''t match
+profile.error.avatarNotPicture=Avatar is not a picture
+profile.error.overSizeLimit=Avatar size is maximum 2 MB
+profile.error.cantUpload=Avatar can't be uploaded into system
+
+register.successful=Registration Successful
+register.activationEmailSentTo=An email for activating your account has been sent to
+register.error.usernameExists=Username already exists
+register.error.emailExists=Email already exists
+register.error.passwordsDidntMatch=Passwords didn''t match
+register.error.usernameOrEmailExists=Username or email already exists
+register.error.invalidRegistration=Invalid Registration
+
+registrationEmail.userRegistration=User Registration
+registrationEmail.thankYou=Thank you for registering in
+registrationEmail.pleaseActivate=Please activate your account
+
+forgotPasswordEmail.forgotPassword=Change Password Request
+
+activation.successful=Activation Successful
+activation.canNowLogin=You can now log in.
+
+client.client=Client
+client.clients=Clients
+
+client.list=Clients
+client.create=Create Client
+client.update=Update Client
+client.view=View Client
+
+client.name=Client Name
+client.applicationType=Application Type
+client.redirectURIs=Redirect URIs
+client.scopes=Scopes
+client.secret=Secret
+
+login.logIn=Log In
+login.dontHaveAccount=Don''t have account?
+login.register=Register here
+login.forgotPassword=Forgot Password?
+login.error.usernameOrEmailOrPasswordInvalid=Invalid username or password
+login.error.emailNotVerified=Email is not verified
+
+register.registerNewAccount=Register New Account
+register.register=Register
+
+forgotPassword.forgotPassword=Forgot Password
+forgotPassword.successful=Change Password Request
+forgot_pass.error.emailIsNotOwnedByUser=Email is not owned by username
+forgotPasswordEmail.changePasswordRequestSentTo=Change password request has been sent to
+forgotPasswordEmail.request=A request to change password has been made for your account on
+forgotPasswordEmail.changePassword=To change your password please click
+forgotPassword.changePassword=Change Password
+changePassword.successful= Change Password Successful
+changePassword.success=Your password has been changed
+
+auth.authorize=Authorize
+auth.authorization=Authorization Request
+auth.wantToAuthorize=Do you want to authorize
+auth.inTheseScopes=in these scopes
+
+user.activities=User Activities
+user.activity.list=User Activities
+user.activity.time=Time
+user.activity.log=Log
+user.activity.ip=IP Address
