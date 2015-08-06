@@ -4,9 +4,9 @@ jdk:
   - oraclejdk8
 
 install:
-  - git clone https://github.com/ia-toki/judgels-commons.git ../judgels-commons
-  - git clone https://github.com/ia-toki/judgels-jophiel-commons.git ../judgels-jophiel-commons
-  - git clone https://github.com/ia-toki/judgels-play-commons.git ../judgels-play-commons
+  - git clone https://github.com/judgels/commons.git ../commons
+  - git clone https://github.com/judgels/jophielcommons.git ../jophielcommons
+  - git clone https://github.com/judgels/playcommons.git ../playcommons
 
 script:
   - ./activator jacoco:cover
