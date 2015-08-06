@@ -4,12 +4,16 @@ jdk:
   - oraclejdk8
 
 install:
+  - git clone https://github.com/judgels/judgels.git ../judgels
   - git clone https://github.com/judgels/commons.git ../commons
   - git clone https://github.com/judgels/jophielcommons.git ../jophielcommons
   - git clone https://github.com/judgels/playcommons.git ../playcommons
 
 script:
-  - ./activator jacoco:cover
+  - ../judgels/scripts/download-activator.sh
+  - export PATH=$PATH:~/activator
+  - activator jacoco:cover
+
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
