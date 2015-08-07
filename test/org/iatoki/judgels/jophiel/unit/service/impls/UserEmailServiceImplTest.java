@@ -50,7 +50,7 @@ public class UserEmailServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void isEmailOwnedByUser_EmailOwnedByUser_ReturnsTrue() {
+    public void isEmailOwnedByUserEmailOwnedByUserReturnsTrue() {
         String email = "alice@email.com";
         String username = "alice123";
         String userJid = "JIDU0101";
@@ -67,7 +67,7 @@ public class UserEmailServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void isEmailOwnedByUser_EmailNotOwnedByUser_ReturnsFalse() {
+    public void isEmailOwnedByUserEmailNotOwnedByUserReturnsFalse() {
         String email = "bob@email.com";
         String username = "alice123";
         String userJid = "JIDU0101";
@@ -85,7 +85,7 @@ public class UserEmailServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void existByEmail_ExistingEmail_ReturnsTrue() {
+    public void existByEmailExistingEmailReturnsTrue() {
         String existingEmail = "alice@email.com";
         Mockito.when(userEmailDao.isExistByEmail(existingEmail)).thenReturn(true);
 
@@ -93,7 +93,7 @@ public class UserEmailServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void existByEmail_NonExistingEmail_ReturnsFalse() {
+    public void existByEmailNonExistingEmailReturnsFalse() {
         String nonExistingEmail = "alice_email";
         Mockito.when(userEmailDao.isExistByEmail(nonExistingEmail)).thenReturn(false);
 
@@ -101,7 +101,7 @@ public class UserEmailServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void activateEmail_ExistingUnverifiedEmailCode_ReturnsTrue() {
+    public void activateEmailExistingUnverifiedEmailCodeReturnsTrue() {
         String emailCode = "UNVERIFIED_EMAIL_CODE";
         Mockito.when(userEmailDao.isExistByCode(emailCode)).thenReturn(true);
 
@@ -116,14 +116,14 @@ public class UserEmailServiceImplTest extends PowerMockTestCase {
         Mockito.when(userEmailDao.findByCode(emailCode)).thenReturn(userEmailModel);
 
         Mockito.doAnswer(invocation -> {
-            UserEmailModel insideUserEmailModel = (UserEmailModel) invocation.getArguments()[0];
-            String userJid = (String) invocation.getArguments()[1];
+                UserEmailModel insideUserEmailModel = (UserEmailModel) invocation.getArguments()[0];
+                String userJid = (String) invocation.getArguments()[1];
 
-            insideUserEmailModel.userUpdate = userJid;
-            insideUserEmailModel.timeUpdate = System.currentTimeMillis();
+                insideUserEmailModel.userUpdate = userJid;
+                insideUserEmailModel.timeUpdate = System.currentTimeMillis();
 
-            return null;
-        }).when(userEmailDao).edit(Mockito.any(), Mockito.anyString(), Mockito.anyString());
+                return null;
+            }).when(userEmailDao).edit(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 
         Assert.assertTrue(userEmailService.activateEmail(emailCode), "Invalid email code or email has been activated");
         Assert.assertNotEquals(userEmailModel.userCreate, userEmailModel.userUpdate, "UserInfo update not updated");
@@ -131,7 +131,7 @@ public class UserEmailServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void activateEmail_ExistingVerifiedEmailCode_ReturnsFalse() {
+    public void activateEmailExistingVerifiedEmailCodeReturnsFalse() {
         String emailCode = "VERIFIED_EMAIL_CODE";
         Mockito.when(userEmailDao.isExistByCode(emailCode)).thenReturn(true);
 
@@ -143,7 +143,7 @@ public class UserEmailServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void activateEmail_NonExistingEmailCode_ReturnsFalse() {
+    public void activateEmailNonExistingEmailCodeReturnsFalse() {
         String emailCode = "INVALID_EMAIL_CODE";
         Mockito.when(userEmailDao.isExistByCode(emailCode)).thenReturn(false);
 
@@ -151,7 +151,7 @@ public class UserEmailServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void isEmailNotVerified_UnverifiedUser_ReturnsTrue() {
+    public void isEmailNotVerifiedUnverifiedUserReturnsTrue() {
         String unverifiedUserJid = "JIDU0101";
         Mockito.when(userEmailDao.isExistNotVerifiedByUserJid(unverifiedUserJid)).thenReturn(true);
 
@@ -159,7 +159,7 @@ public class UserEmailServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void isEmailNotVerified_VerifiedUser_ReturnsFalse() {
+    public void isEmailNotVerifiedVerifiedUserReturnsFalse() {
         String verifiedUserJid = "JIDU1111";
         Mockito.when(userEmailDao.isExistNotVerifiedByUserJid(verifiedUserJid)).thenReturn(false);
 
@@ -167,7 +167,7 @@ public class UserEmailServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void getEmailCodeOfUnverifiedEmail_UnverifiedUser_ReturnsEmailCode() {
+    public void getEmailCodeOfUnverifiedEmailUnverifiedUserReturnsEmailCode() {
         String userJid = "JIDU0101";
 
         UserEmailModel userEmailModel = new UserEmailModel();
@@ -180,7 +180,7 @@ public class UserEmailServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void sendActivationEmail_UnverifiedUser_ActivationEmailSent() {
+    public void sendActivationEmailUnverifiedUserActivationEmailSent() {
         String name = "Alice";
         String email = "alice@email.com";
         String link = "https://link.to/activate/email";
@@ -200,14 +200,14 @@ public class UserEmailServiceImplTest extends PowerMockTestCase {
 
         Email sentMail = new Email();
         Mockito.when(mailerClient.send(Mockito.any())).thenAnswer(invocation -> {
-            Email insideSentMail = (Email) invocation.getArguments()[0];
-            sentMail.setSubject(insideSentMail.getSubject());
-            sentMail.setFrom(insideSentMail.getFrom());
-            sentMail.setTo(insideSentMail.getTo());
-            sentMail.setBodyHtml(insideSentMail.getBodyHtml());
+                Email insideSentMail = (Email) invocation.getArguments()[0];
+                sentMail.setSubject(insideSentMail.getSubject());
+                sentMail.setFrom(insideSentMail.getFrom());
+                sentMail.setTo(insideSentMail.getTo());
+                sentMail.setBodyHtml(insideSentMail.getBodyHtml());
 
-            return null;
-        });
+                return null;
+            });
         userEmailService.sendActivationEmail(name, email, link);
 
         Assert.assertNotEquals("", sentMail.getSubject(), "Subject must not be empty");
@@ -217,7 +217,7 @@ public class UserEmailServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void sendChangePasswordEmail_ExistingUser_ChangePasswordEmailSent() {
+    public void sendChangePasswordEmailExistingUserChangePasswordEmailSent() {
         String email = "alice@email.com";
         String link = "https://link.to/change/password";
 
@@ -236,14 +236,14 @@ public class UserEmailServiceImplTest extends PowerMockTestCase {
 
         Email sentMail = new Email();
         Mockito.when(mailerClient.send(Mockito.any())).thenAnswer(invocation -> {
-            Email insideSentMail = (Email) invocation.getArguments()[0];
-            sentMail.setSubject(insideSentMail.getSubject());
-            sentMail.setFrom(insideSentMail.getFrom());
-            sentMail.setTo(insideSentMail.getTo());
-            sentMail.setBodyHtml(insideSentMail.getBodyHtml());
+                Email insideSentMail = (Email) invocation.getArguments()[0];
+                sentMail.setSubject(insideSentMail.getSubject());
+                sentMail.setFrom(insideSentMail.getFrom());
+                sentMail.setTo(insideSentMail.getTo());
+                sentMail.setBodyHtml(insideSentMail.getBodyHtml());
 
-            return null;
-        });
+                return null;
+            });
         userEmailService.sendChangePasswordEmail(email, link);
 
         Assert.assertNotEquals("", sentMail.getSubject(), "Subject must not be empty");

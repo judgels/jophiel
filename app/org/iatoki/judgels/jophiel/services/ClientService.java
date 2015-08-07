@@ -28,7 +28,7 @@ public interface ClientService {
 
     Client findClientByJid(String clientJid);
 
-    AuthorizationCode generateAuthorizationCode(String clientJid, String URI, String responseType, List<String> scopes, long expireTime);
+    AuthorizationCode generateAuthorizationCode(String clientJid, String uRI, String responseType, List<String> scopes, long expireTime);
 
     String generateAccessToken(String code, String userId, String clientId, List<String> scopes, long expireTime);
 

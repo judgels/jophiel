@@ -45,7 +45,7 @@ public final class UserEmailController extends AbstractJudgelsController {
     }
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
-    @Authorized(value = {"admin"})
+    @Authorized(value = "admin")
     @Transactional(readOnly = true)
     public Result resendEmailVerification(long userId) throws UserNotFoundException {
         UserInfo user = userService.findUserById(userId);
@@ -60,7 +60,7 @@ public final class UserEmailController extends AbstractJudgelsController {
     }
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
-    @Authorized(value = {"admin"})
+    @Authorized(value = "admin")
     @Transactional
     public Result activateMainEmail(long userId) throws UserNotFoundException {
         UserInfo user = userService.findUserById(userId);

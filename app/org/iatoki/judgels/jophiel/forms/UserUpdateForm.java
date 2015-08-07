@@ -1,21 +1,8 @@
 package org.iatoki.judgels.jophiel.forms;
 
-import org.apache.commons.lang3.StringUtils;
-import org.iatoki.judgels.jophiel.UserInfo;
 import play.data.validation.Constraints;
 
 public final class UserUpdateForm {
-
-    public UserUpdateForm() {
-
-    }
-
-    public UserUpdateForm(UserInfo user) {
-        this.username = user.getUsername();
-        this.name = user.getName();
-        this.email = user.getEmail();
-        this.roles = StringUtils.join(user.getRoles(), ",");
-    }
 
     @Constraints.Required
     @Constraints.MinLength(3)
@@ -34,5 +21,4 @@ public final class UserUpdateForm {
 
     @Constraints.Required
     public String roles;
-
 }

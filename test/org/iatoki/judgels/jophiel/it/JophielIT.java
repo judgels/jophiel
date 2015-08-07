@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 public final class JophielIT extends WithServer {
 
-    private String TEST_URL;
+    private String testURL;
     private TestBrowser browser;
 
     @Override
@@ -39,7 +39,7 @@ public final class JophielIT extends WithServer {
         JophielTestProperties.buildInstance(config);
 
         this.startServer();
-        TEST_URL = "http://localhost:" + port;
+        testURL = "http://localhost:" + port;
     }
 
     @AfterTest
@@ -65,31 +65,31 @@ public final class JophielIT extends WithServer {
 
     @Test
     public void listUsers() {
-        Fluent fluent = browser.goTo(TEST_URL);
+        Fluent fluent = browser.goTo(testURL);
         long startMillis = System.currentTimeMillis();
         fluent.await().untilPage().isLoaded();
         fillAndSubmitLoginCredentials(fluent);
         fluent.await().untilPage().isLoaded();
-        fluent.goTo(TEST_URL+"/users");
+        fluent.goTo(testURL + "/users");
         fluent.await().untilPage().isLoaded();
         System.out.println("Open List User Page: " + (System.currentTimeMillis() - startMillis));
     }
 
     @Test
     public void openCreateUserPage() {
-        Fluent fluent = browser.goTo(TEST_URL);
+        Fluent fluent = browser.goTo(testURL);
         long startMillis = System.currentTimeMillis();
         fluent.await().untilPage().isLoaded();
         fillAndSubmitLoginCredentials(fluent);
         fluent.await().untilPage().isLoaded();
-        fluent.goTo(TEST_URL + "/users/create");
+        fluent.goTo(testURL + "/users/create");
         fluent.await().untilPage().isLoaded();
         System.out.println("Open Create User Page: " + (System.currentTimeMillis() - startMillis));
     }
 
     @Test
     public void login() {
-        Fluent fluent = browser.goTo(TEST_URL);
+        Fluent fluent = browser.goTo(testURL);
         long startMillis = System.currentTimeMillis();
         fluent.await().untilPage().isLoaded();
         fillAndSubmitLoginCredentials(fluent);
@@ -99,7 +99,7 @@ public final class JophielIT extends WithServer {
 
     @Test
     public void openHomePage() {
-        Fluent fluent = browser.goTo(TEST_URL);
+        Fluent fluent = browser.goTo(testURL);
         long startMillis = System.currentTimeMillis();
         fluent.await().untilPage().isLoaded();
         System.out.println("Open Home Page: " + (System.currentTimeMillis() - startMillis));

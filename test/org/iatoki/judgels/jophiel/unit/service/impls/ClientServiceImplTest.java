@@ -80,13 +80,13 @@ public class ClientServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void findAll_EmptyData_ReturnsEmptyList() {
+    public void findAllEmptyDataReturnsEmptyList() {
         List<Client> result = clientService.findAll();
         Assert.assertEquals(Collections.emptyList(), result, "Result should be an empty list");
     }
 
     @Test
-    public void findAll_SomeData_ReturnsTheSameList() {
+    public void findAllSomeDataReturnsTheSameList() {
         List<Client> expected = Arrays.asList(
                 new Client(1L, "JID0001", "Client 1", "secret1", "Web Server", Arrays.asList("OPENID").stream().collect(Collectors.toSet()), Arrays.asList("http://client1/verify")),
                 new Client(2L, "JID0002", "Client 2", "secret2", "Web Server", Arrays.asList("OPENID").stream().collect(Collectors.toSet()), Arrays.asList("http://client2/verify"))
@@ -104,7 +104,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void findAllClientByTerm_EmptyStringTerm_ReturnsAllClient() {
+    public void findAllClientByTermEmptyStringTermReturnsAllClient() {
         String emptyStringTerm = "";
         List<Client> expected = Arrays.asList(
                 new Client(1L, "JID0001", "Client 1", "secret1", "Web Server", Arrays.asList("OPENID").stream().collect(Collectors.toSet()), Arrays.asList("http://client1/verify")),
@@ -114,7 +114,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         List<ClientModel> clientDaoFindAllClientByTermResult = expected.stream().map(client ->
                 createClientModelFromClient(client))
                 .collect(Collectors.toList());
-        Mockito.when(clientDao.findSortedByFilters(Mockito.anyString(), Mockito.anyString(), Mockito.eq(emptyStringTerm), Matchers.<Map<SingularAttribute<? super ClientModel, String>, String>> any(), Matchers.<Map<SingularAttribute<? super ClientModel, String>, Set<String>>> any(), Mockito.anyLong(), Mockito.anyLong()))
+        Mockito.when(clientDao.findSortedByFilters(Mockito.anyString(), Mockito.anyString(), Mockito.eq(emptyStringTerm), Matchers.<Map<SingularAttribute<? super ClientModel, String>, String>>any(), Matchers.<Map<SingularAttribute<? super ClientModel, String>, Set<String>>>any(), Mockito.anyLong(), Mockito.anyLong()))
                 .thenReturn(clientDaoFindAllClientByTermResult);
 
         mockRedirectURIDaoFromClients(expected);
@@ -124,9 +124,9 @@ public class ClientServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void findAllClientByTerm_SomeTermNotContainedInClients_ReturnsEmptyList() {
+    public void findAllClientByTermSomeTermNotContainedInClientsReturnsEmptyList() {
         String randomTerm = "asdfasdf";
-        Mockito.when(clientDao.findSortedByFilters(Mockito.anyString(), Mockito.anyString(), Mockito.eq(randomTerm), Matchers.<Map<SingularAttribute<? super ClientModel, String>, String>> any(), Matchers.<Map<SingularAttribute<? super ClientModel, String>, Set<String>>> any(), Mockito.anyLong(), Mockito.anyLong()))
+        Mockito.when(clientDao.findSortedByFilters(Mockito.anyString(), Mockito.anyString(), Mockito.eq(randomTerm), Matchers.<Map<SingularAttribute<? super ClientModel, String>, String>>any(), Matchers.<Map<SingularAttribute<? super ClientModel, String>, Set<String>>>any(), Mockito.anyLong(), Mockito.anyLong()))
                 .thenReturn(Collections.emptyList());
 
         List<Client> result = clientService.findAllClientByTerm(randomTerm);
@@ -134,17 +134,17 @@ public class ClientServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void findAllClientByTerm_SomeTermContainedInClients_ReturnsAllClientsThatMatch() {
+    public void findAllClientByTermSomeTermContainedInClientsReturnsAllClientsThatMatch() {
         String containedTerm = "OPENID";
         List<Client> expected = Arrays.asList(
                 new Client(1L, "JID0001", "Alice", "alice secret", "Web Server", Arrays.asList("OPENID").stream().collect(Collectors.toSet()), Arrays.asList("http://alice.com/verify")),
-                new Client(2L, "JID0002", "Bob", "bob secret", "Web Server", Arrays.asList("OPENID", "OFFLINE_ACCESS").stream().collect(Collectors.toSet()), Arrays.asList("http://bob.com/verify"))
+                new Client(2L, "JID0002", "Bob", "bob secret", "Web Server", Arrays.asList("OPENID", "OFFLINEACCESS").stream().collect(Collectors.toSet()), Arrays.asList("http://bob.com/verify"))
         );
 
         List<ClientModel> clientModelsFromExpected = expected.stream().map(client ->
                 createClientModelFromClient(client))
                 .collect(Collectors.toList());
-        Mockito.when(clientDao.findSortedByFilters(Mockito.anyString(), Mockito.anyString(), Mockito.eq(containedTerm), Matchers.<Map<SingularAttribute<? super ClientModel, String>, String>> any(), Matchers.<Map<SingularAttribute<? super ClientModel, String>, Set<String>>> any(), Mockito.anyLong(), Mockito.anyLong()))
+        Mockito.when(clientDao.findSortedByFilters(Mockito.anyString(), Mockito.anyString(), Mockito.eq(containedTerm), Matchers.<Map<SingularAttribute<? super ClientModel, String>, String>>any(), Matchers.<Map<SingularAttribute<? super ClientModel, String>, Set<String>>>any(), Mockito.anyLong(), Mockito.anyLong()))
                 .thenReturn(clientModelsFromExpected);
 
         mockRedirectURIDaoFromClients(expected);
@@ -154,7 +154,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void isClientAuthorized_AuthorizedClient_ReturnsTrue() {
+    public void isClientAuthorizedAuthorizedClientReturnsTrue() {
         String clientJid1 = "JIDC0001";
         String userJid1 = "JIDU0010";
         List<String> scopes1 = Arrays.asList("OPENID");
@@ -167,7 +167,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void isClientAuthorized_UnauthorizedClient_ReturnsFalse() {
+    public void isClientAuthorizedUnauthorizedClientReturnsFalse() {
         String clientJid1 = "JIDC0000";
         String userJid1 = "JIDU0100";
         List<String> scopes1 = Arrays.asList("OPENID");
@@ -180,7 +180,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void isValidAccessTokenExist_ValidAccessToken_ReturnsTrue() {
+    public void isValidAccessTokenExistValidAccessTokenReturnsTrue() {
         String validAccessToken = "validaccesstoken";
         Mockito.when(accessTokenDao.existsByToken(validAccessToken)).thenReturn(true);
 
@@ -188,7 +188,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void isValidAccessTokenExist_InvalidAccessToken_ReturnsFalse() {
+    public void isValidAccessTokenExistInvalidAccessTokenReturnsFalse() {
         String invalidAccessToken = "invalidaccesstoken";
         Mockito.when(accessTokenDao.existsByToken(invalidAccessToken)).thenReturn(false);
 
@@ -196,7 +196,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void clientExistByClientJid_ExistingClientJid_ReturnsTrue() {
+    public void clientExistByClientJidExistingClientJidReturnsTrue() {
         String existingClientJid = "JIDC1234";
         Mockito.when(clientDao.existsByJid(existingClientJid)).thenReturn(true);
 
@@ -204,7 +204,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void clientExistByClientJid_NonExistingClientJid_ReturnsFalse() {
+    public void clientExistByClientJidNonExistingClientJidReturnsFalse() {
         String nonExistingClientJid = "JIDCABCDEF";
         Mockito.when(clientDao.existsByJid(nonExistingClientJid)).thenReturn(false);
 
@@ -212,7 +212,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void clientExistByClientName_ExistingClientName_ReturnsTrue() {
+    public void clientExistByClientNameExistingClientNameReturnsTrue() {
         String existingClientName = "Alice";
         Mockito.when(clientDao.existByName(existingClientName)).thenReturn(true);
 
@@ -220,7 +220,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void clientExistByClientName_NonExistingClientName_ReturnsFalse() {
+    public void clientExistByClientNameNonExistingClientNameReturnsFalse() {
         String nonExistingClientName = "Not Alice";
         Mockito.when(clientDao.existByName(nonExistingClientName)).thenReturn(false);
 
@@ -228,7 +228,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void findClientById_ExistingClientId_ReturnsClient() throws ClientNotFoundException {
+    public void findClientByIdExistingClientIdReturnsClient() throws ClientNotFoundException {
         long existingClientId = 10L;
         Client existingClient = new Client(existingClientId, "JIDC1010", "Alice", "alice secret", "Web Server", Arrays.asList("OPENID").stream().collect(Collectors.toSet()), Arrays.asList("http://alice.com/verify"));
 
@@ -243,7 +243,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void findClientByJid_ExistingClientJid_ReturnsClient() {
+    public void findClientByJidExistingClientJidReturnsClient() {
         String existingClientJid = "JIDC1010";
         Client existingClient = new Client(10L, existingClientJid, "Alice", "alice secret", "Web Server", Arrays.asList("OPENID").stream().collect(Collectors.toSet()), Arrays.asList("http://alice.com/verify"));
 
@@ -258,7 +258,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void generateAuthorizationCode_ValidClient_ReturnsAuthorizationCode() {
+    public void generateAuthorizationCodeValidClientReturnsAuthorizationCode() {
         String clientJid = "JIDC1010";
         String redirectURI = "http://alice.com/verify";
         String responseType = "code";
@@ -282,12 +282,12 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         AuthorizationCodeModel authorizationCodeModel = new AuthorizationCodeModel();
 
         Mockito.doAnswer(invocation -> {
-            AbstractModel acm = authorizationCodeModel;
+                AbstractModel acm = authorizationCodeModel;
 
-            persistAbstractModel(acm, invocation);
+                persistAbstractModel(acm, invocation);
 
-            return null;
-        }).when(authorizationCodeDao).persist(Mockito.any(), Mockito.anyString(), Mockito.anyString());
+                return null;
+            }).when(authorizationCodeDao).persist(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 
         AuthorizationCode authorizationCode = clientService.generateAuthorizationCode(clientJid, redirectURI, responseType, scopes, expireTime);
 
@@ -297,7 +297,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
     }
 
     @Test(expectedExceptions = IllegalStateException.class)
-    public void generateAuthorizationCode_InvalidClient_ThrowsIllegalStateException() {
+    public void generateAuthorizationCodeInvalidClientThrowsIllegalStateException() {
         String clientJid = "JIDC1010";
         String redirectUri = "http://bob.com/verify";
         String responseType = "code";
@@ -324,7 +324,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void generateAccessToken_ValidAuthorizationCode_ReturnsAccessToken() {
+    public void generateAccessTokenValidAuthorizationCodeReturnsAccessToken() {
         String code = "THIS_IS_AUTHORIZATION_CODE";
         String userId = "JIDU0101";
         String clientId = "JIDC1010";
@@ -340,12 +340,12 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         AccessTokenModel accessTokenModel = new AccessTokenModel();
 
         Mockito.doAnswer(invocation -> {
-            AbstractModel atm = accessTokenModel;
+                AbstractModel atm = accessTokenModel;
 
-            persistAbstractModel(atm, invocation);
+                persistAbstractModel(atm, invocation);
 
-            return null;
-        }).when(accessTokenDao).persist(Mockito.any(), Mockito.anyString(), Mockito.anyString());
+                return null;
+            }).when(accessTokenDao).persist(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 
         String token = clientService.generateAccessToken(code, userId, clientId, scopes, expireTime);
 
@@ -355,7 +355,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void generateRefreshToken_ValidAuthorizationCode_RefreshTokenModelPersisted() {
+    public void generateRefreshTokenValidAuthorizationCodeRefreshTokenModelPersisted() {
         String code = "THIS_IS_AUTHORIZATION_CODE";
         String userId = "JIDU0101";
         String clientId = "JIDC1010";
@@ -370,12 +370,12 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         RefreshTokenModel refreshTokenModel = new RefreshTokenModel();
 
         Mockito.doAnswer(invocation -> {
-            AbstractModel rtm = refreshTokenModel;
+                AbstractModel rtm = refreshTokenModel;
 
-            persistAbstractModel(rtm, invocation);
+                persistAbstractModel(rtm, invocation);
 
-            return null;
-        }).when(refreshTokenDao).persist(Mockito.any(), Mockito.anyString(), Mockito.anyString());
+                return null;
+            }).when(refreshTokenDao).persist(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 
         clientService.generateRefreshToken(code, userId, clientId, scopes);
 
@@ -384,7 +384,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void generateIdToken_ValidAccessToken_IdTokenModelPersisted() throws UnsupportedEncodingException {
+    public void generateIdTokenValidAccessTokenIdTokenModelPersisted() throws UnsupportedEncodingException {
         String code = "THIS_IS_AUTHORIZATION_CODE";
         String userId = "JIDU0101";
         String clientId = "JIDC1010";
@@ -409,12 +409,12 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         IdTokenModel idTokenModel = new IdTokenModel();
 
         Mockito.doAnswer(invocation -> {
-            AbstractModel itm = idTokenModel;
+                AbstractModel itm = idTokenModel;
 
-            persistAbstractModel(itm, invocation);
+                persistAbstractModel(itm, invocation);
 
-            return null;
-        }).when(idTokenDao).persist(Mockito.any(), Mockito.anyString(), Mockito.anyString());
+                return null;
+            }).when(idTokenDao).persist(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 
         clientService.generateIdToken(code, userId, clientId, nonce, authTime, accessToken, expireTime);
 
@@ -423,7 +423,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void findByAuthorizationCodeByCode_ValidCode_ReturnsAuthorizationCode() {
+    public void findByAuthorizationCodeByCodeValidCodeReturnsAuthorizationCode() {
         String validCode = "THIS_IS_AUTHORIZATION_CODE";
 
         AuthorizationCodeModel authorizationCodeModel = new AuthorizationCodeModel();
@@ -444,7 +444,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
     }
 
     @Test(expectedExceptions = NullPointerException.class)
-    public void findByAuthorizationCodeByCode_InvalidCode_ThrowsNullPointerException() {
+    public void findByAuthorizationCodeByCodeInvalidCodeThrowsNullPointerException() {
         String invalidCode = "THIS_IS_NOT_AUTHORIZATION_CODE";
 
         Mockito.when(authorizationCodeDao.findByCode(invalidCode)).thenReturn(null);
@@ -455,7 +455,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void regenerateAccessToken_ValidAuthorizationCode_ReturnsNewAccessToken() {
+    public void regenerateAccessTokenValidAuthorizationCodeReturnsNewAccessToken() {
         String code = "THIS_IS_AUTHORIZATION_CODE";
         String userId = "JIDU0101";
         String clientId = "JIDC1010";
@@ -471,14 +471,14 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         AccessTokenModel accessTokenModel = new AccessTokenModel();
 
         Mockito.doAnswer(invocation -> {
-            AbstractModel atm = accessTokenModel;
-            AccessTokenModel accessTokenModel1 = (AccessTokenModel) invocation.getArguments()[0];
+                AbstractModel atm = accessTokenModel;
+                AccessTokenModel accessTokenModel1 = (AccessTokenModel) invocation.getArguments()[0];
 
-            accessTokenModel.redeemed = accessTokenModel1.redeemed;
-            persistAbstractModel(atm, invocation);
+                accessTokenModel.redeemed = accessTokenModel1.redeemed;
+                persistAbstractModel(atm, invocation);
 
-            return null;
-        }).when(accessTokenDao).persist(Mockito.any(), Mockito.anyString(), Mockito.anyString());
+                return null;
+            }).when(accessTokenDao).persist(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 
         AccessToken accessToken = clientService.regenerateAccessToken(code, userId, clientId, scopes, expireTime);
 
@@ -489,7 +489,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void findAccessTokenByAccessToken_ValidToken_ReturnsAccessToken() {
+    public void findAccessTokenByAccessTokenValidTokenReturnsAccessToken() {
         String validToken = "THIS_IS_ACCESS_TOKEN";
 
         AccessTokenModel accessTokenModel = new AccessTokenModel();
@@ -511,7 +511,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
     }
 
     @Test(expectedExceptions = NullPointerException.class)
-    public void findAccessTokenByAccessToken_InvalidToken_ThrowsNullPointerException() {
+    public void findAccessTokenByAccessTokenInvalidTokenThrowsNullPointerException() {
         String invalidToken = "THIS_IS_NOT_ACCESS_TOKEN";
 
         Mockito.when(accessTokenDao.findByToken(invalidToken)).thenReturn(null);
@@ -522,7 +522,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void findAccessTokenByCode_ValidCode_ReturnsAccessToken() {
+    public void findAccessTokenByCodeValidCodeReturnsAccessToken() {
         String validCode = "THIS_IS_AUTHORIZATION_CODE";
 
         AccessTokenModel accessTokenModel = new AccessTokenModel();
@@ -544,7 +544,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
     }
 
     @Test(expectedExceptions = NullPointerException.class)
-    public void findAccessTokenByCode_InvalidCode_ThrowsNullPointerException() {
+    public void findAccessTokenByCodeInvalidCodeThrowsNullPointerException() {
         String invalidCode = "THIS_IS_INVALID_AUTHORIZATION_CODE";
 
         Mockito.when(accessTokenDao.findByCode(invalidCode)).thenReturn(null);
@@ -555,7 +555,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void findRefreshTokenByRefreshToken_ValidRefreshToken_ReturnsRefreshToken() {
+    public void findRefreshTokenByRefreshTokenValidRefreshTokenReturnsRefreshToken() {
         String validRefreshToken = "THIS_IS_REFRESH_TOKEN";
 
         RefreshTokenModel refreshTokenModel = new RefreshTokenModel();
@@ -576,7 +576,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
     }
 
     @Test(expectedExceptions = NullPointerException.class)
-    public void findRefreshTokenByRefreshToken_InvalidRefreshToken_ThrowsNullPointerException() {
+    public void findRefreshTokenByRefreshTokenInvalidRefreshTokenThrowsNullPointerException() {
         String invalidRefreshToken = "THIS_IS_NOT_REFRESH_TOKEN";
 
         Mockito.when(refreshTokenDao.findByToken(invalidRefreshToken)).thenReturn(null);
@@ -587,7 +587,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void findRefreshTokenByCode_ValidCode_ReturnsRefreshToken() {
+    public void findRefreshTokenByCodeValidCodeReturnsRefreshToken() {
         String validCode = "THIS_IS_AUTHORIZATION_CODE";
 
         RefreshTokenModel refreshTokenModel = new RefreshTokenModel();
@@ -608,7 +608,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
     }
 
     @Test(expectedExceptions = NullPointerException.class)
-    public void findRefreshTokenByCode_InvalidCode_ThrowsNullPointerException() {
+    public void findRefreshTokenByCodeInvalidCodeThrowsNullPointerException() {
         String invalidCode = "THIS_IS_NOT_AUTHORIZATION_CODE";
 
         Mockito.when(refreshTokenDao.findByCode(invalidCode)).thenReturn(null);
@@ -619,7 +619,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void findIdTokenByCode_ValidCode_ReturnsIdToken() {
+    public void findIdTokenByCodeValidCodeReturnsIdToken() {
         String validCode = "THIS_IS_AUTHORIZATION_CODE";
 
         IdTokenModel idTokenModel = new IdTokenModel();
@@ -639,7 +639,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
     }
 
     @Test(expectedExceptions = NullPointerException.class)
-    public void findIdTokenByCode_InvalidCode_ThrowsNullPointerException() {
+    public void findIdTokenByCodeInvalidCodeThrowsNullPointerException() {
         String invalidCode = "THIS_IS_NOT_AUTHORIZATION_CODE";
 
         Mockito.when(idTokenDao.findByCode(invalidCode)).thenReturn(null);
@@ -650,7 +650,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void redeemAccessTokenById_UnredeemedAccessToken_ReturnRemainingTime() {
+    public void redeemAccessTokenByIdUnredeemedAccessTokenReturnRemainingTime() {
         long tokenId = 1L;
 
         AccessTokenModel accessTokenModel = new AccessTokenModel();
@@ -667,11 +667,11 @@ public class ClientServiceImplTest extends PowerMockTestCase {
 
         Mockito.when(accessTokenDao.findById(tokenId)).thenReturn(accessTokenModel);
         Mockito.doAnswer(invocation -> {
-            AccessTokenModel accessTokenModel1 = (AccessTokenModel) invocation.getArguments()[0];
-            editAbstractModel(accessTokenModel1, invocation);
+                AccessTokenModel accessTokenModel1 = (AccessTokenModel) invocation.getArguments()[0];
+                editAbstractModel(accessTokenModel1, invocation);
 
-            return null;
-        }).when(accessTokenDao).edit(Mockito.any(), Mockito.anyString(), Mockito.anyString());
+                return null;
+            }).when(accessTokenDao).edit(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 
         long remainingTime = clientService.redeemAccessTokenById(tokenId);
 
@@ -681,7 +681,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
     }
 
     @Test(expectedExceptions = RuntimeException.class)
-    public void redeemAccessTokenById_RedeemedAccessToken_ThrowsRuntimeException() {
+    public void redeemAccessTokenByIdRedeemedAccessTokenThrowsRuntimeException() {
         long tokenId = 1L;
 
         AccessTokenModel accessTokenModel = new AccessTokenModel();
@@ -697,7 +697,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void redeemRefreshTokenById_UnredeemedRefreshToken_RefreshTokenRedeemed() {
+    public void redeemRefreshTokenByIdUnredeemedRefreshTokenRefreshTokenRedeemed() {
         long tokenId = 1L;
 
         RefreshTokenModel refreshTokenModel = new RefreshTokenModel();
@@ -713,11 +713,11 @@ public class ClientServiceImplTest extends PowerMockTestCase {
 
         Mockito.when(refreshTokenDao.findById(tokenId)).thenReturn(refreshTokenModel);
         Mockito.doAnswer(invocation -> {
-            RefreshTokenModel refreshTokenModel1 = (RefreshTokenModel) invocation.getArguments()[0];
-            editAbstractModel(refreshTokenModel1, invocation);
+                RefreshTokenModel refreshTokenModel1 = (RefreshTokenModel) invocation.getArguments()[0];
+                editAbstractModel(refreshTokenModel1, invocation);
 
-            return null;
-        }).when(refreshTokenDao).edit(Mockito.any(), Mockito.anyString(), Mockito.anyString());
+                return null;
+            }).when(refreshTokenDao).edit(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 
         clientService.redeemRefreshTokenById(tokenId);
 
@@ -726,7 +726,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
     }
 
     @Test(expectedExceptions = RuntimeException.class)
-    public void redeemRefreshTokenById_RedeemedRefreshToken_ThrowsRuntimeException() {
+    public void redeemRefreshTokenByIdRedeemedRefreshTokenThrowsRuntimeException() {
         long tokenId = 1L;
 
         RefreshTokenModel refreshTokenModel = new RefreshTokenModel();
@@ -741,7 +741,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void redeemIdTokenById_UnredeemedIdToken_IdTokenRedeemed() {
+    public void redeemIdTokenByIdUnredeemedIdTokenIdTokenRedeemed() {
         long tokenId = 1L;
 
         IdTokenModel idTokenModel = new IdTokenModel();
@@ -757,11 +757,11 @@ public class ClientServiceImplTest extends PowerMockTestCase {
 
         Mockito.when(idTokenDao.findById(tokenId)).thenReturn(idTokenModel);
         Mockito.doAnswer(invocation -> {
-            IdTokenModel idTokenModel1 = (IdTokenModel) invocation.getArguments()[0];
-            editAbstractModel(idTokenModel1, invocation);
+                IdTokenModel idTokenModel1 = (IdTokenModel) invocation.getArguments()[0];
+                editAbstractModel(idTokenModel1, invocation);
 
-            return null;
-        }).when(idTokenDao).edit(Mockito.any(), Mockito.anyString(), Mockito.anyString());
+                return null;
+            }).when(idTokenDao).edit(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 
         clientService.redeemIdTokenById(tokenId);
 
@@ -770,7 +770,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
     }
 
     @Test(expectedExceptions = RuntimeException.class)
-    public void redeemIdTokenById_RedeemedIdToken_ThrowsRuntimeException() {
+    public void redeemIdTokenByIdRedeemedIdTokenThrowsRuntimeException() {
         long tokenId = 1L;
 
         IdTokenModel idTokenModel = new IdTokenModel();
@@ -785,7 +785,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void createClient_CreateClientParameters_ClientPersisted() {
+    public void createClientCreateClientParametersClientPersisted() {
         String name = "Alice";
         String applicationType = "Web Server";
         List<String> scopes = Arrays.asList("OPENID", "OFFLINE_ACCESS");
@@ -803,17 +803,17 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         ClientModel clientModel = new ClientModel();
 
         Mockito.doAnswer(invocation -> {
-            ClientModel clientModel1 = (ClientModel) invocation.getArguments()[0];
-            persistAbstractModel(clientModel, invocation);
+                ClientModel clientModel1 = (ClientModel) invocation.getArguments()[0];
+                persistAbstractModel(clientModel, invocation);
 
-            clientModel.jid = clientJid;
-            clientModel.name = clientModel1.name;
-            clientModel.secret = clientModel1.secret;
-            clientModel.applicationType = clientModel1.applicationType;
-            clientModel.scopes = clientModel1.scopes;
+                clientModel.jid = clientJid;
+                clientModel.name = clientModel1.name;
+                clientModel.secret = clientModel1.secret;
+                clientModel.applicationType = clientModel1.applicationType;
+                clientModel.scopes = clientModel1.scopes;
 
-            return null;
-        }).when(clientDao).persist(Mockito.any(), Mockito.anyString(), Mockito.anyString());
+                return null;
+            }).when(clientDao).persist(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 
         clientService.createClient(name, applicationType, scopes, redirectURIs);
 
@@ -824,7 +824,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void updateClient_UpdateClientParameters_ClientUpdatePersisted() {
+    public void updateClientUpdateClientParametersClientUpdatePersisted() {
         long clientId = 1L;
         String name = "Bob";
         List<String> scopes = Arrays.asList("OPENID");
@@ -850,11 +850,11 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         Mockito.when(clientDao.findById(clientId)).thenReturn(clientModel);
         Mockito.when(redirectURIDao.findByClientJid(clientModel.jid)).thenReturn(oldRedirectURIModels);
         Mockito.doAnswer(invocation -> {
-            ClientModel clientModel1 = (ClientModel) invocation.getArguments()[0];
-            editAbstractModel(clientModel1, invocation);
+                ClientModel clientModel1 = (ClientModel) invocation.getArguments()[0];
+                editAbstractModel(clientModel1, invocation);
 
-            return null;
-        }).when(clientDao).edit(Mockito.any(), Mockito.anyString(), Mockito.anyString());
+                return null;
+            }).when(clientDao).edit(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 
         clientService.updateClient(clientId, name, scopes, redirectURIs);
 
@@ -866,7 +866,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void deleteClient_ExistingClient_ExistingClientRemoved() {
+    public void deleteClientExistingClientExistingClientRemoved() {
         long clientId = 1L;
 
         ClientModel clientModel = new ClientModel();
@@ -879,7 +879,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)
-    public void deleteClient_NonExistingClient_ThrowsIllegalArgumentException() {
+    public void deleteClientNonExistingClientThrowsIllegalArgumentException() {
         long clientId = -1L;
 
         Mockito.when(clientDao.findById(clientId)).thenReturn(null);
@@ -891,7 +891,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void pageClients_PageClientsParameter_ReturnsPagedClients() {
+    public void pageClientsPageClientsParameterReturnsPagedClients() {
         long pageIndex = 0L;
         long pageSize = 10L;
         String orderBy = "id";
@@ -913,11 +913,11 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         secondClientModel.applicationType = "Web Server";
         secondClientModel.scopes = "OPENID,OFFLINE_ACCESS";
         List<ClientModel> clientModels = Arrays.asList(firstClientModel, secondClientModel);
-        Mockito.when(clientDao.findSortedByFilters(Mockito.eq(orderBy), Mockito.eq(orderDir), Mockito.eq(filterString), Matchers.<Map<SingularAttribute<? super ClientModel, String>, String>> any(), Matchers.<Map<SingularAttribute<? super ClientModel, String>, Set<String>>> any(), Mockito.eq(pageIndex * pageSize), Mockito.eq(pageSize)))
+        Mockito.when(clientDao.findSortedByFilters(Mockito.eq(orderBy), Mockito.eq(orderDir), Mockito.eq(filterString), Matchers.<Map<SingularAttribute<? super ClientModel, String>, String>>any(), Matchers.<Map<SingularAttribute<? super ClientModel, String>, Set<String>>>any(), Mockito.eq(pageIndex * pageSize), Mockito.eq(pageSize)))
                 .thenReturn(clientModels);
 
         long totalRows = clientModels.size();
-        Mockito.when(clientDao.countByFilters(Mockito.eq(filterString), Matchers.<Map<SingularAttribute<? super ClientModel, String>, String>> any(), Matchers.<Map<SingularAttribute<? super ClientModel, String>, Set<String>>> any())).thenReturn(totalRows);
+        Mockito.when(clientDao.countByFilters(Mockito.eq(filterString), Matchers.<Map<SingularAttribute<? super ClientModel, String>, String>>any(), Matchers.<Map<SingularAttribute<? super ClientModel, String>, Set<String>>>any())).thenReturn(totalRows);
 
         Page<Client> clientPage = clientService.pageClients(pageIndex, pageSize, orderBy, orderDir, filterString);
 
@@ -926,7 +926,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void pageClients_OtherPageClientsParameter_ReturnsEmptyPagedClient() {
+    public void pageClientsOtherPageClientsParameterReturnsEmptyPagedClient() {
         long pageIndex = 5L;
         long pageSize = 10L;
         String orderBy = "id";
@@ -934,11 +934,11 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         String filterString = "asdfasdf";
 
         List<ClientModel> clientModels = Arrays.asList();
-        Mockito.when(clientDao.findSortedByFilters(Mockito.eq(orderBy), Mockito.eq(orderDir), Mockito.eq(filterString), Matchers.<Map<SingularAttribute<? super ClientModel, String>, String>> any(), Matchers.<Map<SingularAttribute<? super ClientModel, String>, Set<String>>> any(), Mockito.eq(pageIndex * pageSize), Mockito.eq(pageSize)))
+        Mockito.when(clientDao.findSortedByFilters(Mockito.eq(orderBy), Mockito.eq(orderDir), Mockito.eq(filterString), Matchers.<Map<SingularAttribute<? super ClientModel, String>, String>>any(), Matchers.<Map<SingularAttribute<? super ClientModel, String>, Set<String>>>any(), Mockito.eq(pageIndex * pageSize), Mockito.eq(pageSize)))
                 .thenReturn(clientModels);
 
         long totalRows = clientModels.size();
-        Mockito.when(clientDao.countByFilters(Mockito.eq(filterString), Matchers.<Map<SingularAttribute<? super ClientModel, String>, String>> any(), Matchers.<Map<SingularAttribute<? super ClientModel, String>, Set<String>>> any())).thenReturn(totalRows);
+        Mockito.when(clientDao.countByFilters(Mockito.eq(filterString), Matchers.<Map<SingularAttribute<? super ClientModel, String>, String>>any(), Matchers.<Map<SingularAttribute<? super ClientModel, String>, Set<String>>>any())).thenReturn(totalRows);
 
         Page<Client> clientPage = clientService.pageClients(pageIndex, pageSize, orderBy, orderDir, filterString);
 
@@ -1061,12 +1061,12 @@ public class ClientServiceImplTest extends PowerMockTestCase {
 
     private List<RedirectURIModel> createRedirectURIModel(long id, List<String> redirectUris, String jid) {
         List<RedirectURIModel> redirectURIModelList = IntStream.range(0, redirectUris.size()).mapToObj(i -> {
-            RedirectURIModel redirectURIModel = new RedirectURIModel();
-            redirectURIModel.id = id + i;
-            redirectURIModel.redirectURI = redirectUris.get(i);
-            redirectURIModel.clientJid = jid;
-            return redirectURIModel;
-        }).collect(Collectors.toList());
+                RedirectURIModel redirectURIModel = new RedirectURIModel();
+                redirectURIModel.id = id + i;
+                redirectURIModel.redirectURI = redirectUris.get(i);
+                redirectURIModel.clientJid = jid;
+                return redirectURIModel;
+            }).collect(Collectors.toList());
 
         return redirectURIModelList;
     }

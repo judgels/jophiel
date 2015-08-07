@@ -11,9 +11,10 @@ install:
 
 script:
   - ../judgels/scripts/download-activator.sh
+  - ../judgels/scripts/download-checkstyle.sh
   - export PATH=$PATH:~/activator
   - activator jacoco:cover
-
+  - activator checkstyle
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)

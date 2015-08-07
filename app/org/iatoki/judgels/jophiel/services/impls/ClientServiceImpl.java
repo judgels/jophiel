@@ -158,7 +158,7 @@ public final class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public AuthorizationCode generateAuthorizationCode(String clientJid, String redirectURI, String responseType, List<String> scopes, long expireTime) {
+    public AuthorizationCode generateAuthorizationCode(String clientJid, String uRI, String responseType, List<String> scopes, long expireTime) {
         Collections.sort(scopes);
         ClientModel clientModel = clientDao.findByJid(clientJid);
         List<RedirectURIModel> redirectURIs = redirectURIDao.findByClientJid(clientJid);
@@ -174,7 +174,7 @@ public final class ClientServiceImpl implements ClientService {
             }
         }
 
-        if ((responseType.equals("code")) && (redirectURIs.stream().filter(r -> r.redirectURI.equals(redirectURI)).count() >= 1) && (check)) {
+        if ((responseType.equals("code")) && (redirectURIs.stream().filter(r -> r.redirectURI.equals(uRI)).count() >= 1) && (check)) {
             AuthorizationCode authorizationCode = new AuthorizationCode();
 
             AuthorizationCodeModel authorizationCodeModel = new AuthorizationCodeModel();
@@ -182,7 +182,7 @@ public final class ClientServiceImpl implements ClientService {
             authorizationCodeModel.userJid = IdentityUtils.getUserJid();
             authorizationCodeModel.code = authorizationCode.toString();
             authorizationCodeModel.expireTime = expireTime;
-            authorizationCodeModel.redirectURI = redirectURI;
+            authorizationCodeModel.redirectURI = uRI;
             authorizationCodeModel.scopes = StringUtils.join(scopes, ",");
             authorizationCodeDao.persist(authorizationCodeModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
 

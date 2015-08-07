@@ -112,8 +112,8 @@ public final class UserAccountController extends AbstractJudgelsController {
                     if (JophielProperties.getInstance().isRegistrationUsingRecaptcha()) {
                         DynamicForm dynamicForm = DynamicForm.form().bindFromRequest();
                         F.Promise<JsonNode> jsonPromise = WS.url("https://www.google.com/recaptcha/api/siteverify").setContentType("application/x-www-form-urlencoded").post("secret=" + JophielProperties.getInstance().getRegistrationRecaptchaSecretKey() + "&response=" + dynamicForm.get("g-recaptcha-response") + "&remoteip=" + IdentityUtils.getIpAddress()).map(response -> {
-                            return response.asJson();
-                        });;
+                                return response.asJson();
+                            });
                         JsonNode response = jsonPromise.get(1, TimeUnit.MINUTES);
                         valid = response.get("success").asBoolean();
                     }

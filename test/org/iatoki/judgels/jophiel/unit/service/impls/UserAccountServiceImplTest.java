@@ -55,7 +55,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void registerUser_NewUser_ReturnsEmailActivationCode() throws NoSuchAlgorithmException, InvalidKeySpecException {
+    public void registerUserNewUserReturnsEmailActivationCode() throws NoSuchAlgorithmException, InvalidKeySpecException {
         String username = "alice123";
         String name = "Alice";
         String email = "alice@email.com";
@@ -66,34 +66,34 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
 
         UserModel userModel = new UserModel();
         Mockito.doAnswer(invocation -> {
-            UserModel insideUserModel = (UserModel) invocation.getArguments()[0];
-            insideUserModel.jid = "JIDU0101";
+                UserModel insideUserModel = (UserModel) invocation.getArguments()[0];
+                insideUserModel.jid = "JIDU0101";
 
-            userModel.jid = insideUserModel.jid;
-            userModel.username = insideUserModel.username;
-            userModel.name = insideUserModel.name;
-            userModel.password = insideUserModel.password;
-            userModel.profilePictureImageName = insideUserModel.profilePictureImageName;
-            userModel.roles = insideUserModel.roles;
+                userModel.jid = insideUserModel.jid;
+                userModel.username = insideUserModel.username;
+                userModel.name = insideUserModel.name;
+                userModel.password = insideUserModel.password;
+                userModel.profilePictureImageName = insideUserModel.profilePictureImageName;
+                userModel.roles = insideUserModel.roles;
 
-            persistAbstractModel(userModel, invocation);
+                persistAbstractModel(userModel, invocation);
 
-            return null;
-        }).when(userDao).persist(Mockito.any(), Mockito.anyString(), Mockito.anyString());
+                return null;
+            }).when(userDao).persist(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 
         UserEmailModel userEmailModel = new UserEmailModel();
         Mockito.doAnswer(invocation -> {
-            UserEmailModel insideUserEmailModel = (UserEmailModel) invocation.getArguments()[0];
+                UserEmailModel insideUserEmailModel = (UserEmailModel) invocation.getArguments()[0];
 
-            userEmailModel.email = insideUserEmailModel.email;
-            userEmailModel.emailCode = insideUserEmailModel.emailCode;
-            userEmailModel.emailVerified = insideUserEmailModel.emailVerified;
-            userEmailModel.userJid = insideUserEmailModel.userJid;
+                userEmailModel.email = insideUserEmailModel.email;
+                userEmailModel.emailCode = insideUserEmailModel.emailCode;
+                userEmailModel.emailVerified = insideUserEmailModel.emailVerified;
+                userEmailModel.userJid = insideUserEmailModel.userJid;
 
-            persistAbstractModel(userEmailModel, invocation);
+                persistAbstractModel(userEmailModel, invocation);
 
-            return null;
-        }).when(userEmailDao).persist(Mockito.any(), Mockito.anyString(), Mockito.anyString());
+                return null;
+            }).when(userEmailDao).persist(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 
         String emailActivationCode = userAccountService.registerUser(username, name, email, password);
 
@@ -108,7 +108,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
     }
 
     @Test(expectedExceptions = IllegalStateException.class)
-    public void registerUser_NewUserExistingUsername_ThrowsIllegalStateException() {
+    public void registerUserNewUserExistingUsernameThrowsIllegalStateException() {
         String username = "alice123";
         String name = "A Lice";
         String email = "a_lice@email.com";
@@ -125,7 +125,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void forgotPassword_ExistingUser_ReturnsForgotPasswordCode() {
+    public void forgotPasswordExistingUserReturnsForgotPasswordCode() {
         String username = "alice123";
         String email = "alice@email.com";
 
@@ -138,17 +138,17 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
 
         UserForgotPasswordModel userForgotPasswordModel = new UserForgotPasswordModel();
         Mockito.doAnswer(invocation -> {
-            UserForgotPasswordModel insideUserForgotPasswordModel = (UserForgotPasswordModel) invocation.getArguments()[0];
+                UserForgotPasswordModel insideUserForgotPasswordModel = (UserForgotPasswordModel) invocation.getArguments()[0];
 
-            userForgotPasswordModel.id = 1L;
-            userForgotPasswordModel.userJid = insideUserForgotPasswordModel.userJid;
-            userForgotPasswordModel.code = insideUserForgotPasswordModel.code;
-            userForgotPasswordModel.used = insideUserForgotPasswordModel.used;
+                userForgotPasswordModel.id = 1L;
+                userForgotPasswordModel.userJid = insideUserForgotPasswordModel.userJid;
+                userForgotPasswordModel.code = insideUserForgotPasswordModel.code;
+                userForgotPasswordModel.used = insideUserForgotPasswordModel.used;
 
-            persistAbstractModel(userForgotPasswordModel, invocation);
+                persistAbstractModel(userForgotPasswordModel, invocation);
 
-            return null;
-        }).when(userForgotPasswordDao).persist(Mockito.any(), Mockito.anyString(), Mockito.anyString());
+                return null;
+            }).when(userForgotPasswordDao).persist(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 
         String forgotPasswordCode = userAccountService.forgotPassword(username, email);
 
@@ -158,7 +158,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void existForgotPassByCode_ExistingCode_ReturnsTrue() {
+    public void existForgotPassByCodeExistingCodeReturnsTrue() {
         String code = "FORGOT_PASS_CODE";
 
         Mockito.when(userForgotPasswordDao.isCodeValid(Mockito.eq(code), Mockito.anyInt())).thenReturn(true);
@@ -167,7 +167,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void existForgotPassByCode_NonExistingCode_ReturnsFalse() {
+    public void existForgotPassByCodeNonExistingCodeReturnsFalse() {
         String code = "NOT_FORGOT_PASS_CODE";
 
         Mockito.when(userForgotPasswordDao.isCodeValid(Mockito.eq(code), Mockito.anyInt())).thenReturn(false);
@@ -176,7 +176,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void changePassword_ValidCode_PasswordChanged() throws NoSuchAlgorithmException, InvalidKeySpecException {
+    public void changePasswordValidCodePasswordChanged() throws NoSuchAlgorithmException, InvalidKeySpecException {
         String code = "FORGOT_PASS_CODE";
         String newPassword = "alice456";
 
@@ -190,24 +190,24 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
         userForgotPasswordModel.timeCreate = System.currentTimeMillis();
         Mockito.when(userForgotPasswordDao.findByCode(code)).thenReturn(userForgotPasswordModel);
         Mockito.doAnswer(invocation -> {
-            UserForgotPasswordModel insideUserForgotPasswordModel = (UserForgotPasswordModel) invocation.getArguments()[0];
+                UserForgotPasswordModel insideUserForgotPasswordModel = (UserForgotPasswordModel) invocation.getArguments()[0];
 
-            editAbstractModel(insideUserForgotPasswordModel, invocation);
+                editAbstractModel(insideUserForgotPasswordModel, invocation);
 
-            return null;
-        }).when(userForgotPasswordDao).edit(Mockito.any(), Mockito.anyString(), Mockito.anyString());
+                return null;
+            }).when(userForgotPasswordDao).edit(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 
         UserModel userModel = new UserModel();
         userModel.password = "alice123";
         userModel.timeCreate = System.currentTimeMillis();
         Mockito.when(userDao.findByJid(userForgotPasswordModel.userJid)).thenReturn(userModel);
         Mockito.doAnswer(invocation -> {
-            UserModel insideUserModel = (UserModel) invocation.getArguments()[0];
+                UserModel insideUserModel = (UserModel) invocation.getArguments()[0];
 
-            editAbstractModel(insideUserModel, invocation);
+                editAbstractModel(insideUserModel, invocation);
 
-            return null;
-        }).when(userDao).edit(Mockito.any(), Mockito.anyString(), Mockito.anyString());
+                return null;
+            }).when(userDao).edit(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 
         userAccountService.changePassword(code, newPassword);
 
@@ -218,7 +218,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void login_ValidUserByUsername_ReturnsUser() throws UserNotFoundException, EmailNotVerifiedException {
+    public void loginValidUserByUsernameReturnsUser() throws UserNotFoundException, EmailNotVerifiedException {
         String username = "alice123";
         String password = "alicepassword";
 
@@ -253,7 +253,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void login_ValidUserByEmail_ReturnsUser() throws UserNotFoundException, EmailNotVerifiedException {
+    public void loginValidUserByEmailReturnsUser() throws UserNotFoundException, EmailNotVerifiedException {
         String email = "alice@email.com";
         String password = "alicepassword";
 
@@ -289,7 +289,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
     }
 
     @Test(expectedExceptions = UserNotFoundException.class)
-    public void login_InvalidUser_ThrowsUserNotFoundException() throws UserNotFoundException, EmailNotVerifiedException {
+    public void loginInvalidUserThrowsUserNotFoundException() throws UserNotFoundException, EmailNotVerifiedException {
         String username = "bob";
         String password = "bobpassword";
 
@@ -302,7 +302,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
     }
 
     @Test(expectedExceptions = EmailNotVerifiedException.class)
-    public void login_ValidUserUnverifiedEmail_ThrowsEmailNotVerifiedException() throws UserNotFoundException, EmailNotVerifiedException {
+    public void loginValidUserUnverifiedEmailThrowsEmailNotVerifiedException() throws UserNotFoundException, EmailNotVerifiedException {
         String username = "alice123";
         String password = "alicepassword";
 
@@ -324,7 +324,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void login_ValidUsernameInvalidPassword_ReturnsNull() throws UserNotFoundException, EmailNotVerifiedException {
+    public void loginValidUsernameInvalidPasswordReturnsNull() throws UserNotFoundException, EmailNotVerifiedException {
         String username = "alice123";
         String password = "bobpassword";
         String validPassword = "alicepassword";
@@ -346,7 +346,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void updatePassword_ValidUserNewPassword_PasswordUpdated() throws NoSuchAlgorithmException, InvalidKeySpecException {
+    public void updatePasswordValidUserNewPasswordPasswordUpdated() throws NoSuchAlgorithmException, InvalidKeySpecException {
         String userJid = "JIDU0101";
         String newPassword = "newalicepassword";
 
@@ -363,12 +363,12 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
         Mockito.when(userDao.findByJid(userJid)).thenReturn(userModel);
 
         Mockito.doAnswer(invocation -> {
-            UserModel insideUserModel = (UserModel) invocation.getArguments()[0];
+                UserModel insideUserModel = (UserModel) invocation.getArguments()[0];
 
-            editAbstractModel(insideUserModel, invocation);
+                editAbstractModel(insideUserModel, invocation);
 
-            return null;
-        }).when(userDao).edit(Mockito.any(), Mockito.anyString(), Mockito.anyString());
+                return null;
+            }).when(userDao).edit(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 
         userAccountService.updatePassword(userJid, newPassword);
 

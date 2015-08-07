@@ -76,7 +76,7 @@ public final class ClientAPIController extends Controller {
         if (!referer.startsWith(JophielProperties.getInstance().getJophielBaseUrl())) {
             clientMapBuilder.put(JophielProperties.getInstance().getJophielBaseUrl(), JudgelsPlayProperties.getInstance().getAppTitle());
         }
-        for (int i=0;i<JophielProperties.getInstance().getJophielClientLabels().size();++i) {
+        for (int i = 0; i < JophielProperties.getInstance().getJophielClientLabels().size(); ++i) {
             String target = JophielProperties.getInstance().getJophielClientTargets().get(i);
             String label = JophielProperties.getInstance().getJophielClientLabels().get(i);
             if (!referer.startsWith(target)) {

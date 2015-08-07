@@ -37,7 +37,7 @@ import javax.inject.Singleton;
 import java.util.Arrays;
 
 @Authenticated(value = {LoggedIn.class, HasRole.class})
-@Authorized(value = {"admin"})
+@Authorized(value = "admin")
 @Singleton
 @Named
 public final class ClientController extends AbstractJudgelsController {

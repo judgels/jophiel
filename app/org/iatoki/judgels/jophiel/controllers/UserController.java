@@ -54,14 +54,14 @@ public final class UserController extends AbstractJudgelsController {
     }
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
-    @Authorized(value = {"admin"})
+    @Authorized(value = "admin")
     @Transactional
     public Result index() {
         return listUsers(0, "id", "asc", "");
     }
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
-    @Authorized(value = {"admin"})
+    @Authorized(value = "admin")
     @Transactional
     public Result listUsers(long pageIndex, String orderBy, String orderDir, String filterString) {
         Page<UserInfo> currentPage = userService.pageUsers(pageIndex, PAGE_SIZE, orderBy, orderDir, filterString);
@@ -84,14 +84,14 @@ public final class UserController extends AbstractJudgelsController {
     }
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
-    @Authorized(value = {"admin"})
+    @Authorized(value = "admin")
     @Transactional
     public Result viewUnverifiedUsers() {
         return listUnverifiedUsers(0, "id", "asc", "");
     }
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
-    @Authorized(value = {"admin"})
+    @Authorized(value = "admin")
     @Transactional
     public Result listUnverifiedUsers(long pageIndex, String orderBy, String orderDir, String filterString) {
         Page<UserInfo> currentPage = userService.pageUnverifiedUsers(pageIndex, PAGE_SIZE, orderBy, orderDir, filterString);
@@ -114,7 +114,7 @@ public final class UserController extends AbstractJudgelsController {
     }
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
-    @Authorized(value = {"admin"})
+    @Authorized(value = "admin")
     @Transactional
     public Result viewUser(long userId) throws UserNotFoundException {
         UserInfo user = userService.findUserById(userId);
@@ -133,7 +133,7 @@ public final class UserController extends AbstractJudgelsController {
     }
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
-    @Authorized(value = {"admin"})
+    @Authorized(value = "admin")
     @Transactional
     @AddCSRFToken
     public Result createUser() {
@@ -147,7 +147,7 @@ public final class UserController extends AbstractJudgelsController {
     }
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
-    @Authorized(value = {"admin"})
+    @Authorized(value = "admin")
     @Transactional
     public Result postCreateUser() {
         Form<UserCreateForm> form = Form.form(UserCreateForm.class).bindFromRequest();
@@ -165,12 +165,17 @@ public final class UserController extends AbstractJudgelsController {
     }
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
-    @Authorized(value = {"admin"})
+    @Authorized(value = "admin")
     @Transactional
     @AddCSRFToken
     public Result updateUser(long userId) throws UserNotFoundException {
         UserInfo user = userService.findUserById(userId);
-        UserUpdateForm userUpdateForm = new UserUpdateForm(user);
+        UserUpdateForm userUpdateForm = new UserUpdateForm();
+        userUpdateForm.username = user.getUsername();
+        userUpdateForm.name = user.getName();
+        userUpdateForm.email = user.getEmail();
+        userUpdateForm.roles = StringUtils.join(user.getRoles(), ",");
+
         Form<UserUpdateForm> form = Form.form(UserUpdateForm.class).fill(userUpdateForm);
 
         ControllerUtils.getInstance().addActivityLog(userActivityService, "Try to update user " + user.getUsername() + " <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
@@ -179,7 +184,7 @@ public final class UserController extends AbstractJudgelsController {
     }
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
-    @Authorized(value = {"admin"})
+    @Authorized(value = "admin")
     @Transactional
     @RequireCSRFCheck
     public Result postUpdateUser(long userId) throws UserNotFoundException {
@@ -203,7 +208,7 @@ public final class UserController extends AbstractJudgelsController {
     }
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
-    @Authorized(value = {"admin"})
+    @Authorized(value = "admin")
     @Transactional
     public Result deleteUser(long userId) throws UserNotFoundException {
         UserInfo user = userService.findUserById(userId);

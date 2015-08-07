@@ -31,7 +31,7 @@ public class WelcomeController {
     @Transactional
     public Result index() {
         ImmutableMap.Builder<String, String> clientMapBuilder = ImmutableMap.builder();
-        for (int i=0;i<JophielProperties.getInstance().getJophielClientLabels().size();++i) {
+        for (int i = 0; i < JophielProperties.getInstance().getJophielClientLabels().size(); ++i) {
             String target = JophielProperties.getInstance().getJophielClientTargets().get(i);
             String label = JophielProperties.getInstance().getJophielClientLabels().get(i);
             clientMapBuilder.put(target, label);

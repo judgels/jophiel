@@ -38,6 +38,10 @@ public final class JophielProperties {
     private Region avatarAWSS3BucketRegion;
     private String avatarAWSCloudFrontUrl;
 
+    private JophielProperties(Config config) {
+        this.config = config;
+    }
+
     public String getJophielBaseUrl() {
         return jophielBaseUrl;
     }
@@ -131,10 +135,6 @@ public final class JophielProperties {
             throw new UnsupportedOperationException("Registration is not using Recaptcha");
         }
         return registrationRecaptchaSecretKey;
-    }
-
-    private JophielProperties(Config config) {
-        this.config = config;
     }
 
     public static synchronized void buildInstance(Config config) {

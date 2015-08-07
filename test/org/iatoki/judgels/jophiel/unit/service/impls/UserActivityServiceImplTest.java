@@ -52,7 +52,7 @@ public class UserActivityServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void pageUserActivities_SingleUser_ReturnsActivitiesForThatUser() {
+    public void pageUserActivitiesSingleUserReturnsActivitiesForThatUser() {
         long pageIndex = 0;
         long pageSize = 1;
         String orderBy = "id";
@@ -86,13 +86,13 @@ public class UserActivityServiceImplTest extends PowerMockTestCase {
         secondUserActivityModel.userCreate = "JIDU0101";
         secondUserActivityModel.ipCreate = "10.10.10.10";
         List<UserActivityModel> userActivityModels = Arrays.asList(firstUserActivityModel, secondUserActivityModel);
-        Mockito.when(userActivityDao.findSortedByFilters(Mockito.eq(orderBy), Mockito.eq(orderDir), Mockito.eq(filterString), Matchers.<Map<SingularAttribute<? super UserActivityModel, String>, String>> any(), Matchers.<Map<SingularAttribute<? super UserActivityModel, String>, ? extends Collection<String>>> any(), Mockito.eq(pageIndex * pageSize), Mockito.eq(pageSize)))
+        Mockito.when(userActivityDao.findSortedByFilters(Mockito.eq(orderBy), Mockito.eq(orderDir), Mockito.eq(filterString), Matchers.<Map<SingularAttribute<? super UserActivityModel, String>, String>>any(), Matchers.<Map<SingularAttribute<? super UserActivityModel, String>, ? extends Collection<String>>>any(), Mockito.eq(pageIndex * pageSize), Mockito.eq(pageSize)))
                 .thenReturn(userActivityModels);
         Mockito.when(clientDao.existsByJid(firstUserActivityModel.clientJid)).thenReturn(true);
         Mockito.when(clientDao.existsByJid(secondUserActivityModel.clientJid)).thenReturn(false);
 
         long totalRow = userActivityModels.size();
-        Mockito.when(userActivityDao.countByFilters(Mockito.eq(filterString), Matchers.<Map<SingularAttribute<? super UserActivityModel, String>, String>> any(), Matchers.<Map<SingularAttribute<? super UserActivityModel, String>, Set<String>>> any())).thenReturn(totalRow);
+        Mockito.when(userActivityDao.countByFilters(Mockito.eq(filterString), Matchers.<Map<SingularAttribute<? super UserActivityModel, String>, String>>any(), Matchers.<Map<SingularAttribute<? super UserActivityModel, String>, Set<String>>>any())).thenReturn(totalRow);
 
         ClientModel firstClientModel = new ClientModel();
         firstClientModel.jid = "JID0001";
@@ -109,7 +109,7 @@ public class UserActivityServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void pageUsersActivities_MultipleUsers_ReturnsActivitiesForSelectedUsers() {
+    public void pageUsersActivitiesMultipleUsersReturnsActivitiesForSelectedUsers() {
         long pageIndex = 0;
         long pageSize = 1;
         String orderBy = "id";
@@ -139,7 +139,7 @@ public class UserActivityServiceImplTest extends PowerMockTestCase {
         secondUserActivityModel.userCreate = "guest";
         secondUserActivityModel.ipCreate = "10.10.10.10";
         List<UserActivityModel> userActivityModels = Arrays.asList(firstUserActivityModel, secondUserActivityModel);
-        Mockito.when(userActivityDao.findSortedByFilters(Mockito.eq(orderBy), Mockito.eq(orderDir), Mockito.eq(filterString), Matchers.<Map<SingularAttribute<? super UserActivityModel, String>, String>> any(), Matchers.<Map<SingularAttribute<? super UserActivityModel, String>, ? extends Collection<String>>> any(), Mockito.eq(pageIndex * pageSize), Mockito.eq(pageSize)))
+        Mockito.when(userActivityDao.findSortedByFilters(Mockito.eq(orderBy), Mockito.eq(orderDir), Mockito.eq(filterString), Matchers.<Map<SingularAttribute<? super UserActivityModel, String>, String>>any(), Matchers.<Map<SingularAttribute<? super UserActivityModel, String>, ? extends Collection<String>>>any(), Mockito.eq(pageIndex * pageSize), Mockito.eq(pageSize)))
                 .thenReturn(userActivityModels);
         Mockito.when(userDao.existsByJid(firstUserActivityModel.userCreate)).thenReturn(true);
         Mockito.when(userDao.existsByJid(secondUserActivityModel.userCreate)).thenReturn(false);
@@ -157,7 +157,7 @@ public class UserActivityServiceImplTest extends PowerMockTestCase {
         Mockito.when(clientDao.findByJid(firstUserActivityModel.clientJid)).thenReturn(firstClientModel);
 
         long totalRow = userActivityModels.size();
-        Mockito.when(userActivityDao.countByFilters(Mockito.eq(filterString), Matchers.<Map<SingularAttribute<? super UserActivityModel, String>, String>> any(), Matchers.<Map<SingularAttribute<? super UserActivityModel, String>, ? extends Collection<String>>> any())).thenReturn(totalRow);
+        Mockito.when(userActivityDao.countByFilters(Mockito.eq(filterString), Matchers.<Map<SingularAttribute<? super UserActivityModel, String>, String>>any(), Matchers.<Map<SingularAttribute<? super UserActivityModel, String>, ? extends Collection<String>>>any())).thenReturn(totalRow);
 
         Page<UserActivity> userActivityPage = userActivityService.pageUsersActivities(pageIndex, pageSize, orderBy, orderDir, filterString, clientNames, usernames);
 
@@ -170,7 +170,7 @@ public class UserActivityServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void createUserActivity_UserActivity_UserActivityPersisted() {
+    public void createUserActivityUserActivityUserActivityPersisted() {
         String clientJid = "localhost";
         String userJid = "guest";
         long time = System.currentTimeMillis();
@@ -179,15 +179,15 @@ public class UserActivityServiceImplTest extends PowerMockTestCase {
 
         UserActivityModel userActivityModel = new UserActivityModel();
         Mockito.doAnswer(invocation -> {
-            UserActivityModel insideUserActivityModel = (UserActivityModel)invocation.getArguments()[0];
+                UserActivityModel insideUserActivityModel = (UserActivityModel) invocation.getArguments()[0];
 
-            userActivityModel.clientJid = insideUserActivityModel.clientJid;
-            userActivityModel.time = insideUserActivityModel.time;
-            userActivityModel.log = insideUserActivityModel.log;
-            persistAbstractModel(userActivityModel, invocation);
+                userActivityModel.clientJid = insideUserActivityModel.clientJid;
+                userActivityModel.time = insideUserActivityModel.time;
+                userActivityModel.log = insideUserActivityModel.log;
+                persistAbstractModel(userActivityModel, invocation);
 
-            return null;
-        }).when(userActivityDao).persist(Mockito.any(), Mockito.anyString(), Mockito.any());
+                return null;
+            }).when(userActivityDao).persist(Mockito.any(), Mockito.anyString(), Mockito.any());
 
         userActivityService.createUserActivity(clientJid, userJid, time, log, ipAddress);
 
