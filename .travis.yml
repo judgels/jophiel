@@ -6,8 +6,8 @@ jdk:
 install:
   - git clone https://github.com/judgels/judgels.git ../judgels
   - git clone https://github.com/judgels/commons.git ../commons
-  - git clone https://github.com/judgels/jophielcommons.git ../jophielcommons
-  - git clone https://github.com/judgels/playcommons.git ../playcommons
+  - git clone https://github.com/judgels/jophiel-commons.git ../jophiel-commons
+  - git clone https://github.com/judgels/play-commons.git ../play-commons
 
 script:
   - ../judgels/scripts/download-activator.sh

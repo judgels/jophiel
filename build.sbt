@@ -58,4 +58,4 @@ lazy val jophiel = (project in file("."))
     )
 
 
-lazy val jophielcommons = RootProject(file("../jophielcommons"))
+lazy val jophielcommons = RootProject(file("../jophiel-commons"))
