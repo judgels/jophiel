@@ -17,5 +17,4 @@ public final class ClientCreateForm {
 
     @Constraints.Required
     public List<String> scopes;
-
 }

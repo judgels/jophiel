@@ -1,7 +1,10 @@
-@(form: Form[org.iatoki.judgels.jophiel.forms.LoginForm], target: play.api.mvc.Call)
-
 @import play.i18n.Messages
+@import play.api.mvc.Call
 @import org.iatoki.judgels.play.views.html.formErrorView
+@import org.iatoki.judgels.jophiel.forms.LoginForm
+@import org.iatoki.judgels.jophiel.controllers.routes
+
+@(loginForm: Form[LoginForm], target: Call)
 
 @implicitFieldConstructor = @{ b3.horizontal.fieldConstructor("col-md-4", "col-md-8") }
 
@@ -9,19 +12,19 @@
     <div class="col-md-12">
         <h2>@Messages.get("login.logIn")</h2>
 
-        @formErrorView(form)
+        @formErrorView(loginForm)
 
         @b3.form(target) {
 
             @helper.CSRF.formField
 
-            @b3.text(form("usernameOrEmail"), '_label -> Messages.get("user.usernameOrEmail"))
-            @b3.password(form("password"), '_label -> Messages.get("user.password"))
+            @b3.text(loginForm("usernameOrEmail"), '_label -> Messages.get("user.usernameOrEmail"))
+            @b3.password(loginForm("password"), '_label -> Messages.get("user.password"))
 
             @b3.submit('class -> "btn btn-primary") { @Messages.get("login.logIn") }
         }
-        <a href="@org.iatoki.judgels.jophiel.controllers.routes.UserAccountController.forgotPassword()" target="_blank">@Messages.get("login.forgotPassword")</a>
+        <a href="@routes.UserAccountController.forgotPassword()" target="_blank">@Messages.get("login.forgotPassword")</a>
         <br />
-        @Messages.get("login.dontHaveAccount") <a href="@org.iatoki.judgels.jophiel.controllers.routes.UserAccountController.register()" target="_blank">@Messages.get("login.register")</a>
+        @Messages.get("login.dontHaveAccount") <a href="@routes.UserAccountController.register()" target="_blank">@Messages.get("login.register")</a>
     </div>
 </div>

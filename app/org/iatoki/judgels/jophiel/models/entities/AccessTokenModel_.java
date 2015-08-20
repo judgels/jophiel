@@ -16,5 +16,4 @@ public abstract class AccessTokenModel_ extends org.iatoki.judgels.play.models.e
         public static volatile SingularAttribute<AccessTokenModel, Long> expireTime;
         public static volatile SingularAttribute<AccessTokenModel, Boolean> redeemed;
         public static volatile SingularAttribute<AccessTokenModel, String> scopes;
-
 }

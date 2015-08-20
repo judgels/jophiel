@@ -12,7 +12,7 @@ public class JophielModule extends AbstractJudgelsPlayModule {
 
     @Override
     protected void manualBinding() {
-        bind(FileSystemProvider.class).annotatedWith(AvatarFile.class).toInstance(avatarFileSystemProvider());
+        bind(FileSystemProvider.class).annotatedWith(AvatarFileSystemProvider.class).toInstance(avatarFileSystemProvider());
     }
 
     @Override

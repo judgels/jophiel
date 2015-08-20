@@ -22,7 +22,7 @@ public final class UserForgotPasswordHibernateDao extends AbstractHibernateDao<L
     }
 
     @Override
-    public boolean isCodeValid(String forgotPasswordCode, long currentMillis) {
+    public boolean isForgotPasswordCodeValid(String forgotPasswordCode, long currentMillis) {
         CriteriaBuilder cb = JPA.em().getCriteriaBuilder();
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
         Root<UserForgotPasswordModel> root = query.from(UserForgotPasswordModel.class);
@@ -33,7 +33,7 @@ public final class UserForgotPasswordHibernateDao extends AbstractHibernateDao<L
     }
 
     @Override
-    public UserForgotPasswordModel findByCode(String forgotPasswordCode) {
+    public UserForgotPasswordModel findByForgotPasswordCode(String forgotPasswordCode) {
         CriteriaBuilder cb = JPA.em().getCriteriaBuilder();
         CriteriaQuery<UserForgotPasswordModel> query = cb.createQuery(UserForgotPasswordModel.class);
         Root<UserForgotPasswordModel> root = query.from(UserForgotPasswordModel.class);

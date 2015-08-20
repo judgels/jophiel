@@ -14,5 +14,4 @@ public final class ClientUpdateForm {
 
     @Constraints.Required
     public List<String> scopes;
-
 }

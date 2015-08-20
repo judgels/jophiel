@@ -11,6 +11,5 @@ public abstract class UserForgotPasswordModel_ extends org.iatoki.judgels.play.m
         public static volatile SingularAttribute<UserForgotPasswordModel, Long> id;
         public static volatile SingularAttribute<UserForgotPasswordModel, String> userJid;
         public static volatile SingularAttribute<UserForgotPasswordModel, String> code;
-    public static volatile SingularAttribute<UserForgotPasswordModel, Boolean> used;
-
+        public static volatile SingularAttribute<UserForgotPasswordModel, Boolean> used;
 }

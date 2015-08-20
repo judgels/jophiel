@@ -1,3 +1,5 @@
-@(form: Form[org.iatoki.judgels.jophiel.forms.UserProfileForm], form2: Form[org.iatoki.judgels.jophiel.forms.UserProfilePictureForm], returnURI: String)
+@import org.iatoki.judgels.jophiel.controllers.routes
 
-@editProfileTemplateView(form, form2, org.iatoki.judgels.jophiel.controllers.routes.UserProfileController.postServiceAvatar(returnURI), org.iatoki.judgels.jophiel.controllers.routes.UserProfileController.postServiceProfile(returnURI))
+@(userProfileForm: Form[org.iatoki.judgels.jophiel.forms.UserProfileForm], userProfilePictureForm: Form[org.iatoki.judgels.jophiel.forms.UserProfilePictureForm], returnURI: String)
+
+@editProfileTemplateView(userProfileForm, userProfilePictureForm, routes.UserProfileController.postServiceAvatar(returnURI), routes.UserProfileController.postServiceProfile(returnURI))

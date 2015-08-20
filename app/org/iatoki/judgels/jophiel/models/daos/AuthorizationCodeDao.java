@@ -5,8 +5,7 @@ import org.iatoki.judgels.jophiel.models.entities.AuthorizationCodeModel;
 
 public interface AuthorizationCodeDao extends Dao<Long, AuthorizationCodeModel> {
 
+    boolean isAuthorized(String clientJid, String userJid, String scopes);
+
     AuthorizationCodeModel findByCode(String code);
-
-    boolean checkIfAuthorized(String clientJid, String userJid, String scopes);
-
 }

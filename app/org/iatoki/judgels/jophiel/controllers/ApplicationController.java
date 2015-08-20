@@ -10,9 +10,6 @@ import javax.inject.Singleton;
 @Named
 public final class ApplicationController extends AbstractJudgelsController {
 
-    public ApplicationController() {
-    }
-
     public Result index() {
         return redirect(routes.UserAccountController.login().absoluteURL(request(), request().secure()));
     }

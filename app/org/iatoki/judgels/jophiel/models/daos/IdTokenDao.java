@@ -6,5 +6,4 @@ import org.iatoki.judgels.jophiel.models.entities.IdTokenModel;
 public interface IdTokenDao extends Dao<Long, IdTokenModel> {
 
     IdTokenModel findByCode(String code);
-
 }

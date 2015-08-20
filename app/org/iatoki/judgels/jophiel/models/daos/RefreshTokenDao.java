@@ -8,5 +8,4 @@ public interface RefreshTokenDao extends Dao<Long, RefreshTokenModel> {
     RefreshTokenModel findByCode(String code);
 
     RefreshTokenModel findByToken(String token);
-
 }

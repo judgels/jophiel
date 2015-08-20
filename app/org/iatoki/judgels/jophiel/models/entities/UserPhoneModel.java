@@ -28,5 +28,4 @@ public final class UserPhoneModel extends AbstractModel {
         this.phoneNumber = phoneNumber;
         this.phoneNumberVerified = phoneNumberVerified;
     }
-
 }

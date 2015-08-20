@@ -22,13 +22,8 @@ public final class IdTokenModel extends AbstractModel {
 
     public String clientJid;
 
-    @Column(columnDefinition = "text")
+    @Column(columnDefinition = "TEXT")
     public String token;
 
     public boolean redeemed;
-
-    public IdTokenModel() {
-
-    }
-
 }

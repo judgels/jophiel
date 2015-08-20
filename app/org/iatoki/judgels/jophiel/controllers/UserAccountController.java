@@ -2,6 +2,7 @@ package org.iatoki.judgels.jophiel.controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
+import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.ResponseType;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.SerializeException;
@@ -9,25 +10,19 @@ import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
 import com.nimbusds.openid.connect.sdk.AuthenticationSuccessResponse;
-import org.iatoki.judgels.play.IdentityUtils;
-import org.iatoki.judgels.play.LazyHtml;
-import org.iatoki.judgels.play.controllers.AbstractJudgelsController;
-import org.iatoki.judgels.play.views.html.layouts.centerLayout;
-import org.iatoki.judgels.play.views.html.layouts.headingLayout;
-import org.iatoki.judgels.play.views.html.layouts.messageView;
 import org.iatoki.judgels.jophiel.Client;
 import org.iatoki.judgels.jophiel.EmailNotVerifiedException;
 import org.iatoki.judgels.jophiel.JophielProperties;
 import org.iatoki.judgels.jophiel.JophielUtils;
 import org.iatoki.judgels.jophiel.UserInfo;
 import org.iatoki.judgels.jophiel.UserNotFoundException;
+import org.iatoki.judgels.jophiel.controllers.securities.Authenticated;
+import org.iatoki.judgels.jophiel.controllers.securities.HasRole;
+import org.iatoki.judgels.jophiel.controllers.securities.LoggedIn;
 import org.iatoki.judgels.jophiel.forms.ChangePasswordForm;
 import org.iatoki.judgels.jophiel.forms.ForgotPasswordForm;
 import org.iatoki.judgels.jophiel.forms.LoginForm;
 import org.iatoki.judgels.jophiel.forms.RegisterForm;
-import org.iatoki.judgels.jophiel.controllers.securities.Authenticated;
-import org.iatoki.judgels.jophiel.controllers.securities.HasRole;
-import org.iatoki.judgels.jophiel.controllers.securities.LoggedIn;
 import org.iatoki.judgels.jophiel.services.ClientService;
 import org.iatoki.judgels.jophiel.services.UserAccountService;
 import org.iatoki.judgels.jophiel.services.UserActivityService;
@@ -39,6 +34,12 @@ import org.iatoki.judgels.jophiel.views.html.account.loginView;
 import org.iatoki.judgels.jophiel.views.html.account.registerView;
 import org.iatoki.judgels.jophiel.views.html.account.serviceAuthView;
 import org.iatoki.judgels.jophiel.views.html.account.serviceLoginView;
+import org.iatoki.judgels.play.IdentityUtils;
+import org.iatoki.judgels.play.LazyHtml;
+import org.iatoki.judgels.play.controllers.AbstractJudgelsController;
+import org.iatoki.judgels.play.views.html.layouts.centerLayout;
+import org.iatoki.judgels.play.views.html.layouts.headingLayout;
+import org.iatoki.judgels.play.views.html.layouts.messageView;
 import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
@@ -63,79 +64,82 @@ import java.util.concurrent.TimeUnit;
 public final class UserAccountController extends AbstractJudgelsController {
 
     private final ClientService clientService;
-    private final UserService userService;
-    private final UserEmailService userEmailService;
     private final UserAccountService userAccountService;
     private final UserActivityService userActivityService;
+    private final UserEmailService userEmailService;
+    private final UserService userService;
 
     @Inject
-    public UserAccountController(ClientService clientService, UserService userService, UserEmailService userEmailService, UserAccountService userAccountService, UserActivityService userActivityService) {
+    public UserAccountController(ClientService clientService, UserAccountService userAccountService, UserActivityService userActivityService, UserEmailService userEmailService, UserService userService) {
         this.clientService = clientService;
-        this.userService = userService;
-        this.userEmailService = userEmailService;
         this.userAccountService = userAccountService;
         this.userActivityService = userActivityService;
+        this.userEmailService = userEmailService;
+        this.userService = userService;
     }
 
     @Transactional(readOnly = true)
     @AddCSRFToken
     public Result register() {
-        if ((IdentityUtils.getUserJid() == null) || (!userService.existsByUserJid(IdentityUtils.getUserJid()))) {
-            Form<RegisterForm> form = Form.form(RegisterForm.class);
-            return showRegister(form);
-        } else {
-            return redirect(routes.WelcomeController.index());
+        if (JophielControllerUtils.getInstance().loggedIn(userService)) {
+            return redirect(JophielControllerUtils.getInstance().mainPage());
         }
+
+        Form<RegisterForm> registerForm = Form.form(RegisterForm.class);
+        return showRegister(registerForm);
     }
 
     @Transactional
     @RequireCSRFCheck
     public Result postRegister() {
-        if ((IdentityUtils.getUserJid() == null) || (!userService.existsByUserJid(IdentityUtils.getUserJid()))) {
-            Form<RegisterForm> form = Form.form(RegisterForm.class).bindFromRequest();
+        if (JophielControllerUtils.getInstance().loggedIn(userService)) {
+            return redirect(JophielControllerUtils.getInstance().mainPage());
+        }
 
-            if (form.hasErrors()) {
-                return showRegister(form);
-            } else {
-                RegisterForm registerData = form.get();
-                if (userService.existByUsername(registerData.username)) {
-                    form.reject("register.error.usernameExists");
-                    return showRegister(form);
-                } else if (userEmailService.existByEmail(registerData.email)) {
-                    form.reject("register.error.emailExists");
-                    return showRegister(form);
-                } else if (!registerData.password.equals(registerData.confirmPassword)) {
-                    form.reject("register.error.passwordsDidntMatch");
-                    return showRegister(form);
-                } else {
-                    boolean valid = true;
-                    if (JophielProperties.getInstance().isRegistrationUsingRecaptcha()) {
-                        DynamicForm dynamicForm = DynamicForm.form().bindFromRequest();
-                        F.Promise<JsonNode> jsonPromise = WS.url("https://www.google.com/recaptcha/api/siteverify").setContentType("application/x-www-form-urlencoded").post("secret=" + JophielProperties.getInstance().getRegistrationRecaptchaSecretKey() + "&response=" + dynamicForm.get("g-recaptcha-response") + "&remoteip=" + IdentityUtils.getIpAddress()).map(response -> {
-                                return response.asJson();
-                            });
-                        JsonNode response = jsonPromise.get(1, TimeUnit.MINUTES);
-                        valid = response.get("success").asBoolean();
-                    }
+        Form<RegisterForm> registerForm = Form.form(RegisterForm.class).bindFromRequest();
+        if (formHasErrors(registerForm)) {
+            return showRegister(registerForm);
+        }
 
-                    if (!valid) {
-                        form.reject("register.error.invalidRegistration");
-                        return showRegister(form);
-                    } else {
-                        try {
-                            String emailCode = userAccountService.registerUser(registerData.username, registerData.name, registerData.email, registerData.password);
-                            userEmailService.sendActivationEmail(registerData.name, registerData.email, org.iatoki.judgels.jophiel.controllers.routes.UserEmailController.verifyEmail(emailCode).absoluteURL(request(), request().secure()));
+        RegisterForm registerData = registerForm.get();
+        if (userService.existsUserByUsername(registerData.username)) {
+            registerForm.reject("register.error.usernameExists");
+            return showRegister(registerForm);
+        }
 
-                            return redirect(routes.UserAccountController.afterRegister(registerData.email));
-                        } catch (IllegalStateException e) {
-                            form.reject("register.error.usernameOrEmailExists");
-                            return showRegister(form);
-                        }
-                    }
-                }
-            }
-        } else {
-            return redirect(routes.WelcomeController.index());
+        if (userEmailService.emailExists(registerData.email)) {
+            registerForm.reject("register.error.emailExists");
+            return showRegister(registerForm);
+        }
+
+        if (!registerData.password.equals(registerData.confirmPassword)) {
+            registerForm.reject("register.error.passwordsDidntMatch");
+            return showRegister(registerForm);
+        }
+
+        boolean valid = true;
+        if (JophielProperties.getInstance().isRegistrationUsingRecaptcha()) {
+            DynamicForm dynamicForm = DynamicForm.form().bindFromRequest();
+            F.Promise<JsonNode> jsonPromise = WS.url("https://www.google.com/recaptcha/api/siteverify").setContentType("application/x-www-registerForm-urlencoded").post("secret=" + JophielProperties.getInstance().getRegistrationRecaptchaSecretKey() + "&response=" + dynamicForm.get("g-recaptcha-response") + "&remoteip=" + IdentityUtils.getIpAddress()).map(response -> {
+                    return response.asJson();
+                });
+            JsonNode response = jsonPromise.get(1, TimeUnit.MINUTES);
+            valid = response.get("success").asBoolean();
+        }
+
+        if (!valid) {
+            registerForm.reject("register.error.invalidRegistration");
+            return showRegister(registerForm);
+        }
+
+        try {
+            String emailCode = userAccountService.registerUser(registerData.username, registerData.name, registerData.email, registerData.password);
+            userEmailService.sendActivationEmail(registerData.name, registerData.email, org.iatoki.judgels.jophiel.controllers.routes.UserEmailController.verifyEmail(emailCode).absoluteURL(request(), request().secure()));
+
+            return redirect(routes.UserAccountController.afterRegister(registerData.email));
+        } catch (IllegalStateException e) {
+            registerForm.reject("register.error.usernameOrEmailExists");
+            return showRegister(registerForm);
         }
     }
 
@@ -143,110 +147,114 @@ public final class UserAccountController extends AbstractJudgelsController {
         LazyHtml content = new LazyHtml(messageView.render(Messages.get("register.activationEmailSentTo") + " " + email + "."));
         content.appendLayout(c -> headingLayout.render(Messages.get("register.successful"), c));
         content.appendLayout(c -> centerLayout.render(c));
-        ControllerUtils.getInstance().appendTemplateLayout(content, "After Register");
+        JophielControllerUtils.getInstance().appendTemplateLayout(content, "After Register");
 
-        return ControllerUtils.getInstance().lazyOk(content);
+        return JophielControllerUtils.getInstance().lazyOk(content);
     }
 
     @Transactional(readOnly = true)
     @AddCSRFToken
     public Result forgotPassword() {
-        if ((IdentityUtils.getUserJid() == null) || (!userService.existsByUserJid(IdentityUtils.getUserJid()))) {
-            Form<ForgotPasswordForm> form = Form.form(ForgotPasswordForm.class);
-            return showForgotPassword(form);
-        } else {
-            return redirect(routes.WelcomeController.index());
+        if (JophielControllerUtils.getInstance().loggedIn(userService)) {
+            return redirect(JophielControllerUtils.getInstance().mainPage());
         }
+
+        Form<ForgotPasswordForm> forgotPasswordForm = Form.form(ForgotPasswordForm.class);
+        return showForgotPassword(forgotPasswordForm);
     }
 
     @Transactional
     @RequireCSRFCheck
     public Result postForgotPassword() {
-        if ((IdentityUtils.getUserJid() == null) || (!userService.existsByUserJid(IdentityUtils.getUserJid()))) {
-            Form<ForgotPasswordForm> form = Form.form(ForgotPasswordForm.class).bindFromRequest();
-
-            if (form.hasErrors()) {
-                return showForgotPassword(form);
-            } else {
-                ForgotPasswordForm forgotData = form.get();
-                if (!userService.existByUsername(forgotData.username)) {
-                    form.reject("forgot_pass.error.usernameNotExists");
-                    return showForgotPassword(form);
-                } else if (!userEmailService.existByEmail(forgotData.email)) {
-                    form.reject("forgot_pass.error.emailNotExists");
-                    return showForgotPassword(form);
-                } else if (!userEmailService.isEmailOwnedByUser(forgotData.email, forgotData.username)) {
-                    form.reject("forgot_pass.error.emailIsNotOwnedByUser");
-                    return showForgotPassword(form);
-                } else {
-                    String forgotCode = userAccountService.forgotPassword(forgotData.username, forgotData.email);
-                    userEmailService.sendChangePasswordEmail(forgotData.email, org.iatoki.judgels.jophiel.controllers.routes.UserAccountController.changePassword(forgotCode).absoluteURL(request(), request().secure()));
-
-                    return redirect(routes.UserAccountController.afterForgotPassword(forgotData.email));
-                }
-            }
-        } else {
-            return redirect(routes.WelcomeController.index());
+        if (JophielControllerUtils.getInstance().loggedIn(userService)) {
+            return redirect(JophielControllerUtils.getInstance().mainPage());
         }
+
+        Form<ForgotPasswordForm> forgotPasswordForm = Form.form(ForgotPasswordForm.class).bindFromRequest();
+        if (formHasErrors(forgotPasswordForm)) {
+            return showForgotPassword(forgotPasswordForm);
+        }
+
+        ForgotPasswordForm forgotPasswordData = forgotPasswordForm.get();
+        if (!userService.existsUserByUsername(forgotPasswordData.username)) {
+            forgotPasswordForm.reject("forgot_pass.error.usernameNotExists");
+            return showForgotPassword(forgotPasswordForm);
+        }
+
+        if (!userEmailService.emailExists(forgotPasswordData.email)) {
+            forgotPasswordForm.reject("forgot_pass.error.emailNotExists");
+            return showForgotPassword(forgotPasswordForm);
+        }
+
+        if (!userEmailService.isEmailOwnedByUser(forgotPasswordData.email, forgotPasswordData.username)) {
+            forgotPasswordForm.reject("forgot_pass.error.emailIsNotOwnedByUser");
+            return showForgotPassword(forgotPasswordForm);
+        }
+
+        String forgotPasswordCode = userAccountService.generateForgotPasswordRequest(forgotPasswordData.username, forgotPasswordData.email);
+        userEmailService.sendChangePasswordEmail(forgotPasswordData.email, routes.UserAccountController.changePassword(forgotPasswordCode).absoluteURL(request(), request().secure()));
+
+        return redirect(routes.UserAccountController.afterForgotPassword(forgotPasswordData.email));
     }
 
     public Result afterForgotPassword(String email) {
         LazyHtml content = new LazyHtml(messageView.render(Messages.get("forgotPasswordEmail.changePasswordRequestSentTo") + " " + email + "."));
         content.appendLayout(c -> headingLayout.render(Messages.get("forgotPassword.successful"), c));
         content.appendLayout(c -> centerLayout.render(c));
-        ControllerUtils.getInstance().appendTemplateLayout(content, "After Forgot Password");
+        JophielControllerUtils.getInstance().appendTemplateLayout(content, "After Forgot Password");
 
-        return ControllerUtils.getInstance().lazyOk(content);
+        return JophielControllerUtils.getInstance().lazyOk(content);
     }
 
     @Transactional(readOnly = true)
     @AddCSRFToken
     public Result changePassword(String code) {
-        if ((IdentityUtils.getUserJid() == null) || (!userService.existsByUserJid(IdentityUtils.getUserJid()))) {
-            if (userAccountService.isValidToChangePassword(code, System.currentTimeMillis())) {
-                Form<ChangePasswordForm> form = Form.form(ChangePasswordForm.class);
-                return showChangePassword(form, code);
-            } else {
-                return notFound();
-            }
-        } else {
-            return redirect(routes.WelcomeController.index());
+        if (JophielControllerUtils.getInstance().loggedIn(userService)) {
+            return redirect(JophielControllerUtils.getInstance().mainPage());
         }
+
+        if (!userAccountService.isValidToChangePassword(code, System.currentTimeMillis())) {
+            return notFound();
+        }
+
+        Form<ChangePasswordForm> changePasswordForm = Form.form(ChangePasswordForm.class);
+        return showChangePassword(changePasswordForm, code);
     }
 
     @Transactional
     @RequireCSRFCheck
     public Result postChangePassword(String code) {
-        if ((IdentityUtils.getUserJid() == null) || (!userService.existsByUserJid(IdentityUtils.getUserJid()))) {
-            Form<ChangePasswordForm> form = Form.form(ChangePasswordForm.class).bindFromRequest();
-            if (userAccountService.isValidToChangePassword(code, System.currentTimeMillis())) {
-                if (form.hasErrors()) {
-                    return showChangePassword(form, code);
-                } else {
-                    ChangePasswordForm changeData = form.get();
-                    if (!changeData.password.equals(changeData.confirmPassword)) {
-                        form.reject("change_password.error.passwordsDidntMatch");
-                        return showChangePassword(form, code);
-                    } else {
-                        userAccountService.changePassword(code, changeData.password);
-                        return redirect(routes.UserAccountController.afterChangePassword());
-                    }
-                }
-            } else {
-                return notFound();
-            }
-        } else {
-            return redirect(routes.WelcomeController.index());
+        if (JophielControllerUtils.getInstance().loggedIn(userService)) {
+            return redirect(JophielControllerUtils.getInstance().mainPage());
         }
+
+        if (!userAccountService.isValidToChangePassword(code, System.currentTimeMillis())) {
+            return notFound();
+        }
+
+        Form<ChangePasswordForm> changePasswordForm = Form.form(ChangePasswordForm.class).bindFromRequest();
+        if (formHasErrors(changePasswordForm)) {
+            return showChangePassword(changePasswordForm, code);
+        }
+
+        ChangePasswordForm changePasswordData = changePasswordForm.get();
+        if (!changePasswordData.password.equals(changePasswordData.confirmPassword)) {
+            changePasswordForm.reject("change_password.error.passwordsDidntMatch");
+            return showChangePassword(changePasswordForm, code);
+        }
+
+        userAccountService.processChangePassword(code, changePasswordData.password);
+
+        return redirect(routes.UserAccountController.afterChangePassword());
     }
 
     public Result afterChangePassword() {
         LazyHtml content = new LazyHtml(messageView.render(Messages.get("changePassword.success") + "."));
         content.appendLayout(c -> headingLayout.render(Messages.get("changePassword.successful"), c));
         content.appendLayout(c -> centerLayout.render(c));
-        ControllerUtils.getInstance().appendTemplateLayout(content, "After Change Password");
+        JophielControllerUtils.getInstance().appendTemplateLayout(content, "After Change Password");
 
-        return ControllerUtils.getInstance().lazyOk(content);
+        return JophielControllerUtils.getInstance().lazyOk(content);
     }
 
     @Transactional(readOnly = true)
@@ -264,62 +272,59 @@ public final class UserAccountController extends AbstractJudgelsController {
     @Transactional(readOnly = true)
     @AddCSRFToken
     public Result serviceLogin(String continueUrl) {
-        if ((IdentityUtils.getUserJid() == null) || (!userService.existsByUserJid(IdentityUtils.getUserJid()))) {
-            Form<LoginForm> form = Form.form(LoginForm.class);
-
-            return showLogin(form, continueUrl);
-        } else {
+        if (JophielControllerUtils.getInstance().loggedIn(userService)) {
             if (continueUrl == null) {
-                return redirect(routes.WelcomeController.index());
-            } else {
-                return redirect(continueUrl);
+                return redirect(JophielControllerUtils.getInstance().mainPage());
             }
+            return redirect(continueUrl);
         }
+
+        Form<LoginForm> loginForm = Form.form(LoginForm.class);
+        return showLogin(loginForm, continueUrl);
     }
 
     @Transactional
     @RequireCSRFCheck
     public Result postServiceLogin(String continueUrl) {
-        if ((IdentityUtils.getUserJid() == null) || (!userService.existsByUserJid(IdentityUtils.getUserJid()))) {
-            Form<LoginForm> form = Form.form(LoginForm.class).bindFromRequest();
-            if (form.hasErrors()) {
-                Logger.error(form.errors().toString());
-                return showLogin(form, continueUrl);
-            } else {
-                try {
-                    LoginForm loginData = form.get();
-                    UserInfo user = userAccountService.login(loginData.usernameOrEmail, loginData.password);
-                    if (user != null) {
-                        // TODO add expiry time and remember me options
-                        session("userJid", user.getJid());
-                        session("username", user.getUsername());
-                        session("name", user.getName());
-                        session("avatar", user.getProfilePictureUrl().toString());
-                        JophielUtils.saveRoleInSession(user.getRoles());
-                        ControllerUtils.getInstance().addActivityLog(userActivityService, "Logged In.");
-                        if (continueUrl == null) {
-                            return redirect(routes.WelcomeController.index());
-                        } else {
-                            return redirect(continueUrl);
-                        }
-                    } else {
-                        form.reject("login.error.usernameOrEmailOrPasswordInvalid");
-                        return showLogin(form, continueUrl);
-                    }
-                } catch (UserNotFoundException e) {
-                    form.reject("login.error.usernameOrEmailOrPasswordInvalid");
-                    return showLogin(form, continueUrl);
-                } catch (EmailNotVerifiedException e) {
-                    form.reject("login.error.emailNotVerified");
-                    return showLogin(form, continueUrl);
-                }
-            }
-        } else {
+        if (JophielControllerUtils.getInstance().loggedIn(userService)) {
             if (continueUrl == null) {
-                return redirect(routes.WelcomeController.index());
-            } else {
-                return redirect(continueUrl);
+                return redirect(JophielControllerUtils.getInstance().mainPage());
             }
+            return redirect(continueUrl);
+        }
+
+        Form<LoginForm> loginForm = Form.form(LoginForm.class).bindFromRequest();
+        if (formHasErrors(loginForm)) {
+            Logger.error(loginForm.errors().toString());
+            return showLogin(loginForm, continueUrl);
+        }
+
+        try {
+            LoginForm loginData = loginForm.get();
+            UserInfo user = userAccountService.processLogin(loginData.usernameOrEmail, loginData.password);
+            if (user == null) {
+                loginForm.reject("login.error.usernameOrEmailOrPasswordInvalid");
+                return showLogin(loginForm, continueUrl);
+            }
+
+            // TODO add expiry time and remember me options
+            session("userJid", user.getJid());
+            session("username", user.getUsername());
+            session("name", user.getName());
+            session("avatar", user.getProfilePictureUrl().toString());
+            JophielUtils.saveRoleInSession(user.getRoles());
+            JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Logged In.");
+            if (continueUrl == null) {
+                return redirect(JophielControllerUtils.getInstance().mainPage());
+            }
+
+            return redirect(continueUrl);
+        } catch (UserNotFoundException e) {
+            loginForm.reject("login.error.usernameOrEmailOrPasswordInvalid");
+            return showLogin(loginForm, continueUrl);
+        } catch (EmailNotVerifiedException e) {
+            loginForm.reject("login.error.emailNotVerified");
+            return showLogin(loginForm, continueUrl);
         }
     }
 
@@ -332,114 +337,124 @@ public final class UserAccountController extends AbstractJudgelsController {
     @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Transactional
     public Result serviceLogout(String returnUri) {
-        ControllerUtils.getInstance().addActivityLog(userActivityService, "Logout <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
+        JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Logout <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
 
         session().clear();
         if (returnUri == null) {
             return redirect(routes.UserAccountController.login());
-        } else {
-            return redirect(returnUri);
         }
+
+        return redirect(returnUri);
     }
 
     @Transactional
     public Result serviceAuthRequest() {
-        if ((IdentityUtils.getUserJid() == null) || (!userService.existsByUserJid(IdentityUtils.getUserJid()))) {
+        if (!JophielControllerUtils.getInstance().loggedIn(userService)) {
             return redirect((routes.UserAccountController.serviceLogin("http" + (request().secure() ? "s" : "") + "://" + request().host() + request().uri())));
-        } else {
-            String path = request().uri().substring(request().uri().indexOf("?") + 1);
-            try {
-                AuthenticationRequest req = AuthenticationRequest.parse(path);
-                ClientID clientID = req.getClientID();
-                if (clientService.clientExistByClientJid(clientID.toString())) {
-                    Client client = clientService.findClientByJid(clientID.toString());
-
-                    List<String> scopes = req.getScope().toStringList();
-                    if (clientService.isClientAuthorized(clientID.toString(), scopes)) {
-                        return postServiceAuthRequest(path);
-                    } else {
-                        LazyHtml content = new LazyHtml(serviceAuthView.render(path, client, scopes));
-                        content.appendLayout(c -> centerLayout.render(c));
-                        ControllerUtils.getInstance().appendTemplateLayout(content, "Auth");
-
-                        ControllerUtils.getInstance().addActivityLog(userActivityService, "Try authorize client " + client.getName() + " <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
-
-                        return ControllerUtils.getInstance().lazyOk(content);
-                    }
-                } else {
-                    return redirect(path + "?error=unauthorized_client");
-                }
-            } catch (com.nimbusds.oauth2.sdk.ParseException e) {
-                Logger.error("Exception when parsing authentication request.", e);
-                return redirect(path + "?error=invalid_request");
-            }
         }
-    }
 
-    @Transactional
-    public Result postServiceAuthRequest(String path) {
+        String path = request().uri().substring(request().uri().indexOf("?") + 1);
         try {
             AuthenticationRequest req = AuthenticationRequest.parse(path);
             ClientID clientID = req.getClientID();
-            if (clientService.clientExistByClientJid(clientID.toString())) {
-                Client client = clientService.findClientByJid(clientID.toString());
-                URI redirectURI = req.getRedirectionURI();
-                ResponseType responseType = req.getResponseType();
-                State state = req.getState();
-                Scope scope = req.getScope();
-                String nonce = (req.getNonce() != null) ? req.getNonce().toString() : "";
-
-                AuthorizationCode code = clientService.generateAuthorizationCode(client.getJid(), redirectURI.toString(), responseType.toString(), scope.toStringList(), System.currentTimeMillis() + TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES));
-                String accessToken = clientService.generateAccessToken(code.getValue(), IdentityUtils.getUserJid(), clientID.toString(), scope.toStringList(), System.currentTimeMillis() + TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES));
-                clientService.generateRefreshToken(code.getValue(), IdentityUtils.getUserJid(), clientID.toString(), scope.toStringList());
-                clientService.generateIdToken(code.getValue(), IdentityUtils.getUserJid(), client.getJid(), nonce, System.currentTimeMillis(), accessToken, System.currentTimeMillis() + TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES));
-                URI result = new AuthenticationSuccessResponse(redirectURI, code, null, null, state).toURI();
-
-                ControllerUtils.getInstance().addActivityLog(userActivityService, "Authorize client " + client.getName() + ".");
-
-                return redirect(result.toString());
-            } else {
+            if (!clientService.clientExistsByJid(clientID.toString())) {
                 return redirect(path + "?error=unauthorized_client");
             }
-        } catch (com.nimbusds.oauth2.sdk.ParseException | SerializeException e) {
+
+            Client client = clientService.findClientByJid(clientID.toString());
+
+            List<String> scopes = req.getScope().toStringList();
+            if (clientService.isClientAuthorized(clientID.toString(), scopes)) {
+                return postServiceAuthRequest(path);
+            }
+
+            LazyHtml content = new LazyHtml(serviceAuthView.render(path, client, scopes));
+            content.appendLayout(c -> centerLayout.render(c));
+            JophielControllerUtils.getInstance().appendTemplateLayout(content, "Auth");
+
+            JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Try authorize client " + client.getName() + " <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
+
+            return JophielControllerUtils.getInstance().lazyOk(content);
+        } catch (com.nimbusds.oauth2.sdk.ParseException e) {
             Logger.error("Exception when parsing authentication request.", e);
             return redirect(path + "?error=invalid_request");
         }
     }
 
-    private Result showRegister(Form<RegisterForm> form) {
-        LazyHtml content = new LazyHtml(registerView.render(form));
-        content.appendLayout(c -> centerLayout.render(c));
-        ControllerUtils.getInstance().appendTemplateLayout(content, "Register");
+    @Transactional
+    public Result postServiceAuthRequest(String path) {
+        AuthenticationRequest authRequest;
+        try {
+            authRequest = AuthenticationRequest.parse(path);
+        } catch (ParseException e) {
+            Logger.error("Exception when parsing authentication request.", e);
+            return redirect(path + "?error=invalid_request");
+        }
 
-        return ControllerUtils.getInstance().lazyOk(content);
+        ClientID clientID = authRequest.getClientID();
+        if (!clientService.clientExistsByJid(clientID.toString())) {
+            return redirect(path + "?error=unauthorized_client");
+        }
+
+        Client client = clientService.findClientByJid(clientID.toString());
+        URI redirectURI = authRequest.getRedirectionURI();
+        ResponseType responseType = authRequest.getResponseType();
+        State state = authRequest.getState();
+        Scope scope = authRequest.getScope();
+        String nonce = (authRequest.getNonce() != null) ? authRequest.getNonce().toString() : "";
+
+        AuthorizationCode authCode = clientService.generateAuthorizationCode(client.getJid(), redirectURI.toString(), responseType.toString(), scope.toStringList(), System.currentTimeMillis() + TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES));
+        String accessToken = clientService.generateAccessToken(authCode.getValue(), IdentityUtils.getUserJid(), clientID.toString(), scope.toStringList(), System.currentTimeMillis() + TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES));
+        clientService.generateRefreshToken(authCode.getValue(), IdentityUtils.getUserJid(), clientID.toString(), scope.toStringList());
+        clientService.generateIdToken(authCode.getValue(), IdentityUtils.getUserJid(), client.getJid(), nonce, System.currentTimeMillis(), accessToken, System.currentTimeMillis() + TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES));
+
+        URI result;
+        try {
+            result = new AuthenticationSuccessResponse(redirectURI, authCode, null, null, state).toURI();
+        } catch (SerializeException e) {
+            Logger.error("Exception when parsing authentication request.", e);
+            return redirect(path + "?error=invalid_request");
+        }
+
+        JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Authorize client " + client.getName() + ".");
+
+        return redirect(result.toString());
     }
 
-    private Result showForgotPassword(Form<ForgotPasswordForm> form) {
-        LazyHtml content = new LazyHtml(forgotPasswordView.render(form));
+    private Result showRegister(Form<RegisterForm> registerForm) {
+        LazyHtml content = new LazyHtml(registerView.render(registerForm));
         content.appendLayout(c -> centerLayout.render(c));
-        ControllerUtils.getInstance().appendTemplateLayout(content, "Forgot Password");
+        JophielControllerUtils.getInstance().appendTemplateLayout(content, "Register");
 
-        return ControllerUtils.getInstance().lazyOk(content);
+        return JophielControllerUtils.getInstance().lazyOk(content);
     }
 
-    private Result showChangePassword(Form<ChangePasswordForm> form, String code) {
-        LazyHtml content = new LazyHtml(changePasswordView.render(form, code));
+    private Result showForgotPassword(Form<ForgotPasswordForm> forgotPasswordForm) {
+        LazyHtml content = new LazyHtml(forgotPasswordView.render(forgotPasswordForm));
         content.appendLayout(c -> centerLayout.render(c));
-        ControllerUtils.getInstance().appendTemplateLayout(content, "Change Password");
+        JophielControllerUtils.getInstance().appendTemplateLayout(content, "Forgot Password");
 
-        return ControllerUtils.getInstance().lazyOk(content);
+        return JophielControllerUtils.getInstance().lazyOk(content);
     }
 
-    private Result showLogin(Form<LoginForm> form, String continueUrl) {
+    private Result showChangePassword(Form<ChangePasswordForm> changePasswordForm, String code) {
+        LazyHtml content = new LazyHtml(changePasswordView.render(changePasswordForm, code));
+        content.appendLayout(c -> centerLayout.render(c));
+        JophielControllerUtils.getInstance().appendTemplateLayout(content, "Change Password");
+
+        return JophielControllerUtils.getInstance().lazyOk(content);
+    }
+
+    private Result showLogin(Form<LoginForm> loginForm, String continueUrl) {
         LazyHtml content;
         if (continueUrl == null) {
-            content = new LazyHtml(loginView.render(form));
+            content = new LazyHtml(loginView.render(loginForm));
         } else {
-            content = new LazyHtml(serviceLoginView.render(form, continueUrl));
+            content = new LazyHtml(serviceLoginView.render(loginForm, continueUrl));
         }
         content.appendLayout(c -> centerLayout.render(c));
-        ControllerUtils.getInstance().appendTemplateLayout(content, "Login");
-        return ControllerUtils.getInstance().lazyOk(content);
+        JophielControllerUtils.getInstance().appendTemplateLayout(content, "Login");
+
+        return JophielControllerUtils.getInstance().lazyOk(content);
     }
 }

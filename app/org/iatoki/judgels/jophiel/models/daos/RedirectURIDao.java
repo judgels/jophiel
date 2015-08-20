@@ -7,6 +7,5 @@ import java.util.List;
 
 public interface RedirectURIDao extends Dao<Long, RedirectURIModel> {
 
-    List<RedirectURIModel> findByClientJid(String clientJid);
-
+    List<RedirectURIModel> getByClientJid(String clientJid);
 }

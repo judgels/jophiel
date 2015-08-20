@@ -1,10 +1,14 @@
-@(page: org.iatoki.judgels.play.Page[org.iatoki.judgels.jophiel.UserActivity], orderBy: String, orderDir: String, filterString: String, clientNames: String, usernames: String, call : play.api.mvc.Call, listFunc: (scala.Long, String, String, String) => play.api.mvc.Call, filterUser: Boolean)
-
 @import play.i18n.Messages
+@import play.api.mvc.Call
 @import org.iatoki.judgels.play.views.html.table.tableView
 @import org.iatoki.judgels.play.views.html.table.tableHeadersView
-@import org.iatoki.judgels.play.JudgelsPlayUtils
 @import org.iatoki.judgels.play.views.html.table.paginationView
+@import org.iatoki.judgels.play.JudgelsPlayUtils
+@import org.iatoki.judgels.play.Page
+@import org.iatoki.judgels.jophiel.UserActivity
+@import org.iatoki.judgels.jophiel.controllers.apis.routes
+
+@(pageOfUserActivities: Page[UserActivity], orderBy: String, orderDir: String, filterString: String, clientNames: String, usernames: String, call : Call, listFunc: (scala.Long, String, String, String) => Call, filterUser: Boolean)
 
 @implicitFieldConstructor = @{ b3.horizontal.fieldConstructor("", "") }
 
@@ -40,7 +44,7 @@
 
 @tableView() {
     @if(filterUser) {
-        @tableHeadersView(page.getPageIndex, orderBy, orderDir, filterString, listFunc)(
+        @tableHeadersView(pageOfUserActivities.getPageIndex, orderBy, orderDir, filterString, listFunc)(
             "time" -> Messages.get("user.activity.time"),
             "userCreate" -> Messages.get("user.username"),
             "clientJid" -> Messages.get("client.name"),
@@ -48,7 +52,7 @@
             "log" -> Messages.get("user.activity.log")
         )
     } else {
-        @tableHeadersView(page.getPageIndex, orderBy, orderDir, filterString, listFunc)(
+        @tableHeadersView(pageOfUserActivities.getPageIndex, orderBy, orderDir, filterString, listFunc)(
             "time" -> Messages.get("user.activity.time"),
             "clientJid" -> Messages.get("client.name"),
             "ipCreate" -> Messages.get("user.activity.ip"),
@@ -57,7 +61,7 @@
     }
 
     <tbody>
-        @for(userActivity <- page.getData) {
+        @for(userActivity <- pageOfUserActivities.getData) {
             <tr>
                 <td><time class="display-time" datetime="@JudgelsPlayUtils.formatISOUTCDateTime(userActivity.getTime)">@JudgelsPlayUtils.formatDetailedDateTime(userActivity.getTime)</time></td>
                 @if(filterUser) {
@@ -73,10 +77,10 @@
     </tbody>
 }
 
-@paginationView(page, orderBy, orderDir, filterString, listFunc)
+@paginationView(pageOfUserActivities, orderBy, orderDir, filterString, listFunc)
 
 <script type="text/javascript">
-    var clientAutoCompleteUrl = "@org.iatoki.judgels.jophiel.controllers.apis.routes.ClientAPIController.clientAutoCompleteList()";
-    var userAutoCompleteUrl = "@org.iatoki.judgels.jophiel.controllers.apis.routes.UserAPIController.userAutoCompleteList()";
+    var clientAutoCompleteUrl = "@routes.ClientAPIController.clientAutoCompleteList()";
+    var userAutoCompleteUrl = "@routes.UserAPIController.userAutoCompleteList()";
 </script>
 <script type="text/javascript" src="@controllers.routes.Assets.versioned("javascripts/clientAndUserMultiComplete.js")"></script>

@@ -1,6 +1,10 @@
 package org.iatoki.judgels.jophiel.controllers;
 
 import com.google.common.collect.ImmutableList;
+import org.iatoki.judgels.jophiel.JophielUtils;
+import org.iatoki.judgels.jophiel.services.UserActivityService;
+import org.iatoki.judgels.jophiel.services.UserService;
+import org.iatoki.judgels.jophiel.views.html.client.linkedClientsLayout;
 import org.iatoki.judgels.play.IdentityUtils;
 import org.iatoki.judgels.play.InternalLink;
 import org.iatoki.judgels.play.LazyHtml;
@@ -8,15 +12,13 @@ import org.iatoki.judgels.play.controllers.AbstractJudgelsControllerUtils;
 import org.iatoki.judgels.play.views.html.layouts.menusLayout;
 import org.iatoki.judgels.play.views.html.layouts.profileView;
 import org.iatoki.judgels.play.views.html.layouts.sidebarLayout;
-import org.iatoki.judgels.jophiel.JophielUtils;
-import org.iatoki.judgels.jophiel.services.UserActivityService;
-import org.iatoki.judgels.jophiel.views.html.client.linkedClientsLayout;
+import play.api.mvc.Call;
 import play.i18n.Messages;
 import play.mvc.Http;
 
-public final class ControllerUtils extends AbstractJudgelsControllerUtils {
+public final class JophielControllerUtils extends AbstractJudgelsControllerUtils {
 
-    private static final ControllerUtils INSTANCE = new ControllerUtils();
+    private static final JophielControllerUtils INSTANCE = new JophielControllerUtils();
 
     @Override
     public void appendSidebarLayout(LazyHtml content) {
@@ -44,7 +46,15 @@ public final class ControllerUtils extends AbstractJudgelsControllerUtils {
         userActivityService.createUserActivity("localhost", IdentityUtils.getUserJid(), System.currentTimeMillis(), log, IdentityUtils.getIpAddress());
     }
 
-    static ControllerUtils getInstance() {
+    public Call mainPage() {
+        return routes.WelcomeController.index();
+    }
+
+    public boolean loggedIn(UserService userService) {
+        return (IdentityUtils.getUserJid() != null) && userService.existsUserByJid(IdentityUtils.getUserJid());
+    }
+
+    static JophielControllerUtils getInstance() {
         return INSTANCE;
     }
 }

@@ -5,8 +5,7 @@ import org.iatoki.judgels.jophiel.models.entities.UserForgotPasswordModel;
 
 public interface UserForgotPasswordDao extends Dao<Long, UserForgotPasswordModel> {
 
-    boolean isCodeValid(String forgotPasswordCode, long currentMillis);
+    boolean isForgotPasswordCodeValid(String forgotPasswordCode, long currentMillis);
 
-    UserForgotPasswordModel findByCode(String forgotPasswordCode);
-
+    UserForgotPasswordModel findByForgotPasswordCode(String forgotPasswordCode);
 }

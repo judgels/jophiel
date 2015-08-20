@@ -41,15 +41,15 @@ import java.net.URL;
 @Named
 public final class UserProfileController extends AbstractJudgelsController {
 
-    private final UserService userService;
-    private final UserProfileService userProfileService;
     private final UserActivityService userActivityService;
+    private final UserProfileService userProfileService;
+    private final UserService userService;
 
     @Inject
-    public UserProfileController(UserService userService, UserProfileService userProfileService, UserActivityService userActivityService) {
-        this.userService = userService;
-        this.userProfileService = userProfileService;
+    public UserProfileController(UserActivityService userActivityService, UserProfileService userProfileService, UserService userService) {
         this.userActivityService = userActivityService;
+        this.userProfileService = userProfileService;
+        this.userService = userService;
     }
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
@@ -68,29 +68,29 @@ public final class UserProfileController extends AbstractJudgelsController {
     @Authorized("admin")
     @Transactional
     public Result viewProfile(String username) {
-        if (userService.existByUsername(username)) {
-            UserInfo user = userService.findUserByUsername(username);
-
-            LazyHtml content = new LazyHtml(viewProfileView.render(user));
-            if (IdentityUtils.getUserJid() != null) {
-                content.appendLayout(c -> tabLayout.render(ImmutableList.of(new InternalLink(Messages.get("profile.profile"), routes.UserProfileController.viewProfile(username)), new InternalLink(Messages.get("profile.activities"), routes.UserActivityController.viewUserActivities(username))), c));
-                content.appendLayout(c -> headingLayout.render(user.getUsername(), c));
-                ControllerUtils.getInstance().appendSidebarLayout(content);
-                ControllerUtils.getInstance().appendBreadcrumbsLayout(content, ImmutableList.of(
-                        new InternalLink(Messages.get("profile.profile"), routes.UserProfileController.viewProfile(username))
-                ));
-            } else {
-                content.appendLayout(c -> headingLayout.render(user.getUsername(), c));
-                content.appendLayout(c -> centerLayout.render(c));
-            }
-            ControllerUtils.getInstance().appendTemplateLayout(content, "Profile");
-
-            ControllerUtils.getInstance().addActivityLog(userActivityService, "View user profile " + user.getUsername() + " <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
-
-            return ControllerUtils.getInstance().lazyOk(content);
-        } else {
+        if (!userService.existsUserByUsername(username)) {
             return notFound();
         }
+
+        UserInfo userInfo = userService.findUserInfoByUsername(username);
+
+        LazyHtml content = new LazyHtml(viewProfileView.render(userInfo));
+        if (IdentityUtils.getUserJid() != null) {
+            content.appendLayout(c -> tabLayout.render(ImmutableList.of(new InternalLink(Messages.get("profile.profile"), routes.UserProfileController.viewProfile(username)), new InternalLink(Messages.get("profile.activities"), routes.UserActivityController.viewUserActivities(username))), c));
+            content.appendLayout(c -> headingLayout.render(userInfo.getUsername(), c));
+            JophielControllerUtils.getInstance().appendSidebarLayout(content);
+            JophielControllerUtils.getInstance().appendBreadcrumbsLayout(content, ImmutableList.of(
+                    new InternalLink(Messages.get("profile.profile"), routes.UserProfileController.viewProfile(username))
+            ));
+        } else {
+            content.appendLayout(c -> headingLayout.render(userInfo.getUsername(), c));
+            content.appendLayout(c -> centerLayout.render(c));
+        }
+        JophielControllerUtils.getInstance().appendTemplateLayout(content, "Profile");
+
+        JophielControllerUtils.getInstance().addActivityLog(userActivityService, "View userInfo profile " + userInfo.getUsername() + " <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
+
+        return JophielControllerUtils.getInstance().lazyOk(content);
     }
 
     @BodyParser.Of(value = BodyParser.MultipartFormData.class, maxLength = (2 << 20))
@@ -103,125 +103,121 @@ public final class UserProfileController extends AbstractJudgelsController {
     @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Transactional
     public Result serviceProfile(String continueUrl) {
-        Form<UserProfileForm> form = Form.form(UserProfileForm.class);
-        Form<UserProfilePictureForm> form2 = Form.form(UserProfilePictureForm.class);
+        Form<UserProfileForm> userProfileForm = Form.form(UserProfileForm.class);
+        Form<UserProfilePictureForm> userProfilePictureForm = Form.form(UserProfilePictureForm.class);
 
-        UserInfo user = userService.findUserByUserJid(IdentityUtils.getUserJid());
-        UserProfileForm userProfileForm = new UserProfileForm();
-        userProfileForm.name = user.getName();
+        UserInfo user = userService.findUserInfoByJid(IdentityUtils.getUserJid());
+        UserProfileForm userProfileData = new UserProfileForm();
+        userProfileData.name = user.getName();
 
-        form = form.fill(userProfileForm);
+        userProfileForm = userProfileForm.fill(userProfileData);
 
-        ControllerUtils.getInstance().addActivityLog(userActivityService, "Try to update profile <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
+        JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Try to update profile <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
 
-        return showProfile(form, form2, continueUrl);
+        return showProfile(userProfileForm, userProfilePictureForm, continueUrl);
     }
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Transactional
     public Result postServiceProfile(String continueUrl) {
-        Form<UserProfileForm> form = Form.form(UserProfileForm.class).bindFromRequest();
+        Form<UserProfileForm> userProfileForm = Form.form(UserProfileForm.class).bindFromRequest();
 
-        if (form.hasErrors()) {
-            Form<UserProfilePictureForm> form2 = Form.form(UserProfilePictureForm.class);
-            Logger.error(form.errors().toString());
-            return showProfile(form, form2, continueUrl);
-        } else {
-            UserProfileForm userProfileForm = form.get();
-
-            if (!"".equals(userProfileForm.password)) {
-                if (!userProfileForm.password.equals(userProfileForm.confirmPassword)) {
-                    Form<UserProfilePictureForm> form2 = Form.form(UserProfilePictureForm.class);
-                    form.reject("profile.error.passwordsDidntMatch");
-                    return showProfile(form, form2, continueUrl);
-                }
-                userProfileService.updateProfile(IdentityUtils.getUserJid(), userProfileForm.name, userProfileForm.password);
-            } else {
-                userProfileService.updateProfile(IdentityUtils.getUserJid(), userProfileForm.name);
-            }
-
-            ControllerUtils.getInstance().addActivityLog(userActivityService, "Update profile.");
-            if (continueUrl == null) {
-                return redirect(routes.UserProfileController.profile());
-            } else {
-                return redirect(routes.UserProfileController.serviceProfile(continueUrl));
-            }
+        if (formHasErrors(userProfileForm)) {
+            Form<UserProfilePictureForm> userProfilePictureForm = Form.form(UserProfilePictureForm.class);
+            Logger.error(userProfileForm.errors().toString());
+            return showProfile(userProfileForm, userProfilePictureForm, continueUrl);
         }
+
+        UserProfileForm userProfileData = userProfileForm.get();
+
+        if (!"".equals(userProfileData.password)) {
+            if (!userProfileData.password.equals(userProfileData.confirmPassword)) {
+                Form<UserProfilePictureForm> userProfilePictureForm = Form.form(UserProfilePictureForm.class);
+                userProfileForm.reject("profile.error.passwordsDidntMatch");
+                return showProfile(userProfileForm, userProfilePictureForm, continueUrl);
+            }
+
+            userProfileService.updateProfile(IdentityUtils.getUserJid(), userProfileData.name, userProfileData.password);
+        } else {
+            userProfileService.updateProfile(IdentityUtils.getUserJid(), userProfileData.name);
+        }
+
+        JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Update profile.");
+
+        if (continueUrl == null) {
+            return redirect(routes.UserProfileController.profile());
+        }
+
+        return redirect(routes.UserProfileController.serviceProfile(continueUrl));
     }
 
     @BodyParser.Of(value = BodyParser.MultipartFormData.class, maxLength = (2 << 20))
     @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Transactional
     public Result postServiceAvatar(String continueUrl) {
-        if (request().body().isMaxSizeExceeded()) {
-            Form<UserProfileForm> form = Form.form(UserProfileForm.class);
-            Form<UserProfilePictureForm> form2 = Form.form(UserProfilePictureForm.class);
-            form2.reject("profile.error.overSizeLimit");
-            return showProfile(form, form2, continueUrl);
-        } else {
-            Http.MultipartFormData body = request().body().asMultipartFormData();
-            Http.MultipartFormData.FilePart avatar = body.getFile("avatar");
+        // TODO catch 413 http response
+        Http.MultipartFormData body = request().body().asMultipartFormData();
+        Http.MultipartFormData.FilePart avatar = body.getFile("avatar");
 
-            if (avatar != null) {
-                String contentType = avatar.getContentType();
-                if (!((contentType.equals("image/png")) || (contentType.equals("image/jpg")) || (contentType.equals("image/jpeg")))) {
-                    Form<UserProfileForm> form = Form.form(UserProfileForm.class);
-                    Form<UserProfilePictureForm> form2 = Form.form(UserProfilePictureForm.class);
-                    form2.reject("error.profile.not_picture");
-                    return showProfile(form, form2, continueUrl);
-                } else {
-                    try {
-                        String profilePictureName = userProfileService.updateProfilePicture(IdentityUtils.getUserJid(), avatar.getFile(), FilenameUtils.getExtension(avatar.getFilename()));
-                        String profilePictureUrl = userProfileService.getAvatarImageUrlString(profilePictureName);
-                        try {
-                            new URL(profilePictureUrl);
-                            session("avatar", profilePictureUrl.toString());
-                        } catch (MalformedURLException e) {
-                            session("avatar", org.iatoki.judgels.jophiel.controllers.apis.routes.UserAPIController.renderAvatarImage(profilePictureName).absoluteURL(request()));
-                        }
+        if (avatar == null) {
+            Form<UserProfileForm> userProfileForm = Form.form(UserProfileForm.class);
+            Form<UserProfilePictureForm> userProfilePictureForm = Form.form(UserProfilePictureForm.class);
+            userProfilePictureForm.reject("profile.error.not_picture");
+            return showProfile(userProfileForm, userProfilePictureForm, continueUrl);
+        }
 
-                        ControllerUtils.getInstance().addActivityLog(userActivityService, "Update avatar.");
+        String contentType = avatar.getContentType();
+        if (!(contentType.equals("image/png") || contentType.equals("image/jpg") || contentType.equals("image/jpeg"))) {
+            Form<UserProfileForm> userProfileForm = Form.form(UserProfileForm.class);
+            Form<UserProfilePictureForm> userProfilePictureForm = Form.form(UserProfilePictureForm.class);
+            userProfilePictureForm.reject("error.profile.not_picture");
+            return showProfile(userProfileForm, userProfilePictureForm, continueUrl);
+        }
 
-                        if (continueUrl == null) {
-                            return redirect(org.iatoki.judgels.jophiel.controllers.routes.UserProfileController.profile());
-                        } else {
-                            return redirect(routes.UserProfileController.serviceProfile(continueUrl));
-                        }
-                    } catch (IOException e) {
-                        Form<UserProfileForm> form = Form.form(UserProfileForm.class);
-                        Form<UserProfilePictureForm> form2 = Form.form(UserProfilePictureForm.class);
-                        form2.reject("profile.error.cantUpload");
-                        return showProfile(form, form2, continueUrl);
-                    }
-                }
-            } else {
-                Form<UserProfileForm> form = Form.form(UserProfileForm.class);
-                Form<UserProfilePictureForm> form2 = Form.form(UserProfilePictureForm.class);
-                form2.reject("profile.error.not_picture");
-                return showProfile(form, form2, continueUrl);
+        try {
+            String profilePictureName = userProfileService.updateAvatarWithGeneratedFilename(IdentityUtils.getUserJid(), avatar.getFile(), FilenameUtils.getExtension(avatar.getFilename()));
+            String profilePictureUrl = userProfileService.getAvatarImageUrlString(profilePictureName);
+            try {
+                new URL(profilePictureUrl);
+                session("avatar", profilePictureUrl.toString());
+            } catch (MalformedURLException e) {
+                session("avatar", org.iatoki.judgels.jophiel.controllers.apis.routes.UserAPIController.renderAvatarImage(profilePictureName).absoluteURL(request()));
             }
+
+            JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Update avatar.");
+
+            if (continueUrl == null) {
+                return redirect(routes.UserProfileController.profile());
+            }
+
+            return redirect(routes.UserProfileController.serviceProfile(continueUrl));
+        } catch (IOException e) {
+            Form<UserProfileForm> userProfileForm = Form.form(UserProfileForm.class);
+            Form<UserProfilePictureForm> userProfilePictureForm = Form.form(UserProfilePictureForm.class);
+            userProfilePictureForm.reject("profile.error.cantUpload");
+            return showProfile(userProfileForm, userProfilePictureForm, continueUrl);
         }
     }
 
-    private Result showProfile(Form<UserProfileForm> form, Form<UserProfilePictureForm> form2, String continueUrl) {
+    private Result showProfile(Form<UserProfileForm> userProfileForm, Form<UserProfilePictureForm> userProfilePictureForm, String continueUrl) {
         LazyHtml content;
         if (continueUrl == null) {
-            content = new LazyHtml(editProfileView.render(form, form2));
+            content = new LazyHtml(editProfileView.render(userProfileForm, userProfilePictureForm));
         } else {
-            content = new LazyHtml(serviceEditProfileView.render(form, form2, continueUrl));
+            content = new LazyHtml(serviceEditProfileView.render(userProfileForm, userProfilePictureForm, continueUrl));
         }
         content.appendLayout(c -> headingLayout.render(Messages.get("profile.profile"), c));
-        ControllerUtils.getInstance().appendSidebarLayout(content);
+        JophielControllerUtils.getInstance().appendSidebarLayout(content);
         if (continueUrl == null) {
-            ControllerUtils.getInstance().appendBreadcrumbsLayout(content, ImmutableList.of(
+            JophielControllerUtils.getInstance().appendBreadcrumbsLayout(content, ImmutableList.of(
                     new InternalLink(Messages.get("profile.profile"), routes.UserProfileController.profile())
             ));
         } else {
-            ControllerUtils.getInstance().appendBreadcrumbsLayout(content, ImmutableList.of(
+            JophielControllerUtils.getInstance().appendBreadcrumbsLayout(content, ImmutableList.of(
                     new InternalLink(Messages.get("profile.profile"), routes.UserProfileController.serviceProfile(continueUrl))
             ));
         }
-        ControllerUtils.getInstance().appendTemplateLayout(content, "Profile");
-        return ControllerUtils.getInstance().lazyOk(content);
+        JophielControllerUtils.getInstance().appendTemplateLayout(content, "Profile");
+        return JophielControllerUtils.getInstance().lazyOk(content);
     }
 }

@@ -9,10 +9,10 @@ import org.iatoki.judgels.jophiel.UserInfo;
 import org.iatoki.judgels.jophiel.services.ClientService;
 import org.iatoki.judgels.jophiel.services.UserActivityService;
 import org.iatoki.judgels.jophiel.services.UserService;
+import org.iatoki.judgels.play.controllers.apis.AbstractJudgelsAPIController;
 import play.data.DynamicForm;
 import play.db.jpa.Transactional;
 import play.libs.Json;
-import play.mvc.Controller;
 import play.mvc.Result;
 
 import javax.inject.Inject;
@@ -21,49 +21,48 @@ import javax.inject.Singleton;
 
 @Singleton
 @Named
-public final class UserActivityAPIController extends Controller {
+public final class UserActivityAPIController extends AbstractJudgelsAPIController {
 
     private final ClientService clientService;
-    private final UserService userService;
     private final UserActivityService userActivityService;
+    private final UserService userService;
 
     @Inject
-    public UserActivityAPIController(ClientService clientService, UserService userService, UserActivityService userActivityService) {
+    public UserActivityAPIController(ClientService clientService, UserActivityService userActivityService, UserService userService) {
         this.clientService = clientService;
-        this.userService = userService;
         this.userActivityService = userActivityService;
+        this.userService = userService;
     }
 
     @Transactional
     public Result postCreateUserActivity() {
-        DynamicForm form = DynamicForm.form().bindFromRequest();
+        DynamicForm dForm = DynamicForm.form().bindFromRequest();
+
         String token;
-        if ((request().getHeader("Authorization") != null) && ("Bearer".equals(request().getHeader("Authorization").split(" ")[0]))) {
+        if ((request().getHeader("Authorization") != null) && "Bearer".equals(request().getHeader("Authorization").split(" ")[0])) {
             token = new String(Base64.decodeBase64(request().getHeader("Authorization").split(" ")[1]));
         } else {
-            token = form.get("token");
+            token = dForm.get("token");
         }
 
-        if (clientService.isValidAccessTokenExist(token)) {
-            AccessToken accessToken = clientService.findAccessTokenByAccessToken(token);
-
-            UserInfo user = userService.findUserByUserJid(accessToken.getUserJid());
-            String userActivitiesString = form.get("userActivities");
-            JsonNode jsonNode = Json.parse(userActivitiesString);
-            for (int i = 0; i < jsonNode.size(); ++i) {
-                UserActivity userActivity = Json.fromJson(jsonNode.get(i), UserActivity.class);
-                userActivityService.createUserActivity(accessToken.getClientJid(), user.getJid(), userActivity.getTime(), userActivity.getLog(), userActivity.getIpAddress());
-            }
-
-            ObjectNode result = Json.newObject();
-            result.put("success", true);
-            return ok(result);
-        } else {
-            ObjectNode result = Json.newObject();
-            result.put("success", false);
-            result.put("error", "invalid_token");
-            return unauthorized(result);
+        if (!clientService.isAccessTokenValid(token)) {
+            ObjectNode jsonResponse = Json.newObject();
+            jsonResponse.put("success", false);
+            jsonResponse.put("error", "invalid_token");
+            return unauthorized(jsonResponse);
         }
+
+        AccessToken accessToken = clientService.getAccessTokenByAccessTokenString(token);
+        UserInfo user = userService.findUserInfoByJid(accessToken.getUserJid());
+        String userActivitiesString = dForm.get("userActivities");
+        JsonNode userActivitiesJson = Json.parse(userActivitiesString);
+        for (int i = 0; i < userActivitiesJson.size(); ++i) {
+            UserActivity userActivity = Json.fromJson(userActivitiesJson.get(i), UserActivity.class);
+            userActivityService.createUserActivity(accessToken.getClientJid(), user.getJid(), userActivity.getTime(), userActivity.getLog(), userActivity.getIpAddress());
+        }
+
+        ObjectNode jsonResponse = Json.newObject();
+        jsonResponse.put("success", true);
+        return ok(jsonResponse);
     }
-
 }

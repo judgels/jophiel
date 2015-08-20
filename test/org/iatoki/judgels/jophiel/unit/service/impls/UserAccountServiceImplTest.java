@@ -150,7 +150,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
                 return null;
             }).when(userForgotPasswordDao).persist(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 
-        String forgotPasswordCode = userAccountService.forgotPassword(username, email);
+        String forgotPasswordCode = userAccountService.generateForgotPasswordRequest(username, email);
 
         Assert.assertNotNull(forgotPasswordCode, "Forgot password code must not be null");
         Assert.assertEquals(forgotPasswordCode, userForgotPasswordModel.code, "Forgot password code not equal");
@@ -161,7 +161,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
     public void existForgotPassByCodeExistingCodeReturnsTrue() {
         String code = "FORGOT_PASS_CODE";
 
-        Mockito.when(userForgotPasswordDao.isCodeValid(Mockito.eq(code), Mockito.anyInt())).thenReturn(true);
+        Mockito.when(userForgotPasswordDao.isForgotPasswordCodeValid(Mockito.eq(code), Mockito.anyInt())).thenReturn(true);
 
         Assert.assertTrue(userAccountService.isValidToChangePassword(code, 0), "Forgot password code not exist");
     }
@@ -170,7 +170,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
     public void existForgotPassByCodeNonExistingCodeReturnsFalse() {
         String code = "NOT_FORGOT_PASS_CODE";
 
-        Mockito.when(userForgotPasswordDao.isCodeValid(Mockito.eq(code), Mockito.anyInt())).thenReturn(false);
+        Mockito.when(userForgotPasswordDao.isForgotPasswordCodeValid(Mockito.eq(code), Mockito.anyInt())).thenReturn(false);
 
         Assert.assertFalse(userAccountService.isValidToChangePassword(code, 0), "Forgot password code exist");
     }
@@ -188,7 +188,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
         userForgotPasswordModel.code = code;
         userForgotPasswordModel.used = false;
         userForgotPasswordModel.timeCreate = System.currentTimeMillis();
-        Mockito.when(userForgotPasswordDao.findByCode(code)).thenReturn(userForgotPasswordModel);
+        Mockito.when(userForgotPasswordDao.findByForgotPasswordCode(code)).thenReturn(userForgotPasswordModel);
         Mockito.doAnswer(invocation -> {
                 UserForgotPasswordModel insideUserForgotPasswordModel = (UserForgotPasswordModel) invocation.getArguments()[0];
 
@@ -209,7 +209,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
                 return null;
             }).when(userDao).edit(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 
-        userAccountService.changePassword(code, newPassword);
+        userAccountService.processChangePassword(code, newPassword);
 
         Assert.assertTrue(userForgotPasswordModel.used, "Forgot password code not used");
         Assert.assertTrue(userForgotPasswordModel.timeUpdate > userForgotPasswordModel.timeCreate, "Forgot password not updated");
@@ -246,7 +246,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
         Mockito.when(Http.Context.current()).thenReturn(context);
         Mockito.when(context.request()).thenReturn(request);
 
-        UserInfo user = userAccountService.login(username, password);
+        UserInfo user = userAccountService.processLogin(username, password);
 
         Assert.assertNotNull(user, "UserInfo must not be null");
         Assert.assertEquals(username, user.getUsername(), "Username not equals");
@@ -262,7 +262,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
         userEmailModel.email = email;
         userEmailModel.emailVerified = true;
         Mockito.when(userDao.existByUsername(email)).thenReturn(false);
-        Mockito.when(userEmailDao.isExistByEmail(email)).thenReturn(true);
+        Mockito.when(userEmailDao.existsByEmail(email)).thenReturn(true);
         Mockito.when(userEmailDao.findByEmail(email)).thenReturn(userEmailModel);
 
         UserModel userModel = new UserModel();
@@ -282,7 +282,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
         Mockito.when(Http.Context.current()).thenReturn(context);
         Mockito.when(context.request()).thenReturn(request);
 
-        UserInfo user = userAccountService.login(email, password);
+        UserInfo user = userAccountService.processLogin(email, password);
 
         Assert.assertNotNull(user, "UserInfo must not be null");
         Assert.assertEquals(email, user.getEmail(), "Email not equals");
@@ -294,9 +294,9 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
         String password = "bobpassword";
 
         Mockito.when(userDao.existByUsername(username)).thenReturn(false);
-        Mockito.when(userEmailDao.isExistByEmail(username)).thenReturn(false);
+        Mockito.when(userEmailDao.existsByEmail(username)).thenReturn(false);
 
-        UserInfo user = userAccountService.login(username, password);
+        UserInfo user = userAccountService.processLogin(username, password);
 
         Assert.fail("Unreachable");
     }
@@ -318,7 +318,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
         userEmailModel.emailVerified = false;
         Mockito.when(userEmailDao.findByUserJid(userEmailModel.userJid)).thenReturn(userEmailModel);
 
-        UserInfo user = userAccountService.login(username, password);
+        UserInfo user = userAccountService.processLogin(username, password);
 
         Assert.fail("Unreachable");
     }
@@ -340,7 +340,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
         userEmailModel.userJid = userModel.jid;
         Mockito.when(userEmailDao.findByUserJid(userEmailModel.userJid)).thenReturn(userEmailModel);
 
-        UserInfo user = userAccountService.login(username, password);
+        UserInfo user = userAccountService.processLogin(username, password);
 
         Assert.assertNull(user, "UserInfo not null");
     }
@@ -370,7 +370,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
                 return null;
             }).when(userDao).edit(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 
-        userAccountService.updatePassword(userJid, newPassword);
+        userAccountService.updateUserPassword(userJid, newPassword);
 
         Assert.assertTrue(PasswordHash.validatePassword(newPassword, userModel.password), "Password not changed");
         Assert.assertNotEquals(userModel.userCreate, userModel.userUpdate, "UserInfo update not updated");

@@ -22,7 +22,7 @@ public final class RedirectURIHibernateDao extends AbstractHibernateDao<Long, Re
     }
 
     @Override
-    public List<RedirectURIModel> findByClientJid(String clientJid) {
+    public List<RedirectURIModel> getByClientJid(String clientJid) {
         CriteriaBuilder cb = JPA.em().getCriteriaBuilder();
         CriteriaQuery<RedirectURIModel> query = cb.createQuery(RedirectURIModel.class);
 

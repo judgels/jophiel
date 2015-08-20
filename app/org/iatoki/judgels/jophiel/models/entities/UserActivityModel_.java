@@ -12,5 +12,4 @@ public abstract class UserActivityModel_ extends org.iatoki.judgels.play.models.
         public static volatile SingularAttribute<UserActivityModel, String> clientJid;
         public static volatile SingularAttribute<UserActivityModel, String> time;
         public static volatile SingularAttribute<UserActivityModel, String> log;
-
 }

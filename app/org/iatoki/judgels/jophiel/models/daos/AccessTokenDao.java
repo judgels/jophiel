@@ -10,5 +10,4 @@ public interface AccessTokenDao extends Dao<Long, AccessTokenModel> {
     AccessTokenModel findByCode(String code);
 
     AccessTokenModel findByToken(String token);
-
 }

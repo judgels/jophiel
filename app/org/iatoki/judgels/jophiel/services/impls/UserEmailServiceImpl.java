@@ -40,36 +40,37 @@ public final class UserEmailServiceImpl implements UserEmailService {
     }
 
     @Override
-    public boolean existByEmail(String email) {
-        return userEmailDao.isExistByEmail(email);
+    public boolean emailExists(String email) {
+        return userEmailDao.existsByEmail(email);
     }
 
     @Override
-    public boolean activateEmail(String emailCode) {
-        if (userEmailDao.isExistByCode(emailCode)) {
-            UserEmailModel emailModel = userEmailDao.findByCode(emailCode);
-            if (!emailModel.emailVerified) {
-                emailModel.emailVerified = true;
-
-                userEmailDao.edit(emailModel, emailModel.userJid, IdentityUtils.getIpAddress());
-                return true;
-            } else {
-                return false;
-            }
-        } else {
+    public boolean isEmailCodeValid(String emailCode) {
+        if (!userEmailDao.existsByEmailCode(emailCode)) {
             return false;
         }
+
+        UserEmailModel emailModel = userEmailDao.findByEmailCode(emailCode);
+        return !emailModel.emailVerified;
     }
 
     @Override
     public boolean isEmailNotVerified(String userJid) {
-        return userEmailDao.isExistNotVerifiedByUserJid(userJid);
+        return userEmailDao.existsUnverifiedEmailByUserJid(userJid);
     }
 
     @Override
     public String getEmailCodeOfUnverifiedEmail(String userJid) {
         UserEmailModel userEmailModel = userEmailDao.findByUserJid(userJid);
         return userEmailModel.emailCode;
+    }
+
+    @Override
+    public void activateEmail(String emailCode) {
+        UserEmailModel emailModel = userEmailDao.findByEmailCode(emailCode);
+        emailModel.emailVerified = true;
+
+        userEmailDao.edit(emailModel, emailModel.userJid, IdentityUtils.getIpAddress());
     }
 
     @Override

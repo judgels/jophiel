@@ -15,5 +15,4 @@ public abstract class AuthorizationCodeModel_ extends org.iatoki.judgels.play.mo
         public static volatile SingularAttribute<AuthorizationCodeModel, String> redirectURI;
         public static volatile SingularAttribute<AuthorizationCodeModel, Long> expireTime;
         public static volatile SingularAttribute<AuthorizationCodeModel, String> scopes;
-
 }

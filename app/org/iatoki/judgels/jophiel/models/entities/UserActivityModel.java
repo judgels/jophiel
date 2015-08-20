@@ -22,5 +22,4 @@ public final class UserActivityModel extends AbstractModel {
 
     @Column(columnDefinition = "text")
     public String log;
-
 }

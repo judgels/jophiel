@@ -3,6 +3,7 @@ package org.iatoki.judgels.jophiel.forms;
 import play.data.validation.Constraints;
 
 public final class RegisterForm {
+
     @Constraints.Required
     @Constraints.MinLength(3)
     @Constraints.MaxLength(20)
@@ -21,6 +22,4 @@ public final class RegisterForm {
 
     @Constraints.Required
     public String confirmPassword;
-
-
 }

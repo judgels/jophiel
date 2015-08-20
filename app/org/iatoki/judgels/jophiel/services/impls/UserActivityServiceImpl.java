@@ -3,7 +3,6 @@ package org.iatoki.judgels.jophiel.services.impls;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import org.iatoki.judgels.play.Page;
 import org.iatoki.judgels.jophiel.UserActivity;
 import org.iatoki.judgels.jophiel.models.daos.ClientDao;
 import org.iatoki.judgels.jophiel.models.daos.UserActivityDao;
@@ -14,6 +13,7 @@ import org.iatoki.judgels.jophiel.models.entities.UserActivityModel_;
 import org.iatoki.judgels.jophiel.models.entities.UserModel;
 import org.iatoki.judgels.jophiel.models.entities.UserModel_;
 import org.iatoki.judgels.jophiel.services.UserActivityService;
+import org.iatoki.judgels.play.Page;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -28,19 +28,19 @@ import java.util.Set;
 public final class UserActivityServiceImpl implements UserActivityService {
 
     private final ClientDao clientDao;
-    private final UserDao userDao;
     private final UserActivityDao userActivityDao;
+    private final UserDao userDao;
 
     @Inject
-    public UserActivityServiceImpl(ClientDao clientDao, UserDao userDao, UserActivityDao userActivityDao) {
+    public UserActivityServiceImpl(ClientDao clientDao, UserActivityDao userActivityDao, UserDao userDao) {
         this.clientDao = clientDao;
-        this.userDao = userDao;
         this.userActivityDao = userActivityDao;
+        this.userDao = userDao;
     }
 
     @Override
-    public Page<UserActivity> pageUserActivities(long pageIndex, long pageSize, String orderBy, String orderDir, String filterString, Set<String> clientsNames, String username) {
-        List<String> clientJids = clientDao.findClientJidsByNames(clientsNames);
+    public Page<UserActivity> getPageOfUserActivities(long pageIndex, long pageSize, String orderBy, String orderDir, String filterString, Set<String> clientsNames, String username) {
+        List<String> clientJids = clientDao.getJidsByNames(clientsNames);
         String userJid = userDao.findByUsername(username).jid;
 
         ImmutableMap.Builder<SingularAttribute<? super UserActivityModel, String>, List<String>> inBuilder = ImmutableMap.builder();
@@ -72,9 +72,9 @@ public final class UserActivityServiceImpl implements UserActivityService {
     }
 
     @Override
-    public Page<UserActivity> pageUsersActivities(long pageIndex, long pageSize, String orderBy, String orderDir, String filterString, Set<String> clientsNames, Set<String> usernames) {
-        List<String> clientJids = clientDao.findClientJidsByNames(clientsNames);
-        List<String> userJids = userDao.findUserJidsByUsernames(usernames);
+    public Page<UserActivity> getPageOfUsersActivities(long pageIndex, long pageSize, String orderBy, String orderDir, String filterString, Set<String> clientsNames, Set<String> usernames) {
+        List<String> clientJids = clientDao.getJidsByNames(clientsNames);
+        List<String> userJids = userDao.getJidsByUsernames(usernames);
 
         ImmutableMap.Builder<SingularAttribute<? super UserActivityModel, String>, List<String>> inBuilder = ImmutableMap.builder();
         if (!clientJids.isEmpty()) {
@@ -84,8 +84,8 @@ public final class UserActivityServiceImpl implements UserActivityService {
             inBuilder.put(UserActivityModel_.userCreate, userJids);
         }
 
-        long totalRow = userActivityDao.countByFilters(filterString, ImmutableMap.of(), inBuilder.build());
-        List<UserActivityModel> userActivityModels = userActivityDao.findSortedByFilters(orderBy, orderDir, filterString, ImmutableMap.of(), inBuilder.build(), pageIndex * pageSize, pageSize);
+        long totalRow = userActivityDao.countByFiltersIn(filterString, inBuilder.build());
+        List<UserActivityModel> userActivityModels = userActivityDao.findSortedByFiltersIn(orderBy, orderDir, filterString, inBuilder.build(), pageIndex * pageSize, pageSize);
 
         Map<String, String> usernameMap = Maps.newHashMap();
         Map<String, String> clientNameMap = Maps.newHashMap();

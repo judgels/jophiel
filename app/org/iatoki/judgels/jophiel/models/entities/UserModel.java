@@ -39,5 +39,4 @@ public final class UserModel extends AbstractJudgelsModel {
         this.profilePictureImageName = profilePictureImageName;
         this.roles = roles;
     }
-
 }

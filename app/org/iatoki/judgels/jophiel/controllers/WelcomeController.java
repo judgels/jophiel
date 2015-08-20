@@ -41,15 +41,15 @@ public class WelcomeController {
 
         content.appendLayout(c -> headingLayout.render(Messages.get("welcome.welcome"), c));
 
-        ControllerUtils.getInstance().appendSidebarLayout(content);
-        ControllerUtils.getInstance().appendBreadcrumbsLayout(content, ImmutableList.of(
+        JophielControllerUtils.getInstance().appendSidebarLayout(content);
+        JophielControllerUtils.getInstance().appendBreadcrumbsLayout(content, ImmutableList.of(
                         new InternalLink(Messages.get("welcome.welcome"), routes.WelcomeController.index()))
         );
 
-        ControllerUtils.getInstance().appendTemplateLayout(content, "Welcome");
+        JophielControllerUtils.getInstance().appendTemplateLayout(content, "Welcome");
 
-        ControllerUtils.getInstance().addActivityLog(userActivityService, "View welcome page <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
+        JophielControllerUtils.getInstance().addActivityLog(userActivityService, "View welcome page <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
 
-        return ControllerUtils.getInstance().lazyOk(content);
+        return JophielControllerUtils.getInstance().lazyOk(content);
     }
 }

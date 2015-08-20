@@ -2,22 +2,15 @@ package org.iatoki.judgels.jophiel.controllers;
 
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang3.StringUtils;
-import org.iatoki.judgels.play.InternalLink;
-import org.iatoki.judgels.play.LazyHtml;
-import org.iatoki.judgels.play.Page;
-import org.iatoki.judgels.play.controllers.AbstractJudgelsController;
-import org.iatoki.judgels.play.views.html.layouts.headingLayout;
-import org.iatoki.judgels.play.views.html.layouts.headingWithActionLayout;
-import org.iatoki.judgels.play.views.html.layouts.tabLayout;
 import org.iatoki.judgels.jophiel.JophielUtils;
 import org.iatoki.judgels.jophiel.UserInfo;
 import org.iatoki.judgels.jophiel.UserNotFoundException;
-import org.iatoki.judgels.jophiel.forms.UserCreateForm;
-import org.iatoki.judgels.jophiel.forms.UserUpdateForm;
 import org.iatoki.judgels.jophiel.controllers.securities.Authenticated;
 import org.iatoki.judgels.jophiel.controllers.securities.Authorized;
 import org.iatoki.judgels.jophiel.controllers.securities.HasRole;
 import org.iatoki.judgels.jophiel.controllers.securities.LoggedIn;
+import org.iatoki.judgels.jophiel.forms.UserCreateForm;
+import org.iatoki.judgels.jophiel.forms.UserUpdateForm;
 import org.iatoki.judgels.jophiel.services.UserActivityService;
 import org.iatoki.judgels.jophiel.services.UserService;
 import org.iatoki.judgels.jophiel.views.html.user.createUserView;
@@ -25,6 +18,13 @@ import org.iatoki.judgels.jophiel.views.html.user.listUnverifiedUsersView;
 import org.iatoki.judgels.jophiel.views.html.user.listUsersView;
 import org.iatoki.judgels.jophiel.views.html.user.updateUserView;
 import org.iatoki.judgels.jophiel.views.html.user.viewUserView;
+import org.iatoki.judgels.play.InternalLink;
+import org.iatoki.judgels.play.LazyHtml;
+import org.iatoki.judgels.play.Page;
+import org.iatoki.judgels.play.controllers.AbstractJudgelsController;
+import org.iatoki.judgels.play.views.html.layouts.headingLayout;
+import org.iatoki.judgels.play.views.html.layouts.headingWithActionLayout;
+import org.iatoki.judgels.play.views.html.layouts.tabLayout;
 import play.data.Form;
 import play.db.jpa.Transactional;
 import play.filters.csrf.AddCSRFToken;
@@ -44,13 +44,13 @@ public final class UserController extends AbstractJudgelsController {
 
     private static final long PAGE_SIZE = 20;
 
-    private final UserService userService;
     private final UserActivityService userActivityService;
+    private final UserService userService;
 
     @Inject
-    public UserController(UserService userService, UserActivityService userActivityService) {
-        this.userService = userService;
+    public UserController(UserActivityService userActivityService, UserService userService) {
         this.userActivityService = userActivityService;
+        this.userService = userService;
     }
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
@@ -64,23 +64,18 @@ public final class UserController extends AbstractJudgelsController {
     @Authorized(value = "admin")
     @Transactional
     public Result listUsers(long pageIndex, String orderBy, String orderDir, String filterString) {
-        Page<UserInfo> currentPage = userService.pageUsers(pageIndex, PAGE_SIZE, orderBy, orderDir, filterString);
+        Page<UserInfo> pageOfUsersInfo = userService.getPageOfUsersInfo(pageIndex, PAGE_SIZE, orderBy, orderDir, filterString);
 
-        LazyHtml content = new LazyHtml(listUsersView.render(currentPage, orderBy, orderDir, filterString));
-        content.appendLayout(c -> tabLayout.render(ImmutableList.of(
-                new InternalLink(Messages.get("user.users"), routes.UserController.index()),
-                new InternalLink(Messages.get("user.unverifiedUsers"), routes.UserController.viewUnverifiedUsers())
-        ), c));
+        LazyHtml content = new LazyHtml(listUsersView.render(pageOfUsersInfo, orderBy, orderDir, filterString));
+        appendTabLayout(content);
         content.appendLayout(c -> headingWithActionLayout.render(Messages.get("user.list"), new InternalLink(Messages.get("commons.create"), routes.UserController.createUser()), c));
-        ControllerUtils.getInstance().appendSidebarLayout(content);
-        ControllerUtils.getInstance().appendBreadcrumbsLayout(content, ImmutableList.of(
-                new InternalLink(Messages.get("user.users"), routes.UserController.index())
-        ));
-        ControllerUtils.getInstance().appendTemplateLayout(content, "Users");
+        JophielControllerUtils.getInstance().appendSidebarLayout(content);
+        appendBreadcrumbsLayout(content);
+        JophielControllerUtils.getInstance().appendTemplateLayout(content, "Users");
 
-        ControllerUtils.getInstance().addActivityLog(userActivityService, "Open all users <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
+        JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Open all users <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
 
-        return ControllerUtils.getInstance().lazyOk(content);
+        return JophielControllerUtils.getInstance().lazyOk(content);
     }
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
@@ -94,42 +89,39 @@ public final class UserController extends AbstractJudgelsController {
     @Authorized(value = "admin")
     @Transactional
     public Result listUnverifiedUsers(long pageIndex, String orderBy, String orderDir, String filterString) {
-        Page<UserInfo> currentPage = userService.pageUnverifiedUsers(pageIndex, PAGE_SIZE, orderBy, orderDir, filterString);
+        Page<UserInfo> pageOfUsersInfo = userService.getPageOfUnverifiedUsersInfo(pageIndex, PAGE_SIZE, orderBy, orderDir, filterString);
 
-        LazyHtml content = new LazyHtml(listUnverifiedUsersView.render(currentPage, orderBy, orderDir, filterString));
-        content.appendLayout(c -> tabLayout.render(ImmutableList.of(
-                new InternalLink(Messages.get("user.users"), routes.UserController.index()),
-                new InternalLink(Messages.get("user.unverifiedUsers"), routes.UserController.viewUnverifiedUsers())
-        ), c));
+        LazyHtml content = new LazyHtml(listUnverifiedUsersView.render(pageOfUsersInfo, orderBy, orderDir, filterString));
+        appendTabLayout(content);
         content.appendLayout(c -> headingLayout.render(Messages.get("user.unverifiedUsers.list"), c));
-        ControllerUtils.getInstance().appendSidebarLayout(content);
-        ControllerUtils.getInstance().appendBreadcrumbsLayout(content, ImmutableList.of(
+        JophielControllerUtils.getInstance().appendSidebarLayout(content);
+        appendBreadcrumbsLayout(content,
                 new InternalLink(Messages.get("user.unverifiedUsers"), routes.UserController.viewUnverifiedUsers())
-        ));
-        ControllerUtils.getInstance().appendTemplateLayout(content, "Users");
+        );
+        JophielControllerUtils.getInstance().appendTemplateLayout(content, "Users");
 
-        ControllerUtils.getInstance().addActivityLog(userActivityService, "Open unverified users <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
+        JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Open unverified users <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
 
-        return ControllerUtils.getInstance().lazyOk(content);
+        return JophielControllerUtils.getInstance().lazyOk(content);
     }
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Authorized(value = "admin")
     @Transactional
     public Result viewUser(long userId) throws UserNotFoundException {
-        UserInfo user = userService.findUserById(userId);
+        UserInfo user = userService.findUserInfoById(userId);
+
         LazyHtml content = new LazyHtml(viewUserView.render(user));
         content.appendLayout(c -> headingWithActionLayout.render(Messages.get("user.user") + " #" + userId + ": " + user.getName(), new InternalLink(Messages.get("commons.update"), routes.UserController.updateUser(userId)), c));
-        ControllerUtils.getInstance().appendSidebarLayout(content);
-        ControllerUtils.getInstance().appendBreadcrumbsLayout(content, ImmutableList.of(
-                new InternalLink(Messages.get("user.users"), routes.UserController.index()),
+        JophielControllerUtils.getInstance().appendSidebarLayout(content);
+        appendBreadcrumbsLayout(content,
                 new InternalLink(Messages.get("user.view"), routes.UserController.viewUser(userId))
-        ));
-        ControllerUtils.getInstance().appendTemplateLayout(content, "User - View");
+        );
+        JophielControllerUtils.getInstance().appendTemplateLayout(content, "User - View");
 
-        ControllerUtils.getInstance().addActivityLog(userActivityService, "View user " + user.getUsername() + " <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
+        JophielControllerUtils.getInstance().addActivityLog(userActivityService, "View user " + user.getUsername() + " <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
 
-        return ControllerUtils.getInstance().lazyOk(content);
+        return JophielControllerUtils.getInstance().lazyOk(content);
     }
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
@@ -137,31 +129,30 @@ public final class UserController extends AbstractJudgelsController {
     @Transactional
     @AddCSRFToken
     public Result createUser() {
-        UserCreateForm data = new UserCreateForm();
-        data.roles = StringUtils.join(JophielUtils.getDefaultRoles(), ",");
-        Form<UserCreateForm> form = Form.form(UserCreateForm.class).fill(data);
+        UserCreateForm userCreateData = new UserCreateForm();
+        userCreateData.roles = StringUtils.join(JophielUtils.getDefaultRoles(), ",");
+        Form<UserCreateForm> userCreateForm = Form.form(UserCreateForm.class).fill(userCreateData);
 
-        ControllerUtils.getInstance().addActivityLog(userActivityService, "Try to create user <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
+        JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Try to create user <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
 
-        return showCreateUser(form);
+        return showCreateUser(userCreateForm);
     }
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Authorized(value = "admin")
     @Transactional
     public Result postCreateUser() {
-        Form<UserCreateForm> form = Form.form(UserCreateForm.class).bindFromRequest();
-
-        if (form.hasErrors() || form.hasGlobalErrors()) {
-            return showCreateUser(form);
-        } else {
-            UserCreateForm userUpsertForm = form.get();
-            userService.createUser(userUpsertForm.username, userUpsertForm.name, userUpsertForm.email, userUpsertForm.password, Arrays.asList(userUpsertForm.roles.split(",")));
-
-            ControllerUtils.getInstance().addActivityLog(userActivityService, "Create user " + userUpsertForm.username + ".");
-
-            return redirect(routes.UserController.index());
+        Form<UserCreateForm> userCreateForm = Form.form(UserCreateForm.class).bindFromRequest();
+        if (formHasErrors(userCreateForm)) {
+            return showCreateUser(userCreateForm);
         }
+
+        UserCreateForm userCreateData = userCreateForm.get();
+        userService.createUser(userCreateData.username, userCreateData.name, userCreateData.email, userCreateData.password, Arrays.asList(userCreateData.roles.split(",")));
+
+        JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Create user " + userCreateData.username + ".");
+
+        return redirect(routes.UserController.index());
     }
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
@@ -169,18 +160,17 @@ public final class UserController extends AbstractJudgelsController {
     @Transactional
     @AddCSRFToken
     public Result updateUser(long userId) throws UserNotFoundException {
-        UserInfo user = userService.findUserById(userId);
-        UserUpdateForm userUpdateForm = new UserUpdateForm();
-        userUpdateForm.username = user.getUsername();
-        userUpdateForm.name = user.getName();
-        userUpdateForm.email = user.getEmail();
-        userUpdateForm.roles = StringUtils.join(user.getRoles(), ",");
+        UserInfo user = userService.findUserInfoById(userId);
+        UserUpdateForm userUpdateData = new UserUpdateForm();
+        userUpdateData.username = user.getUsername();
+        userUpdateData.name = user.getName();
+        userUpdateData.email = user.getEmail();
+        userUpdateData.roles = StringUtils.join(user.getRoles(), ",");
+        Form<UserUpdateForm> userUpdateForm = Form.form(UserUpdateForm.class).fill(userUpdateData);
 
-        Form<UserUpdateForm> form = Form.form(UserUpdateForm.class).fill(userUpdateForm);
+        JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Try to update user " + user.getUsername() + " <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
 
-        ControllerUtils.getInstance().addActivityLog(userActivityService, "Try to update user " + user.getUsername() + " <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
-
-        return showUpdateUser(form, user);
+        return showUpdateUser(userUpdateForm, user);
     }
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
@@ -188,33 +178,33 @@ public final class UserController extends AbstractJudgelsController {
     @Transactional
     @RequireCSRFCheck
     public Result postUpdateUser(long userId) throws UserNotFoundException {
-        UserInfo user = userService.findUserById(userId);
-        Form<UserUpdateForm> form = Form.form(UserUpdateForm.class).bindFromRequest();
+        UserInfo user = userService.findUserInfoById(userId);
+        Form<UserUpdateForm> userUpdateForm = Form.form(UserUpdateForm.class).bindFromRequest();
 
-        if (form.hasErrors() || form.hasGlobalErrors()) {
-            return showUpdateUser(form, user);
-        } else {
-            UserUpdateForm userUpdateForm = form.get();
-            if (!"".equals(userUpdateForm.password)) {
-                userService.updateUser(user.getId(), userUpdateForm.username, userUpdateForm.name, userUpdateForm.email, userUpdateForm.password, Arrays.asList(userUpdateForm.roles.split(",")));
-            } else {
-                userService.updateUser(user.getId(), userUpdateForm.username, userUpdateForm.name, userUpdateForm.email, Arrays.asList(userUpdateForm.roles.split(",")));
-            }
-
-            ControllerUtils.getInstance().addActivityLog(userActivityService, "Update user " + user.getUsername() + ".");
-
-            return redirect(routes.UserController.index());
+        if (formHasErrors(userUpdateForm)) {
+            return showUpdateUser(userUpdateForm, user);
         }
+
+        UserUpdateForm userUpdateData = userUpdateForm.get();
+        if (!"".equals(userUpdateData.password)) {
+            userService.updateUser(user.getId(), userUpdateData.username, userUpdateData.name, userUpdateData.email, userUpdateData.password, Arrays.asList(userUpdateData.roles.split(",")));
+        } else {
+            userService.updateUser(user.getId(), userUpdateData.username, userUpdateData.name, userUpdateData.email, Arrays.asList(userUpdateData.roles.split(",")));
+        }
+
+        JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Update user " + user.getUsername() + ".");
+
+        return redirect(routes.UserController.index());
     }
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Authorized(value = "admin")
     @Transactional
     public Result deleteUser(long userId) throws UserNotFoundException {
-        UserInfo user = userService.findUserById(userId);
+        UserInfo user = userService.findUserInfoById(userId);
         userService.deleteUser(user.getId());
 
-        ControllerUtils.getInstance().addActivityLog(userActivityService, "Delete user " + user.getUsername() + " <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
+        JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Delete user " + user.getUsername() + " <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
 
         return redirect(routes.UserController.index());
     }
@@ -222,24 +212,37 @@ public final class UserController extends AbstractJudgelsController {
     private Result showCreateUser(Form<UserCreateForm> form) {
         LazyHtml content = new LazyHtml(createUserView.render(form));
         content.appendLayout(c -> headingLayout.render(Messages.get("user.create"), c));
-        ControllerUtils.getInstance().appendSidebarLayout(content);
-        ControllerUtils.getInstance().appendBreadcrumbsLayout(content, ImmutableList.of(
-                new InternalLink(Messages.get("user.users"), routes.UserController.index()),
+        JophielControllerUtils.getInstance().appendSidebarLayout(content);
+        appendBreadcrumbsLayout(content,
                 new InternalLink(Messages.get("user.create"), routes.UserController.createUser())
-        ));
-        ControllerUtils.getInstance().appendTemplateLayout(content, "Change Password");
-        return ControllerUtils.getInstance().lazyOk(content);
+        );
+        JophielControllerUtils.getInstance().appendTemplateLayout(content, "Change Password");
+        return JophielControllerUtils.getInstance().lazyOk(content);
     }
 
     private Result showUpdateUser(Form<UserUpdateForm> form, UserInfo user) {
         LazyHtml content = new LazyHtml(updateUserView.render(form, user.getId()));
         content.appendLayout(c -> headingLayout.render(Messages.get("user.user") + " #" + user.getId() + ": " + user.getUsername(), c));
-        ControllerUtils.getInstance().appendSidebarLayout(content);
-        ControllerUtils.getInstance().appendBreadcrumbsLayout(content, ImmutableList.of(
-                new InternalLink(Messages.get("user.users"), routes.UserController.index()),
+        JophielControllerUtils.getInstance().appendSidebarLayout(content);
+        appendBreadcrumbsLayout(content,
                 new InternalLink(Messages.get("user.update"), routes.UserController.updateUser(user.getId()))
-        ));
-        ControllerUtils.getInstance().appendTemplateLayout(content, "User - Update");
-        return ControllerUtils.getInstance().lazyOk(content);
+        );
+        JophielControllerUtils.getInstance().appendTemplateLayout(content, "User - Update");
+        return JophielControllerUtils.getInstance().lazyOk(content);
+    }
+
+    private void appendTabLayout(LazyHtml content) {
+        content.appendLayout(c -> tabLayout.render(ImmutableList.of(
+                new InternalLink(Messages.get("user.users"), routes.UserController.index()),
+                new InternalLink(Messages.get("user.unverifiedUsers"), routes.UserController.viewUnverifiedUsers())
+        ), c));
+    }
+
+    private void appendBreadcrumbsLayout(LazyHtml content, InternalLink... lastLinks) {
+        ImmutableList.Builder<InternalLink> breadcrumbsBuilder = ImmutableList.builder();
+        breadcrumbsBuilder.add(new InternalLink(Messages.get("user.users"), routes.UserController.index()));
+        breadcrumbsBuilder.add(lastLinks);
+
+        JophielControllerUtils.getInstance().appendBreadcrumbsLayout(content, breadcrumbsBuilder.build());
     }
 }

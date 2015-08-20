@@ -18,10 +18,4 @@ public final class RedirectURIModel extends AbstractModel {
     public String clientJid;
 
     public String redirectURI;
-
-    public RedirectURIModel() {
-
-    }
-
-
 }
