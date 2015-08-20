@@ -1,19 +1,21 @@
-@(form: Form[org.iatoki.judgels.jophiel.forms.ClientUpdateForm], modelId: Long)
-
 @import play.i18n.Messages
-@import org.iatoki.judgels.jophiel.Scope
 @import org.iatoki.judgels.play.views.html.formErrorView
+@import org.iatoki.judgels.jophiel.Scope
+@import org.iatoki.judgels.jophiel.forms.ClientUpdateForm
+@import org.iatoki.judgels.jophiel.controllers.routes
+
+@(clientUpdateForm: Form[ClientUpdateForm], clientId: Long)
 
 @implicitFieldConstructor = @{ b3.horizontal.fieldConstructor("col-md-2", "col-md-10") }
 
-@formErrorView(form)
+@formErrorView(clientUpdateForm)
 
-@b3.form(org.iatoki.judgels.jophiel.controllers.routes.ClientController.postUpdateClient(modelId)) {
+@b3.form(routes.ClientController.postUpdateClient(clientId)) {
 
     @helper.CSRF.formField
 
-    @b3.text(form("name"), '_label -> Messages.get("client.name"))
-    @b3.text(form("redirectURIs"), '_label -> Messages.get("client.redirectURIs"))
+    @b3.text(clientUpdateForm("name"), '_label -> Messages.get("client.name"))
+    @b3.text(clientUpdateForm("redirectURIs"), '_label -> Messages.get("client.redirectURIs"))
     <div class="form-group" id="">
         <label class="control-label col-xs-2">@Messages.get("client.scopes")</label>
         <div class="col-xs-10">
@@ -22,7 +24,7 @@
                 <div class="checkbox-wrap">
                     <div class="checkbox">
                         <label for="scopes_@scope._2">
-                            <input type="checkbox" id="scopes_@scope._2" name="scopes[@scope._2]" value="@scope._1" @if(!form.hasErrors && form.get.scopes != null && form.get.scopes.contains(scope._1.toString)) { checked }>
+                            <input type="checkbox" id="scopes_@scope._2" name="scopes[@scope._2]" value="@scope._1" @if(!clientUpdateForm.hasErrors && clientUpdateForm.get.scopes != null && clientUpdateForm.get.scopes.contains(scope._1.toString)) { checked }>
                             @scope._1
                         </label>
                     </div>

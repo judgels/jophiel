@@ -1,3 +1,6 @@
-@(form: Form[org.iatoki.judgels.jophiel.forms.LoginForm], continueUrl: String)
+@import org.iatoki.judgels.jophiel.forms.LoginForm
+@import org.iatoki.judgels.jophiel.controllers.routes
 
-@loginTemplateView(form, org.iatoki.judgels.jophiel.controllers.routes.UserAccountController.postServiceLogin(continueUrl))
+@(loginForm: Form[LoginForm], continueUrl: String)
+
+@loginTemplateView(loginForm, routes.UserAccountController.postServiceLogin(continueUrl))

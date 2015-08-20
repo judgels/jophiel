@@ -12,6 +12,5 @@ public abstract class UserEmailModel_ extends org.iatoki.judgels.play.models.ent
         public static volatile SingularAttribute<UserEmailModel, String> userJid;
         public static volatile SingularAttribute<UserEmailModel, String> email;
         public static volatile SingularAttribute<UserEmailModel, Boolean> emailVerified;
-    public static volatile SingularAttribute<UserEmailModel, String> emailCode;
-
+        public static volatile SingularAttribute<UserEmailModel, String> emailCode;
 }

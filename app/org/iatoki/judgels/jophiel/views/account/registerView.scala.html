@@ -1,8 +1,10 @@
-@(form: Form[org.iatoki.judgels.jophiel.forms.RegisterForm])
-
 @import play.i18n.Messages
-@import org.iatoki.judgels.jophiel.JophielProperties
 @import org.iatoki.judgels.play.views.html.formErrorView
+@import org.iatoki.judgels.jophiel.JophielProperties
+@import org.iatoki.judgels.jophiel.forms.RegisterForm
+@import org.iatoki.judgels.jophiel.controllers.routes
+
+@(registerForm: Form[RegisterForm])
 
 @implicitFieldConstructor = @{ b3.horizontal.fieldConstructor("col-md-4", "col-md-8") }
 
@@ -16,17 +18,17 @@
     <div class="col-md-12">
         <h2>@Messages.get("register.registerNewAccount")</h2>
 
-        @formErrorView(form)
+        @formErrorView(registerForm)
 
-        @b3.form(org.iatoki.judgels.jophiel.controllers.routes.UserAccountController.postRegister()) {
+        @b3.form(routes.UserAccountController.postRegister()) {
 
             @helper.CSRF.formField
 
-            @b3.text(form("username"), '_label -> Messages.get("user.username"))
-            @b3.text(form("name"), '_label -> Messages.get("user.name"))
-            @b3.email(form("email"), '_label -> Messages.get("user.email"))
-            @b3.password(form("password"), '_label -> Messages.get("user.password"), 'class -> "form-control zxcvbn match-src")
-            @b3.password(form("confirmPassword"), '_label -> Messages.get("user.confirmPassword"), 'class -> "form-control match-tgt")
+            @b3.text(registerForm("username"), '_label -> Messages.get("user.username"))
+            @b3.text(registerForm("name"), '_label -> Messages.get("user.name"))
+            @b3.email(registerForm("email"), '_label -> Messages.get("user.email"))
+            @b3.password(registerForm("password"), '_label -> Messages.get("user.password"), 'class -> "form-control zxcvbn match-src")
+            @b3.password(registerForm("confirmPassword"), '_label -> Messages.get("user.confirmPassword"), 'class -> "form-control match-tgt")
 
             @if(JophielProperties.getInstance().isRegistrationUsingRecaptcha) {
                 <div class="form-group">

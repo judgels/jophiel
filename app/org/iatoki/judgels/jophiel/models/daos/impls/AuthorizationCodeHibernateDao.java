@@ -21,6 +21,18 @@ public final class AuthorizationCodeHibernateDao extends AbstractHibernateDao<Lo
     }
 
     @Override
+    public boolean isAuthorized(String clientJid, String userJid, String scopes) {
+        CriteriaBuilder cb = JPA.em().getCriteriaBuilder();
+        CriteriaQuery<Long> query = cb.createQuery(Long.class);
+
+        Root<AuthorizationCodeModel> root = query.from(AuthorizationCodeModel.class);
+
+        query.select(cb.count(root)).where(cb.and(cb.equal(root.get(AuthorizationCodeModel_.clientJid), clientJid), cb.equal(root.get(AuthorizationCodeModel_.userJid), userJid), cb.equal(root.get(AuthorizationCodeModel_.scopes), scopes)));
+
+        return (JPA.em().createQuery(query).getSingleResult() != 0);
+    }
+
+    @Override
     public AuthorizationCodeModel findByCode(String code) {
         CriteriaBuilder cb = JPA.em().getCriteriaBuilder();
         CriteriaQuery<AuthorizationCodeModel> query = cb.createQuery(AuthorizationCodeModel.class);
@@ -30,17 +42,5 @@ public final class AuthorizationCodeHibernateDao extends AbstractHibernateDao<Lo
         query.where(cb.equal(root.get(AuthorizationCodeModel_.code), code));
 
         return JPA.em().createQuery(query).getSingleResult();
-    }
-
-    @Override
-    public boolean checkIfAuthorized(String clientJid, String userJid, String scopes) {
-        CriteriaBuilder cb = JPA.em().getCriteriaBuilder();
-        CriteriaQuery<Long> query = cb.createQuery(Long.class);
-
-        Root<AuthorizationCodeModel> root = query.from(AuthorizationCodeModel.class);
-
-        query.select(cb.count(root)).where(cb.and(cb.equal(root.get(AuthorizationCodeModel_.clientJid), clientJid), cb.equal(root.get(AuthorizationCodeModel_.userJid), userJid), cb.equal(root.get(AuthorizationCodeModel_.scopes), scopes)));
-
-        return (JPA.em().createQuery(query).getSingleResult() != 0);
     }
 }

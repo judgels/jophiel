@@ -14,5 +14,4 @@ public abstract class IdTokenModel_ extends org.iatoki.judgels.play.models.entit
         public static volatile SingularAttribute<IdTokenModel, String> clientJid;
         public static volatile SingularAttribute<IdTokenModel, String> token;
         public static volatile SingularAttribute<IdTokenModel, Boolean> redeemed;
-
 }

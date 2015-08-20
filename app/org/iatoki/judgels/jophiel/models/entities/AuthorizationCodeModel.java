@@ -26,9 +26,4 @@ public final class AuthorizationCodeModel extends AbstractModel {
     public long expireTime;
 
     public String scopes;
-
-    public AuthorizationCodeModel() {
-
-    }
-
 }

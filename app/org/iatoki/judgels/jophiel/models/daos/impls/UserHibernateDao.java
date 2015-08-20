@@ -41,7 +41,7 @@ public final class UserHibernateDao extends AbstractJudgelsHibernateDao<UserMode
     }
 
     @Override
-    public List<String> findUserJidsByUsernames(Collection<String> usernames) {
+    public List<String> getJidsByUsernames(Collection<String> usernames) {
         if (usernames.isEmpty()) {
             return ImmutableList.of();
         } else {
@@ -56,15 +56,15 @@ public final class UserHibernateDao extends AbstractJudgelsHibernateDao<UserMode
     }
 
     @Override
-    public List<String> findUserJidsByFilter(String filterString) {
+    public List<String> getJidsByFilter(String filter) {
         CriteriaBuilder cb = JPA.em().getCriteriaBuilder();
         CriteriaQuery<String> query = cb.createQuery(String.class);
         Root<UserModel> root = query.from(UserModel.class);
 
         List<Predicate> predicates = new ArrayList<>();
-        predicates.add(cb.like(root.get(UserModel_.username), "%" + filterString + "%"));
-        predicates.add(cb.like(root.get(UserModel_.name), "%" + filterString + "%"));
-        predicates.add(cb.like(root.get(UserModel_.roles), "%" + filterString + "%"));
+        predicates.add(cb.like(root.get(UserModel_.username), "%" + filter + "%"));
+        predicates.add(cb.like(root.get(UserModel_.name), "%" + filter + "%"));
+        predicates.add(cb.like(root.get(UserModel_.roles), "%" + filter + "%"));
 
         Predicate condition = cb.or(predicates.toArray(new Predicate[predicates.size()]));
 
@@ -73,7 +73,7 @@ public final class UserHibernateDao extends AbstractJudgelsHibernateDao<UserMode
     }
 
     @Override
-    public List<String> sortUserJidsByUserAttribute(Collection<String> userJids, String sortBy, String order) {
+    public List<String> getSortedJidsByOrder(Collection<String> userJids, String sortBy, String order) {
         CriteriaBuilder cb = JPA.em().getCriteriaBuilder();
         CriteriaQuery<String> query = cb.createQuery(String.class);
         Root<UserModel> root = query.from(UserModel.class);
@@ -92,7 +92,7 @@ public final class UserHibernateDao extends AbstractJudgelsHibernateDao<UserMode
     }
 
     @Override
-    public List<UserModel> findBySetOfUserJids(Collection<String> userJids, long first, long max) {
+    public List<UserModel> getByJids(Collection<String> userJids, long first, long max) {
         CriteriaBuilder cb = JPA.em().getCriteriaBuilder();
         CriteriaQuery<UserModel> query = cb.createQuery(UserModel.class);
         Root<UserModel> root = query.from(UserModel.class);

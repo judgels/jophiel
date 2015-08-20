@@ -12,21 +12,21 @@ import java.util.List;
 
 public interface ClientService {
 
-    List<Client> findAll();
+    List<Client> getAllClients();
 
-    List<Client> findAllClientByTerm(String term);
+    List<Client> getClientsByTerm(String term);
 
-    boolean isClientAuthorized(String clientJid, List<String> scopes);
+    boolean isClientAuthorized(String jid, List<String> scopes);
 
-    boolean isValidAccessTokenExist(String token);
+    boolean isAccessTokenValid(String accessToken);
 
-    boolean clientExistByClientJid(String clientJid);
+    boolean clientExistsByJid(String jid);
 
-    boolean clientExistByClientName(String clientName);
+    boolean clientExistsByName(String name);
 
-    Client findClientById(long clientId) throws ClientNotFoundException;
+    Client findClientById(long id) throws ClientNotFoundException;
 
-    Client findClientByJid(String clientJid);
+    Client findClientByJid(String jid);
 
     AuthorizationCode generateAuthorizationCode(String clientJid, String uRI, String responseType, List<String> scopes, long expireTime);
 
@@ -40,28 +40,27 @@ public interface ClientService {
 
     AccessToken regenerateAccessToken(String code, String userId, String clientId, List<String> scopes, long expireTime);
 
-    AccessToken findAccessTokenByAccessToken(String token);
+    AccessToken getAccessTokenByAccessTokenString(String accessToken);
 
-    AccessToken findAccessTokenByCode(String code);
+    AccessToken getAccessTokenByAuthCode(String authCode);
 
-    RefreshToken findRefreshTokenByRefreshToken(String token);
+    RefreshToken getRefreshTokenByRefreshTokenString(String refreshToken);
 
-    RefreshToken findRefreshTokenByCode(String code);
+    RefreshToken getRefreshTokenByAuthCode(String authCode);
 
-    IdToken findIdTokenByCode(String code);
+    IdToken getIdTokenByAuthCode(String authCode);
 
-    long redeemAccessTokenById(long tokenId);
+    long redeemAccessTokenById(long accessTokenId);
 
-    void redeemRefreshTokenById(long tokenId);
+    void redeemRefreshTokenById(long refreshTokenId);
 
-    void redeemIdTokenById(long tokenId);
+    void redeemIdTokenById(long idTokenId);
 
     void createClient(String name, String applicationType, List<String> scopes, List<String> redirectURIs);
 
-    void updateClient(long clientId, String name, List<String> scopes, List<String> redirectURIs);
+    void updateClient(long id, String name, List<String> scopes, List<String> redirectURIs);
 
-    void deleteClient(long clientId);
+    void deleteClient(long id);
 
-    Page<Client> pageClients(long pageIndex, long pageSize, String orderBy, String orderDir, String filterString);
-
+    Page<Client> getPageOfClients(long pageIndex, long pageSize, String orderBy, String orderDir, String filterString);
 }

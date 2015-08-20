@@ -25,26 +25,26 @@ public final class ClientHibernateDao extends AbstractJudgelsHibernateDao<Client
     }
 
     @Override
-    public boolean existByName(String clientName) {
+    public boolean existsByName(String name) {
         CriteriaBuilder cb = JPA.em().getCriteriaBuilder();
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
         Root<ClientModel> root = query.from(ClientModel.class);
 
-        query.select(cb.count(root)).where(cb.equal(root.get(ClientModel_.name), clientName));
+        query.select(cb.count(root)).where(cb.equal(root.get(ClientModel_.name), name));
 
         return (JPA.em().createQuery(query).getSingleResult() != 0);
     }
 
     @Override
-    public List<String> findClientJidsByNames(Collection<String> clientNames) {
-        if (clientNames.isEmpty()) {
+    public List<String> getJidsByNames(Collection<String> names) {
+        if (names.isEmpty()) {
             return ImmutableList.of();
         } else {
             CriteriaBuilder cb = JPA.em().getCriteriaBuilder();
             CriteriaQuery<String> query = cb.createQuery(String.class);
             Root<ClientModel> root = query.from(ClientModel.class);
 
-            query.select(root.get(ClientModel_.jid)).where(root.get(ClientModel_.name).in(clientNames));
+            query.select(root.get(ClientModel_.jid)).where(root.get(ClientModel_.name).in(names));
 
             return JPA.em().createQuery(query).getResultList();
         }

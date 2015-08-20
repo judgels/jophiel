@@ -87,23 +87,23 @@ public class UserEmailServiceImplTest extends PowerMockTestCase {
     @Test
     public void existByEmailExistingEmailReturnsTrue() {
         String existingEmail = "alice@email.com";
-        Mockito.when(userEmailDao.isExistByEmail(existingEmail)).thenReturn(true);
+        Mockito.when(userEmailDao.existsByEmail(existingEmail)).thenReturn(true);
 
-        Assert.assertTrue(userEmailService.existByEmail(existingEmail), "Email not exists");
+        Assert.assertTrue(userEmailService.emailExists(existingEmail), "Email not exists");
     }
 
     @Test
     public void existByEmailNonExistingEmailReturnsFalse() {
         String nonExistingEmail = "alice_email";
-        Mockito.when(userEmailDao.isExistByEmail(nonExistingEmail)).thenReturn(false);
+        Mockito.when(userEmailDao.existsByEmail(nonExistingEmail)).thenReturn(false);
 
-        Assert.assertFalse(userEmailService.existByEmail(nonExistingEmail), "Email exists");
+        Assert.assertFalse(userEmailService.emailExists(nonExistingEmail), "Email exists");
     }
 
     @Test
-    public void activateEmailExistingUnverifiedEmailCodeReturnsTrue() {
+    public void activateEmailExistingUnverifiedEmailCodeEmailVerified() {
         String emailCode = "UNVERIFIED_EMAIL_CODE";
-        Mockito.when(userEmailDao.isExistByCode(emailCode)).thenReturn(true);
+        Mockito.when(userEmailDao.existsByEmailCode(emailCode)).thenReturn(true);
 
         String getIpAddress = "10.10.10.10";
         Mockito.when(IdentityUtils.getIpAddress()).thenReturn(getIpAddress);
@@ -113,7 +113,7 @@ public class UserEmailServiceImplTest extends PowerMockTestCase {
         userEmailModel.userJid = "JID0101";
         userEmailModel.userCreate = "guest";
         userEmailModel.timeCreate = System.currentTimeMillis();
-        Mockito.when(userEmailDao.findByCode(emailCode)).thenReturn(userEmailModel);
+        Mockito.when(userEmailDao.findByEmailCode(emailCode)).thenReturn(userEmailModel);
 
         Mockito.doAnswer(invocation -> {
                 UserEmailModel insideUserEmailModel = (UserEmailModel) invocation.getArguments()[0];
@@ -125,35 +125,37 @@ public class UserEmailServiceImplTest extends PowerMockTestCase {
                 return null;
             }).when(userEmailDao).edit(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 
-        Assert.assertTrue(userEmailService.activateEmail(emailCode), "Invalid email code or email has been activated");
+        userEmailService.activateEmail(emailCode);
+
+        Assert.assertTrue(userEmailModel.emailVerified, "Invalid email code or email has been activated");
         Assert.assertNotEquals(userEmailModel.userCreate, userEmailModel.userUpdate, "UserInfo update not updated");
         Assert.assertTrue(userEmailModel.timeUpdate > userEmailModel.timeCreate, "Time update ot updated");
     }
 
     @Test
-    public void activateEmailExistingVerifiedEmailCodeReturnsFalse() {
+    public void isEmailCodeValidExistingVerifiedEmailCodeReturnsFalse() {
         String emailCode = "VERIFIED_EMAIL_CODE";
-        Mockito.when(userEmailDao.isExistByCode(emailCode)).thenReturn(true);
+        Mockito.when(userEmailDao.existsByEmailCode(emailCode)).thenReturn(true);
 
         UserEmailModel userEmailModel = new UserEmailModel();
         userEmailModel.emailVerified = true;
-        Mockito.when(userEmailDao.findByCode(emailCode)).thenReturn(userEmailModel);
+        Mockito.when(userEmailDao.findByEmailCode(emailCode)).thenReturn(userEmailModel);
 
-        Assert.assertFalse(userEmailService.activateEmail(emailCode), "Email code has not been activated");
+        Assert.assertFalse(userEmailService.isEmailCodeValid(emailCode), "Email code has not been activated");
     }
 
     @Test
-    public void activateEmailNonExistingEmailCodeReturnsFalse() {
+    public void isEmailCodeValidNonExistingEmailCodeReturnsFalse() {
         String emailCode = "INVALID_EMAIL_CODE";
-        Mockito.when(userEmailDao.isExistByCode(emailCode)).thenReturn(false);
+        Mockito.when(userEmailDao.existsByEmailCode(emailCode)).thenReturn(false);
 
-        Assert.assertFalse(userEmailService.activateEmail(emailCode), "Email code is valid");
+        Assert.assertFalse(userEmailService.isEmailCodeValid(emailCode), "Email code is valid");
     }
 
     @Test
     public void isEmailNotVerifiedUnverifiedUserReturnsTrue() {
         String unverifiedUserJid = "JIDU0101";
-        Mockito.when(userEmailDao.isExistNotVerifiedByUserJid(unverifiedUserJid)).thenReturn(true);
+        Mockito.when(userEmailDao.existsUnverifiedEmailByUserJid(unverifiedUserJid)).thenReturn(true);
 
         Assert.assertTrue(userEmailService.isEmailNotVerified(unverifiedUserJid), "UserInfo is verified");
     }
@@ -161,7 +163,7 @@ public class UserEmailServiceImplTest extends PowerMockTestCase {
     @Test
     public void isEmailNotVerifiedVerifiedUserReturnsFalse() {
         String verifiedUserJid = "JIDU1111";
-        Mockito.when(userEmailDao.isExistNotVerifiedByUserJid(verifiedUserJid)).thenReturn(false);
+        Mockito.when(userEmailDao.existsUnverifiedEmailByUserJid(verifiedUserJid)).thenReturn(false);
 
         Assert.assertFalse(userEmailService.isEmailNotVerified(verifiedUserJid), "UserInfo is not verified");
     }

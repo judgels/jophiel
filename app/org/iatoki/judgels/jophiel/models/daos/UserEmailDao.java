@@ -8,24 +8,23 @@ import java.util.List;
 
 public interface UserEmailDao extends Dao<Long, UserEmailModel> {
 
-    boolean isExistByEmail(String email);
+    boolean existsByEmail(String email);
 
-    boolean isExistNotVerifiedByUserJid(String userJid);
+    boolean existsUnverifiedEmailByUserJid(String userJid);
+
+    boolean existsByEmailCode(String emailCode);
 
     UserEmailModel findByUserJid(String userJid);
 
-    List<String> findUserJidsByFilter(String filterString);
+    List<String> getUserJidsByFilter(String filter);
 
-    List<String> findUserJidsWithUnverifiedEmail();
+    List<String> getUserJidsWithUnverifiedEmail();
 
-    List<String> sortUserJidsByEmail(Collection<String> userJids, String sortBy, String order);
+    List<String> getSortedUserJidsByEmail(Collection<String> userJids, String sortBy, String order);
 
-    List<UserEmailModel> findBySetOfUserJids(Collection<String> userJidSet, long first, long max);
+    List<UserEmailModel> getByUserJids(Collection<String> userJidSet, long first, long max);
 
     UserEmailModel findByEmail(String email);
 
-    boolean isExistByCode(String emailCode);
-
-    UserEmailModel findByCode(String emailCode);
-
+    UserEmailModel findByEmailCode(String emailCode);
 }

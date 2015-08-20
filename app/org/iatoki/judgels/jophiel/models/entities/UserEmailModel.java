@@ -50,5 +50,4 @@ public final class UserEmailModel extends AbstractModel {
     public String toString() {
         return email;
     }
-
 }

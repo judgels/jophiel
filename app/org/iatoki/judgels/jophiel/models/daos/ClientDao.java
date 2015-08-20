@@ -8,8 +8,7 @@ import java.util.List;
 
 public interface ClientDao extends JudgelsDao<ClientModel> {
 
-    boolean existByName(String clientName);
+    boolean existsByName(String name);
 
-    List<String> findClientJidsByNames(Collection<String> clientNames);
-
+    List<String> getJidsByNames(Collection<String> names);
 }

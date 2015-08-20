@@ -14,5 +14,4 @@ public abstract class ClientModel_ extends AbstractJudgelsModel_ {
     public static volatile SingularAttribute<ClientModel, String> secret;
     public static volatile SingularAttribute<ClientModel, String> applicationType;
     public static volatile SingularAttribute<ClientModel, String> scopes;
-
 }

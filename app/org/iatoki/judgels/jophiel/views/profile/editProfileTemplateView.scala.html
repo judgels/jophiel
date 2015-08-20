@@ -1,8 +1,10 @@
-@(form: Form[org.iatoki.judgels.jophiel.forms.UserProfileForm], form2: Form[org.iatoki.judgels.jophiel.forms.UserProfilePictureForm], updatePicture: play.api.mvc.Call, updateProfile: play.api.mvc.Call)
-
 @import play.i18n.Messages
-@import org.iatoki.judgels.jophiel.controllers.routes
+@import play.api.mvc.Call
+@import org.iatoki.judgels.jophiel.forms.UserProfileForm
+@import org.iatoki.judgels.jophiel.forms.UserProfilePictureForm
 @import org.iatoki.judgels.play.views.html.formErrorView
+
+@(userProfileForm: Form[UserProfileForm], userProfilePictureForm: Form[UserProfilePictureForm], updatePictureCall: Call, updateProfileCall: Call)
 
 @implicitFieldConstructor = @{ b3.horizontal.fieldConstructor("col-md-3", "col-md-9") }
 
@@ -10,19 +12,19 @@
 <br />
 <br />
 
-@formErrorView(form2)
+@formErrorView(userProfilePictureForm)
 
-@b3.form(updatePicture, 'enctype -> "multipart/form-data", 'id -> "avatar-form") {
-    @b3.file(form2("avatar"), '_label -> Messages.get("profile.avatar"), 'id -> "avatar-input")
+@b3.form(updatePictureCall, 'enctype -> "multipart/form-data", 'id -> "avatar-form") {
+    @b3.file(userProfilePictureForm("avatar"), '_label -> Messages.get("profile.avatar"), 'id -> "avatar-input")
 }
 
-@formErrorView(form)
+@formErrorView(userProfileForm)
 
-@b3.form(updateProfile) {
+@b3.form(updateProfileCall) {
 
-    @b3.text(form("name"), '_label -> Messages.get("user.name"))
-    @b3.password(form("password"), '_label -> Messages.get("user.password"))
-    @b3.password(form("confirmPassword"), '_label -> Messages.get("user.confirmPassword"))
+    @b3.text(userProfileForm("name"), '_label -> Messages.get("user.name"))
+    @b3.password(userProfileForm("password"), '_label -> Messages.get("user.password"))
+    @b3.password(userProfileForm("confirmPassword"), '_label -> Messages.get("user.confirmPassword"))
 
     @b3.submit('class -> "btn btn-primary") { @Messages.get("commons.update") }
 }

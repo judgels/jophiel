@@ -62,7 +62,7 @@ public class UserActivityServiceImplTest extends PowerMockTestCase {
         String username = "alice123";
 
         List<String> clientJids = Arrays.asList("JIDC0001", "localhost");
-        Mockito.when(clientDao.findClientJidsByNames(clientNames)).thenReturn(clientJids);
+        Mockito.when(clientDao.getJidsByNames(clientNames)).thenReturn(clientJids);
 
         UserModel userModel = new UserModel();
         userModel.jid = "JIDU0101";
@@ -99,7 +99,7 @@ public class UserActivityServiceImplTest extends PowerMockTestCase {
         firstClientModel.name = "Client 1";
         Mockito.when(clientDao.findByJid(firstUserActivityModel.clientJid)).thenReturn(firstClientModel);
 
-        Page<UserActivity> userActivityPage = userActivityService.pageUserActivities(pageIndex, pageSize, orderBy, orderDir, filterString, clientNames, username);
+        Page<UserActivity> userActivityPage = userActivityService.getPageOfUserActivities(pageIndex, pageSize, orderBy, orderDir, filterString, clientNames, username);
 
         Assert.assertNotNull(userActivityPage.getData(), "UserInfo activity page data must not be null");
         Assert.assertEquals(totalRow, userActivityPage.getTotalRowsCount(), "UserInfo activity page total rows count not match");
@@ -119,10 +119,10 @@ public class UserActivityServiceImplTest extends PowerMockTestCase {
         Set<String> usernames = Arrays.asList("alice123", "guest").stream().collect(Collectors.toSet());
 
         List<String> clientJids = Arrays.asList("JIDC0001", "localhost");
-        Mockito.when(clientDao.findClientJidsByNames(clientNames)).thenReturn(clientJids);
+        Mockito.when(clientDao.getJidsByNames(clientNames)).thenReturn(clientJids);
 
         List<String> userJids = Arrays.asList("JIDU0101", "guest");
-        Mockito.when(userDao.findUserJidsByUsernames(usernames)).thenReturn(userJids);
+        Mockito.when(userDao.getJidsByUsernames(usernames)).thenReturn(userJids);
 
         UserActivityModel firstUserActivityModel = new UserActivityModel();
         firstUserActivityModel.id = 1L;
@@ -159,7 +159,7 @@ public class UserActivityServiceImplTest extends PowerMockTestCase {
         long totalRow = userActivityModels.size();
         Mockito.when(userActivityDao.countByFilters(Mockito.eq(filterString), Matchers.<Map<SingularAttribute<? super UserActivityModel, String>, String>>any(), Matchers.<Map<SingularAttribute<? super UserActivityModel, String>, ? extends Collection<String>>>any())).thenReturn(totalRow);
 
-        Page<UserActivity> userActivityPage = userActivityService.pageUsersActivities(pageIndex, pageSize, orderBy, orderDir, filterString, clientNames, usernames);
+        Page<UserActivity> userActivityPage = userActivityService.getPageOfUsersActivities(pageIndex, pageSize, orderBy, orderDir, filterString, clientNames, usernames);
 
         Assert.assertNotNull(userActivityPage.getData(), "UserInfo activity page data must not be null");
         Assert.assertEquals(totalRow, userActivityPage.getTotalRowsCount(), "UserInfo activity page total rows count not match");

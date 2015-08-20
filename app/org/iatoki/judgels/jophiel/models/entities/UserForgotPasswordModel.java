@@ -20,9 +20,4 @@ public final class UserForgotPasswordModel extends AbstractModel {
     public String code;
 
     public boolean used;
-
-    public UserForgotPasswordModel() {
-
-    }
-
 }

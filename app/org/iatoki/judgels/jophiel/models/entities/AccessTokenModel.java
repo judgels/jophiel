@@ -28,9 +28,4 @@ public final class AccessTokenModel extends AbstractModel {
     public boolean redeemed;
 
     public String scopes;
-
-    public AccessTokenModel() {
-
-    }
-
 }

@@ -23,13 +23,13 @@ import java.util.UUID;
 @Named("userProfileService")
 public final class UserProfileServiceImpl implements UserProfileService {
 
-    private final UserDao userDao;
     private final FileSystemProvider avatarFileSystemProvider;
+    private final UserDao userDao;
 
     @Inject
-    public UserProfileServiceImpl(UserDao userDao, @AvatarFile FileSystemProvider avatarFileSystemProvider) {
-        this.userDao = userDao;
+    public UserProfileServiceImpl(@AvatarFile FileSystemProvider avatarFileSystemProvider, UserDao userDao) {
         this.avatarFileSystemProvider = avatarFileSystemProvider;
+        this.userDao = userDao;
     }
 
     @PostConstruct
@@ -64,7 +64,7 @@ public final class UserProfileServiceImpl implements UserProfileService {
     }
 
     @Override
-    public String updateProfilePicture(String userJid, File imageFile, String extension) throws IOException {
+    public String updateAvatarWithGeneratedFilename(String userJid, File imageFile, String extension) throws IOException {
         String newImageName = IdentityUtils.getUserJid() + "-" + JudgelsPlayUtils.hashMD5(UUID.randomUUID().toString()) + "." + extension;
         List<String> filePath = ImmutableList.of(newImageName);
         avatarFileSystemProvider.uploadFile(ImmutableList.of(), imageFile, newImageName);

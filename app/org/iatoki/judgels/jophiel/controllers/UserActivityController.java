@@ -37,14 +37,14 @@ public final class UserActivityController extends AbstractJudgelsController {
     private static final long PAGE_SIZE = 20;
 
     private final ClientService clientService;
-    private final UserService userService;
     private final UserActivityService userActivityService;
+    private final UserService userService;
 
     @Inject
-    public UserActivityController(ClientService clientService, UserService userService, UserActivityService userActivityService) {
+    public UserActivityController(ClientService clientService, UserActivityService userActivityService, UserService userService) {
         this.clientService = clientService;
-        this.userService = userService;
         this.userActivityService = userActivityService;
+        this.userService = userService;
     }
 
     @Authenticated({LoggedIn.class, HasRole.class})
@@ -61,31 +61,31 @@ public final class UserActivityController extends AbstractJudgelsController {
         String[] clientName = clientNames.split(",");
         ImmutableSet.Builder<String> clientNamesSetBuilder = ImmutableSet.builder();
         for (String client : clientName) {
-            if ((!"".equals(client)) && (clientService.clientExistByClientName(client))) {
+            if (!"".equals(client) && clientService.clientExistsByName(client)) {
                 clientNamesSetBuilder.add(client);
             }
         }
         String[] username = usernames.split(",");
         ImmutableSet.Builder<String> usernamesSetBuilder = ImmutableSet.builder();
         for (String user : username) {
-            if ((!"".equals(user)) && (userService.existByUsername(user))) {
+            if (!"".equals(user) && userService.existsUserByUsername(user)) {
                 usernamesSetBuilder.add(user);
             }
         }
 
-        Page<UserActivity> currentPage = userActivityService.pageUsersActivities(page, PAGE_SIZE, orderBy, orderDir, filterString, clientNamesSetBuilder.build(), usernamesSetBuilder.build());
+        Page<UserActivity> pageOfUserActivities = userActivityService.getPageOfUsersActivities(page, PAGE_SIZE, orderBy, orderDir, filterString, clientNamesSetBuilder.build(), usernamesSetBuilder.build());
 
-        LazyHtml content = new LazyHtml(listUsersActivitiesView.render(currentPage, orderBy, orderDir, filterString, clientNames, usernames));
+        LazyHtml content = new LazyHtml(listUsersActivitiesView.render(pageOfUserActivities, orderBy, orderDir, filterString, clientNames, usernames));
         content.appendLayout(c -> headingLayout.render(Messages.get("user.activity.list"), c));
-        ControllerUtils.getInstance().appendSidebarLayout(content);
-        ControllerUtils.getInstance().appendBreadcrumbsLayout(content, ImmutableList.of(
+        JophielControllerUtils.getInstance().appendSidebarLayout(content);
+        JophielControllerUtils.getInstance().appendBreadcrumbsLayout(content, ImmutableList.of(
                 new InternalLink(Messages.get("user.activities"), routes.UserActivityController.index())
         ));
-        ControllerUtils.getInstance().appendTemplateLayout(content, "User - Activities");
+        JophielControllerUtils.getInstance().appendTemplateLayout(content, "User - Activities");
 
-        ControllerUtils.getInstance().addActivityLog(userActivityService, "Open all user activities <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
+        JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Open all user activities <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
 
-        return ControllerUtils.getInstance().lazyOk(content);
+        return JophielControllerUtils.getInstance().lazyOk(content);
     }
 
     @Authenticated(LoggedIn.class)
@@ -102,26 +102,26 @@ public final class UserActivityController extends AbstractJudgelsController {
         String[] clientName = clientNames.split(",");
         ImmutableSet.Builder<String> clientNamesSetBuilder = ImmutableSet.builder();
         for (String client : clientName) {
-            if ((!"".equals(client)) && (clientService.clientExistByClientName(client))) {
+            if (!"".equals(client) && clientService.clientExistsByName(client)) {
                 clientNamesSetBuilder.add(client);
             }
         }
 
-        Page<UserActivity> currentPage = userActivityService.pageUserActivities(page, PAGE_SIZE, orderBy, orderDir, filterString, clientNamesSetBuilder.build(), username);
+        Page<UserActivity> pageOfUserActivities = userActivityService.getPageOfUserActivities(page, PAGE_SIZE, orderBy, orderDir, filterString, clientNamesSetBuilder.build(), username);
 
-        LazyHtml content = new LazyHtml(listOwnActivitiesView.render(currentPage, orderBy, orderDir, filterString, clientNames));
+        LazyHtml content = new LazyHtml(listOwnActivitiesView.render(pageOfUserActivities, orderBy, orderDir, filterString, clientNames));
         content.appendLayout(c -> tabLayout.render(ImmutableList.of(new InternalLink(Messages.get("profile.profile"), routes.UserProfileController.profile()), new InternalLink(Messages.get("profile.activities"), routes.UserActivityController.viewOwnActivities())), c));
         content.appendLayout(c -> headingLayout.render("user.activities", c));
-        ControllerUtils.getInstance().appendSidebarLayout(content);
-        ControllerUtils.getInstance().appendBreadcrumbsLayout(content, ImmutableList.of(
+        JophielControllerUtils.getInstance().appendSidebarLayout(content);
+        JophielControllerUtils.getInstance().appendBreadcrumbsLayout(content, ImmutableList.of(
                 new InternalLink(Messages.get("profile.profile"), routes.UserProfileController.profile()),
                 new InternalLink(Messages.get("user.activities"), routes.UserActivityController.viewOwnActivities())
         ));
-        ControllerUtils.getInstance().appendTemplateLayout(content, "User - Activities");
+        JophielControllerUtils.getInstance().appendTemplateLayout(content, "User - Activities");
 
-        ControllerUtils.getInstance().addActivityLog(userActivityService, "Open own activities <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
+        JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Open own activities <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
 
-        return ControllerUtils.getInstance().lazyOk(content);
+        return JophielControllerUtils.getInstance().lazyOk(content);
     }
 
     @Authenticated({LoggedIn.class, HasRole.class})
@@ -135,34 +135,33 @@ public final class UserActivityController extends AbstractJudgelsController {
     @Authorized("admin")
     @Transactional
     public Result listUserActivities(String username, long page, String orderBy, String orderDir, String filterString, String clientNames) {
-        if (userService.existByUsername(username)) {
-            UserInfo user = userService.findUserByUsername(username);
-            String[] clientName = clientNames.split(",");
-            ImmutableSet.Builder<String> clientNamesSetBuilder = ImmutableSet.builder();
-            for (String client : clientName) {
-                if ((!"".equals(client)) && (clientService.clientExistByClientName(client))) {
-                    clientNamesSetBuilder.add(client);
-                }
-            }
-
-            Page<UserActivity> currentPage = userActivityService.pageUserActivities(page, PAGE_SIZE, orderBy, orderDir, filterString, clientNamesSetBuilder.build(), username);
-
-            LazyHtml content = new LazyHtml(listUserActivitiesView.render(username, currentPage, orderBy, orderDir, filterString, clientNames));
-            content.appendLayout(c -> tabLayout.render(ImmutableList.of(new InternalLink(Messages.get("profile.profile"), routes.UserProfileController.viewProfile(username)), new InternalLink(Messages.get("profile.activities"), routes.UserActivityController.viewUserActivities(username))), c));
-            content.appendLayout(c -> headingLayout.render(username, c));
-            ControllerUtils.getInstance().appendSidebarLayout(content);
-            ControllerUtils.getInstance().appendBreadcrumbsLayout(content, ImmutableList.of(
-                    new InternalLink(Messages.get("profile.profile"), routes.UserProfileController.viewProfile(username)),
-                    new InternalLink(Messages.get("user.activities"), routes.UserActivityController.viewUserActivities(username))
-            ));
-            ControllerUtils.getInstance().appendTemplateLayout(content, "User - Activities");
-
-            ControllerUtils.getInstance().addActivityLog(userActivityService, "Open user " + user.getUsername() + " activities <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
-
-            return ControllerUtils.getInstance().lazyOk(content);
-        } else {
+        if (!userService.existsUserByUsername(username)) {
             return notFound();
         }
-    }
 
+        UserInfo user = userService.findUserInfoByUsername(username);
+        String[] clientName = clientNames.split(",");
+        ImmutableSet.Builder<String> clientNamesSetBuilder = ImmutableSet.builder();
+        for (String client : clientName) {
+            if (!"".equals(client) && clientService.clientExistsByName(client)) {
+                clientNamesSetBuilder.add(client);
+            }
+        }
+
+        Page<UserActivity> pageOfUserActivities = userActivityService.getPageOfUserActivities(page, PAGE_SIZE, orderBy, orderDir, filterString, clientNamesSetBuilder.build(), username);
+
+        LazyHtml content = new LazyHtml(listUserActivitiesView.render(username, pageOfUserActivities, orderBy, orderDir, filterString, clientNames));
+        content.appendLayout(c -> tabLayout.render(ImmutableList.of(new InternalLink(Messages.get("profile.profile"), routes.UserProfileController.viewProfile(username)), new InternalLink(Messages.get("profile.activities"), routes.UserActivityController.viewUserActivities(username))), c));
+        content.appendLayout(c -> headingLayout.render(username, c));
+        JophielControllerUtils.getInstance().appendSidebarLayout(content);
+        JophielControllerUtils.getInstance().appendBreadcrumbsLayout(content, ImmutableList.of(
+                new InternalLink(Messages.get("profile.profile"), routes.UserProfileController.viewProfile(username)),
+                new InternalLink(Messages.get("user.activities"), routes.UserActivityController.viewUserActivities(username))
+        ));
+        JophielControllerUtils.getInstance().appendTemplateLayout(content, "User - Activities");
+
+        JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Open user " + user.getUsername() + " activities <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
+
+        return JophielControllerUtils.getInstance().lazyOk(content);
+    }
 }

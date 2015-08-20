@@ -8,23 +8,23 @@ import java.util.List;
 
 public interface UserService {
 
-    boolean existByUsername(String username);
+    boolean existsUserByUsername(String username);
 
-    boolean existsByUserJid(String userJid);
+    boolean existsUserByJid(String userJid);
 
-    List<UserInfo> findAllUserByTerm(String term);
+    List<UserInfo> getUsersInfoByTerm(String term);
 
-    Page<UserInfo> pageUsers(long pageIndex, long pageSize, String orderBy, String orderDir, String filterString);
+    Page<UserInfo> getPageOfUsersInfo(long pageIndex, long pageSize, String orderBy, String orderDir, String filterString);
 
-    Page<UserInfo> pageUnverifiedUsers(long pageIndex, long pageSize, String orderBy, String orderDir, String filterString);
+    Page<UserInfo> getPageOfUnverifiedUsersInfo(long pageIndex, long pageSize, String orderBy, String orderDir, String filterString);
 
-    UserInfo findUserById(long userId) throws UserNotFoundException;
+    UserInfo findUserInfoById(long userId) throws UserNotFoundException;
 
-    UserInfo findUserByUserJid(String userJid);
+    UserInfo findUserInfoByJid(String userJid);
 
-    UserInfo findPublicUserByUserJid(String userJid);
+    UserInfo findPublicUserInfoByJid(String userJid);
 
-    UserInfo findUserByUsername(String username);
+    UserInfo findUserInfoByUsername(String username);
 
     void createUser(String username, String name, String email, String password, List<String> roles);
 

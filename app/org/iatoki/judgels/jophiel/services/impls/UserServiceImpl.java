@@ -39,17 +39,17 @@ public final class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean existByUsername(String username) {
+    public boolean existsUserByUsername(String username) {
         return userDao.existByUsername(username);
     }
 
     @Override
-    public boolean existsByUserJid(String userJid) {
+    public boolean existsUserByJid(String userJid) {
         return userDao.existsByJid(userJid);
     }
 
     @Override
-    public List<UserInfo> findAllUserByTerm(String term) {
+    public List<UserInfo> getUsersInfoByTerm(String term) {
         List<UserModel> userModels = userDao.findSortedByFilters("id", "asc", term, 0, -1);
         ImmutableList.Builder<UserInfo> userBuilder = ImmutableList.builder();
 
@@ -62,9 +62,9 @@ public final class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Page<UserInfo> pageUsers(long pageIndex, long pageSize, String orderBy, String orderDir, String filterString) {
-        List<String> userUserJid = userDao.findUserJidsByFilter(filterString);
-        List<String> emailUserJid = userEmailDao.findUserJidsByFilter(filterString);
+    public Page<UserInfo> getPageOfUsersInfo(long pageIndex, long pageSize, String orderBy, String orderDir, String filterString) {
+        List<String> userUserJid = userDao.getJidsByFilter(filterString);
+        List<String> emailUserJid = userEmailDao.getUserJidsByFilter(filterString);
 
         ImmutableSet.Builder<String> setBuilder = ImmutableSet.builder();
         setBuilder.addAll(userUserJid);
@@ -77,13 +77,13 @@ public final class UserServiceImpl implements UserService {
         if (totalRow > 0) {
             List<String> sortedUserJids;
             if (orderBy.equals("email")) {
-                sortedUserJids = userEmailDao.sortUserJidsByEmail(userJidSet, orderBy, orderDir);
+                sortedUserJids = userEmailDao.getSortedUserJidsByEmail(userJidSet, orderBy, orderDir);
             } else {
-                sortedUserJids = userDao.sortUserJidsByUserAttribute(userJidSet, orderBy, orderDir);
+                sortedUserJids = userDao.getSortedJidsByOrder(userJidSet, orderBy, orderDir);
             }
 
-            List<UserModel> userModels = userDao.findBySetOfUserJids(sortedUserJids, pageIndex * pageSize, pageSize);
-            List<UserEmailModel> userEmailModels = userEmailDao.findBySetOfUserJids(sortedUserJids, pageIndex * pageSize, pageSize);
+            List<UserModel> userModels = userDao.getByJids(sortedUserJids, pageIndex * pageSize, pageSize);
+            List<UserEmailModel> userEmailModels = userEmailDao.getByUserJids(sortedUserJids, pageIndex * pageSize, pageSize);
 
             for (int i = 0; i < userModels.size(); ++i) {
                 UserModel userModel = userModels.get(i);
@@ -96,10 +96,10 @@ public final class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Page<UserInfo> pageUnverifiedUsers(long pageIndex, long pageSize, String orderBy, String orderDir, String filterString) {
-        List<String> unverifiedEmailUserJids = userEmailDao.findUserJidsWithUnverifiedEmail();
-        List<String> userUserJids = userDao.findUserJidsByFilter(filterString);
-        List<String> emailUserJids = userEmailDao.findUserJidsByFilter(filterString);
+    public Page<UserInfo> getPageOfUnverifiedUsersInfo(long pageIndex, long pageSize, String orderBy, String orderDir, String filterString) {
+        List<String> unverifiedEmailUserJids = userEmailDao.getUserJidsWithUnverifiedEmail();
+        List<String> userUserJids = userDao.getJidsByFilter(filterString);
+        List<String> emailUserJids = userEmailDao.getUserJidsByFilter(filterString);
 
         userUserJids.retainAll(unverifiedEmailUserJids);
         emailUserJids.retainAll(unverifiedEmailUserJids);
@@ -115,13 +115,13 @@ public final class UserServiceImpl implements UserService {
         if (totalRow > 0) {
             List<String> sortedUserJid;
             if (orderBy.equals("email")) {
-                sortedUserJid = userEmailDao.sortUserJidsByEmail(userJidSet, orderBy, orderDir);
+                sortedUserJid = userEmailDao.getSortedUserJidsByEmail(userJidSet, orderBy, orderDir);
             } else {
-                sortedUserJid = userDao.sortUserJidsByUserAttribute(userJidSet, orderBy, orderDir);
+                sortedUserJid = userDao.getSortedJidsByOrder(userJidSet, orderBy, orderDir);
             }
 
-            List<UserModel> userModels = userDao.findBySetOfUserJids(sortedUserJid, pageIndex * pageSize, pageSize);
-            List<UserEmailModel> emailModels = userEmailDao.findBySetOfUserJids(sortedUserJid, pageIndex * pageSize, pageSize);
+            List<UserModel> userModels = userDao.getByJids(sortedUserJid, pageIndex * pageSize, pageSize);
+            List<UserEmailModel> emailModels = userEmailDao.getByUserJids(sortedUserJid, pageIndex * pageSize, pageSize);
 
             for (int i = 0; i < userModels.size(); ++i) {
                 UserModel userModel = userModels.get(i);
@@ -134,7 +134,7 @@ public final class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserInfo findUserById(long userId) throws UserNotFoundException {
+    public UserInfo findUserInfoById(long userId) throws UserNotFoundException {
         UserModel userModel = userDao.findById(userId);
         if (userModel != null) {
             UserEmailModel emailModel = userEmailDao.findByUserJid(userModel.jid);
@@ -146,7 +146,7 @@ public final class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserInfo findUserByUserJid(String userJid) {
+    public UserInfo findUserInfoByJid(String userJid) {
         UserModel userModel = userDao.findByJid(userJid);
         UserEmailModel emailModel = userEmailDao.findByUserJid(userModel.jid);
 
@@ -154,14 +154,14 @@ public final class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserInfo findPublicUserByUserJid(String userJid) {
+    public UserInfo findPublicUserInfoByJid(String userJid) {
         UserModel userModel = userDao.findByJid(userJid);
 
         return createPublicUserFromModels(userModel);
     }
 
     @Override
-    public UserInfo findUserByUsername(String username) {
+    public UserInfo findUserInfoByUsername(String username) {
         UserModel userModel = userDao.findByUsername(username);
         UserEmailModel emailModel = userEmailDao.findByUserJid(userModel.jid);
 
@@ -170,68 +170,72 @@ public final class UserServiceImpl implements UserService {
 
     @Override
     public void createUser(String username, String name, String email, String password, List<String> roles) {
+        UserModel userModel = new UserModel();
+        userModel.username = username;
+        userModel.name = name;
+
         try {
-            UserModel userModel = new UserModel();
-            userModel.username = username;
-            userModel.name = name;
             userModel.password = PasswordHash.createHash(password);
-            userModel.profilePictureImageName = "avatar-default.png";
-            userModel.roles = StringUtils.join(roles, ",");
-
-            userDao.persist(userModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
-
-            UserEmailModel emailModel = new UserEmailModel(email, true);
-            emailModel.userJid = userModel.jid;
-
-            userEmailDao.persist(emailModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
             throw new IllegalStateException(e);
         }
+
+        userModel.profilePictureImageName = "avatar-default.png";
+        userModel.roles = StringUtils.join(roles, ",");
+
+        userDao.persist(userModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
+
+        UserEmailModel emailModel = new UserEmailModel(email, true);
+        emailModel.userJid = userModel.jid;
+
+        userEmailDao.persist(emailModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
     }
 
     @Override
     public void updateUser(long userId, String username, String name, String email, List<String> roles) throws UserNotFoundException {
         UserModel userModel = userDao.findById(userId);
-        if (userModel != null) {
-            UserEmailModel emailModel = userEmailDao.findByUserJid(userModel.jid);
-
-            userModel.username = username;
-            userModel.name = name;
-            userModel.roles = StringUtils.join(roles, ",");
-
-            userDao.edit(userModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
-
-            emailModel.email = email;
-
-            userEmailDao.edit(emailModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
-        } else {
+        if (userModel == null) {
             throw new UserNotFoundException("UserInfo not found.");
         }
+
+        UserEmailModel emailModel = userEmailDao.findByUserJid(userModel.jid);
+
+        userModel.username = username;
+        userModel.name = name;
+        userModel.roles = StringUtils.join(roles, ",");
+
+        userDao.edit(userModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
+
+        emailModel.email = email;
+
+        userEmailDao.edit(emailModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
     }
 
     @Override
     public void updateUser(long userId, String username, String name, String email, String password, List<String> roles) throws UserNotFoundException {
         UserModel userModel = userDao.findById(userId);
-        if (userModel != null) {
-            try {
-                UserEmailModel emailModel = userEmailDao.findByUserJid(userModel.jid);
-
-                userModel.username = username;
-                userModel.name = name;
-                userModel.password = PasswordHash.createHash(password);
-                userModel.roles = StringUtils.join(roles, ",");
-
-                userDao.edit(userModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
-
-                emailModel.email = email;
-
-                userEmailDao.edit(emailModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
-            } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-                throw new IllegalStateException(e);
-            }
-        } else {
+        if (userModel == null) {
             throw new UserNotFoundException("UserInfo not found.");
         }
+
+        UserEmailModel emailModel = userEmailDao.findByUserJid(userModel.jid);
+
+        userModel.username = username;
+        userModel.name = name;
+
+        try {
+            userModel.password = PasswordHash.createHash(password);
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            throw new IllegalStateException(e);
+        }
+
+        userModel.roles = StringUtils.join(roles, ",");
+
+        userDao.edit(userModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
+
+        emailModel.email = email;
+
+        userEmailDao.edit(emailModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
     }
 
     @Override
