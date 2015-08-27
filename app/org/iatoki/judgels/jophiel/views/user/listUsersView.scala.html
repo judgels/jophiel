@@ -4,17 +4,17 @@
 @import org.iatoki.judgels.play.views.html.table.searchView
 @import org.iatoki.judgels.play.views.html.table.paginationView
 @import org.iatoki.judgels.play.Page
-@import org.iatoki.judgels.jophiel.UserInfo
+@import org.iatoki.judgels.jophiel.User
 @import org.iatoki.judgels.jophiel.controllers.routes
 
-@(pageOfUsersInfo: Page[UserInfo], orderBy: String, orderDir: String, filterString: String)
+@(pageOfUsers: Page[User], orderBy: String, orderDir: String, filterString: String)
 
-@searchView(pageOfUsersInfo.getPageIndex, orderBy, orderDir, filterString, routes.UserController.listUsers)
+@searchView(pageOfUsers.getPageIndex, orderBy, orderDir, filterString, routes.UserController.listUsers)
 
 <div class="clearfix"></div>
 
 @tableView() {
-    @tableHeadersView(pageOfUsersInfo.getPageIndex, orderBy, orderDir, filterString, routes.UserController.listUsers)(
+    @tableHeadersView(pageOfUsers.getPageIndex, orderBy, orderDir, filterString, routes.UserController.listUsers)(
         "id" -> Messages.get("commons.id"),
         "username" -> Messages.get("user.username"),
         "name" -> Messages.get("user.name"),
@@ -23,12 +23,12 @@
     )
 
     <tbody>
-        @for(user <- pageOfUsersInfo.getData) {
+        @for(user <- pageOfUsers.getData) {
             <tr>
                 <td>@user.getId</td>
                 <td>@user.getUsername</td>
                 <td>@user.getName</td>
-                <td>@user.getEmail</td>
+                <td>@user.getEmailJid</td>
                 <td>@user.getRoles</td>
                 <td class="text-center">
                     <a href="@routes.UserController.viewUser(user.getId)"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></a>
@@ -40,4 +40,4 @@
     </tbody>
 }
 
-@paginationView(pageOfUsersInfo, orderBy, orderDir, filterString, routes.UserController.listUsers)
+@paginationView(pageOfUsers, orderBy, orderDir, filterString, routes.UserController.listUsers)

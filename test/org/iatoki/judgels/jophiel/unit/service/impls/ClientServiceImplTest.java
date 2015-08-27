@@ -824,7 +824,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void updateClientUpdateClientParametersClientUpdatePersisted() {
+    public void updateClientUpdateClientParametersClientUpdatePersisted() throws ClientNotFoundException {
         long clientId = 1L;
         String name = "Bob";
         List<String> scopes = Arrays.asList("OPENID");
@@ -866,7 +866,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
     }
 
     @Test
-    public void deleteClientExistingClientExistingClientRemoved() {
+    public void deleteClientExistingClientExistingClientRemoved() throws ClientNotFoundException {
         long clientId = 1L;
 
         ClientModel clientModel = new ClientModel();
@@ -878,8 +878,8 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         Mockito.verify(clientDao, Mockito.times(1)).remove(clientModel);
     }
 
-    @Test(expectedExceptions = IllegalArgumentException.class)
-    public void deleteClientNonExistingClientThrowsIllegalArgumentException() {
+    @Test(expectedExceptions = ClientNotFoundException.class)
+    public void deleteClientNonExistingClientThrowsClientNotFoundException() throws ClientNotFoundException {
         long clientId = -1L;
 
         Mockito.when(clientDao.findById(clientId)).thenReturn(null);

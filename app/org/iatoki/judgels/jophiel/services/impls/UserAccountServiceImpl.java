@@ -2,7 +2,7 @@ package org.iatoki.judgels.jophiel.services.impls;
 
 import org.iatoki.judgels.jophiel.EmailNotVerifiedException;
 import org.iatoki.judgels.jophiel.PasswordHash;
-import org.iatoki.judgels.jophiel.UserInfo;
+import org.iatoki.judgels.jophiel.User;
 import org.iatoki.judgels.jophiel.UserNotFoundException;
 import org.iatoki.judgels.jophiel.models.daos.UserDao;
 import org.iatoki.judgels.jophiel.models.daos.UserEmailDao;
@@ -47,6 +47,7 @@ public final class UserAccountServiceImpl implements UserAccountService {
         UserModel userModel = new UserModel();
         userModel.username = username;
         userModel.name = name;
+        userModel.showName = true;
 
         try {
             userModel.password = PasswordHash.createHash(password);
@@ -64,10 +65,16 @@ public final class UserAccountServiceImpl implements UserAccountService {
         }
 
         String emailCode = JudgelsPlayUtils.hashMD5(UUID.randomUUID().toString());
-        UserEmailModel emailModel = new UserEmailModel(email, emailCode);
+        UserEmailModel emailModel = new UserEmailModel();
+        emailModel.email = email;
+        emailModel.emailCode = emailCode;
         emailModel.userJid = userModel.jid;
 
         userEmailDao.persist(emailModel, "guest", IdentityUtils.getIpAddress());
+
+        userModel.emailJid = emailModel.jid;
+
+        userDao.edit(userModel, "guest", IdentityUtils.getIpAddress());
 
         return emailCode;
     }
@@ -110,13 +117,13 @@ public final class UserAccountServiceImpl implements UserAccountService {
     }
 
     @Override
-    public UserInfo processLogin(String usernameOrEmail, String password) throws UserNotFoundException, EmailNotVerifiedException {
+    public User processLogin(String usernameOrEmail, String password) throws UserNotFoundException, EmailNotVerifiedException {
         try {
             UserModel userModel;
             UserEmailModel emailModel;
             if (userDao.existByUsername(usernameOrEmail)) {
                 userModel = userDao.findByUsername(usernameOrEmail);
-                emailModel = userEmailDao.findByUserJid(userModel.jid);
+                emailModel = userEmailDao.findByJid(userModel.emailJid);
             } else if (userEmailDao.existsByEmail(usernameOrEmail)) {
                 emailModel = userEmailDao.findByEmail(usernameOrEmail);
                 userModel = userDao.findByJid(emailModel.userJid);
@@ -126,7 +133,7 @@ public final class UserAccountServiceImpl implements UserAccountService {
 
             if (userModel.password.contains(":") && PasswordHash.validatePassword(password, userModel.password)) {
                 if (emailModel.emailVerified) {
-                    return createUserFromModels(userModel, emailModel);
+                    return createUserFromModels(userModel);
                 } else {
                     throw new EmailNotVerifiedException();
                 }
@@ -135,7 +142,7 @@ public final class UserAccountServiceImpl implements UserAccountService {
 
                 userDao.edit(userModel, "guest", IdentityUtils.getIpAddress());
                 if (emailModel.emailVerified) {
-                    return createUserFromModels(userModel, emailModel);
+                    return createUserFromModels(userModel);
                 } else {
                     throw new EmailNotVerifiedException();
                 }
@@ -160,8 +167,8 @@ public final class UserAccountServiceImpl implements UserAccountService {
         userDao.edit(userModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
     }
 
-    private UserInfo createUserFromModels(UserModel userModel, UserEmailModel emailModel) {
-        return new UserInfo(userModel.id, userModel.jid, userModel.username, userModel.name, emailModel.email, getAvatarImageUrl(userModel.profilePictureImageName), Arrays.asList(userModel.roles.split(",")));
+    private User createUserFromModels(UserModel userModel) {
+        return new User(userModel.id, userModel.jid, userModel.username, userModel.name, userModel.emailJid, userModel.phoneJid, userModel.showName, getAvatarImageUrl(userModel.profilePictureImageName), Arrays.asList(userModel.roles.split(",")));
     }
 
     private URL getAvatarImageUrl(String imageName) {

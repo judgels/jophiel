@@ -2,6 +2,9 @@ package org.iatoki.judgels.jophiel.controllers;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import org.iatoki.judgels.jophiel.controllers.securities.Authenticated;
+import org.iatoki.judgels.jophiel.controllers.securities.HasRole;
+import org.iatoki.judgels.jophiel.controllers.securities.LoggedIn;
 import org.iatoki.judgels.play.InternalLink;
 import org.iatoki.judgels.play.LazyHtml;
 import org.iatoki.judgels.play.views.html.layouts.headingLayout;
@@ -28,6 +31,7 @@ public class WelcomeController {
         this.userActivityService = userActivityService;
     }
 
+    @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Transactional
     public Result index() {
         ImmutableMap.Builder<String, String> clientMapBuilder = ImmutableMap.builder();

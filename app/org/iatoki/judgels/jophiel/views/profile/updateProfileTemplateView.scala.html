@@ -1,0 +1,38 @@
+@import play.i18n.Messages
+@import play.api.mvc.Call
+@import org.iatoki.judgels.jophiel.forms.UserProfileUpdateForm
+@import org.iatoki.judgels.jophiel.forms.UserAvatarForm
+@import org.iatoki.judgels.play.views.html.formErrorView
+
+@(userProfileUpdateForm: Form[UserProfileUpdateForm], userProfilePictureForm: Form[UserAvatarForm], updatePictureCall: Call, updateProfileCall: Call)
+
+@implicitFieldConstructor = @{ b3.horizontal.fieldConstructor("col-md-3", "col-md-9") }
+
+<script type="text/javascript" src="@controllers.routes.Assets.versioned("javascripts/userProfilePicture.js")"></script>
+<script type="text/javascript" src="@controllers.routes.Assets.versioned("javascripts/passwordMatch.js")"></script>
+<script type="text/javascript" src="@controllers.routes.Assets.versioned("javascripts/passwordStrength.js")"></script>
+
+<img class="avatar-picture center-block" src="@session().get("avatar")" alt="profilePicture"/>
+<br />
+<br />
+
+@formErrorView(userProfilePictureForm)
+
+@b3.form(updatePictureCall, 'enctype -> "multipart/form-data", 'id -> "avatar-form") {
+    @helper.CSRF.formField
+
+    @b3.file(userProfilePictureForm("avatar"), '_label -> Messages.get("user.profile.avatar"), 'id -> "avatar-input", 'class -> "")
+}
+
+@formErrorView(userProfileUpdateForm)
+
+@b3.form(updateProfileCall) {
+    @helper.CSRF.formField
+
+    @b3.text(userProfileUpdateForm("name"), '_label -> Messages.get("user.account.name"))
+    @b3.checkbox(userProfileUpdateForm("showName"), '_label -> Messages.get("user.account.showName"), '_help -> Messages.get("user.account.help.showName"))
+    @b3.password(userProfileUpdateForm("password"), '_label -> Messages.get("user.account.password"), 'class -> "form-control zxcvbn match-src")
+    @b3.password(userProfileUpdateForm("confirmPassword"), '_label -> Messages.get("user.account.confirmPassword"), 'class -> "form-control match-tgt")
+
+    @b3.submit('class -> "btn btn-primary") { @Messages.get("commons.update") }
+}

@@ -1,5 +1,0 @@
-@import org.iatoki.judgels.jophiel.controllers.routes
-
-@(userProfileForm: Form[org.iatoki.judgels.jophiel.forms.UserProfileForm], userProfilePictureForm: Form[org.iatoki.judgels.jophiel.forms.UserProfilePictureForm], returnURI: String)
-
-@editProfileTemplateView(userProfileForm, userProfilePictureForm, routes.UserProfileController.postServiceAvatar(returnURI), routes.UserProfileController.postServiceProfile(returnURI))

@@ -1,0 +1,52 @@
+@import play.i18n.Messages
+@import org.iatoki.judgels.play.views.html.formErrorView
+@import org.iatoki.judgels.jophiel.controllers.routes
+@import org.iatoki.judgels.jophiel.forms.UserPhoneCreateForm
+@import org.iatoki.judgels.jophiel.UserPhone
+
+@(userPhoneCreateForm: Form[UserPhoneCreateForm], primaryPhone: UserPhone, userPhones: List[UserPhone])
+
+@implicitFieldConstructor = @{ b3.horizontal.fieldConstructor("col-md-3", "col-md-9") }
+
+<table class="table table-striped table-condensed">
+    <thead>
+        <tr>
+            <th>@Messages.get("user.phone")</th>
+            <th>@Messages.get("user.phone.status")</th>
+            <th>@Messages.get("commons.actions")</th>
+        </tr>
+    </thead>
+    <tbody>
+        @for(userPhone <- userPhones) {
+            <tr>
+                <td>@userPhone.getPhone</td>
+                <td>
+                    @if((primaryPhone != null) && primaryPhone.getJid.equals(userPhone.getJid)) {
+                        <span class="label label-primary">@Messages.get("user.phone.primary")</span>
+                    }
+                    @if(userPhone.isPhoneVerified) {
+                        <span class="label label-success"> @Messages.get("user.phone.verified")</span>
+                    } else {
+                        <span class="label label-danger"> @Messages.get("user.phone.unverified")</span>
+                    }
+                </td>
+                <td>
+                    @if((primaryPhone == null) || !primaryPhone.getJid.equals(userPhone.getJid)) {
+                        <a href="@routes.UserPhoneController.makePhonePrimary(userPhone.getId)" class="btn btn-xs btn-primary">@Messages.get("user.phone.makePrimary")</a>
+                        <a href="@routes.UserPhoneController.removePhone(userPhone.getId)" class="btn btn-xs btn-danger">@Messages.get("commons.remove")</a>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@formErrorView(userPhoneCreateForm)
+
+@b3.form(routes.UserPhoneController.postCreatePhone()) {
+    @helper.CSRF.formField
+
+    @b3.text(userPhoneCreateForm("phone"), '_label -> Messages.get("user.phone"))
+
+    @b3.submit('class -> "btn btn-primary") { @Messages.get("commons.add") }
+}

@@ -21,6 +21,12 @@ public final class UserModel extends AbstractJudgelsModel {
 
     public String profilePictureImageName;
 
+    public String emailJid;
+
+    public String phoneJid;
+
+    public boolean showName;
+
     public String roles;
 
     public UserModel() {

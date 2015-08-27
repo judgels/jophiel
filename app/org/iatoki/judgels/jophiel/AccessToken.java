@@ -3,19 +3,12 @@ package org.iatoki.judgels.jophiel;
 public final class AccessToken {
 
     private final long id;
-
     private final String code;
-
     private final String userJid;
-
     private final String clientJid;
-
     private final String token;
-
     private final long expireTime;
-
     private final boolean redeemed;
-
     private final String scopes;
 
     public AccessToken(long id, String code, String userJid, String clientJid, String token, long expireTime, boolean redeemed, String scopes) {

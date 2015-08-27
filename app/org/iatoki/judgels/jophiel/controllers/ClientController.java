@@ -59,6 +59,38 @@ public final class ClientController extends AbstractJudgelsController {
     }
 
     @Transactional
+    public Result listClients(long page, String orderBy, String orderDir, String filterString) {
+        Page<Client> pageOfClients = clientService.getPageOfClients(page, PAGE_SIZE, orderBy, orderDir, filterString);
+
+        LazyHtml content = new LazyHtml(listClientsView.render(pageOfClients, orderBy, orderDir, filterString));
+        content.appendLayout(c -> headingWithActionLayout.render(Messages.get("client.list"), new InternalLink(Messages.get("commons.create"), routes.ClientController.createClient()), c));
+        JophielControllerUtils.getInstance().appendSidebarLayout(content);
+        appendBreadcrumbsLayout(content);
+        JophielControllerUtils.getInstance().appendTemplateLayout(content, "Clients");
+
+        JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Open all clients <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
+
+        return JophielControllerUtils.getInstance().lazyOk(content);
+    }
+
+    @Transactional
+    public Result viewClient(long clientId) throws ClientNotFoundException {
+        Client client = clientService.findClientById(clientId);
+
+        LazyHtml content = new LazyHtml(viewClientView.render(client));
+        content.appendLayout(c -> headingWithActionLayout.render(Messages.get("client.client") + " #" + clientId + ": " + client.getName(), new InternalLink(Messages.get("commons.update"), routes.ClientController.updateClient(clientId)), c));
+        JophielControllerUtils.getInstance().appendSidebarLayout(content);
+        appendBreadcrumbsLayout(content,
+                new InternalLink(Messages.get("client.view"), routes.ClientController.viewClient(clientId))
+        );
+        JophielControllerUtils.getInstance().appendTemplateLayout(content, "Client - View");
+
+        JophielControllerUtils.getInstance().addActivityLog(userActivityService, "View client " + client.getName() + " <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
+
+        return JophielControllerUtils.getInstance().lazyOk(content);
+    }
+
+    @Transactional
     @AddCSRFToken
     public Result createClient() {
         Form<ClientCreateForm> clientCreateForm = Form.form(ClientCreateForm.class);
@@ -86,38 +118,6 @@ public final class ClientController extends AbstractJudgelsController {
     }
 
     @Transactional
-    public Result viewClient(long clientId) throws ClientNotFoundException {
-        Client client = clientService.findClientById(clientId);
-
-        LazyHtml content = new LazyHtml(viewClientView.render(client));
-        content.appendLayout(c -> headingWithActionLayout.render(Messages.get("client.client") + " #" + clientId + ": " + client.getName(), new InternalLink(Messages.get("commons.update"), routes.ClientController.updateClient(clientId)), c));
-        JophielControllerUtils.getInstance().appendSidebarLayout(content);
-        appendBreadcrumbsLayout(content,
-                new InternalLink(Messages.get("client.view"), routes.ClientController.viewClient(clientId))
-        );
-        JophielControllerUtils.getInstance().appendTemplateLayout(content, "Client - View");
-
-        JophielControllerUtils.getInstance().addActivityLog(userActivityService, "View client " + client.getName() + " <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
-
-        return JophielControllerUtils.getInstance().lazyOk(content);
-    }
-
-    @Transactional
-    public Result listClients(long page, String orderBy, String orderDir, String filterString) {
-        Page<Client> pageOfClients = clientService.getPageOfClients(page, PAGE_SIZE, orderBy, orderDir, filterString);
-
-        LazyHtml content = new LazyHtml(listClientsView.render(pageOfClients, orderBy, orderDir, filterString));
-        content.appendLayout(c -> headingWithActionLayout.render(Messages.get("client.list"), new InternalLink(Messages.get("commons.create"), routes.ClientController.createClient()), c));
-        JophielControllerUtils.getInstance().appendSidebarLayout(content);
-        appendBreadcrumbsLayout(content);
-        JophielControllerUtils.getInstance().appendTemplateLayout(content, "Clients");
-
-        JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Open all clients <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
-
-        return JophielControllerUtils.getInstance().lazyOk(content);
-    }
-
-    @Transactional
     @AddCSRFToken
     public Result updateClient(long clientId) throws ClientNotFoundException {
         Client client = clientService.findClientById(clientId);
@@ -135,6 +135,7 @@ public final class ClientController extends AbstractJudgelsController {
     }
 
     @Transactional
+    @RequireCSRFCheck
     public Result postUpdateClient(long clientId) throws ClientNotFoundException {
         Client client = clientService.findClientById(clientId);
 

@@ -6,32 +6,23 @@ import java.util.List;
 public final class User {
 
     private long id;
-
     private String jid;
-
     private String username;
-
     private String name;
-
-    private String email;
-
+    private String emailJid;
+    private String phoneJid;
+    private boolean showName;
     private URL profilePictureUrl;
-
     private List<String> roles;
 
-    public User(String jid, String username, String name, URL profilePictureUrl) {
-        this.jid = jid;
-        this.username = username;
-        this.name = name;
-        this.profilePictureUrl = profilePictureUrl;
-    }
-
-    public User(long id, String jid, String username, String name, String email, URL profilePictureUrl, List<String> roles) {
+    public User(long id, String jid, String username, String name, String emailJid, String phoneJid, boolean showName, URL profilePictureUrl, List<String> roles) {
         this.id = id;
         this.jid = jid;
         this.username = username;
         this.name = name;
-        this.email = email;
+        this.emailJid = emailJid;
+        this.phoneJid = phoneJid;
+        this.showName = showName;
         this.profilePictureUrl = profilePictureUrl;
         this.roles = roles;
     }
@@ -52,8 +43,16 @@ public final class User {
         return name;
     }
 
-    public String getEmail() {
-        return email;
+    public String getEmailJid() {
+        return emailJid;
+    }
+
+    public String getPhoneJid() {
+        return phoneJid;
+    }
+
+    public boolean isShowName() {
+        return showName;
     }
 
     public URL getProfilePictureUrl() {

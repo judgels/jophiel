@@ -4,8 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.codec.binary.Base64;
 import org.iatoki.judgels.jophiel.AccessToken;
+import org.iatoki.judgels.jophiel.User;
 import org.iatoki.judgels.jophiel.UserActivity;
-import org.iatoki.judgels.jophiel.UserInfo;
 import org.iatoki.judgels.jophiel.services.ClientService;
 import org.iatoki.judgels.jophiel.services.UserActivityService;
 import org.iatoki.judgels.jophiel.services.UserService;
@@ -53,7 +53,7 @@ public final class UserActivityAPIController extends AbstractJudgelsAPIControlle
         }
 
         AccessToken accessToken = clientService.getAccessTokenByAccessTokenString(token);
-        UserInfo user = userService.findUserInfoByJid(accessToken.getUserJid());
+        User user = userService.findUserByJid(accessToken.getUserJid());
         String userActivitiesString = dForm.get("userActivities");
         JsonNode userActivitiesJson = Json.parse(userActivitiesString);
         for (int i = 0; i < userActivitiesJson.size(); ++i) {

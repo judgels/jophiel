@@ -3,17 +3,11 @@ package org.iatoki.judgels.jophiel;
 public final class AuthorizationCode {
 
     private final long id;
-
     private final String userJid;
-
     private final String clientJid;
-
     private final String code;
-
     private final String redirectURI;
-
     private final long expireTime;
-
     private final String scopes;
 
     public AuthorizationCode(long id, String userJid, String clientJid, String code, String redirectURI, long expireTime, String scopes) {

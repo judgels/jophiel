@@ -3,19 +3,12 @@ package org.iatoki.judgels.jophiel;
 public final class UserActivity {
 
     private long id;
-
     private long time;
-
     private String userJid;
-
     private String username;
-
     private String clientJid;
-
     private String clientName;
-
     private String log;
-
     private String ipAddress;
 
     public UserActivity() {

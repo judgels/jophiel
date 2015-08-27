@@ -24,17 +24,18 @@ public final class JophielControllerUtils extends AbstractJudgelsControllerUtils
     public void appendSidebarLayout(LazyHtml content) {
         ImmutableList.Builder<InternalLink> internalLinkBuilder = ImmutableList.builder();
         internalLinkBuilder.add(new InternalLink(Messages.get("welcome.welcome"), routes.WelcomeController.index()));
-        internalLinkBuilder.add(new InternalLink(Messages.get("profile.profile"), routes.UserProfileController.profile()));
+        internalLinkBuilder.add(new InternalLink(Messages.get("profile.profile"), routes.UserProfileController.updateProfile()));
         if (JophielUtils.hasRole("admin")) {
             internalLinkBuilder.add(new InternalLink(Messages.get("user.users"), routes.UserController.index()));
             internalLinkBuilder.add(new InternalLink(Messages.get("user.activities"), routes.UserActivityController.index()));
             internalLinkBuilder.add(new InternalLink(Messages.get("client.clients"), routes.ClientController.index()));
+            internalLinkBuilder.add(new InternalLink(Messages.get("autoSuggestions"), routes.AutoSuggestionController.index()));
         }
 
         LazyHtml sidebarContent = new LazyHtml(profileView.render(
               IdentityUtils.getUsername(),
               IdentityUtils.getUserRealName(),
-              org.iatoki.judgels.jophiel.controllers.routes.UserProfileController.profile().absoluteURL(Http.Context.current().request()),
+              org.iatoki.judgels.jophiel.controllers.routes.UserProfileController.updateProfile().absoluteURL(Http.Context.current().request()),
               org.iatoki.judgels.jophiel.controllers.routes.UserAccountController.logout().absoluteURL(Http.Context.current().request())
         ));
         sidebarContent.appendLayout(c -> menusLayout.render(internalLinkBuilder.build(), c));

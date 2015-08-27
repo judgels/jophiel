@@ -1,10 +1,13 @@
 @import play.i18n.Messages
 @import org.iatoki.judgels.jophiel.controllers.routes
+@import org.iatoki.judgels.play.IdentityUtils
 
 @()
 
-<h2>@Messages.get("activation.successful")</h2>
+<h2>@Messages.get("verification.successful")</h2>
 
-<p>@Messages.get("activation.canNowLogin")</p>
+@if(IdentityUtils.getUserJid == null) {
+    <p>@Messages.get("activation.canNowLogin")</p>
 
-<a class="btn btn-primary btn-sm" href="@routes.UserAccountController.login()">@Messages.get("login.logIn")</a>
+    <a class="btn btn-primary btn-sm" href="@routes.UserAccountController.login()">@Messages.get("login.logIn")</a>
+}

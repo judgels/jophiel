@@ -1,9 +1,9 @@
 package org.iatoki.judgels.jophiel.models.daos.impls;
 
-import org.iatoki.judgels.play.models.daos.impls.AbstractHibernateDao;
 import org.iatoki.judgels.jophiel.models.daos.UserEmailDao;
 import org.iatoki.judgels.jophiel.models.entities.UserEmailModel;
 import org.iatoki.judgels.jophiel.models.entities.UserEmailModel_;
+import org.iatoki.judgels.play.models.daos.impls.AbstractJudgelsHibernateDao;
 import play.db.jpa.JPA;
 
 import javax.inject.Named;
@@ -20,7 +20,7 @@ import java.util.List;
 
 @Singleton
 @Named("userEmailDao")
-public final class UserEmailHibernateDao extends AbstractHibernateDao<Long, UserEmailModel> implements UserEmailDao {
+public final class UserEmailHibernateDao extends AbstractJudgelsHibernateDao<UserEmailModel> implements UserEmailDao {
 
     public UserEmailHibernateDao() {
         super(UserEmailModel.class);
@@ -38,12 +38,12 @@ public final class UserEmailHibernateDao extends AbstractHibernateDao<Long, User
     }
 
     @Override
-    public boolean existsUnverifiedEmailByUserJid(String userJid) {
+    public boolean existsUnverifiedEmailByJid(String jid) {
         CriteriaBuilder cb = JPA.em().getCriteriaBuilder();
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
         Root<UserEmailModel> root = query.from(UserEmailModel.class);
 
-        query.select(cb.count(root)).where(cb.and(cb.equal(root.get(UserEmailModel_.userJid), userJid), cb.equal(root.get(UserEmailModel_.emailVerified), false)));
+        query.select(cb.count(root)).where(cb.and(cb.equal(root.get(UserEmailModel_.jid), jid), cb.equal(root.get(UserEmailModel_.emailVerified), false)));
 
         return (JPA.em().createQuery(query).getSingleResult() != 0);
     }
@@ -60,7 +60,7 @@ public final class UserEmailHibernateDao extends AbstractHibernateDao<Long, User
     }
 
     @Override
-    public UserEmailModel findByUserJid(String userJid) {
+    public List<UserEmailModel> getByUserJid(String userJid) {
         CriteriaBuilder cb = JPA.em().getCriteriaBuilder();
         CriteriaQuery<UserEmailModel> query = cb.createQuery(UserEmailModel.class);
 
@@ -68,7 +68,7 @@ public final class UserEmailHibernateDao extends AbstractHibernateDao<Long, User
 
         query.where(cb.equal(root.get(UserEmailModel_.userJid), userJid));
 
-        return JPA.em().createQuery(query).getSingleResult();
+        return JPA.em().createQuery(query).getResultList();
     }
 
     @Override

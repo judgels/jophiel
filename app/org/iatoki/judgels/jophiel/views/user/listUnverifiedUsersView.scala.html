@@ -4,37 +4,35 @@
 @import org.iatoki.judgels.play.views.html.table.searchView
 @import org.iatoki.judgels.play.views.html.table.paginationView
 @import org.iatoki.judgels.play.Page
-@import org.iatoki.judgels.jophiel.UserInfo
+@import org.iatoki.judgels.jophiel.UnverifiedUserEmail
 @import org.iatoki.judgels.jophiel.controllers.routes
 
-@(pageOfUsersInfo: Page[UserInfo], orderBy: String, orderDir: String, filterString: String)
+@(pageOfUnverifiedUserEmails: Page[UnverifiedUserEmail], orderBy: String, orderDir: String, filterString: String)
 
-@searchView(pageOfUsersInfo.getPageIndex, orderBy, orderDir, filterString, routes.UserController.listUnverifiedUsers)
+@searchView(pageOfUnverifiedUserEmails.getPageIndex, orderBy, orderDir, filterString, routes.UserController.listUnverifiedUsers)
 
 <div class="clearfix"></div>
 
 @tableView() {
-    @tableHeadersView(pageOfUsersInfo.getPageIndex, orderBy, orderDir, filterString, routes.UserController.listUnverifiedUsers)(
+    @tableHeadersView(pageOfUnverifiedUserEmails.getPageIndex, orderBy, orderDir, filterString, routes.UserController.listUnverifiedUsers)(
         "id" -> Messages.get("commons.id"),
         "username" -> Messages.get("user.username"),
-        "name" -> Messages.get("user.name"),
         "email" -> Messages.get("user.email")
     )
 
     <tbody>
-        @for(user <- pageOfUsersInfo.getData) {
+        @for(userEmail <- pageOfUnverifiedUserEmails.getData) {
             <tr>
-                <td>@user.getId</td>
-                <td>@user.getUsername</td>
-                <td>@user.getName</td>
-                <td>@user.getEmail</td>
+                <td>@userEmail.getId</td>
+                <td>@userEmail.getUsername</td>
+                <td>@userEmail.getEmail</td>
                 <td class="text-center">
-                    <a href="@routes.UserEmailController.resendEmailVerification(user.getId)" class="btn btn-primary btn-sm">@Messages.get("user.email.resendVerification")</a>
-                    <a href="@routes.UserEmailController.activateMainEmail(user.getId)" class="btn btn-primary btn-sm">@Messages.get("user.email.activate")</a>
+                    <a href="@routes.UserEmailController.resendEmailVerification(userEmail.getId)" class="btn btn-primary btn-sm">@Messages.get("user.email.resendVerification")</a>
+                    <a href="@routes.UserEmailController.activateEmail(userEmail.getId)" class="btn btn-primary btn-sm">@Messages.get("user.email.activate")</a>
                 </td>
             </tr>
         }
     </tbody>
 }
 
-@paginationView(pageOfUsersInfo, orderBy, orderDir, filterString, routes.UserController.listUnverifiedUsers)
+@paginationView(pageOfUnverifiedUserEmails, orderBy, orderDir, filterString, routes.UserController.listUnverifiedUsers)

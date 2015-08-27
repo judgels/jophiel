@@ -1,0 +1,69 @@
+@import play.i18n.Messages
+@import org.iatoki.judgels.play.views.html.table.tableView
+@import org.iatoki.judgels.play.views.html.table.tableHeadersView
+@import org.iatoki.judgels.play.views.html.table.searchView
+@import org.iatoki.judgels.play.views.html.table.paginationView
+@import org.iatoki.judgels.play.views.html.formErrorView
+@import org.iatoki.judgels.jophiel.controllers.routes
+@import org.iatoki.judgels.play.Page
+@import org.iatoki.judgels.jophiel.City
+@import org.iatoki.judgels.jophiel.forms.CityCreateForm
+@import org.iatoki.judgels.jophiel.forms.CityUploadForm
+
+@(pageOfCities: Page[City], orderBy: String, orderDir: String, filterString: String, cityCreateForm: Form[CityCreateForm], cityUploadForm: Form[CityUploadForm])
+
+@implicitFieldConstructor = @{ b3.horizontal.fieldConstructor("col-md-3", "col-md-9") }
+
+<h4>@Messages.get("city.importTXT")</h4>
+
+@formErrorView(cityUploadForm)
+
+@b3.form(routes.CityController.postUploadCity(pageOfCities.getPageIndex, orderBy, orderDir, filterString), 'enctype->"multipart/form-data") {
+
+    @helper.CSRF.formField
+
+    @b3.file(cityUploadForm("cities"), '_label -> Messages.get("city.cities"), 'class -> "form-control", '_help -> Messages.get("city.help.importTXT"))
+
+    @b3.submit('class -> "btn btn-primary") { @Messages.get("commons.upload") }
+}
+
+
+<h4>@Messages.get("city.manualCreate")</h4>
+
+@formErrorView(cityCreateForm)
+
+@b3.form(routes.CityController.postCreateCity(pageOfCities.getPageIndex, orderBy, orderDir, filterString)) {
+
+    @helper.CSRF.formField
+
+    @b3.text(cityCreateForm("name"), '_label -> Messages.get("city.name"), 'class -> "form-control")
+
+    @b3.submit('class -> "btn btn-primary") { @Messages.get("commons.add") }
+}
+
+
+@searchView(pageOfCities.getPageIndex, orderBy, orderDir, filterString, routes.CityController.listCreateCities)
+
+<div class="clearfix"></div>
+
+@tableView() {
+    @tableHeadersView(pageOfCities.getPageIndex, orderBy, orderDir, filterString, routes.CityController.listCreateCities)(
+        "id" -> Messages.get("commons.id"),
+        "city" -> Messages.get("city.name"),
+        "referenceCount" -> Messages.get("city.referenceCount")
+    )
+    <tbody>
+    @for(city <- pageOfCities.getData) {
+        <tr>
+            <td>@city.getId</td>
+            <td>@city.getName</td>
+            <td>@city.getReferenceCount</td>
+            <td class="text-center">
+                <a href="@routes.CityController.deleteCity(city.getId)" onclick="confirmLink ( event, this.href )"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
+            </td>
+        </tr>
+    }
+    </tbody>
+}
+
+@paginationView(pageOfCities, orderBy, orderDir, filterString, routes.CityController.listCreateCities)

@@ -155,7 +155,7 @@ public class UserEmailServiceImplTest extends PowerMockTestCase {
     @Test
     public void isEmailNotVerifiedUnverifiedUserReturnsTrue() {
         String unverifiedUserJid = "JIDU0101";
-        Mockito.when(userEmailDao.existsUnverifiedEmailByUserJid(unverifiedUserJid)).thenReturn(true);
+        Mockito.when(userEmailDao.existsUnverifiedEmailByJid(unverifiedUserJid)).thenReturn(true);
 
         Assert.assertTrue(userEmailService.isEmailNotVerified(unverifiedUserJid), "UserInfo is verified");
     }
@@ -163,20 +163,21 @@ public class UserEmailServiceImplTest extends PowerMockTestCase {
     @Test
     public void isEmailNotVerifiedVerifiedUserReturnsFalse() {
         String verifiedUserJid = "JIDU1111";
-        Mockito.when(userEmailDao.existsUnverifiedEmailByUserJid(verifiedUserJid)).thenReturn(false);
+        Mockito.when(userEmailDao.existsUnverifiedEmailByJid(verifiedUserJid)).thenReturn(false);
 
         Assert.assertFalse(userEmailService.isEmailNotVerified(verifiedUserJid), "UserInfo is not verified");
     }
 
     @Test
     public void getEmailCodeOfUnverifiedEmailUnverifiedUserReturnsEmailCode() {
-        String userJid = "JIDU0101";
+        String emailJid = "JIDU0101";
 
         UserEmailModel userEmailModel = new UserEmailModel();
+        userEmailModel.jid = emailJid;
         userEmailModel.emailCode = "JIDU0101_EMAIL_CODE";
-        Mockito.when(userEmailDao.findByUserJid(userJid)).thenReturn(userEmailModel);
+        Mockito.when(userEmailDao.findByJid(emailJid)).thenReturn(userEmailModel);
 
-        String emailCode = userEmailService.getEmailCodeOfUnverifiedEmail(userJid);
+        String emailCode = userEmailService.getEmailCodeOfUnverifiedEmail(emailJid);
 
         Assert.assertNotNull(emailCode, "Email code must not be null");
     }
@@ -210,7 +211,7 @@ public class UserEmailServiceImplTest extends PowerMockTestCase {
 
                 return null;
             });
-        userEmailService.sendActivationEmail(name, email, link);
+        userEmailService.sendRegistrationEmailActivation(name, email, link);
 
         Assert.assertNotEquals("", sentMail.getSubject(), "Subject must not be empty");
         Assert.assertNotEquals("", sentMail.getFrom(), "From must not be empty");

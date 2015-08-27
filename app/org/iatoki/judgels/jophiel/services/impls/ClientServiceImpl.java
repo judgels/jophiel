@@ -133,8 +133,8 @@ public final class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public Client findClientById(long id) throws ClientNotFoundException {
-        ClientModel clientModel = clientDao.findById(id);
+    public Client findClientById(long clientId) throws ClientNotFoundException {
+        ClientModel clientModel = clientDao.findById(clientId);
         if (clientModel == null) {
             throw new ClientNotFoundException("Client not found.");
         }
@@ -147,8 +147,8 @@ public final class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public Client findClientByJid(String jid) {
-        ClientModel clientModel = clientDao.findByJid(jid);
+    public Client findClientByJid(String clientJid) {
+        ClientModel clientModel = clientDao.findByJid(clientJid);
 
         Set<String> scopeString = ImmutableSet.copyOf(clientModel.scopes.split(","));
         List<RedirectURIModel> redirectURIModels = redirectURIDao.getByClientJid(clientModel.jid);
@@ -379,8 +379,13 @@ public final class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public void updateClient(long id, String name, List<String> scopes, List<String> redirectURIs) {
-        ClientModel clientModel = clientDao.findById(id);
+    public void updateClient(long clientId, String name, List<String> scopes, List<String> redirectURIs) throws ClientNotFoundException {
+        ClientModel clientModel = clientDao.findById(clientId);
+
+        if (clientModel == null) {
+            throw new ClientNotFoundException("Client Not Found.");
+        }
+
         clientModel.name = name;
         List<String> scopeList = scopes.stream().filter(s -> ((s != null) && (Scope.valueOf(s) != null))).collect(Collectors.toList());
         clientModel.scopes = StringUtils.join(scopeList, ",");
@@ -402,8 +407,12 @@ public final class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public void deleteClient(long id) {
-        ClientModel clientModel = clientDao.findById(id);
+    public void deleteClient(long clientId) throws ClientNotFoundException {
+        ClientModel clientModel = clientDao.findById(clientId);
+
+        if (clientModel == null) {
+            throw new ClientNotFoundException("Client Not Found.");
+        }
 
         clientDao.remove(clientModel);
     }

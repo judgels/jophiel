@@ -1,20 +1,20 @@
 package org.iatoki.judgels.jophiel.models.daos;
 
-import org.iatoki.judgels.play.models.daos.Dao;
 import org.iatoki.judgels.jophiel.models.entities.UserEmailModel;
+import org.iatoki.judgels.play.models.daos.JudgelsDao;
 
 import java.util.Collection;
 import java.util.List;
 
-public interface UserEmailDao extends Dao<Long, UserEmailModel> {
+public interface UserEmailDao extends JudgelsDao<UserEmailModel> {
 
     boolean existsByEmail(String email);
 
-    boolean existsUnverifiedEmailByUserJid(String userJid);
+    boolean existsUnverifiedEmailByJid(String jid);
 
     boolean existsByEmailCode(String emailCode);
 
-    UserEmailModel findByUserJid(String userJid);
+    List<UserEmailModel> getByUserJid(String userJid);
 
     List<String> getUserJidsByFilter(String filter);
 

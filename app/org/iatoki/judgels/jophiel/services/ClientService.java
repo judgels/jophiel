@@ -24,9 +24,9 @@ public interface ClientService {
 
     boolean clientExistsByName(String name);
 
-    Client findClientById(long id) throws ClientNotFoundException;
+    Client findClientById(long clientId) throws ClientNotFoundException;
 
-    Client findClientByJid(String jid);
+    Client findClientByJid(String clientJid);
 
     AuthorizationCode generateAuthorizationCode(String clientJid, String uRI, String responseType, List<String> scopes, long expireTime);
 
@@ -58,9 +58,9 @@ public interface ClientService {
 
     void createClient(String name, String applicationType, List<String> scopes, List<String> redirectURIs);
 
-    void updateClient(long id, String name, List<String> scopes, List<String> redirectURIs);
+    void updateClient(long clientId, String name, List<String> scopes, List<String> redirectURIs) throws ClientNotFoundException;
 
-    void deleteClient(long id);
+    void deleteClient(long clientId) throws ClientNotFoundException;
 
     Page<Client> getPageOfClients(long pageIndex, long pageSize, String orderBy, String orderDir, String filterString);
 }

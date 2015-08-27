@@ -1,0 +1,69 @@
+@import play.i18n.Messages
+@import org.iatoki.judgels.play.views.html.table.tableView
+@import org.iatoki.judgels.play.views.html.table.tableHeadersView
+@import org.iatoki.judgels.play.views.html.table.searchView
+@import org.iatoki.judgels.play.views.html.table.paginationView
+@import org.iatoki.judgels.play.views.html.formErrorView
+@import org.iatoki.judgels.jophiel.controllers.routes
+@import org.iatoki.judgels.play.Page
+@import org.iatoki.judgels.jophiel.Province
+@import org.iatoki.judgels.jophiel.forms.ProvinceCreateForm
+@import org.iatoki.judgels.jophiel.forms.ProvinceUploadForm
+
+@(pageOfProvinces: Page[Province], orderBy: String, orderDir: String, filterString: String, provinceCreateForm: Form[ProvinceCreateForm], provinceUploadForm: Form[ProvinceUploadForm])
+
+@implicitFieldConstructor = @{ b3.horizontal.fieldConstructor("col-md-3", "col-md-9") }
+
+<h4>@Messages.get("province.importTXT")</h4>
+
+@formErrorView(provinceUploadForm)
+
+@b3.form(routes.ProvinceController.postUploadProvince(pageOfProvinces.getPageIndex, orderBy, orderDir, filterString), 'enctype->"multipart/form-data") {
+
+    @helper.CSRF.formField
+
+    @b3.file(provinceUploadForm("provinces"), '_label -> Messages.get("province.provinces"), 'class -> "form-control", '_help -> Messages.get("province.help.importTXT"))
+
+    @b3.submit('class -> "btn btn-primary") { @Messages.get("commons.upload") }
+}
+
+
+<h4>@Messages.get("province.manualCreate")</h4>
+
+@formErrorView(provinceCreateForm)
+
+@b3.form(routes.ProvinceController.postCreateProvince(pageOfProvinces.getPageIndex, orderBy, orderDir, filterString)) {
+
+    @helper.CSRF.formField
+
+    @b3.text(provinceCreateForm("name"), '_label -> Messages.get("province.name"), 'class -> "form-control")
+
+    @b3.submit('class -> "btn btn-primary") { @Messages.get("commons.add") }
+}
+
+
+@searchView(pageOfProvinces.getPageIndex, orderBy, orderDir, filterString, routes.ProvinceController.listCreateProvinces)
+
+<div class="clearfix"></div>
+
+@tableView() {
+    @tableHeadersView(pageOfProvinces.getPageIndex, orderBy, orderDir, filterString, routes.ProvinceController.listCreateProvinces)(
+        "id" -> Messages.get("commons.id"),
+        "province" -> Messages.get("province.name"),
+        "referenceCount" -> Messages.get("province.referenceCount")
+    )
+    <tbody>
+    @for(province <- pageOfProvinces.getData) {
+        <tr>
+            <td>@province.getId</td>
+            <td>@province.getName</td>
+            <td>@province.getReferenceCount</td>
+            <td class="text-center">
+                <a href="@routes.ProvinceController.deleteProvince(province.getId)" onclick="confirmLink ( event, this.href )"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
+            </td>
+        </tr>
+    }
+    </tbody>
+}
+
+@paginationView(pageOfProvinces, orderBy, orderDir, filterString, routes.ProvinceController.listCreateProvinces)

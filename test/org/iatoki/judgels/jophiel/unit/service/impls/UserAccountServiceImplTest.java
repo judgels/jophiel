@@ -1,11 +1,8 @@
 package org.iatoki.judgels.jophiel.unit.service.impls;
 
-import org.iatoki.judgels.play.IdentityUtils;
-import org.iatoki.judgels.play.JudgelsPlayUtils;
-import org.iatoki.judgels.play.models.entities.AbstractModel;
 import org.iatoki.judgels.jophiel.EmailNotVerifiedException;
 import org.iatoki.judgels.jophiel.PasswordHash;
-import org.iatoki.judgels.jophiel.UserInfo;
+import org.iatoki.judgels.jophiel.User;
 import org.iatoki.judgels.jophiel.UserNotFoundException;
 import org.iatoki.judgels.jophiel.models.daos.UserDao;
 import org.iatoki.judgels.jophiel.models.daos.UserEmailDao;
@@ -14,6 +11,9 @@ import org.iatoki.judgels.jophiel.models.entities.UserEmailModel;
 import org.iatoki.judgels.jophiel.models.entities.UserForgotPasswordModel;
 import org.iatoki.judgels.jophiel.models.entities.UserModel;
 import org.iatoki.judgels.jophiel.services.impls.UserAccountServiceImpl;
+import org.iatoki.judgels.play.IdentityUtils;
+import org.iatoki.judgels.play.JudgelsPlayUtils;
+import org.iatoki.judgels.play.models.entities.AbstractModel;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -227,16 +227,18 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
         userModel.username = username;
         userModel.name = "Alice";
         userModel.password = JudgelsPlayUtils.hashSHA256(password);
+        userModel.emailJid = "JIDE0101";
         userModel.profilePictureImageName = "avatar-default.png";
         userModel.roles = "user";
         Mockito.when(userDao.existByUsername(username)).thenReturn(true);
         Mockito.when(userDao.findByUsername(username)).thenReturn(userModel);
 
         UserEmailModel userEmailModel = new UserEmailModel();
+        userEmailModel.jid = userModel.emailJid;
         userEmailModel.userJid = userModel.jid;
         userEmailModel.email = "alice@email.com";
         userEmailModel.emailVerified = true;
-        Mockito.when(userEmailDao.findByUserJid(userEmailModel.userJid)).thenReturn(userEmailModel);
+        Mockito.when(userEmailDao.findByJid(userEmailModel.jid)).thenReturn(userEmailModel);
 
         Http.Request request = Mockito.mock(Http.Request.class);
         Mockito.when(request.secure()).thenReturn(false);
@@ -246,7 +248,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
         Mockito.when(Http.Context.current()).thenReturn(context);
         Mockito.when(context.request()).thenReturn(request);
 
-        UserInfo user = userAccountService.processLogin(username, password);
+        User user = userAccountService.processLogin(username, password);
 
         Assert.assertNotNull(user, "UserInfo must not be null");
         Assert.assertEquals(username, user.getUsername(), "Username not equals");
@@ -258,6 +260,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
         String password = "alicepassword";
 
         UserEmailModel userEmailModel = new UserEmailModel();
+        userEmailModel.jid = "JIDE0101";
         userEmailModel.userJid = "JIDU0101";
         userEmailModel.email = email;
         userEmailModel.emailVerified = true;
@@ -271,6 +274,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
         userModel.name = "Alice";
         userModel.password = JudgelsPlayUtils.hashSHA256(password);
         userModel.profilePictureImageName = "avatar-default.png";
+        userModel.emailJid = "JIDE0101";
         userModel.roles = "user";
         Mockito.when(userDao.findByJid(userModel.jid)).thenReturn(userModel);
 
@@ -282,10 +286,10 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
         Mockito.when(Http.Context.current()).thenReturn(context);
         Mockito.when(context.request()).thenReturn(request);
 
-        UserInfo user = userAccountService.processLogin(email, password);
+        User user = userAccountService.processLogin(email, password);
 
         Assert.assertNotNull(user, "UserInfo must not be null");
-        Assert.assertEquals(email, user.getEmail(), "Email not equals");
+        Assert.assertEquals(userEmailModel.jid, user.getEmailJid(), "Email not equals");
     }
 
     @Test(expectedExceptions = UserNotFoundException.class)
@@ -296,7 +300,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
         Mockito.when(userDao.existByUsername(username)).thenReturn(false);
         Mockito.when(userEmailDao.existsByEmail(username)).thenReturn(false);
 
-        UserInfo user = userAccountService.processLogin(username, password);
+        User user = userAccountService.processLogin(username, password);
 
         Assert.fail("Unreachable");
     }
@@ -310,15 +314,17 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
         userModel.jid = "JIDU0101";
         userModel.username = username;
         userModel.password = JudgelsPlayUtils.hashSHA256(password);
+        userModel.emailJid = "JIDE0101";
         Mockito.when(userDao.existByUsername(username)).thenReturn(true);
         Mockito.when(userDao.findByUsername(username)).thenReturn(userModel);
 
         UserEmailModel userEmailModel = new UserEmailModel();
+        userEmailModel.jid = userModel.emailJid;
         userEmailModel.userJid = userModel.jid;
         userEmailModel.emailVerified = false;
-        Mockito.when(userEmailDao.findByUserJid(userEmailModel.userJid)).thenReturn(userEmailModel);
+        Mockito.when(userEmailDao.findByJid(userModel.emailJid)).thenReturn(userEmailModel);
 
-        UserInfo user = userAccountService.processLogin(username, password);
+        User user = userAccountService.processLogin(username, password);
 
         Assert.fail("Unreachable");
     }
@@ -333,14 +339,16 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
         userModel.jid = "JIDU0101";
         userModel.username = username;
         userModel.password = JudgelsPlayUtils.hashSHA256(validPassword);
+        userModel.emailJid = "JIDE0101";
         Mockito.when(userDao.existByUsername(username)).thenReturn(true);
         Mockito.when(userDao.findByUsername(username)).thenReturn(userModel);
 
         UserEmailModel userEmailModel = new UserEmailModel();
+        userEmailModel.jid = "JIDE0101";
         userEmailModel.userJid = userModel.jid;
-        Mockito.when(userEmailDao.findByUserJid(userEmailModel.userJid)).thenReturn(userEmailModel);
+        Mockito.when(userEmailDao.findByJid(userModel.emailJid)).thenReturn(userEmailModel);
 
-        UserInfo user = userAccountService.processLogin(username, password);
+        User user = userAccountService.processLogin(username, password);
 
         Assert.assertNull(user, "UserInfo not null");
     }

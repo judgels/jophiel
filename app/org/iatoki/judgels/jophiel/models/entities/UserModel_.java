@@ -11,6 +11,9 @@ public abstract class UserModel_ extends org.iatoki.judgels.play.models.entities
         public static volatile SingularAttribute<UserModel, String> name;
         public static volatile SingularAttribute<UserModel, String> username;
         public static volatile SingularAttribute<UserModel, String> password;
+        public static volatile SingularAttribute<UserModel, String> emailJid;
+        public static volatile SingularAttribute<UserModel, String> phoneJid;
+        public static volatile SingularAttribute<UserModel, Boolean> showName;
         public static volatile SingularAttribute<UserModel, String> roles;
         public static volatile SingularAttribute<UserModel, String> profilePictureImageName;
 }

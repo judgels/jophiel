@@ -7,19 +7,24 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.iatoki.judgels.AutoComplete;
-import org.iatoki.judgels.play.IdentityUtils;
-import org.iatoki.judgels.play.JudgelsPlayUtils;
 import org.iatoki.judgels.jophiel.AccessToken;
 import org.iatoki.judgels.jophiel.AuthorizationCode;
 import org.iatoki.judgels.jophiel.Client;
 import org.iatoki.judgels.jophiel.IdToken;
+import org.iatoki.judgels.jophiel.PublicUser;
 import org.iatoki.judgels.jophiel.RefreshToken;
+import org.iatoki.judgels.jophiel.User;
+import org.iatoki.judgels.jophiel.UserEmail;
 import org.iatoki.judgels.jophiel.UserInfo;
+import org.iatoki.judgels.jophiel.UserPhone;
 import org.iatoki.judgels.jophiel.controllers.securities.Authenticated;
 import org.iatoki.judgels.jophiel.controllers.securities.LoggedIn;
 import org.iatoki.judgels.jophiel.services.ClientService;
+import org.iatoki.judgels.jophiel.services.UserEmailService;
+import org.iatoki.judgels.jophiel.services.UserPhoneService;
 import org.iatoki.judgels.jophiel.services.UserProfileService;
 import org.iatoki.judgels.jophiel.services.UserService;
+import org.iatoki.judgels.play.JudgelsPlayUtils;
 import org.iatoki.judgels.play.controllers.apis.AbstractJudgelsAPIController;
 import play.data.DynamicForm;
 import play.db.jpa.Transactional;
@@ -50,12 +55,16 @@ import java.util.stream.Collectors;
 public final class UserAPIController extends AbstractJudgelsAPIController {
 
     private final ClientService clientService;
+    private final UserEmailService userEmailService;
+    private final UserPhoneService userPhoneService;
     private final UserProfileService userProfileService;
     private final UserService userService;
 
     @Inject
-    public UserAPIController(ClientService clientService, UserProfileService userProfileService, UserService userService) {
+    public UserAPIController(ClientService clientService, UserEmailService userEmailService, UserPhoneService userPhoneService, UserProfileService userProfileService, UserService userService) {
         this.clientService = clientService;
+        this.userEmailService = userEmailService;
+        this.userPhoneService = userPhoneService;
         this.userProfileService = userProfileService;
         this.userService = userService;
     }
@@ -74,12 +83,15 @@ public final class UserAPIController extends AbstractJudgelsAPIController {
         DynamicForm dForm = DynamicForm.form().bindFromRequest();
         String callback = dForm.get("callback");
 
-        UserInfo user = userService.findUserInfoByJid(IdentityUtils.getUserJid());
         String term = dForm.get("term");
-        List<UserInfo> usersInfo = userService.getUsersInfoByTerm(term);
+        List<User> users = userService.getUsersByTerm(term);
         ImmutableList.Builder<AutoComplete> autoCompleteBuilder = ImmutableList.builder();
-        for (UserInfo userInfo : usersInfo) {
-            autoCompleteBuilder.add(new AutoComplete(userInfo.getJid(), userInfo.getUsername(), userInfo.getUsername() + " (" + userInfo.getName() + ")"));
+        for (User user : users) {
+            String display = user.getUsername();
+            if (user.isShowName()) {
+                display += " (" + user.getName() + ")";
+            }
+            autoCompleteBuilder.add(new AutoComplete(user.getJid(), user.getUsername(), display));
         }
 
         return ok(createJsonPResponse(callback, Json.toJson(autoCompleteBuilder.build()).toString()));
@@ -118,13 +130,47 @@ public final class UserAPIController extends AbstractJudgelsAPIController {
         }
 
         AccessToken accessToken = clientService.getAccessTokenByAccessTokenString(token);
-        UserInfo user = userService.findUserInfoByJid(accessToken.getUserJid());
+        User user = userService.findUserByJid(accessToken.getUserJid());
+        UserEmail userEmail = null;
+        if (user.getEmailJid() != null) {
+            userEmail = userEmailService.findEmailByJid(user.getEmailJid());
+        }
+        UserPhone userPhone = null;
+        if (user.getPhoneJid() != null) {
+            userPhone = userPhoneService.findPhoneByJid(user.getPhoneJid());
+        }
+        UserInfo userInfo = null;
+        if (userProfileService.infoExists(user.getJid())) {
+            userInfo = userProfileService.getInfo(user.getJid());
+        }
+
         ObjectNode jsonResponse = Json.newObject();
         jsonResponse.put("sub", user.getJid());
-        jsonResponse.put("name", user.getName());
+        if (user.isShowName()) {
+            jsonResponse.put("name", user.getName());
+        }
         jsonResponse.put("preferred_username", user.getUsername());
-        jsonResponse.put("email", user.getEmail());
         jsonResponse.put("picture", user.getProfilePictureUrl().toString());
+        if (userEmail != null) {
+            jsonResponse.put("email", userEmail.getEmail());
+            jsonResponse.put("email_verified", userEmail.isEmailVerified());
+        }
+        if (userPhone != null) {
+            jsonResponse.put("phone_number", userPhone.getPhone());
+            jsonResponse.put("phone_number_verified", userPhone.isPhoneVerified());
+        }
+        if (userInfo != null) {
+            jsonResponse.put("gender", userInfo.getGender());
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            jsonResponse.put("birthdate", simpleDateFormat.format(userInfo.getBirthDate()));
+            ObjectNode jsonAddress = Json.newObject();
+            jsonAddress.put("street_address", userInfo.getStreetAddress());
+            jsonAddress.put("locality", userInfo.getCity());
+            jsonAddress.put("region", userInfo.getProvinceOrState());
+            jsonAddress.put("postal_code", userInfo.getPostalCode());
+            jsonAddress.put("country", userInfo.getCountry());
+            jsonResponse.set("address", jsonAddress);
+        }
 
         return ok(jsonResponse);
     }
@@ -164,7 +210,7 @@ public final class UserAPIController extends AbstractJudgelsAPIController {
             return ok(result);
         }
 
-        UserInfo user = userService.findUserInfoByUsername(username);
+        User user = userService.findUserByUsername(username);
         ObjectNode jsonResponse = Json.newObject();
         jsonResponse.put("success", true);
         jsonResponse.put("jid", user.getJid());
@@ -205,9 +251,9 @@ public final class UserAPIController extends AbstractJudgelsAPIController {
             return unauthorized(jsonResponse);
         }
 
-        UserInfo publicUserInfo = userService.findPublicUserInfoByJid(userJid);
+        PublicUser publicUser = userService.findPublicUserByJid(userJid);
 
-        return ok(Json.toJson(publicUserInfo));
+        return ok(Json.toJson(publicUser));
     }
 
     public Result renderAvatarImage(String imageName) {

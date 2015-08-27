@@ -3,15 +3,10 @@ package org.iatoki.judgels.jophiel;
 public final class IdToken {
 
     private final long id;
-
     private final String code;
-
     private final String userJid;
-
     private final String clientJid;
-
     private final String token;
-
     private final boolean redeemed;
 
     public IdToken(long id, String code, String userJid, String clientJid, String token, boolean redeemed) {

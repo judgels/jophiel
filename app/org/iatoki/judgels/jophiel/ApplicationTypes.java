@@ -1,8 +1,7 @@
 package org.iatoki.judgels.jophiel;
 
-public enum ApplicationType {
+public enum ApplicationTypes {
 
     WEB_SERVER,
     ANDROID
-
 }

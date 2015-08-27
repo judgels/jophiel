@@ -24,11 +24,11 @@
 
             @helper.CSRF.formField
 
-            @b3.text(registerForm("username"), '_label -> Messages.get("user.username"))
-            @b3.text(registerForm("name"), '_label -> Messages.get("user.name"))
-            @b3.email(registerForm("email"), '_label -> Messages.get("user.email"))
-            @b3.password(registerForm("password"), '_label -> Messages.get("user.password"), 'class -> "form-control zxcvbn match-src")
-            @b3.password(registerForm("confirmPassword"), '_label -> Messages.get("user.confirmPassword"), 'class -> "form-control match-tgt")
+            @b3.text(registerForm("username"), '_label -> Messages.get("register.username"), '_help -> Messages.get("register.help.username"))
+            @b3.text(registerForm("name"), '_label -> Messages.get("register.name"))
+            @b3.email(registerForm("email"), '_label -> Messages.get("register.email"), '_help -> Messages.get("register.help.email"))
+            @b3.password(registerForm("password"), '_label -> Messages.get("register.password"), 'class -> "form-control zxcvbn match-src")
+            @b3.password(registerForm("confirmPassword"), '_label -> Messages.get("register.confirmPassword"), 'class -> "form-control match-tgt")
 
             @if(JophielProperties.getInstance().isRegistrationUsingRecaptcha) {
                 <div class="form-group">

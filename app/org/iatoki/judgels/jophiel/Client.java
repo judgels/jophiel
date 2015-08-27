@@ -6,17 +6,11 @@ import java.util.Set;
 public final class Client {
 
     private final long id;
-
     private final String jid;
-
     private final String name;
-
     private final String secret;
-
     private final String applicationType;
-
     private final Set<String> scopes;
-
     private final List<String> redirectURIs;
 
     public Client(long id, String jid, String name, String secret, String applicationType, Set<String> scopes, List<String> redirectURIs) {

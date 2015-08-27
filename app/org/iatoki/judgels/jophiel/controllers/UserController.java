@@ -3,7 +3,8 @@ package org.iatoki.judgels.jophiel.controllers;
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang3.StringUtils;
 import org.iatoki.judgels.jophiel.JophielUtils;
-import org.iatoki.judgels.jophiel.UserInfo;
+import org.iatoki.judgels.jophiel.UnverifiedUserEmail;
+import org.iatoki.judgels.jophiel.User;
 import org.iatoki.judgels.jophiel.UserNotFoundException;
 import org.iatoki.judgels.jophiel.controllers.securities.Authenticated;
 import org.iatoki.judgels.jophiel.controllers.securities.Authorized;
@@ -64,9 +65,9 @@ public final class UserController extends AbstractJudgelsController {
     @Authorized(value = "admin")
     @Transactional
     public Result listUsers(long pageIndex, String orderBy, String orderDir, String filterString) {
-        Page<UserInfo> pageOfUsersInfo = userService.getPageOfUsersInfo(pageIndex, PAGE_SIZE, orderBy, orderDir, filterString);
+        Page<User> pageOfUsers = userService.getPageOfUsers(pageIndex, PAGE_SIZE, orderBy, orderDir, filterString);
 
-        LazyHtml content = new LazyHtml(listUsersView.render(pageOfUsersInfo, orderBy, orderDir, filterString));
+        LazyHtml content = new LazyHtml(listUsersView.render(pageOfUsers, orderBy, orderDir, filterString));
         appendTabLayout(content);
         content.appendLayout(c -> headingWithActionLayout.render(Messages.get("user.list"), new InternalLink(Messages.get("commons.create"), routes.UserController.createUser()), c));
         JophielControllerUtils.getInstance().appendSidebarLayout(content);
@@ -89,9 +90,9 @@ public final class UserController extends AbstractJudgelsController {
     @Authorized(value = "admin")
     @Transactional
     public Result listUnverifiedUsers(long pageIndex, String orderBy, String orderDir, String filterString) {
-        Page<UserInfo> pageOfUsersInfo = userService.getPageOfUnverifiedUsersInfo(pageIndex, PAGE_SIZE, orderBy, orderDir, filterString);
+        Page<UnverifiedUserEmail> pageOfUsers = userService.getPageOfUnverifiedUsers(pageIndex, PAGE_SIZE, orderBy, orderDir, filterString);
 
-        LazyHtml content = new LazyHtml(listUnverifiedUsersView.render(pageOfUsersInfo, orderBy, orderDir, filterString));
+        LazyHtml content = new LazyHtml(listUnverifiedUsersView.render(pageOfUsers, orderBy, orderDir, filterString));
         appendTabLayout(content);
         content.appendLayout(c -> headingLayout.render(Messages.get("user.unverifiedUsers.list"), c));
         JophielControllerUtils.getInstance().appendSidebarLayout(content);
@@ -109,7 +110,7 @@ public final class UserController extends AbstractJudgelsController {
     @Authorized(value = "admin")
     @Transactional
     public Result viewUser(long userId) throws UserNotFoundException {
-        UserInfo user = userService.findUserInfoById(userId);
+        User user = userService.findUserById(userId);
 
         LazyHtml content = new LazyHtml(viewUserView.render(user));
         content.appendLayout(c -> headingWithActionLayout.render(Messages.get("user.user") + " #" + userId + ": " + user.getName(), new InternalLink(Messages.get("commons.update"), routes.UserController.updateUser(userId)), c));
@@ -160,11 +161,11 @@ public final class UserController extends AbstractJudgelsController {
     @Transactional
     @AddCSRFToken
     public Result updateUser(long userId) throws UserNotFoundException {
-        UserInfo user = userService.findUserInfoById(userId);
+        User user = userService.findUserById(userId);
         UserUpdateForm userUpdateData = new UserUpdateForm();
         userUpdateData.username = user.getUsername();
         userUpdateData.name = user.getName();
-        userUpdateData.email = user.getEmail();
+        userUpdateData.email = user.getEmailJid();
         userUpdateData.roles = StringUtils.join(user.getRoles(), ",");
         Form<UserUpdateForm> userUpdateForm = Form.form(UserUpdateForm.class).fill(userUpdateData);
 
@@ -178,7 +179,7 @@ public final class UserController extends AbstractJudgelsController {
     @Transactional
     @RequireCSRFCheck
     public Result postUpdateUser(long userId) throws UserNotFoundException {
-        UserInfo user = userService.findUserInfoById(userId);
+        User user = userService.findUserById(userId);
         Form<UserUpdateForm> userUpdateForm = Form.form(UserUpdateForm.class).bindFromRequest();
 
         if (formHasErrors(userUpdateForm)) {
@@ -201,7 +202,7 @@ public final class UserController extends AbstractJudgelsController {
     @Authorized(value = "admin")
     @Transactional
     public Result deleteUser(long userId) throws UserNotFoundException {
-        UserInfo user = userService.findUserInfoById(userId);
+        User user = userService.findUserById(userId);
         userService.deleteUser(user.getId());
 
         JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Delete user " + user.getUsername() + " <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
@@ -220,7 +221,7 @@ public final class UserController extends AbstractJudgelsController {
         return JophielControllerUtils.getInstance().lazyOk(content);
     }
 
-    private Result showUpdateUser(Form<UserUpdateForm> form, UserInfo user) {
+    private Result showUpdateUser(Form<UserUpdateForm> form, User user) {
         LazyHtml content = new LazyHtml(updateUserView.render(form, user.getId()));
         content.appendLayout(c -> headingLayout.render(Messages.get("user.user") + " #" + user.getId() + ": " + user.getUsername(), c));
         JophielControllerUtils.getInstance().appendSidebarLayout(content);

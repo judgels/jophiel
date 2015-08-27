@@ -14,7 +14,7 @@ import org.iatoki.judgels.jophiel.Client;
 import org.iatoki.judgels.jophiel.EmailNotVerifiedException;
 import org.iatoki.judgels.jophiel.JophielProperties;
 import org.iatoki.judgels.jophiel.JophielUtils;
-import org.iatoki.judgels.jophiel.UserInfo;
+import org.iatoki.judgels.jophiel.User;
 import org.iatoki.judgels.jophiel.UserNotFoundException;
 import org.iatoki.judgels.jophiel.controllers.securities.Authenticated;
 import org.iatoki.judgels.jophiel.controllers.securities.HasRole;
@@ -134,7 +134,7 @@ public final class UserAccountController extends AbstractJudgelsController {
 
         try {
             String emailCode = userAccountService.registerUser(registerData.username, registerData.name, registerData.email, registerData.password);
-            userEmailService.sendActivationEmail(registerData.name, registerData.email, org.iatoki.judgels.jophiel.controllers.routes.UserEmailController.verifyEmail(emailCode).absoluteURL(request(), request().secure()));
+            userEmailService.sendRegistrationEmailActivation(registerData.name, registerData.email, org.iatoki.judgels.jophiel.controllers.routes.UserEmailController.verifyEmail(emailCode).absoluteURL(request(), request().secure()));
 
             return redirect(routes.UserAccountController.afterRegister(registerData.email));
         } catch (IllegalStateException e) {
@@ -301,7 +301,7 @@ public final class UserAccountController extends AbstractJudgelsController {
 
         try {
             LoginForm loginData = loginForm.get();
-            UserInfo user = userAccountService.processLogin(loginData.usernameOrEmail, loginData.password);
+            User user = userAccountService.processLogin(loginData.usernameOrEmail, loginData.password);
             if (user == null) {
                 loginForm.reject("login.error.usernameOrEmailOrPasswordInvalid");
                 return showLogin(loginForm, continueUrl);

@@ -1,17 +1,15 @@
 package org.iatoki.judgels.jophiel.models.entities;
 
-import org.iatoki.judgels.play.models.entities.AbstractModel;
+import org.iatoki.judgels.play.models.JidPrefix;
+import org.iatoki.judgels.play.models.entities.AbstractJudgelsModel;
 
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
 @Table(name = "jophiel_user_phone")
-public final class UserPhoneModel extends AbstractModel {
-
-    @Id
-    public long id;
+@JidPrefix("USEP")
+public final class UserPhoneModel extends AbstractJudgelsModel {
 
     public String userJid;
 

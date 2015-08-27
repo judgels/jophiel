@@ -1,7 +1,7 @@
 package org.iatoki.judgels.jophiel.services;
 
 import org.iatoki.judgels.jophiel.EmailNotVerifiedException;
-import org.iatoki.judgels.jophiel.UserInfo;
+import org.iatoki.judgels.jophiel.User;
 import org.iatoki.judgels.jophiel.UserNotFoundException;
 
 import javax.persistence.NoResultException;
@@ -16,7 +16,7 @@ public interface UserAccountService {
 
     void processChangePassword(String code, String password);
 
-    UserInfo processLogin(String usernameOrEmail, String password) throws NoResultException, UserNotFoundException, EmailNotVerifiedException;
+    User processLogin(String usernameOrEmail, String password) throws NoResultException, UserNotFoundException, EmailNotVerifiedException;
 
     void updateUserPassword(String userJid, String password);
 }

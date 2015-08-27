@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableMap;
 import org.iatoki.judgels.AutoComplete;
 import org.iatoki.judgels.jophiel.Client;
 import org.iatoki.judgels.jophiel.JophielProperties;
-import org.iatoki.judgels.jophiel.UserInfo;
+import org.iatoki.judgels.jophiel.User;
 import org.iatoki.judgels.jophiel.controllers.securities.Authenticated;
 import org.iatoki.judgels.jophiel.controllers.securities.LoggedIn;
 import org.iatoki.judgels.jophiel.services.ClientService;
@@ -49,7 +49,7 @@ public final class ClientAPIController extends AbstractJudgelsAPIController {
 
         DynamicForm dForm = DynamicForm.form().bindFromRequest();
 
-        UserInfo user = userService.findUserInfoByJid(IdentityUtils.getUserJid());
+        User user = userService.findUserByJid(IdentityUtils.getUserJid());
         String term = dForm.get("term");
         List<Client> clients = clientService.getClientsByTerm(term);
         ImmutableList.Builder<AutoComplete> autoCompleteBuilder = ImmutableList.builder();

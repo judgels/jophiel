@@ -3,17 +3,11 @@ package org.iatoki.judgels.jophiel;
 public final class RefreshToken {
 
     private final long id;
-
     private final String code;
-
     private final String userJid;
-
     private final String clientJid;
-
     private final String token;
-
     private final String scopes;
-
     private final boolean redeemed;
 
     public RefreshToken(long id, String code, String userJid, String clientJid, String token, String scopes, boolean redeemed) {

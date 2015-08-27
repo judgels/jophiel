@@ -1,20 +1,16 @@
 package org.iatoki.judgels.jophiel.models.entities;
 
-import org.iatoki.judgels.play.models.entities.AbstractModel;
+import org.iatoki.judgels.play.models.JidPrefix;
+import org.iatoki.judgels.play.models.entities.AbstractJudgelsModel;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
 @Table(name = "jophiel_user_email")
-public final class UserEmailModel extends AbstractModel {
-
-    @Id
-    @GeneratedValue
-    public long id;
+@JidPrefix("USEE")
+public final class UserEmailModel extends AbstractJudgelsModel {
 
     public String userJid;
 
