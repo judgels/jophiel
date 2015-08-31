@@ -16,9 +16,6 @@ import org.iatoki.judgels.jophiel.JophielProperties;
 import org.iatoki.judgels.jophiel.JophielUtils;
 import org.iatoki.judgels.jophiel.User;
 import org.iatoki.judgels.jophiel.UserNotFoundException;
-import org.iatoki.judgels.jophiel.controllers.securities.Authenticated;
-import org.iatoki.judgels.jophiel.controllers.securities.HasRole;
-import org.iatoki.judgels.jophiel.controllers.securities.LoggedIn;
 import org.iatoki.judgels.jophiel.forms.ChangePasswordForm;
 import org.iatoki.judgels.jophiel.forms.ForgotPasswordForm;
 import org.iatoki.judgels.jophiel.forms.LoginForm;
@@ -329,22 +326,23 @@ public final class UserAccountController extends AbstractJudgelsController {
         }
     }
 
-    @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Transactional
     public Result logout() {
         return serviceLogout(null);
     }
 
-    @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Transactional
     public Result serviceLogout(String returnUri) {
-        JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Logout <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
+        if (IdentityUtils.getUserJid() != null) {
+            JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Logout <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
+        }
 
         session().clear();
         if (returnUri == null) {
             return redirect(routes.UserAccountController.login());
         }
 
+        System.out.println(returnUri);
         return redirect(returnUri);
     }
 

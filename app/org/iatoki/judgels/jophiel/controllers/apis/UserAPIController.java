@@ -24,6 +24,7 @@ import org.iatoki.judgels.jophiel.services.UserEmailService;
 import org.iatoki.judgels.jophiel.services.UserPhoneService;
 import org.iatoki.judgels.jophiel.services.UserProfileService;
 import org.iatoki.judgels.jophiel.services.UserService;
+import org.iatoki.judgels.play.IdentityUtils;
 import org.iatoki.judgels.play.JudgelsPlayUtils;
 import org.iatoki.judgels.play.controllers.apis.AbstractJudgelsAPIController;
 import play.data.DynamicForm;
@@ -67,6 +68,20 @@ public final class UserAPIController extends AbstractJudgelsAPIController {
         this.userPhoneService = userPhoneService;
         this.userProfileService = userProfileService;
         this.userService = userService;
+    }
+
+    public Result loggedIn() {
+        DynamicForm dForm = DynamicForm.form().bindFromRequest();
+        String callback = dForm.get("callback");
+
+        ObjectNode jsonResponse = Json.newObject();
+        if (IdentityUtils.getUserJid() != null) {
+            jsonResponse.put("loggedIn", true);
+        } else {
+            jsonResponse.put("loggedIn", false);
+        }
+
+        return ok(createJsonPResponse(callback, jsonResponse.toString()));
     }
 
     public Result preUserAutocompleteList() {

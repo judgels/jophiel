@@ -95,6 +95,7 @@ POST           /userinfo                                                    @org
 GET            /verifyUsername                                              @org.iatoki.judgels.jophiel.controllers.apis.UserAPIController.verifyUsername()
 GET            /userInfoByJid                                               @org.iatoki.judgels.jophiel.controllers.apis.UserAPIController.userInfoByUserJid()
 POST           /userActivities                                              @org.iatoki.judgels.jophiel.controllers.apis.UserActivityAPIController.postCreateUserActivity()
+GET            /loggedIn                                                    @org.iatoki.judgels.jophiel.controllers.apis.UserAPIController.loggedIn()
 
 OPTIONS        /userAutoComplete                                            @org.iatoki.judgels.jophiel.controllers.apis.UserAPIController.preUserAutocompleteList()
 GET            /userAutoComplete                                            @org.iatoki.judgels.jophiel.controllers.apis.UserAPIController.userAutoCompleteList()
