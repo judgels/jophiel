@@ -5,12 +5,10 @@ import com.google.common.collect.ImmutableMap;
 import org.iatoki.judgels.AutoComplete;
 import org.iatoki.judgels.jophiel.Client;
 import org.iatoki.judgels.jophiel.JophielProperties;
-import org.iatoki.judgels.jophiel.User;
 import org.iatoki.judgels.jophiel.controllers.securities.Authenticated;
 import org.iatoki.judgels.jophiel.controllers.securities.LoggedIn;
 import org.iatoki.judgels.jophiel.services.ClientService;
 import org.iatoki.judgels.jophiel.services.UserService;
-import org.iatoki.judgels.play.IdentityUtils;
 import org.iatoki.judgels.play.JudgelsPlayProperties;
 import org.iatoki.judgels.play.controllers.apis.AbstractJudgelsAPIController;
 import play.data.DynamicForm;
@@ -49,7 +47,6 @@ public final class ClientAPIController extends AbstractJudgelsAPIController {
 
         DynamicForm dForm = DynamicForm.form().bindFromRequest();
 
-        User user = userService.findUserByJid(IdentityUtils.getUserJid());
         String term = dForm.get("term");
         List<Client> clients = clientService.getClientsByTerm(term);
         ImmutableList.Builder<AutoComplete> autoCompleteBuilder = ImmutableList.builder();
@@ -60,7 +57,6 @@ public final class ClientAPIController extends AbstractJudgelsAPIController {
         return ok(Json.toJson(autoCompleteBuilder.build()));
     }
 
-    @Authenticated(LoggedIn.class)
     @Transactional(readOnly = true)
     public Result linkedClientList() {
         response().setHeader("Access-Control-Allow-Origin", "*");

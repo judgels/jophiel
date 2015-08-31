@@ -37,6 +37,7 @@ import org.iatoki.judgels.jophiel.views.html.account.serviceLoginView;
 import org.iatoki.judgels.play.IdentityUtils;
 import org.iatoki.judgels.play.LazyHtml;
 import org.iatoki.judgels.play.controllers.AbstractJudgelsController;
+import org.iatoki.judgels.play.controllers.ControllerUtils;
 import org.iatoki.judgels.play.views.html.layouts.centerLayout;
 import org.iatoki.judgels.play.views.html.layouts.headingLayout;
 import org.iatoki.judgels.play.views.html.layouts.messageView;
@@ -350,7 +351,7 @@ public final class UserAccountController extends AbstractJudgelsController {
     @Transactional
     public Result serviceAuthRequest() {
         if (!JophielControllerUtils.getInstance().loggedIn(userService)) {
-            return redirect((routes.UserAccountController.serviceLogin("http" + (request().secure() ? "s" : "") + "://" + request().host() + request().uri())));
+            return redirect((routes.UserAccountController.serviceLogin(ControllerUtils.getCurrentUrl(request()))));
         }
 
         String path = request().uri().substring(request().uri().indexOf("?") + 1);
