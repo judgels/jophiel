@@ -71,6 +71,9 @@ public final class UserAPIController extends AbstractJudgelsAPIController {
     }
 
     public Result loggedIn() {
+        response().setHeader("Access-Control-Allow-Origin", "*");
+        response().setContentType("application/javascript");
+
         DynamicForm dForm = DynamicForm.form().bindFromRequest();
         String callback = dForm.get("callback");
 
