@@ -115,19 +115,18 @@ public final class UserAccountController extends AbstractJudgelsController {
             return showRegister(registerForm);
         }
 
-        boolean valid = true;
         if (JophielProperties.getInstance().isRegistrationUsingRecaptcha()) {
             DynamicForm dynamicForm = DynamicForm.form().bindFromRequest();
-            F.Promise<JsonNode> jsonPromise = WS.url("https://www.google.com/recaptcha/api/siteverify").setContentType("application/x-www-registerForm-urlencoded").post("secret=" + JophielProperties.getInstance().getRegistrationRecaptchaSecretKey() + "&response=" + dynamicForm.get("g-recaptcha-response") + "&remoteip=" + IdentityUtils.getIpAddress()).map(response -> {
+            F.Promise<JsonNode> jsonPromise = WS.url("https://www.google.com/recaptcha/api/siteverify").setContentType("application/x-www-form-urlencoded").post("secret=" + JophielProperties.getInstance().getRegistrationRecaptchaSecretKey() + "&response=" + dynamicForm.get("g-recaptcha-response") + "&remoteip=" + IdentityUtils.getIpAddress()).map(response -> {
                     return response.asJson();
                 });
             JsonNode response = jsonPromise.get(1, TimeUnit.MINUTES);
-            valid = response.get("success").asBoolean();
-        }
-
-        if (!valid) {
-            registerForm.reject("register.error.invalidRegistration");
-            return showRegister(registerForm);
+            boolean valid = response.get("success").asBoolean();
+            if (!valid) {
+                Logger.error(response.toString());
+                registerForm.reject("register.error.invalidRegistration");
+                return showRegister(registerForm);
+            }
         }
 
         try {
@@ -342,7 +341,6 @@ public final class UserAccountController extends AbstractJudgelsController {
             return redirect(routes.UserAccountController.login());
         }
 
-        System.out.println(returnUri);
         return redirect(returnUri);
     }
 
