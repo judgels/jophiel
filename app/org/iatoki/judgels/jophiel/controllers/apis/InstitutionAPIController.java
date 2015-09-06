@@ -9,10 +9,10 @@ import org.iatoki.judgels.jophiel.controllers.securities.LoggedIn;
 import org.iatoki.judgels.jophiel.services.InstitutionService;
 import org.iatoki.judgels.jophiel.services.UserService;
 import org.iatoki.judgels.play.IdentityUtils;
-import org.iatoki.judgels.play.controllers.apis.AbstractJudgelsAPIController;
 import play.data.DynamicForm;
 import play.db.jpa.Transactional;
 import play.libs.Json;
+import play.mvc.Controller;
 import play.mvc.Result;
 
 import javax.inject.Inject;
@@ -21,9 +21,12 @@ import javax.inject.Singleton;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static org.iatoki.judgels.play.controllers.api.JudgelsAPIControllerUtils.createJsonPResponse;
+import static org.iatoki.judgels.play.controllers.api.JudgelsAPIControllerUtils.setAccessControlOrigin;
+
 @Singleton
 @Named
-public final class InstitutionAPIController extends AbstractJudgelsAPIController {
+public final class InstitutionAPIController extends Controller {
 
     private final InstitutionService institutionService;
     private final UserService userService;
