@@ -51,8 +51,8 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static org.iatoki.judgels.play.controllers.api.JudgelsAPIControllerUtils.createJsonPResponse;
-import static org.iatoki.judgels.play.controllers.api.JudgelsAPIControllerUtils.setAccessControlOrigin;
+import static org.iatoki.judgels.play.controllers.apis.JudgelsAPIControllerUtils.createJsonPResponse;
+import static org.iatoki.judgels.play.controllers.apis.JudgelsAPIControllerUtils.setAccessControlOrigin;
 
 @Singleton
 @Named

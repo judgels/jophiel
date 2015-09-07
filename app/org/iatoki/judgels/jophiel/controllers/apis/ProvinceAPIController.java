@@ -21,8 +21,8 @@ import javax.inject.Singleton;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static org.iatoki.judgels.play.controllers.api.JudgelsAPIControllerUtils.createJsonPResponse;
-import static org.iatoki.judgels.play.controllers.api.JudgelsAPIControllerUtils.setAccessControlOrigin;
+import static org.iatoki.judgels.play.controllers.apis.JudgelsAPIControllerUtils.createJsonPResponse;
+import static org.iatoki.judgels.play.controllers.apis.JudgelsAPIControllerUtils.setAccessControlOrigin;
 
 @Singleton
 @Named
