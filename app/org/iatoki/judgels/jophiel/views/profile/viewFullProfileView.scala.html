@@ -1,0 +1,38 @@
+@import play.i18n.Messages
+@import org.iatoki.judgels.jophiel.User
+@import org.iatoki.judgels.jophiel.UserEmail
+@import org.iatoki.judgels.jophiel.UserPhone
+@import org.iatoki.judgels.jophiel.UserInfo
+
+@(user:User, primaryEmail: UserEmail, userEmails: List[UserEmail], primaryPhone: UserPhone, userPhones: List[UserPhone], userInfo: UserInfo)
+
+<hr />
+<h3>@Messages.get("user.account")</h3>
+<hr />
+<div class="clearfix">
+    <div class="col-md-12">
+        @viewFullAccountTemplateView(user)
+    </div>
+</div>
+
+<hr />
+<h3>@Messages.get("user.contact")</h3>
+<hr />
+<div class="clearfix">
+    <div class="col-md-12">
+        <h4>@Messages.get("user.emails")</h4>
+        @viewEmailsTemplateView(primaryEmail, userEmails)
+
+        <h4>@Messages.get("user.phones")</h4>
+        @viewPhonesTemplateView(primaryPhone, userPhones)
+    </div>
+</div>
+
+<hr />
+<h3>@Messages.get("user.info")</h3>
+<hr />
+<div class="clearfix">
+    <div class="col-md-12">
+        @viewFullInfoTemplateView(userInfo)
+    </div>
+</div>

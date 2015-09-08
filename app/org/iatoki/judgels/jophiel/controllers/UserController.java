@@ -5,7 +5,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.iatoki.judgels.jophiel.JophielUtils;
 import org.iatoki.judgels.jophiel.UnverifiedUserEmail;
 import org.iatoki.judgels.jophiel.User;
+import org.iatoki.judgels.jophiel.UserEmail;
+import org.iatoki.judgels.jophiel.UserInfo;
 import org.iatoki.judgels.jophiel.UserNotFoundException;
+import org.iatoki.judgels.jophiel.UserPhone;
 import org.iatoki.judgels.jophiel.controllers.securities.Authenticated;
 import org.iatoki.judgels.jophiel.controllers.securities.Authorized;
 import org.iatoki.judgels.jophiel.controllers.securities.HasRole;
@@ -13,12 +16,15 @@ import org.iatoki.judgels.jophiel.controllers.securities.LoggedIn;
 import org.iatoki.judgels.jophiel.forms.UserCreateForm;
 import org.iatoki.judgels.jophiel.forms.UserUpdateForm;
 import org.iatoki.judgels.jophiel.services.UserActivityService;
+import org.iatoki.judgels.jophiel.services.UserEmailService;
+import org.iatoki.judgels.jophiel.services.UserPhoneService;
+import org.iatoki.judgels.jophiel.services.UserProfileService;
 import org.iatoki.judgels.jophiel.services.UserService;
+import org.iatoki.judgels.jophiel.views.html.profile.viewFullProfileView;
 import org.iatoki.judgels.jophiel.views.html.user.createUserView;
 import org.iatoki.judgels.jophiel.views.html.user.listUnverifiedUsersView;
 import org.iatoki.judgels.jophiel.views.html.user.listUsersView;
 import org.iatoki.judgels.jophiel.views.html.user.updateUserView;
-import org.iatoki.judgels.jophiel.views.html.user.viewUserView;
 import org.iatoki.judgels.play.IdentityUtils;
 import org.iatoki.judgels.play.InternalLink;
 import org.iatoki.judgels.play.LazyHtml;
@@ -47,11 +53,17 @@ public final class UserController extends AbstractJudgelsController {
     private static final long PAGE_SIZE = 20;
 
     private final UserActivityService userActivityService;
+    private final UserEmailService userEmailService;
+    private final UserPhoneService userPhoneService;
+    private final UserProfileService userProfileService;
     private final UserService userService;
 
     @Inject
-    public UserController(UserActivityService userActivityService, UserService userService) {
+    public UserController(UserActivityService userActivityService, UserEmailService userEmailService, UserPhoneService userPhoneService, UserProfileService userProfileService, UserService userService) {
         this.userActivityService = userActivityService;
+        this.userEmailService = userEmailService;
+        this.userPhoneService = userPhoneService;
+        this.userProfileService = userProfileService;
         this.userService = userService;
     }
 
@@ -113,7 +125,22 @@ public final class UserController extends AbstractJudgelsController {
     public Result viewUser(long userId) throws UserNotFoundException {
         User user = userService.findUserById(userId);
 
-        LazyHtml content = new LazyHtml(viewUserView.render(user));
+        UserEmail userPrimaryEmail = null;
+        if (user.getEmailJid() != null) {
+            userPrimaryEmail = userEmailService.findEmailByJid(user.getEmailJid());
+        }
+
+        UserPhone userPrimaryPhone = null;
+        if (user.getPhoneJid() != null) {
+            userPrimaryPhone = userPhoneService.findPhoneByJid(user.getPhoneJid());
+        }
+
+        UserInfo userInfo = null;
+        if (userProfileService.infoExists(user.getJid())) {
+            userInfo = userProfileService.getInfo(user.getJid());
+        }
+
+        LazyHtml content = new LazyHtml(viewFullProfileView.render(user, userPrimaryEmail, userEmailService.getEmailsByUserJid(user.getJid()), userPrimaryPhone, userPhoneService.getPhonesByUserJid(user.getJid()), userInfo));
         content.appendLayout(c -> headingWithActionLayout.render(Messages.get("user.user") + " #" + userId + ": " + user.getName(), new InternalLink(Messages.get("commons.update"), routes.UserController.updateUser(userId)), c));
         JophielControllerUtils.getInstance().appendSidebarLayout(content);
         appendBreadcrumbsLayout(content,

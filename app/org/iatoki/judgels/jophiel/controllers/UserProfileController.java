@@ -2,17 +2,17 @@ package org.iatoki.judgels.jophiel.controllers;
 
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.io.FilenameUtils;
+import org.iatoki.judgels.jophiel.JophielUtils;
 import org.iatoki.judgels.jophiel.User;
+import org.iatoki.judgels.jophiel.UserInfo;
 import org.iatoki.judgels.jophiel.controllers.securities.Authenticated;
-import org.iatoki.judgels.jophiel.controllers.securities.Authorized;
 import org.iatoki.judgels.jophiel.controllers.securities.HasRole;
 import org.iatoki.judgels.jophiel.controllers.securities.LoggedIn;
+import org.iatoki.judgels.jophiel.forms.SearchProfileForm;
 import org.iatoki.judgels.jophiel.forms.UserAvatarForm;
 import org.iatoki.judgels.jophiel.forms.UserInfoUpsertForm;
 import org.iatoki.judgels.jophiel.forms.UserProfileUpdateForm;
 import org.iatoki.judgels.jophiel.services.UserActivityService;
-import org.iatoki.judgels.jophiel.services.UserEmailService;
-import org.iatoki.judgels.jophiel.services.UserPhoneService;
 import org.iatoki.judgels.jophiel.services.UserProfileService;
 import org.iatoki.judgels.jophiel.services.UserService;
 import org.iatoki.judgels.jophiel.views.html.profile.viewProfileView;
@@ -21,8 +21,8 @@ import org.iatoki.judgels.play.InternalLink;
 import org.iatoki.judgels.play.JudgelsPlayUtils;
 import org.iatoki.judgels.play.LazyHtml;
 import org.iatoki.judgels.play.controllers.AbstractJudgelsController;
-import org.iatoki.judgels.play.views.html.layouts.centerLayout;
 import org.iatoki.judgels.play.views.html.layouts.headingLayout;
+import org.iatoki.judgels.play.views.html.layouts.messageView;
 import org.iatoki.judgels.play.views.html.layouts.tabLayout;
 import play.Logger;
 import play.data.Form;
@@ -47,16 +47,12 @@ import java.util.Date;
 public final class UserProfileController extends AbstractJudgelsController {
 
     private final UserActivityService userActivityService;
-    private final UserEmailService userEmailService;
-    private final UserPhoneService userPhoneService;
     private final UserProfileService userProfileService;
     private final UserService userService;
 
     @Inject
-    public UserProfileController(UserActivityService userActivityService, UserEmailService userEmailService, UserPhoneService userPhoneService, UserProfileService userProfileService, UserService userService) {
+    public UserProfileController(UserActivityService userActivityService, UserProfileService userProfileService, UserService userService) {
         this.userActivityService = userActivityService;
-        this.userEmailService = userEmailService;
-        this.userPhoneService = userPhoneService;
         this.userProfileService = userProfileService;
         this.userService = userService;
     }
@@ -85,7 +81,7 @@ public final class UserProfileController extends AbstractJudgelsController {
 
         UserProfileUpdateForm userProfileUpdateData = userProfileUpdateForm.get();
 
-        if (!"".equals(userProfileUpdateData.password)) {
+        if (!userProfileUpdateData.password.isEmpty()) {
             if (!userProfileUpdateData.password.equals(userProfileUpdateData.confirmPassword)) {
                 userProfileUpdateForm.reject("profile.error.passwordsDidntMatch");
 
@@ -168,31 +164,87 @@ public final class UserProfileController extends AbstractJudgelsController {
         return redirect(UserProfileControllerUtils.getInstance().getUpdateProfileCall());
     }
 
-    @Authenticated({LoggedIn.class, HasRole.class})
-    @Authorized("admin")
     @Transactional
     public Result viewProfile(String username) {
         if (!userService.userExistsByUsername(username)) {
-            return notFound();
+            return redirect(routes.UserProfileController.userNotFound());
         }
 
         User user = userService.findUserByUsername(username);
 
-        LazyHtml content = new LazyHtml(viewProfileView.render(user));
+        UserInfo userInfo = null;
+        if (userProfileService.infoExists(user.getJid())) {
+            userInfo = userProfileService.getInfo(user.getJid());
+        }
+
+        LazyHtml content = new LazyHtml(viewProfileView.render(user, userInfo));
         if (IdentityUtils.getUserJid() != null) {
-            content.appendLayout(c -> tabLayout.render(ImmutableList.of(new InternalLink(Messages.get("profile.profile"), routes.UserProfileController.viewProfile(username)), new InternalLink(Messages.get("profile.activities"), routes.UserActivityController.viewUserActivities(username))), c));
+            if (JophielUtils.hasRole("admin")) {
+                content.appendLayout(c -> tabLayout.render(ImmutableList.of(new InternalLink(Messages.get("profile.profile"), routes.UserProfileController.viewProfile(username)), new InternalLink(Messages.get("profile.activities"), routes.UserActivityController.viewUserActivities(username))), c));
+            }
             content.appendLayout(c -> headingLayout.render(user.getUsername(), c));
             JophielControllerUtils.getInstance().appendSidebarLayout(content);
             JophielControllerUtils.getInstance().appendBreadcrumbsLayout(content, ImmutableList.of(
                     new InternalLink(Messages.get("profile.profile"), routes.UserProfileController.viewProfile(username))
             ));
+
+            JophielControllerUtils.getInstance().addActivityLog(userActivityService, "View user profile " + user.getUsername() + " <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
         } else {
             content.appendLayout(c -> headingLayout.render(user.getUsername(), c));
-            content.appendLayout(c -> centerLayout.render(c));
+            JophielControllerUtils.getInstance().appendSidebarLayout(content);
         }
         JophielControllerUtils.getInstance().appendTemplateLayout(content, "Profile");
 
-        JophielControllerUtils.getInstance().addActivityLog(userActivityService, "View user profile " + user.getUsername() + " <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
+        return JophielControllerUtils.getInstance().lazyOk(content);
+    }
+
+    @Transactional
+    public Result postViewProfile() {
+        Form<SearchProfileForm> searchProfileForm = Form.form(SearchProfileForm.class).bindFromRequest();
+
+        if (formHasErrors(searchProfileForm)) {
+            return redirect(routes.UserProfileController.userNotFound());
+        }
+
+        String username = searchProfileForm.get().username;
+
+        if (!userService.userExistsByUsername(username)) {
+            return redirect(routes.UserProfileController.userNotFound());
+        }
+
+        User user = userService.findUserByUsername(username);
+
+        UserInfo userInfo = null;
+        if (userProfileService.infoExists(user.getJid())) {
+            userInfo = userProfileService.getInfo(user.getJid());
+        }
+
+        LazyHtml content = new LazyHtml(viewProfileView.render(user, userInfo));
+        if (IdentityUtils.getUserJid() != null) {
+            if (JophielUtils.hasRole("admin")) {
+                content.appendLayout(c -> tabLayout.render(ImmutableList.of(new InternalLink(Messages.get("profile.profile"), routes.UserProfileController.viewProfile(username)), new InternalLink(Messages.get("profile.activities"), routes.UserActivityController.viewUserActivities(username))), c));
+            }
+            content.appendLayout(c -> headingLayout.render(user.getUsername(), c));
+            JophielControllerUtils.getInstance().appendSidebarLayout(content);
+            JophielControllerUtils.getInstance().appendBreadcrumbsLayout(content, ImmutableList.of(
+                    new InternalLink(Messages.get("profile.profile"), routes.UserProfileController.viewProfile(username))
+            ));
+
+            JophielControllerUtils.getInstance().addActivityLog(userActivityService, "View user profile " + user.getUsername() + " <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
+        } else {
+            content.appendLayout(c -> headingLayout.render(user.getUsername(), c));
+            JophielControllerUtils.getInstance().appendSidebarLayout(content);
+        }
+        JophielControllerUtils.getInstance().appendTemplateLayout(content, "Profile");
+
+        return JophielControllerUtils.getInstance().lazyOk(content);
+    }
+
+    public Result userNotFound() {
+        LazyHtml content = new LazyHtml(messageView.render(Messages.get("user.search.notFound")));
+        content.appendLayout(c -> headingLayout.render(Messages.get("user.search"), c));
+        JophielControllerUtils.getInstance().appendSidebarLayout(content);
+        JophielControllerUtils.getInstance().appendTemplateLayout(content, "User not Found");
 
         return JophielControllerUtils.getInstance().lazyOk(content);
     }

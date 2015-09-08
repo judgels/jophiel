@@ -53,6 +53,8 @@ GET            /profile                                                     @org
 POST           /profile/update                                              @org.iatoki.judgels.jophiel.controllers.UserProfileController.postUpdateProfile()
 POST           /profile/userInfo/update                                     @org.iatoki.judgels.jophiel.controllers.UserProfileController.postUpdateInfo()
 GET            /profile/:username                                           @org.iatoki.judgels.jophiel.controllers.UserProfileController.viewProfile(username: String)
+POST           /viewProfile                                                 @org.iatoki.judgels.jophiel.controllers.UserProfileController.postViewProfile()
+GET            /profileNotFound                                             @org.iatoki.judgels.jophiel.controllers.UserProfileController.userNotFound()
 POST           /profile/avatar                                              @org.iatoki.judgels.jophiel.controllers.UserProfileController.postAvatar()
 
 POST           /email/create                                                @org.iatoki.judgels.jophiel.controllers.UserEmailController.postCreateEmail()

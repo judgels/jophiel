@@ -143,7 +143,7 @@ public final class UserAccountController extends AbstractJudgelsController {
     public Result afterRegister(String email) {
         LazyHtml content = new LazyHtml(messageView.render(Messages.get("register.activationEmailSentTo") + " " + email + "."));
         content.appendLayout(c -> headingLayout.render(Messages.get("register.successful"), c));
-        content.appendLayout(c -> centerLayout.render(c));
+        JophielControllerUtils.getInstance().appendSidebarLayout(content);
         JophielControllerUtils.getInstance().appendTemplateLayout(content, "After Register");
 
         return JophielControllerUtils.getInstance().lazyOk(content);
@@ -197,7 +197,7 @@ public final class UserAccountController extends AbstractJudgelsController {
     public Result afterForgotPassword(String email) {
         LazyHtml content = new LazyHtml(messageView.render(Messages.get("forgotPasswordEmail.changePasswordRequestSentTo") + " " + email + "."));
         content.appendLayout(c -> headingLayout.render(Messages.get("forgotPassword.successful"), c));
-        content.appendLayout(c -> centerLayout.render(c));
+        JophielControllerUtils.getInstance().appendSidebarLayout(content);
         JophielControllerUtils.getInstance().appendTemplateLayout(content, "After Forgot Password");
 
         return JophielControllerUtils.getInstance().lazyOk(content);
@@ -248,7 +248,7 @@ public final class UserAccountController extends AbstractJudgelsController {
     public Result afterChangePassword() {
         LazyHtml content = new LazyHtml(messageView.render(Messages.get("changePassword.success") + "."));
         content.appendLayout(c -> headingLayout.render(Messages.get("changePassword.successful"), c));
-        content.appendLayout(c -> centerLayout.render(c));
+        JophielControllerUtils.getInstance().appendSidebarLayout(content);
         JophielControllerUtils.getInstance().appendTemplateLayout(content, "After Change Password");
 
         return JophielControllerUtils.getInstance().lazyOk(content);
@@ -420,7 +420,7 @@ public final class UserAccountController extends AbstractJudgelsController {
 
     private Result showRegister(Form<RegisterForm> registerForm) {
         LazyHtml content = new LazyHtml(registerView.render(registerForm));
-        content.appendLayout(c -> centerLayout.render(c));
+        JophielControllerUtils.getInstance().appendSidebarLayout(content);
         JophielControllerUtils.getInstance().appendTemplateLayout(content, "Register");
 
         return JophielControllerUtils.getInstance().lazyOk(content);
@@ -428,7 +428,7 @@ public final class UserAccountController extends AbstractJudgelsController {
 
     private Result showForgotPassword(Form<ForgotPasswordForm> forgotPasswordForm) {
         LazyHtml content = new LazyHtml(forgotPasswordView.render(forgotPasswordForm));
-        content.appendLayout(c -> centerLayout.render(c));
+        JophielControllerUtils.getInstance().appendSidebarLayout(content);
         JophielControllerUtils.getInstance().appendTemplateLayout(content, "Forgot Password");
 
         return JophielControllerUtils.getInstance().lazyOk(content);
@@ -436,7 +436,7 @@ public final class UserAccountController extends AbstractJudgelsController {
 
     private Result showChangePassword(Form<ChangePasswordForm> changePasswordForm, String code) {
         LazyHtml content = new LazyHtml(changePasswordView.render(changePasswordForm, code));
-        content.appendLayout(c -> centerLayout.render(c));
+        JophielControllerUtils.getInstance().appendSidebarLayout(content);
         JophielControllerUtils.getInstance().appendTemplateLayout(content, "Change Password");
 
         return JophielControllerUtils.getInstance().lazyOk(content);
@@ -449,7 +449,7 @@ public final class UserAccountController extends AbstractJudgelsController {
         } else {
             content = new LazyHtml(serviceLoginView.render(loginForm, continueUrl));
         }
-        content.appendLayout(c -> centerLayout.render(c));
+        JophielControllerUtils.getInstance().appendSidebarLayout(content);
         JophielControllerUtils.getInstance().appendTemplateLayout(content, "Login");
 
         return JophielControllerUtils.getInstance().lazyOk(content);

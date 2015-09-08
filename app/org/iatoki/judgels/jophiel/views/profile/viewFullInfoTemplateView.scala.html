@@ -1,0 +1,41 @@
+@import play.i18n.Messages
+@import org.iatoki.judgels.play.JudgelsPlayUtils
+@import org.iatoki.judgels.jophiel.UserInfo
+
+@(userInfo: UserInfo)
+
+@if(userInfo == null) {
+    @Messages.get("user.info.noInfoYet")
+} else {
+    <table class="table">
+        <tbody>
+            <tr>
+                <td>@Messages.get("user.info.gender")</td><td>@Messages.get("user.info.gender." + userInfo.getGender)</td>
+            </tr>
+            <tr>
+                <td>@Messages.get("user.info.birthDate")</td><td>@JudgelsPlayUtils.formatDate(userInfo.getBirthDate)</td>
+            </tr>
+            <tr>
+                <td>@Messages.get("user.info.streetAddress")</td><td>@userInfo.getStreetAddress</td>
+            </tr>
+            <tr>
+                <td>@Messages.get("user.info.postalCode")</td><td>@userInfo.getPostalCode</td>
+            </tr>
+            <tr>
+                <td>@Messages.get("user.info.institution")</td><td>@userInfo.getInstitution</td>
+            </tr>
+            <tr>
+                <td>@Messages.get("user.info.city")</td><td>@userInfo.getCity</td>
+            </tr>
+            <tr>
+                <td>@Messages.get("user.info.provinceOrState")</td><td>@userInfo.getProvinceOrState</td>
+            </tr>
+            <tr>
+                <td>@Messages.get("user.info.country")</td><td>@userInfo.getCountry</td>
+            </tr>
+            <tr>
+                <td>@Messages.get("user.info.shirtSize")</td><td>@Messages.get("user.info.shirtSize." + userInfo.getShirtSize)</td>
+            </tr>
+        </tbody>
+    </table>
+}

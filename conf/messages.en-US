@@ -177,6 +177,11 @@ user.info.shirtSize.XL=XL
 user.info.shirtSize.XXL=XXL
 user.info.shirtSize.DO_NOT_WANT_TO_STATE=Don''t want to state
 
+user.info.noInfoYet=No user info yet.
+
+user.search=User Search
+user.search.notFound=User not found.
+
 institution.institutions=Institutions
 institution.list=Institutions
 institution.name=Name

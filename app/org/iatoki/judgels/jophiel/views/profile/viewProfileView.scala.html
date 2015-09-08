@@ -1,20 +1,23 @@
 @import play.i18n.Messages
 @import org.iatoki.judgels.jophiel.User
+@import org.iatoki.judgels.jophiel.UserInfo
 
-@(user: User)
+@(user:User, userInfo: UserInfo)
 
-<img class="avatar-picture center-block" src="@user.getProfilePictureUrl.toString" alt="profilePicture"/>
-<br />
-<br />
-<div class="form-group row">
-    <label class="control-label col-md-3">@Messages.get("user.username")</label>
-    <div class="col-md-9">@user.getUsername</div>
+<hr />
+<h3>@Messages.get("user.account")</h3>
+<hr />
+<div class="clearfix">
+    <div class="col-md-12">
+        @viewAccountTemplateView(user)
+    </div>
 </div>
-<div class="form-group row">
-    <label class="control-label col-md-3">@Messages.get("user.name")</label>
-    <div class="col-md-9">@user.getName</div>
-</div>
-<div class="form-group row">
-    <label class="control-label col-md-3">@Messages.get("user.email")</label>
-    <div class="col-md-9">@user.getEmailJid</div>
+
+<hr />
+<h3>@Messages.get("user.info")</h3>
+<hr />
+<div class="clearfix">
+    <div class="col-md-12">
+        @viewInfoTemplateView(userInfo)
+    </div>
 </div>

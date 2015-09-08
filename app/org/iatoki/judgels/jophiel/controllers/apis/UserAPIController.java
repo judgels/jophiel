@@ -17,8 +17,6 @@ import org.iatoki.judgels.jophiel.User;
 import org.iatoki.judgels.jophiel.UserEmail;
 import org.iatoki.judgels.jophiel.UserInfo;
 import org.iatoki.judgels.jophiel.UserPhone;
-import org.iatoki.judgels.jophiel.controllers.securities.Authenticated;
-import org.iatoki.judgels.jophiel.controllers.securities.LoggedIn;
 import org.iatoki.judgels.jophiel.services.ClientService;
 import org.iatoki.judgels.jophiel.services.UserEmailService;
 import org.iatoki.judgels.jophiel.services.UserPhoneService;
@@ -92,7 +90,6 @@ public final class UserAPIController extends AbstractJudgelsAPIController {
         return ok();
     }
 
-    @Authenticated(LoggedIn.class)
     @Transactional(readOnly = true)
     public Result userAutoCompleteList() {
         response().setHeader("Access-Control-Allow-Origin", "*");
