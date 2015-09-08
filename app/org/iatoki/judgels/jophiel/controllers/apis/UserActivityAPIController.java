@@ -9,10 +9,10 @@ import org.iatoki.judgels.jophiel.UserActivity;
 import org.iatoki.judgels.jophiel.services.ClientService;
 import org.iatoki.judgels.jophiel.services.UserActivityService;
 import org.iatoki.judgels.jophiel.services.UserService;
+import org.iatoki.judgels.play.controllers.apis.AbstractJudgelsAPIController;
 import play.data.DynamicForm;
 import play.db.jpa.Transactional;
 import play.libs.Json;
-import play.mvc.Controller;
 import play.mvc.Result;
 
 import javax.inject.Inject;
@@ -21,7 +21,7 @@ import javax.inject.Singleton;
 
 @Singleton
 @Named
-public final class UserActivityAPIController extends Controller {
+public final class UserActivityAPIController extends AbstractJudgelsAPIController {
 
     private final ClientService clientService;
     private final UserActivityService userActivityService;

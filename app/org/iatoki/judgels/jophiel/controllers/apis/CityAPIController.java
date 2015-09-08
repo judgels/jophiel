@@ -9,10 +9,10 @@ import org.iatoki.judgels.jophiel.controllers.securities.LoggedIn;
 import org.iatoki.judgels.jophiel.services.CityService;
 import org.iatoki.judgels.jophiel.services.UserService;
 import org.iatoki.judgels.play.IdentityUtils;
+import org.iatoki.judgels.play.controllers.apis.AbstractJudgelsAPIController;
 import play.data.DynamicForm;
 import play.db.jpa.Transactional;
 import play.libs.Json;
-import play.mvc.Controller;
 import play.mvc.Result;
 
 import javax.inject.Inject;
@@ -21,12 +21,9 @@ import javax.inject.Singleton;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static org.iatoki.judgels.play.controllers.apis.JudgelsAPIControllerUtils.createJsonPResponse;
-import static org.iatoki.judgels.play.controllers.apis.JudgelsAPIControllerUtils.setAccessControlOrigin;
-
 @Singleton
 @Named
-public final class CityAPIController extends Controller {
+public final class CityAPIController extends AbstractJudgelsAPIController {
 
     private final CityService cityService;
     private final UserService userService;

@@ -26,10 +26,10 @@ import org.iatoki.judgels.jophiel.services.UserProfileService;
 import org.iatoki.judgels.jophiel.services.UserService;
 import org.iatoki.judgels.play.IdentityUtils;
 import org.iatoki.judgels.play.JudgelsPlayUtils;
+import org.iatoki.judgels.play.controllers.apis.AbstractJudgelsAPIController;
 import play.data.DynamicForm;
 import play.db.jpa.Transactional;
 import play.libs.Json;
-import play.mvc.Controller;
 import play.mvc.Result;
 
 import javax.imageio.ImageIO;
@@ -51,12 +51,9 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static org.iatoki.judgels.play.controllers.apis.JudgelsAPIControllerUtils.createJsonPResponse;
-import static org.iatoki.judgels.play.controllers.apis.JudgelsAPIControllerUtils.setAccessControlOrigin;
-
 @Singleton
 @Named
-public final class UserAPIController extends Controller {
+public final class UserAPIController extends AbstractJudgelsAPIController {
 
     private final ClientService clientService;
     private final UserEmailService userEmailService;
