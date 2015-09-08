@@ -221,7 +221,7 @@ public final class UserAPIController extends AbstractJudgelsAPIController {
 
         String username = dForm.get("username");
 
-        if (!userService.existsUserByUsername(username)) {
+        if (!userService.userExistsByUsername(username)) {
             ObjectNode result = Json.newObject();
             result.put("success", false);
 
@@ -263,7 +263,7 @@ public final class UserAPIController extends AbstractJudgelsAPIController {
         }
 
         String userJid = dForm.get("userJid");
-        if (!userService.existsUserByJid(userJid)) {
+        if (!userService.userExistsByJid(userJid)) {
             ObjectNode jsonResponse = Json.newObject();
             jsonResponse.put("error", "invalid_user");
             return unauthorized(jsonResponse);
@@ -378,16 +378,16 @@ public final class UserAPIController extends AbstractJudgelsAPIController {
         if (client.getScopes().contains("OFFLINE_ACCESS")) {
             RefreshToken refreshToken = clientService.getRefreshTokenByAuthCode(authCode);
             jsonResponse.put("refresh_token", refreshToken.getToken());
-            clientService.redeemRefreshTokenById(refreshToken.getId());
+            clientService.redeemRefreshTokenById(refreshToken.getId(), client.getJid(), IdentityUtils.getIpAddress());
         }
         if (client.getScopes().contains("OPENID")) {
             IdToken idToken = clientService.getIdTokenByAuthCode(authCode);
             jsonResponse.put("id_token", idToken.getToken());
-            clientService.redeemIdTokenById(idToken.getId());
+            clientService.redeemIdTokenById(idToken.getId(), client.getJid(), IdentityUtils.getIpAddress());
         }
         jsonResponse.put("access_token", accessToken.getToken());
         jsonResponse.put("token_type", "Bearer");
-        jsonResponse.put("expire_in", clientService.redeemAccessTokenById(accessToken.getId()));
+        jsonResponse.put("expire_in", clientService.redeemAccessTokenById(accessToken.getId(), client.getJid(), IdentityUtils.getIpAddress()));
         return ok(jsonResponse);
     }
 
@@ -430,16 +430,16 @@ public final class UserAPIController extends AbstractJudgelsAPIController {
             return badRequest(jsonResponse);
         }
 
-        AccessToken newAccessToken = clientService.regenerateAccessToken(refreshToken.getCode(), refreshToken.getUserJid(), refreshToken.getClientJid(), Arrays.asList(refreshToken.getScopes().split(",")), System.currentTimeMillis() + TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES));
+        AccessToken newAccessToken = clientService.regenerateAccessToken(refreshToken.getCode(), refreshToken.getUserJid(), refreshToken.getClientJid(), Arrays.asList(refreshToken.getScopes().split(",")), System.currentTimeMillis() + TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES), IdentityUtils.getIpAddress());
         ObjectNode jsonResponse = Json.newObject();
         if (client.getScopes().contains("OPENID")) {
             IdToken idToken = clientService.getIdTokenByAuthCode(refreshToken.getCode());
             jsonResponse.put("id_token", idToken.getToken());
-            clientService.redeemIdTokenById(idToken.getId());
+            clientService.redeemIdTokenById(idToken.getId(), client.getJid(), IdentityUtils.getIpAddress());
         }
         jsonResponse.put("access_token", newAccessToken.getToken());
         jsonResponse.put("token_type", "Bearer");
-        jsonResponse.put("expire_in", clientService.redeemAccessTokenById(newAccessToken.getId()));
+        jsonResponse.put("expire_in", clientService.redeemAccessTokenById(newAccessToken.getId(), client.getJid(), IdentityUtils.getIpAddress()));
         return ok(jsonResponse);
     }
 }

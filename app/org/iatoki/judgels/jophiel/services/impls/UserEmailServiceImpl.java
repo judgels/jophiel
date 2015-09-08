@@ -1,16 +1,14 @@
 package org.iatoki.judgels.jophiel.services.impls;
 
+import org.iatoki.judgels.jophiel.JophielProperties;
 import org.iatoki.judgels.jophiel.UserEmail;
 import org.iatoki.judgels.jophiel.UserEmailNotFoundException;
-import org.iatoki.judgels.play.IdentityUtils;
-import org.iatoki.judgels.play.JudgelsPlayProperties;
-import org.iatoki.judgels.jophiel.JophielProperties;
 import org.iatoki.judgels.jophiel.models.daos.UserDao;
 import org.iatoki.judgels.jophiel.models.daos.UserEmailDao;
 import org.iatoki.judgels.jophiel.models.entities.UserEmailModel;
 import org.iatoki.judgels.jophiel.models.entities.UserModel;
 import org.iatoki.judgels.jophiel.services.UserEmailService;
-import org.iatoki.judgels.play.JudgelsPlayUtils;
+import org.iatoki.judgels.play.JudgelsPlayProperties;
 import play.i18n.Messages;
 import play.libs.mailer.Email;
 import play.libs.mailer.MailerClient;
@@ -19,7 +17,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Singleton
@@ -72,17 +69,17 @@ public final class UserEmailServiceImpl implements UserEmailService {
     }
 
     @Override
-    public String addFirstEmail(String userJid, String email) {
-        UserEmailModel userEmailModel = persistEmail(userJid, email);
+    public String addFirstEmail(String userJid, String email, String userIpAddress) {
+        UserEmailModel userEmailModel = UserEmailServiceUtils.persistEmail(userEmailDao, userJid, email, userIpAddress);
 
-        makeEmailPrimary(userJid, userEmailModel.jid);
+        makeEmailPrimary(userJid, userEmailModel.jid, userIpAddress);
 
         return userEmailModel.emailCode;
     }
 
     @Override
-    public String addEmail(String userJid, String email) {
-        UserEmailModel userEmailModel = persistEmail(userJid, email);
+    public String addEmail(String userJid, String email, String userIpAddress) {
+        UserEmailModel userEmailModel = UserEmailServiceUtils.persistEmail(userEmailDao, userJid, email, userIpAddress);
 
         return userEmailModel.emailCode;
     }
@@ -95,35 +92,35 @@ public final class UserEmailServiceImpl implements UserEmailService {
             throw new UserEmailNotFoundException("User Email Not Found.");
         }
 
-        return createFromModel(userEmailModel);
+        return UserEmailServiceUtils.createUserEmailFromModel(userEmailModel);
     }
 
     @Override
     public UserEmail findEmailByJid(String emailJid) {
-        return createFromModel(userEmailDao.findByJid(emailJid));
+        return UserEmailServiceUtils.createUserEmailFromModel(userEmailDao.findByJid(emailJid));
     }
 
     @Override
     public List<UserEmail> getEmailsByUserJid(String userJid) {
         List<UserEmailModel> userEmailModels = userEmailDao.getByUserJid(userJid);
 
-        return userEmailModels.stream().map(m -> createFromModel(m)).collect(Collectors.toList());
+        return userEmailModels.stream().map(m -> UserEmailServiceUtils.createUserEmailFromModel(m)).collect(Collectors.toList());
     }
 
     @Override
-    public void makeEmailPrimary(String userJid, String emailJid) {
+    public void makeEmailPrimary(String userJid, String emailJid, String userIpAddress) {
         UserModel userModel = userDao.findByJid(userJid);
         userModel.emailJid = emailJid;
 
-        userDao.edit(userModel, userJid, IdentityUtils.getIpAddress());
+        userDao.edit(userModel, userJid, userIpAddress);
     }
 
     @Override
-    public void activateEmail(String emailCode) {
+    public void activateEmail(String emailCode, String userIpAddress) {
         UserEmailModel emailModel = userEmailDao.findByEmailCode(emailCode);
         emailModel.emailVerified = true;
 
-        userEmailDao.edit(emailModel, emailModel.userJid, IdentityUtils.getIpAddress());
+        userEmailDao.edit(emailModel, emailModel.userJid, userIpAddress);
     }
 
     @Override
@@ -161,21 +158,5 @@ public final class UserEmailServiceImpl implements UserEmailService {
         UserEmailModel userEmailModel = userEmailDao.findByJid(emailJid);
 
         userEmailDao.remove(userEmailModel);
-    }
-
-    private UserEmail createFromModel(UserEmailModel userEmailModel) {
-        return new UserEmail(userEmailModel.id, userEmailModel.jid, userEmailModel.userJid, userEmailModel.email, userEmailModel.emailVerified);
-    }
-
-    private UserEmailModel persistEmail(String userJid, String email) {
-        UserEmailModel userEmailModel = new UserEmailModel();
-        userEmailModel.email = email;
-        userEmailModel.userJid = userJid;
-        userEmailModel.emailVerified = false;
-        userEmailModel.emailCode = JudgelsPlayUtils.hashMD5(UUID.randomUUID().toString());
-
-        userEmailDao.persist(userEmailModel, userJid, IdentityUtils.getIpAddress());
-
-        return userEmailModel;
     }
 }

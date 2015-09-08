@@ -14,7 +14,7 @@ public interface CityService {
 
     City findCityById(long cityId) throws CityNotFoundException;
 
-    void createCity(String name);
+    void createCity(String name, String userJid, String userIpAddress);
 
     void deleteCity(long cityId) throws CityNotFoundException;
 

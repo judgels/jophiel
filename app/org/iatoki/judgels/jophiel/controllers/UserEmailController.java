@@ -44,7 +44,7 @@ public final class UserEmailController extends AbstractJudgelsController {
             return notFound();
         }
 
-        userEmailService.activateEmail(emailCode);
+        userEmailService.activateEmail(emailCode, IdentityUtils.getIpAddress());
 
         LazyHtml content = new LazyHtml(activationView.render());
         content.appendLayout(c -> centerLayout.render(c));
@@ -68,9 +68,9 @@ public final class UserEmailController extends AbstractJudgelsController {
         User user = userService.findUserByJid(IdentityUtils.getUserJid());
         String emailCode;
         if (user.getEmailJid() == null) {
-            emailCode = userEmailService.addFirstEmail(IdentityUtils.getUserJid(), userEmailCreateData.email);
+            emailCode = userEmailService.addFirstEmail(IdentityUtils.getUserJid(), userEmailCreateData.email, IdentityUtils.getIpAddress());
         } else {
-            emailCode = userEmailService.addEmail(IdentityUtils.getUserJid(), userEmailCreateData.email);
+            emailCode = userEmailService.addEmail(IdentityUtils.getUserJid(), userEmailCreateData.email, IdentityUtils.getIpAddress());
         }
         userEmailService.sendEmailVerification(user.getName(), userEmailCreateData.email, routes.UserEmailController.verifyEmail(emailCode).absoluteURL(request(), request().secure()));
 
@@ -100,7 +100,7 @@ public final class UserEmailController extends AbstractJudgelsController {
             return redirect(UserProfileControllerUtils.getInstance().getUpdateProfileCall());
         }
 
-        userEmailService.makeEmailPrimary(user.getJid(), userEmail.getJid());
+        userEmailService.makeEmailPrimary(user.getJid(), userEmail.getJid(), IdentityUtils.getIpAddress());
 
         return redirect(UserProfileControllerUtils.getInstance().getUpdateProfileCall());
     }
@@ -158,7 +158,7 @@ public final class UserEmailController extends AbstractJudgelsController {
         }
 
         String code = userEmailService.getEmailCodeOfUnverifiedEmail(userEmail.getJid());
-        userEmailService.activateEmail(code);
+        userEmailService.activateEmail(code, IdentityUtils.getIpAddress());
 
         return redirect(routes.UserController.viewUnverifiedUsers());
     }

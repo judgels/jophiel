@@ -6,7 +6,6 @@ import org.iatoki.judgels.jophiel.InstitutionNotFoundException;
 import org.iatoki.judgels.jophiel.models.daos.InstitutionDao;
 import org.iatoki.judgels.jophiel.models.entities.InstitutionModel;
 import org.iatoki.judgels.jophiel.services.InstitutionService;
-import org.iatoki.judgels.play.IdentityUtils;
 import org.iatoki.judgels.play.Page;
 
 import javax.inject.Inject;
@@ -30,7 +29,7 @@ public final class InstitutionServiceImpl implements InstitutionService {
     public List<Institution> getInstitutionsByTerm(String term) {
         List<InstitutionModel> institutionModels = institutionDao.findSortedByFilters("id", "asc", term, 0, -1);
 
-        return institutionModels.stream().map(m -> createFromModel(m)).collect(Collectors.toList());
+        return institutionModels.stream().map(m -> InstitutionServiceUtils.createInstitutionFromModel(m)).collect(Collectors.toList());
     }
 
     @Override
@@ -46,16 +45,16 @@ public final class InstitutionServiceImpl implements InstitutionService {
             throw new InstitutionNotFoundException("Institution Not Found.");
         }
 
-        return createFromModel(institutionModel);
+        return InstitutionServiceUtils.createInstitutionFromModel(institutionModel);
     }
 
     @Override
-    public void createInstitution(String name) {
+    public void createInstitution(String name, String userJid, String userIpAddress) {
         InstitutionModel institutionModel = new InstitutionModel();
         institutionModel.institution = name;
         institutionModel.referenceCount = 0;
 
-        institutionDao.persist(institutionModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
+        institutionDao.persist(institutionModel, userJid, userIpAddress);
     }
 
     @Override
@@ -74,12 +73,8 @@ public final class InstitutionServiceImpl implements InstitutionService {
         long totalPages = institutionDao.countByFilters(filterString, ImmutableMap.of(), ImmutableMap.of());
         List<InstitutionModel> institutionModels = institutionDao.findSortedByFilters(orderBy, orderDir, filterString, ImmutableMap.of(), ImmutableMap.of(), pageIndex * pageSize, pageSize);
 
-        List<Institution> clients = institutionModels.stream().map(m -> createFromModel(m)).collect(Collectors.toList());
+        List<Institution> clients = institutionModels.stream().map(m -> InstitutionServiceUtils.createInstitutionFromModel(m)).collect(Collectors.toList());
 
         return new Page<>(clients, totalPages, pageIndex, pageSize);
-    }
-
-    private Institution createFromModel(InstitutionModel institutionModel) {
-        return new Institution(institutionModel.id, institutionModel.institution, institutionModel.referenceCount);
     }
 }

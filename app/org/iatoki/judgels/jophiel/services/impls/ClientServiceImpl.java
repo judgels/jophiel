@@ -86,7 +86,7 @@ public final class ClientServiceImpl implements ClientService {
             List<RedirectURIModel> redirectURIModels = redirectURIDao.getByClientJid(clientModel.jid);
             List<String> redirectURIs = redirectURIModels.stream().map(r -> r.redirectURI).collect(Collectors.toList());
 
-            clientBuilder.add(createClientFromModel(clientModel, scopeString, redirectURIs));
+            clientBuilder.add(ClientServiceUtils.createClientFromModel(clientModel, scopeString, redirectURIs));
         }
 
         return clientBuilder.build();
@@ -102,18 +102,18 @@ public final class ClientServiceImpl implements ClientService {
             List<RedirectURIModel> redirectURIModels = redirectURIDao.getByClientJid(clientModel.jid);
             List<String> redirectURIs = redirectURIModels.stream().map(r -> r.redirectURI).collect(Collectors.toList());
 
-            clientBuilder.add(createClientFromModel(clientModel, scopeString, redirectURIs));
+            clientBuilder.add(ClientServiceUtils.createClientFromModel(clientModel, scopeString, redirectURIs));
         }
 
         return clientBuilder.build();
     }
 
     @Override
-    public boolean isClientAuthorized(String jid, List<String> scopes) {
+    public boolean isClientAuthorized(String clientJid, List<String> scopes) {
         String userJid = IdentityUtils.getUserJid();
         Collections.sort(scopes);
 
-        return authorizationCodeDao.isAuthorized(jid, userJid, StringUtils.join(scopes, ","));
+        return authorizationCodeDao.isAuthorized(clientJid, userJid, StringUtils.join(scopes, ","));
     }
 
     @Override
@@ -123,13 +123,13 @@ public final class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public boolean clientExistsByJid(String jid) {
-        return clientDao.existsByJid(jid);
+    public boolean clientExistsByJid(String clientJid) {
+        return clientDao.existsByJid(clientJid);
     }
 
     @Override
-    public boolean clientExistsByName(String name) {
-        return clientDao.existsByName(name);
+    public boolean clientExistsByName(String clientName) {
+        return clientDao.existsByName(clientName);
     }
 
     @Override
@@ -143,7 +143,7 @@ public final class ClientServiceImpl implements ClientService {
         List<RedirectURIModel> redirectURIModels = redirectURIDao.getByClientJid(clientModel.jid);
         List<String> redirectURIs = redirectURIModels.stream().map(r -> r.redirectURI).collect(Collectors.toList());
 
-        return createClientFromModel(clientModel, scopeString, redirectURIs);
+        return ClientServiceUtils.createClientFromModel(clientModel, scopeString, redirectURIs);
     }
 
     @Override
@@ -154,11 +154,11 @@ public final class ClientServiceImpl implements ClientService {
         List<RedirectURIModel> redirectURIModels = redirectURIDao.getByClientJid(clientModel.jid);
         List<String> redirectURIs = redirectURIModels.stream().map(r -> r.redirectURI).collect(Collectors.toList());
 
-        return createClientFromModel(clientModel, scopeString, redirectURIs);
+        return ClientServiceUtils.createClientFromModel(clientModel, scopeString, redirectURIs);
     }
 
     @Override
-    public AuthorizationCode generateAuthorizationCode(String clientJid, String uRI, String responseType, List<String> scopes, long expireTime) {
+    public AuthorizationCode generateAuthorizationCode(String userJid, String clientJid, String uRI, String responseType, List<String> scopes, long expireTime, String userIpAddress) {
         Collections.sort(scopes);
         ClientModel clientModel = clientDao.findByJid(clientJid);
         List<RedirectURIModel> redirectURIs = redirectURIDao.getByClientJid(clientJid);
@@ -180,54 +180,54 @@ public final class ClientServiceImpl implements ClientService {
 
         AuthorizationCodeModel authorizationCodeModel = new AuthorizationCodeModel();
         authorizationCodeModel.clientJid = clientJid;
-        authorizationCodeModel.userJid = IdentityUtils.getUserJid();
+        authorizationCodeModel.userJid = userJid;
         authorizationCodeModel.code = authorizationCode.toString();
         authorizationCodeModel.expireTime = expireTime;
         authorizationCodeModel.redirectURI = uRI;
         authorizationCodeModel.scopes = StringUtils.join(scopes, ",");
-        authorizationCodeDao.persist(authorizationCodeModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
+        authorizationCodeDao.persist(authorizationCodeModel, userJid, userIpAddress);
 
         return authorizationCode;
     }
 
 
     @Override
-    public String generateAccessToken(String code, String userId, String clientId, List<String> scopes, long expireTime) {
+    public String generateAccessToken(String code, String userJid, String clientJid, List<String> scopes, long expireTime, String userIpAddress) {
         com.nimbusds.oauth2.sdk.token.AccessToken accessToken = new BearerAccessToken();
         Collections.sort(scopes);
 
         AccessTokenModel accessTokenModel = new AccessTokenModel();
         accessTokenModel.code = code;
-        accessTokenModel.clientJid = clientId;
-        accessTokenModel.userJid = userId;
+        accessTokenModel.clientJid = clientJid;
+        accessTokenModel.userJid = userJid;
         accessTokenModel.redeemed = false;
         accessTokenModel.expireTime = expireTime;
         accessTokenModel.scopes = StringUtils.join(scopes, ",");
         accessTokenModel.token = accessToken.getValue();
 
-        accessTokenDao.persist(accessTokenModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
+        accessTokenDao.persist(accessTokenModel, userJid, userIpAddress);
 
         return accessTokenModel.token;
     }
 
     @Override
-    public void generateRefreshToken(String code, String userId, String clientId, List<String> scopes) {
+    public void generateRefreshToken(String code, String userJid, String clientJid, List<String> scopes, String userIpAddress) {
         com.nimbusds.oauth2.sdk.token.RefreshToken refreshToken = new com.nimbusds.oauth2.sdk.token.RefreshToken();
         Collections.sort(scopes);
 
         RefreshTokenModel refreshTokenModel = new RefreshTokenModel();
         refreshTokenModel.code = code;
-        refreshTokenModel.clientJid = clientId;
-        refreshTokenModel.userJid = userId;
+        refreshTokenModel.clientJid = clientJid;
+        refreshTokenModel.userJid = userJid;
         refreshTokenModel.redeemed = false;
         refreshTokenModel.scopes = StringUtils.join(scopes, ",");
         refreshTokenModel.token = refreshToken.getValue();
 
-        refreshTokenDao.persist(refreshTokenModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
+        refreshTokenDao.persist(refreshTokenModel, userJid, userIpAddress);
     }
 
     @Override
-    public void generateIdToken(String code, String userId, String clientId, String nonce, long authTime, String accessToken, long expireTime) {
+    public void generateIdToken(String code, String userJid, String clientJid, String nonce, long authTime, String accessToken, long expireTime, String userIpAddress) {
         try {
             byte[] encoded = Base64.decodeBase64(JophielProperties.getInstance().getIdTokenPrivateKey().getBytes("utf-8"));
             PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(encoded);
@@ -237,8 +237,8 @@ public final class ClientServiceImpl implements ClientService {
             JWSSigner signer = new RSASSASigner(privateKey);
 
             JWTClaimsSet claimsSet = new JWTClaimsSet();
-            claimsSet.setSubject(userId);
-            claimsSet.setAudience(clientId);
+            claimsSet.setSubject(userJid);
+            claimsSet.setAudience(clientJid);
             claimsSet.setIssuer(JophielProperties.getInstance().getJophielBaseUrl());
             claimsSet.setIssueTime(new Date(System.currentTimeMillis()));
             claimsSet.setExpirationTime(new Date(expireTime));
@@ -249,13 +249,13 @@ public final class ClientServiceImpl implements ClientService {
             signedJWT.sign(signer);
 
             IdTokenModel idTokenModel = new IdTokenModel();
-            idTokenModel.userJid = userId;
-            idTokenModel.clientJid = clientId;
+            idTokenModel.userJid = userJid;
+            idTokenModel.clientJid = clientJid;
             idTokenModel.code = code;
             idTokenModel.redeemed = false;
             idTokenModel.token = signedJWT.serialize();
 
-            idTokenDao.persist(idTokenModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
+            idTokenDao.persist(idTokenModel, userJid, userIpAddress);
 
         } catch (NoSuchAlgorithmException | InvalidKeySpecException | JOSEException | UnsupportedEncodingException e) {
             throw new RuntimeException(e);
@@ -266,100 +266,100 @@ public final class ClientServiceImpl implements ClientService {
     public org.iatoki.judgels.jophiel.AuthorizationCode findAuthorizationCodeByCode(String code) {
         AuthorizationCodeModel authorizationCodeModel = authorizationCodeDao.findByCode(code);
 
-        return createAuthorizationCodeFromModel(authorizationCodeModel);
+        return ClientServiceUtils.createAuthorizationCodeFromModel(authorizationCodeModel);
     }
 
     @Override
-    public AccessToken regenerateAccessToken(String code, String userId, String clientId, List<String> scopes, long expireTime) {
+    public AccessToken regenerateAccessToken(String code, String userJid, String clientJid, List<String> scopes, long expireTime, String clientIpAddress) {
         com.nimbusds.oauth2.sdk.token.AccessToken accessToken = new BearerAccessToken();
         Collections.sort(scopes);
 
         AccessTokenModel accessTokenModel = new AccessTokenModel();
         accessTokenModel.code = code;
-        accessTokenModel.clientJid = clientId;
-        accessTokenModel.userJid = userId;
+        accessTokenModel.clientJid = clientJid;
+        accessTokenModel.userJid = userJid;
         accessTokenModel.redeemed = false;
         accessTokenModel.expireTime = expireTime;
         accessTokenModel.scopes = StringUtils.join(scopes, ",");
         accessTokenModel.token = accessToken.getValue();
 
-        accessTokenDao.persist(accessTokenModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
+        accessTokenDao.persist(accessTokenModel, clientJid, clientIpAddress);
 
-        return createAccessTokenFromModel(accessTokenModel);
+        return ClientServiceUtils.createAccessTokenFromModel(accessTokenModel);
     }
 
     @Override
     public AccessToken getAccessTokenByAccessTokenString(String accessToken) {
         AccessTokenModel accessTokenModel = accessTokenDao.findByToken(accessToken);
 
-        return createAccessTokenFromModel(accessTokenModel);
+        return ClientServiceUtils.createAccessTokenFromModel(accessTokenModel);
     }
 
     @Override
     public AccessToken getAccessTokenByAuthCode(String authCode) {
         AccessTokenModel accessTokenModel = accessTokenDao.findByCode(authCode);
 
-        return createAccessTokenFromModel(accessTokenModel);
+        return ClientServiceUtils.createAccessTokenFromModel(accessTokenModel);
     }
 
     @Override
     public RefreshToken getRefreshTokenByRefreshTokenString(String refreshToken) {
         RefreshTokenModel refreshTokenModel = refreshTokenDao.findByToken(refreshToken);
 
-        return createRefreshTokenFromModel(refreshTokenModel);
+        return ClientServiceUtils.createRefreshTokenFromModel(refreshTokenModel);
     }
 
     @Override
     public RefreshToken getRefreshTokenByAuthCode(String authCode) {
         RefreshTokenModel refreshTokenModel = refreshTokenDao.findByCode(authCode);
 
-        return createRefreshTokenFromModel(refreshTokenModel);
+        return ClientServiceUtils.createRefreshTokenFromModel(refreshTokenModel);
     }
 
     @Override
     public IdToken getIdTokenByAuthCode(String authCode) {
         IdTokenModel idTokenModel = idTokenDao.findByCode(authCode);
 
-        return createIdTokenFromModel(idTokenModel);
+        return ClientServiceUtils.createIdTokenFromModel(idTokenModel);
     }
 
     @Override
-    public long redeemAccessTokenById(long accessTokenId) {
+    public long redeemAccessTokenById(long accessTokenId, String clientJid, String clientIpAddress) {
         AccessTokenModel accessTokenModel = accessTokenDao.findById(accessTokenId);
         if (accessTokenModel.redeemed) {
             throw new RuntimeException();
         }
         accessTokenModel.redeemed = true;
 
-        accessTokenDao.edit(accessTokenModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
+        accessTokenDao.edit(accessTokenModel, clientJid, clientIpAddress);
 
         return TimeUnit.SECONDS.convert((accessTokenModel.expireTime - System.currentTimeMillis()), TimeUnit.MILLISECONDS);
     }
 
     @Override
-    public void redeemRefreshTokenById(long refreshTokenId) {
+    public void redeemRefreshTokenById(long refreshTokenId, String clientJid, String clientIpAddress) {
         RefreshTokenModel refreshTokenModel = refreshTokenDao.findById(refreshTokenId);
         if (refreshTokenModel.redeemed) {
             throw new RuntimeException();
         }
         refreshTokenModel.redeemed = true;
 
-        refreshTokenDao.edit(refreshTokenModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
+        refreshTokenDao.edit(refreshTokenModel, clientJid, clientIpAddress);
     }
 
     @Override
-    public void redeemIdTokenById(long idTokenId) {
+    public void redeemIdTokenById(long idTokenId, String clientJid, String clientIpAddress) {
         IdTokenModel idTokenModel = idTokenDao.findById(idTokenId);
         if (idTokenModel.redeemed) {
             throw new RuntimeException();
         }
         idTokenModel.redeemed = true;
 
-        idTokenDao.edit(idTokenModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
+        idTokenDao.edit(idTokenModel, clientJid, clientIpAddress);
     }
 
     @Override
-    public void createClient(String name, String applicationType, List<String> scopes, List<String> redirectURIs) {
+    public void createClient(String name, String applicationType, List<String> scopes, List<String> redirectURIs, String userJid, String userIpAddress) {
         ClientModel clientModel = new ClientModel();
         clientModel.name = name;
         clientModel.secret = JudgelsPlayUtils.generateNewSecret();
@@ -367,30 +367,26 @@ public final class ClientServiceImpl implements ClientService {
         List<String> scopeList = scopes.stream().filter(s -> ((s != null) && (Scope.valueOf(s) != null))).collect(Collectors.toList());
         clientModel.scopes = StringUtils.join(scopeList, ",");
 
-        clientDao.persist(clientModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
+        clientDao.persist(clientModel, userJid, userIpAddress);
 
         for (String redirectURI : redirectURIs) {
             RedirectURIModel redirectURIModel = new RedirectURIModel();
             redirectURIModel.redirectURI = redirectURI;
             redirectURIModel.clientJid = clientModel.jid;
 
-            redirectURIDao.persist(redirectURIModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
+            redirectURIDao.persist(redirectURIModel, userJid, userIpAddress);
         }
     }
 
     @Override
-    public void updateClient(long clientId, String name, List<String> scopes, List<String> redirectURIs) throws ClientNotFoundException {
-        ClientModel clientModel = clientDao.findById(clientId);
-
-        if (clientModel == null) {
-            throw new ClientNotFoundException("Client Not Found.");
-        }
+    public void updateClient(String clientJid, String name, List<String> scopes, List<String> redirectURIs, String userJid, String userIpAddress) {
+        ClientModel clientModel = clientDao.findByJid(clientJid);
 
         clientModel.name = name;
         List<String> scopeList = scopes.stream().filter(s -> ((s != null) && (Scope.valueOf(s) != null))).collect(Collectors.toList());
         clientModel.scopes = StringUtils.join(scopeList, ",");
 
-        clientDao.edit(clientModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
+        clientDao.edit(clientModel, userJid, userIpAddress);
 
         List<RedirectURIModel> oldRedirectURIs = redirectURIDao.getByClientJid(clientModel.jid);
         for (RedirectURIModel redirectURIModel : oldRedirectURIs) {
@@ -402,17 +398,13 @@ public final class ClientServiceImpl implements ClientService {
             redirectURIModel.redirectURI = redirectURI;
             redirectURIModel.clientJid = clientModel.jid;
 
-            redirectURIDao.persist(redirectURIModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
+            redirectURIDao.persist(redirectURIModel, userJid, userIpAddress);
         }
     }
 
     @Override
-    public void deleteClient(long clientId) throws ClientNotFoundException {
-        ClientModel clientModel = clientDao.findById(clientId);
-
-        if (clientModel == null) {
-            throw new ClientNotFoundException("Client Not Found.");
-        }
+    public void deleteClient(String clientJid) {
+        ClientModel clientModel = clientDao.findByJid(clientJid);
 
         clientDao.remove(clientModel);
     }
@@ -422,28 +414,8 @@ public final class ClientServiceImpl implements ClientService {
         long totalPages = clientDao.countByFilters(filterString, ImmutableMap.of(), ImmutableMap.of());
         List<ClientModel> clientModels = clientDao.findSortedByFilters(orderBy, orderDir, filterString, ImmutableMap.of(), ImmutableMap.of(), pageIndex * pageSize, pageSize);
 
-        List<Client> clients = Lists.transform(clientModels, m -> createClientFromModel(m, ImmutableSet.copyOf(m.scopes.split(",")), ImmutableList.of()));
+        List<Client> clients = Lists.transform(clientModels, m -> ClientServiceUtils.createClientFromModel(m, ImmutableSet.copyOf(m.scopes.split(",")), ImmutableList.of()));
 
         return new Page<>(clients, totalPages, pageIndex, pageSize);
-    }
-
-    private Client createClientFromModel(ClientModel clientModel, Set<String> scopeString, List<String> redirectURIs) {
-        return new Client(clientModel.id, clientModel.jid, clientModel.name, clientModel.secret, clientModel.applicationType.toString(), scopeString, redirectURIs);
-    }
-
-    private org.iatoki.judgels.jophiel.AuthorizationCode createAuthorizationCodeFromModel(AuthorizationCodeModel authorizationCodeModel) {
-        return new org.iatoki.judgels.jophiel.AuthorizationCode(authorizationCodeModel.id, authorizationCodeModel.userJid, authorizationCodeModel.clientJid, authorizationCodeModel.code, authorizationCodeModel.redirectURI, authorizationCodeModel.expireTime, authorizationCodeModel.scopes);
-    }
-
-    private AccessToken createAccessTokenFromModel(AccessTokenModel accessTokenModel) {
-        return new AccessToken(accessTokenModel.id, accessTokenModel.code, accessTokenModel.userJid, accessTokenModel.clientJid, accessTokenModel.token, accessTokenModel.expireTime, accessTokenModel.redeemed, accessTokenModel.scopes);
-    }
-
-    private RefreshToken createRefreshTokenFromModel(RefreshTokenModel refreshTokenModel) {
-        return new RefreshToken(refreshTokenModel.id, refreshTokenModel.code, refreshTokenModel.userJid, refreshTokenModel.clientJid, refreshTokenModel.token, refreshTokenModel.scopes, refreshTokenModel.redeemed);
-    }
-
-    private IdToken createIdTokenFromModel(IdTokenModel idTokenModel) {
-        return new IdToken(idTokenModel.id, idTokenModel.code, idTokenModel.userJid, idTokenModel.clientJid, idTokenModel.token, idTokenModel.redeemed);
     }
 }

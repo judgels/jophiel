@@ -19,6 +19,7 @@ import org.iatoki.judgels.jophiel.views.html.user.listUnverifiedUsersView;
 import org.iatoki.judgels.jophiel.views.html.user.listUsersView;
 import org.iatoki.judgels.jophiel.views.html.user.updateUserView;
 import org.iatoki.judgels.jophiel.views.html.user.viewUserView;
+import org.iatoki.judgels.play.IdentityUtils;
 import org.iatoki.judgels.play.InternalLink;
 import org.iatoki.judgels.play.LazyHtml;
 import org.iatoki.judgels.play.Page;
@@ -149,7 +150,7 @@ public final class UserController extends AbstractJudgelsController {
         }
 
         UserCreateForm userCreateData = userCreateForm.get();
-        userService.createUser(userCreateData.username, userCreateData.name, userCreateData.email, userCreateData.password, Arrays.asList(userCreateData.roles.split(",")));
+        userService.createUser(userCreateData.username, userCreateData.name, userCreateData.email, userCreateData.password, Arrays.asList(userCreateData.roles.split(",")), IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
 
         JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Create user " + userCreateData.username + ".");
 
@@ -188,9 +189,9 @@ public final class UserController extends AbstractJudgelsController {
 
         UserUpdateForm userUpdateData = userUpdateForm.get();
         if (!"".equals(userUpdateData.password)) {
-            userService.updateUser(user.getId(), userUpdateData.username, userUpdateData.name, userUpdateData.email, userUpdateData.password, Arrays.asList(userUpdateData.roles.split(",")));
+            userService.updateUser(user.getJid(), userUpdateData.username, userUpdateData.name, userUpdateData.email, userUpdateData.password, Arrays.asList(userUpdateData.roles.split(",")), IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
         } else {
-            userService.updateUser(user.getId(), userUpdateData.username, userUpdateData.name, userUpdateData.email, Arrays.asList(userUpdateData.roles.split(",")));
+            userService.updateUser(user.getJid(), userUpdateData.username, userUpdateData.name, userUpdateData.email, Arrays.asList(userUpdateData.roles.split(",")), IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
         }
 
         JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Update user " + user.getUsername() + ".");
@@ -203,7 +204,7 @@ public final class UserController extends AbstractJudgelsController {
     @Transactional
     public Result deleteUser(long userId) throws UserNotFoundException {
         User user = userService.findUserById(userId);
-        userService.deleteUser(user.getId());
+        userService.deleteUser(user.getJid());
 
         JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Delete user " + user.getUsername() + " <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
 

@@ -125,7 +125,7 @@ public class UserEmailServiceImplTest extends PowerMockTestCase {
                 return null;
             }).when(userEmailDao).edit(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 
-        userEmailService.activateEmail(emailCode);
+        userEmailService.activateEmail(emailCode, getIpAddress);
 
         Assert.assertTrue(userEmailModel.emailVerified, "Invalid email code or email has been activated");
         Assert.assertNotEquals(userEmailModel.userCreate, userEmailModel.userUpdate, "UserInfo update not updated");

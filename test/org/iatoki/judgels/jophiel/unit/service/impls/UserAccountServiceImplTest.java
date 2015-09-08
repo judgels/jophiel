@@ -62,7 +62,6 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
         String password = "alicepassword";
 
         String getIpAddress = "10.10.10.10";
-        Mockito.when(IdentityUtils.getIpAddress()).thenReturn(getIpAddress);
 
         UserModel userModel = new UserModel();
         Mockito.doAnswer(invocation -> {
@@ -95,7 +94,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
                 return null;
             }).when(userEmailDao).persist(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 
-        String emailActivationCode = userAccountService.registerUser(username, name, email, password);
+        String emailActivationCode = userAccountService.registerUser(username, name, email, password, getIpAddress);
 
         Assert.assertNotNull(emailActivationCode, "Email activation code must not be null");
         Assert.assertTrue(PasswordHash.validatePassword(password, userModel.password), "Password not hashed");
@@ -115,11 +114,10 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
         String password = "a_licepassword";
 
         String getIpAddress = "10.10.10.10";
-        Mockito.when(IdentityUtils.getIpAddress()).thenReturn(getIpAddress);
 
         Mockito.doThrow(ConstraintViolationException.class).when(userDao).persist(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 
-        String emailActivationCode = userAccountService.registerUser(username, name, email, password);
+        String emailActivationCode = userAccountService.registerUser(username, name, email, password, getIpAddress);
 
         Assert.fail("Unreachable");
     }
@@ -150,7 +148,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
                 return null;
             }).when(userForgotPasswordDao).persist(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 
-        String forgotPasswordCode = userAccountService.generateForgotPasswordRequest(username, email);
+        String forgotPasswordCode = userAccountService.generateForgotPasswordRequest(username, email, "127.0.0.1");
 
         Assert.assertNotNull(forgotPasswordCode, "Forgot password code must not be null");
         Assert.assertEquals(forgotPasswordCode, userForgotPasswordModel.code, "Forgot password code not equal");
@@ -209,7 +207,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
                 return null;
             }).when(userDao).edit(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 
-        userAccountService.processChangePassword(code, newPassword);
+        userAccountService.processChangePassword(code, newPassword, "127.0.0.1");
 
         Assert.assertTrue(userForgotPasswordModel.used, "Forgot password code not used");
         Assert.assertTrue(userForgotPasswordModel.timeUpdate > userForgotPasswordModel.timeCreate, "Forgot password not updated");
@@ -378,7 +376,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
                 return null;
             }).when(userDao).edit(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 
-        userAccountService.updateUserPassword(userJid, newPassword);
+        userAccountService.updateUserPassword(userJid, newPassword, IdentityUtils.getIpAddress());
 
         Assert.assertTrue(PasswordHash.validatePassword(newPassword, userModel.password), "Password not changed");
         Assert.assertNotEquals(userModel.userCreate, userModel.userUpdate, "UserInfo update not updated");

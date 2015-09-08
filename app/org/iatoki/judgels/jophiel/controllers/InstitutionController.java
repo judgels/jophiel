@@ -13,6 +13,7 @@ import org.iatoki.judgels.jophiel.forms.InstitutionUploadForm;
 import org.iatoki.judgels.jophiel.services.InstitutionService;
 import org.iatoki.judgels.jophiel.services.UserActivityService;
 import org.iatoki.judgels.jophiel.views.html.suggestion.institution.listCreateInstitutionsView;
+import org.iatoki.judgels.play.IdentityUtils;
 import org.iatoki.judgels.play.InternalLink;
 import org.iatoki.judgels.play.LazyHtml;
 import org.iatoki.judgels.play.Page;
@@ -80,7 +81,7 @@ public final class InstitutionController extends AbstractJudgelsController {
         }
 
         InstitutionCreateForm institutionCreateData = institutionCreateForm.get();
-        institutionService.createInstitution(institutionCreateData.name);
+        institutionService.createInstitution(institutionCreateData.name, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
 
         JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Create institution " + institutionCreateData.name + ".");
 
@@ -99,8 +100,8 @@ public final class InstitutionController extends AbstractJudgelsController {
             try {
                 String[] institutions = FileUtils.readFileToString(userFile).split("\n");
                 for (String institution : institutions) {
-                    if (!"".equals(institution) && !institutionService.institutionExistsByName(institution)) {
-                        institutionService.createInstitution(institution);
+                    if (!institution.isEmpty() && !institutionService.institutionExistsByName(institution)) {
+                        institutionService.createInstitution(institution, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
                     }
 
                 }

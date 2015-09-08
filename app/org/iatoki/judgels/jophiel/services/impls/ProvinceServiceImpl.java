@@ -6,7 +6,6 @@ import org.iatoki.judgels.jophiel.ProvinceNotFoundException;
 import org.iatoki.judgels.jophiel.models.daos.ProvinceDao;
 import org.iatoki.judgels.jophiel.models.entities.ProvinceModel;
 import org.iatoki.judgels.jophiel.services.ProvinceService;
-import org.iatoki.judgels.play.IdentityUtils;
 import org.iatoki.judgels.play.Page;
 
 import javax.inject.Inject;
@@ -30,7 +29,7 @@ public final class ProvinceServiceImpl implements ProvinceService {
     public List<Province> getProvincesByTerm(String term) {
         List<ProvinceModel> provinceModels = provinceDao.findSortedByFilters("id", "asc", term, 0, -1);
 
-        return provinceModels.stream().map(m -> createFromModel(m)).collect(Collectors.toList());
+        return provinceModels.stream().map(m -> ProvinceServiceUtils.createProvinceFromModel(m)).collect(Collectors.toList());
     }
 
     @Override
@@ -46,16 +45,16 @@ public final class ProvinceServiceImpl implements ProvinceService {
             throw new ProvinceNotFoundException("Province Not Found.");
         }
 
-        return createFromModel(provinceModel);
+        return ProvinceServiceUtils.createProvinceFromModel(provinceModel);
     }
 
     @Override
-    public void createProvince(String name) {
+    public void createProvince(String name, String userJid, String userIpAddress) {
         ProvinceModel provinceModel = new ProvinceModel();
         provinceModel.province = name;
         provinceModel.referenceCount = 0;
 
-        provinceDao.persist(provinceModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
+        provinceDao.persist(provinceModel, userJid, userIpAddress);
     }
 
     @Override
@@ -74,12 +73,8 @@ public final class ProvinceServiceImpl implements ProvinceService {
         long totalPages = provinceDao.countByFilters(filterString, ImmutableMap.of(), ImmutableMap.of());
         List<ProvinceModel> provinceModels = provinceDao.findSortedByFilters(orderBy, orderDir, filterString, ImmutableMap.of(), ImmutableMap.of(), pageIndex * pageSize, pageSize);
 
-        List<Province> clients = provinceModels.stream().map(m -> createFromModel(m)).collect(Collectors.toList());
+        List<Province> clients = provinceModels.stream().map(m -> ProvinceServiceUtils.createProvinceFromModel(m)).collect(Collectors.toList());
 
         return new Page<>(clients, totalPages, pageIndex, pageSize);
-    }
-
-    private Province createFromModel(ProvinceModel provinceModel) {
-        return new Province(provinceModel.id, provinceModel.province, provinceModel.referenceCount);
     }
 }

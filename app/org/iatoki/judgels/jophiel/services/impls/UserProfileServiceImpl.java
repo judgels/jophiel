@@ -18,7 +18,6 @@ import org.iatoki.judgels.jophiel.models.entities.UserModel;
 import org.iatoki.judgels.jophiel.services.UserProfileService;
 import org.iatoki.judgels.play.IdentityUtils;
 import org.iatoki.judgels.play.JudgelsPlayUtils;
-import play.mvc.Http;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -69,28 +68,26 @@ public final class UserProfileServiceImpl implements UserProfileService {
     }
 
     @Override
-    public void updateProfile(String userJid, String name, boolean showName) {
+    public void updateProfile(String userJid, String name, boolean showName, String userIpAddress) {
         UserModel userModel = userDao.findByJid(userJid);
         userModel.name = name;
         userModel.showName = showName;
 
-        userDao.edit(userModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
-        Http.Context.current().session().put("name", userModel.name);
+        userDao.edit(userModel, userJid, userIpAddress);
     }
 
     @Override
-    public void updateProfile(String userJid, String name, boolean showName, String password) {
+    public void updateProfile(String userJid, String name, boolean showName, String password, String userIpAddress) {
         UserModel userModel = userDao.findByJid(userJid);
         userModel.name = name;
         userModel.showName = showName;
         userModel.password = JudgelsPlayUtils.hashSHA256(password);
 
-        userDao.edit(userModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
-        Http.Context.current().session().put("name", userModel.name);
+        userDao.edit(userModel, userJid, userIpAddress);
     }
 
     @Override
-    public void upsertInfo(String userJid, String gender, Date birthDate, String streetAddress, int postalCode, String institution, String city, String provinceOrState, String country, String shirtSize) {
+    public void upsertInfo(String userJid, String gender, Date birthDate, String streetAddress, int postalCode, String institution, String city, String provinceOrState, String country, String shirtSize, String userIpAddress) {
         UserInfoModel userInfoModel;
         boolean recordExists = userInfoDao.existsByUserJid(userJid);
 
@@ -104,58 +101,58 @@ public final class UserProfileServiceImpl implements UserProfileService {
         userInfoModel.birthDate = birthDate.getTime();
         userInfoModel.streetAddress = streetAddress;
         userInfoModel.postalCode = postalCode;
-        if (!"".equals(institution)) {
+        if (!institution.isEmpty()) {
             if (!institutionDao.existsByName(institution)) {
                 InstitutionModel institutionModel = new InstitutionModel();
                 institutionModel.institution = institution;
                 institutionModel.referenceCount = 0;
 
-                institutionDao.persist(institutionModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
+                institutionDao.persist(institutionModel, userJid, userIpAddress);
             } else {
                 InstitutionModel institutionModel = institutionDao.findByName(institution);
                 institutionModel.referenceCount++;
 
-                institutionDao.edit(institutionModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
+                institutionDao.edit(institutionModel, userJid, userIpAddress);
             }
         }
         userInfoModel.institution = institution;
         userInfoModel.city = city;
-        if (!"".equals(city)) {
+        if (!city.isEmpty()) {
             if (!cityDao.existsByName(city)) {
                 CityModel cityModel = new CityModel();
                 cityModel.city = city;
                 cityModel.referenceCount = 0;
 
-                cityDao.persist(cityModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
+                cityDao.persist(cityModel, userJid, userIpAddress);
             } else {
                 CityModel cityModel = cityDao.findByName(city);
                 cityModel.referenceCount++;
 
-                cityDao.edit(cityModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
+                cityDao.edit(cityModel, userJid, userIpAddress);
             }
         }
         userInfoModel.provinceOrState = provinceOrState;
-        if (!"".equals(provinceOrState)) {
+        if (!provinceOrState.isEmpty()) {
             if (!provinceDao.existsByName(provinceOrState)) {
                 ProvinceModel provinceModel = new ProvinceModel();
                 provinceModel.province = provinceOrState;
                 provinceModel.referenceCount = 0;
 
-                provinceDao.persist(provinceModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
+                provinceDao.persist(provinceModel, userJid, userIpAddress);
             } else {
                 ProvinceModel provinceModel = provinceDao.findByName(provinceOrState);
                 provinceModel.referenceCount++;
 
-                provinceDao.edit(provinceModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
+                provinceDao.edit(provinceModel, userJid, userIpAddress);
             }
         }
         userInfoModel.country = country;
         userInfoModel.shirtSize = shirtSize;
 
         if (recordExists) {
-            userInfoDao.edit(userInfoModel, userJid, IdentityUtils.getIpAddress());
+            userInfoDao.edit(userInfoModel, userJid, userIpAddress);
         } else {
-            userInfoDao.persist(userInfoModel, userJid, IdentityUtils.getIpAddress());
+            userInfoDao.persist(userInfoModel, userJid, userIpAddress);
         }
     }
 
@@ -198,5 +195,4 @@ public final class UserProfileServiceImpl implements UserProfileService {
     public String getAvatarImageUrlString(String imageName) {
         return avatarFileSystemProvider.getURL(ImmutableList.of(imageName));
     }
-
 }

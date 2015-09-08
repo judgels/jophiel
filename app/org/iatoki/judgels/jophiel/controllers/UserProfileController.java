@@ -92,10 +92,11 @@ public final class UserProfileController extends AbstractJudgelsController {
                 return UserProfileControllerUtils.getInstance().showUpdateProfileWithProfileUpdateForm(userProfileUpdateForm);
             }
 
-            userProfileService.updateProfile(IdentityUtils.getUserJid(), userProfileUpdateData.name, userProfileUpdateData.showName, userProfileUpdateData.password);
+            userProfileService.updateProfile(IdentityUtils.getUserJid(), userProfileUpdateData.name, userProfileUpdateData.showName, userProfileUpdateData.password, IdentityUtils.getIpAddress());
         } else {
-            userProfileService.updateProfile(IdentityUtils.getUserJid(), userProfileUpdateData.name, userProfileUpdateData.showName);
+            userProfileService.updateProfile(IdentityUtils.getUserJid(), userProfileUpdateData.name, userProfileUpdateData.showName, IdentityUtils.getIpAddress());
         }
+        session("name", userProfileUpdateData.name);
 
         JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Update profile.");
 
@@ -160,7 +161,7 @@ public final class UserProfileController extends AbstractJudgelsController {
         }
 
         UserInfoUpsertForm userInfoUpsertData = userInfoUpsertForm.get();
-        userProfileService.upsertInfo(IdentityUtils.getUserJid(), userInfoUpsertData.gender, new Date(JudgelsPlayUtils.parseDate(userInfoUpsertData.birthDate)), userInfoUpsertData.streetAddress, userInfoUpsertData.postalCode, userInfoUpsertData.institution, userInfoUpsertData.city, userInfoUpsertData.provinceOrState, userInfoUpsertData.country, userInfoUpsertData.shirtSize);
+        userProfileService.upsertInfo(IdentityUtils.getUserJid(), userInfoUpsertData.gender, new Date(JudgelsPlayUtils.parseDate(userInfoUpsertData.birthDate)), userInfoUpsertData.streetAddress, userInfoUpsertData.postalCode, userInfoUpsertData.institution, userInfoUpsertData.city, userInfoUpsertData.provinceOrState, userInfoUpsertData.country, userInfoUpsertData.shirtSize, IdentityUtils.getIpAddress());
 
         JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Update info.");
 
@@ -171,7 +172,7 @@ public final class UserProfileController extends AbstractJudgelsController {
     @Authorized("admin")
     @Transactional
     public Result viewProfile(String username) {
-        if (!userService.existsUserByUsername(username)) {
+        if (!userService.userExistsByUsername(username)) {
             return notFound();
         }
 

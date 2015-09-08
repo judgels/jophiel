@@ -13,7 +13,6 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Selection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -121,11 +120,6 @@ public final class UserEmailHibernateDao extends AbstractJudgelsHibernateDao<Use
         CriteriaQuery<UserEmailModel> query = cb.createQuery(UserEmailModel.class);
         Root<UserEmailModel> root = query.from(UserEmailModel.class);
 
-        List<Selection<?>> selection = new ArrayList<>();
-        selection.add(root.get(UserEmailModel_.id));
-        selection.add(root.get(UserEmailModel_.userJid));
-        selection.add(root.get(UserEmailModel_.email));
-
         Predicate condition = root.get(UserEmailModel_.userJid).in(userJids);
 
         CriteriaBuilder.Case<Long> orderCase = cb.selectCase();
@@ -137,7 +131,6 @@ public final class UserEmailHibernateDao extends AbstractJudgelsHibernateDao<Use
         Order order = cb.asc(orderCase.otherwise(i));
 
         query
-            .multiselect(selection)
             .where(condition)
             .orderBy(order);
 

@@ -3,6 +3,7 @@ package org.iatoki.judgels.jophiel.controllers;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
+import org.iatoki.judgels.play.IdentityUtils;
 import org.iatoki.judgels.play.InternalLink;
 import org.iatoki.judgels.play.LazyHtml;
 import org.iatoki.judgels.play.Page;
@@ -110,7 +111,7 @@ public final class ClientController extends AbstractJudgelsController {
         }
 
         ClientCreateForm clientCreateData = clientCreateForm.get();
-        clientService.createClient(clientCreateData.name, clientCreateData.applicationType, clientCreateData.scopes, Arrays.asList(clientCreateData.redirectURIs.split(",")));
+        clientService.createClient(clientCreateData.name, clientCreateData.applicationType, clientCreateData.scopes, Arrays.asList(clientCreateData.redirectURIs.split(",")), IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
 
         JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Create client " + clientCreateData.name + ".");
 
@@ -145,7 +146,7 @@ public final class ClientController extends AbstractJudgelsController {
         }
 
         ClientUpdateForm clientUpdateData = clientUpdateForm.get();
-        clientService.updateClient(client.getId(), clientUpdateData.name, clientUpdateData.scopes, Arrays.asList(clientUpdateData.redirectURIs.split(",")));
+        clientService.updateClient(client.getJid(), clientUpdateData.name, clientUpdateData.scopes, Arrays.asList(clientUpdateData.redirectURIs.split(",")), IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
 
         JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Update client " + client.getName() + ".");
 
@@ -155,7 +156,7 @@ public final class ClientController extends AbstractJudgelsController {
     @Transactional
     public Result deleteClient(long clientId) throws ClientNotFoundException {
         Client client = clientService.findClientById(clientId);
-        clientService.deleteClient(client.getId());
+        clientService.deleteClient(client.getJid());
 
         JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Delete client " + client.getName() + " <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
 

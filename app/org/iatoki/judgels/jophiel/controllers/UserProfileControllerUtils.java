@@ -58,11 +58,11 @@ public final class UserProfileControllerUtils {
         return instance;
     }
 
-    public Call getUpdateProfileCall() {
+    Call getUpdateProfileCall() {
         return routes.UserProfileController.updateProfile();
     }
 
-    public Result showUpdateProfileWithAvatarForm(Form<UserAvatarForm> userAvatarForm) {
+    Result showUpdateProfileWithAvatarForm(Form<UserAvatarForm> userAvatarForm) {
         User user = userService.findUserByJid(IdentityUtils.getUserJid());
 
         Form<UserProfileUpdateForm> userProfileUpdateForm = prepareProfileUpdateForm(user);
@@ -73,7 +73,7 @@ public final class UserProfileControllerUtils {
         return showUpdateProfileWithContact(user, userProfileUpdateForm, userAvatarForm, userEmailCreateForm, userPhoneCreateForm, userInfoUpsertForm);
     }
 
-    public Result showUpdateProfileWithInfoUpsertForm(Form<UserInfoUpsertForm> userInfoUpsertForm) {
+    Result showUpdateProfileWithInfoUpsertForm(Form<UserInfoUpsertForm> userInfoUpsertForm) {
         User user = userService.findUserByJid(IdentityUtils.getUserJid());
 
         Form<UserProfileUpdateForm> userProfileUpdateForm = prepareProfileUpdateForm(user);
@@ -84,7 +84,7 @@ public final class UserProfileControllerUtils {
         return showUpdateProfileWithContact(user, userProfileUpdateForm, userAvatarForm, userEmailCreateForm, userPhoneCreateForm, userInfoUpsertForm);
     }
 
-    public Result showUpdateProfileWithProfileUpdateForm(Form<UserProfileUpdateForm> userProfileUpdateForm) {
+    Result showUpdateProfileWithProfileUpdateForm(Form<UserProfileUpdateForm> userProfileUpdateForm) {
         User user = userService.findUserByJid(IdentityUtils.getUserJid());
 
         Form<UserAvatarForm> userAvatarForm = Form.form(UserAvatarForm.class);
@@ -95,7 +95,7 @@ public final class UserProfileControllerUtils {
         return showUpdateProfileWithContact(user, userProfileUpdateForm, userAvatarForm, userEmailCreateForm, userPhoneCreateForm, userInfoUpsertForm);
     }
 
-    public Result showUpdateProfileWithPhoneCreateForm(Form<UserPhoneCreateForm> userPhoneCreateForm) {
+    Result showUpdateProfileWithPhoneCreateForm(Form<UserPhoneCreateForm> userPhoneCreateForm) {
         User user = userService.findUserByJid(IdentityUtils.getUserJid());
 
         Form<UserProfileUpdateForm> userProfileUpdateForm = prepareProfileUpdateForm(user);
@@ -106,7 +106,7 @@ public final class UserProfileControllerUtils {
         return showUpdateProfileWithContact(user, userProfileUpdateForm, userAvatarForm, userEmailCreateForm, userPhoneCreateForm, userInfoUpsertForm);
     }
 
-    public Result showUpdateProfileWithEmailCreateForm(Form<UserEmailCreateForm> userEmailCreateForm) {
+    Result showUpdateProfileWithEmailCreateForm(Form<UserEmailCreateForm> userEmailCreateForm) {
         User user = userService.findUserByJid(IdentityUtils.getUserJid());
 
         Form<UserProfileUpdateForm> userProfileUpdateForm = prepareProfileUpdateForm(user);
@@ -117,7 +117,7 @@ public final class UserProfileControllerUtils {
         return showUpdateProfileWithContact(user, userProfileUpdateForm, userAvatarForm, userEmailCreateForm, userPhoneCreateForm, userInfoUpsertForm);
     }
 
-    public Result showUpdateProfile() {
+    Result showUpdateProfile() {
         User user = userService.findUserByJid(IdentityUtils.getUserJid());
 
         Form<UserProfileUpdateForm> userProfileUpdateForm = prepareProfileUpdateForm(user);

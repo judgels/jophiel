@@ -10,11 +10,11 @@ public interface UserProfileService {
 
     boolean infoExists(String userJid);
 
-    void updateProfile(String userJid, String name, boolean showName);
+    void updateProfile(String userJid, String name, boolean showName, String userIpAddress);
 
-    void updateProfile(String userJid, String name, boolean showName, String password);
+    void updateProfile(String userJid, String name, boolean showName, String password, String userIpAddress);
 
-    void upsertInfo(String userJid, String gender, Date birthDate, String streetAddress, int postalCode, String institution, String city, String provinceOrState, String country, String shirtSize);
+    void upsertInfo(String userJid, String gender, Date birthDate, String streetAddress, int postalCode, String institution, String city, String provinceOrState, String country, String shirtSize, String userIpAddress);
 
     UserInfo getInfo(String userJid);
 

@@ -6,7 +6,6 @@ import org.iatoki.judgels.jophiel.CityNotFoundException;
 import org.iatoki.judgels.jophiel.models.daos.CityDao;
 import org.iatoki.judgels.jophiel.models.entities.CityModel;
 import org.iatoki.judgels.jophiel.services.CityService;
-import org.iatoki.judgels.play.IdentityUtils;
 import org.iatoki.judgels.play.Page;
 
 import javax.inject.Inject;
@@ -30,7 +29,7 @@ public final class CityServiceImpl implements CityService {
     public List<City> getCitiesByTerm(String term) {
         List<CityModel> cityModels = cityDao.findSortedByFilters("id", "asc", term, 0, -1);
 
-        return cityModels.stream().map(m -> createFromModel(m)).collect(Collectors.toList());
+        return cityModels.stream().map(m -> CityServiceUtils.createCityFromModel(m)).collect(Collectors.toList());
     }
 
     @Override
@@ -46,16 +45,16 @@ public final class CityServiceImpl implements CityService {
             throw new CityNotFoundException("City Not Found.");
         }
 
-        return createFromModel(cityModel);
+        return CityServiceUtils.createCityFromModel(cityModel);
     }
 
     @Override
-    public void createCity(String name) {
+    public void createCity(String name, String userJid, String userIpAddress) {
         CityModel cityModel = new CityModel();
         cityModel.city = name;
         cityModel.referenceCount = 0;
 
-        cityDao.persist(cityModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
+        cityDao.persist(cityModel, userJid, userIpAddress);
     }
 
     @Override
@@ -74,12 +73,8 @@ public final class CityServiceImpl implements CityService {
         long totalPages = cityDao.countByFilters(filterString, ImmutableMap.of(), ImmutableMap.of());
         List<CityModel> cityModels = cityDao.findSortedByFilters(orderBy, orderDir, filterString, ImmutableMap.of(), ImmutableMap.of(), pageIndex * pageSize, pageSize);
 
-        List<City> clients = cityModels.stream().map(m -> createFromModel(m)).collect(Collectors.toList());
+        List<City> clients = cityModels.stream().map(m -> CityServiceUtils.createCityFromModel(m)).collect(Collectors.toList());
 
         return new Page<>(clients, totalPages, pageIndex, pageSize);
-    }
-
-    private City createFromModel(CityModel cityModel) {
-        return new City(cityModel.id, cityModel.city, cityModel.referenceCount);
     }
 }

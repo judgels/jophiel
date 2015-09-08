@@ -13,11 +13,11 @@ public interface UserPhoneService {
 
     List<UserPhone> getPhonesByUserJid(String userJid);
 
-    void makePhonePrimary(String userJid, String phoneJid);
+    void makePhonePrimary(String userJid, String phoneJid, String userIpAddress);
 
-    void addFirstPhone(String userJid, String phone);
+    void addFirstPhone(String userJid, String phone, String userIpAddress);
 
-    void addPhone(String userJid, String phone);
+    void addPhone(String userJid, String phone, String userIpAddress);
 
     void removePhone(String phoneJid);
 }

@@ -13,18 +13,13 @@ import org.iatoki.judgels.jophiel.models.daos.UserEmailDao;
 import org.iatoki.judgels.jophiel.models.entities.UserEmailModel;
 import org.iatoki.judgels.jophiel.models.entities.UserModel;
 import org.iatoki.judgels.jophiel.services.UserService;
-import org.iatoki.judgels.play.IdentityUtils;
 import org.iatoki.judgels.play.Page;
-import play.mvc.Http;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
-import java.util.Arrays;
 import java.util.List;
 
 @Singleton
@@ -41,12 +36,12 @@ public final class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean existsUserByUsername(String username) {
+    public boolean userExistsByUsername(String username) {
         return userDao.existByUsername(username);
     }
 
     @Override
-    public boolean existsUserByJid(String userJid) {
+    public boolean userExistsByJid(String userJid) {
         return userDao.existsByJid(userJid);
     }
 
@@ -56,7 +51,7 @@ public final class UserServiceImpl implements UserService {
         ImmutableList.Builder<User> userBuilder = ImmutableList.builder();
 
         for (UserModel userModel : userModels) {
-            userBuilder.add(createUserFromModel(userModel));
+            userBuilder.add(UserServiceUtils.createUserFromModel(userModel));
         }
 
         return userBuilder.build();
@@ -84,11 +79,10 @@ public final class UserServiceImpl implements UserService {
             }
 
             List<UserModel> userModels = userDao.getByJids(sortedUserJids, pageIndex * pageSize, pageSize);
-            List<UserEmailModel> userEmailModels = userEmailDao.getByUserJids(sortedUserJids, pageIndex * pageSize, pageSize);
 
             for (int i = 0; i < userModels.size(); ++i) {
                 UserModel userModel = userModels.get(i);
-                listBuilder.add(createUserFromModel(userModel));
+                listBuilder.add(UserServiceUtils.createUserFromModel(userModel));
             }
         }
 
@@ -140,32 +134,32 @@ public final class UserServiceImpl implements UserService {
             throw new UserNotFoundException("User not found.");
         }
 
-        return createUserFromModel(userModel);
+        return UserServiceUtils.createUserFromModel(userModel);
     }
 
     @Override
     public User findUserByJid(String userJid) {
         UserModel userModel = userDao.findByJid(userJid);
 
-        return createUserFromModel(userModel);
+        return UserServiceUtils.createUserFromModel(userModel);
     }
 
     @Override
     public PublicUser findPublicUserByJid(String userJid) {
         UserModel userModel = userDao.findByJid(userJid);
 
-        return createPublicUserFromModels(userModel);
+        return UserServiceUtils.createPublicUserFromModels(userModel);
     }
 
     @Override
     public User findUserByUsername(String username) {
         UserModel userModel = userDao.findByUsername(username);
 
-        return createUserFromModel(userModel);
+        return UserServiceUtils.createUserFromModel(userModel);
     }
 
     @Override
-    public void createUser(String username, String name, String email, String password, List<String> roles) {
+    public void createUser(String username, String name, String email, String password, List<String> roles, String userJid, String userIpAddress) {
         UserModel userModel = new UserModel();
         userModel.username = username;
         userModel.name = name;
@@ -179,34 +173,30 @@ public final class UserServiceImpl implements UserService {
         userModel.profilePictureImageName = "avatar-default.png";
         userModel.roles = StringUtils.join(roles, ",");
 
-        userDao.persist(userModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
+        userDao.persist(userModel, userJid, userIpAddress);
 
-        UserEmailModel emailModel = new UserEmailModel(email, true);
+        UserEmailModel emailModel = new UserEmailModel();
+        emailModel.email = email;
+        emailModel.emailVerified = true;
         emailModel.userJid = userModel.jid;
 
-        userEmailDao.persist(emailModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
+        userEmailDao.persist(emailModel, userJid, userIpAddress);
     }
 
     @Override
-    public void updateUser(long userId, String username, String name, String email, List<String> roles) throws UserNotFoundException {
-        UserModel userModel = userDao.findById(userId);
-        if (userModel == null) {
-            throw new UserNotFoundException("User not found.");
-        }
+    public void updateUser(String userJid, String username, String name, String email, List<String> roles, String updaterJid, String updaterIpAddress) {
+        UserModel userModel = userDao.findByJid(userJid);
 
         userModel.username = username;
         userModel.name = name;
         userModel.roles = StringUtils.join(roles, ",");
 
-        userDao.edit(userModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
+        userDao.edit(userModel, updaterJid, updaterIpAddress);
     }
 
     @Override
-    public void updateUser(long userId, String username, String name, String email, String password, List<String> roles) throws UserNotFoundException {
-        UserModel userModel = userDao.findById(userId);
-        if (userModel == null) {
-            throw new UserNotFoundException("User not found.");
-        }
+    public void updateUser(String userJid, String username, String name, String email, String password, List<String> roles, String updaterJid, String updaterIpAddress) {
+        UserModel userModel = userDao.findByJid(userJid);
 
         userModel.username = username;
         userModel.name = name;
@@ -219,33 +209,13 @@ public final class UserServiceImpl implements UserService {
 
         userModel.roles = StringUtils.join(roles, ",");
 
-        userDao.edit(userModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
+        userDao.edit(userModel, updaterJid, updaterIpAddress);
     }
 
     @Override
-    public void deleteUser(long userId) {
-        UserModel userModel = userDao.findById(userId);
+    public void deleteUser(String userJid) {
+        UserModel userModel = userDao.findByJid(userJid);
 
         userDao.remove(userModel);
-    }
-
-    private PublicUser createPublicUserFromModels(UserModel userModel) {
-        if (userModel.showName) {
-            return new PublicUser(userModel.jid, userModel.username, userModel.name, getAvatarImageUrl(userModel.profilePictureImageName));
-        }
-
-        return new PublicUser(userModel.jid, userModel.username, getAvatarImageUrl(userModel.profilePictureImageName));
-    }
-
-    private User createUserFromModel(UserModel userModel) {
-        return new User(userModel.id, userModel.jid, userModel.username, userModel.name, userModel.emailJid, userModel.phoneJid, userModel.showName, getAvatarImageUrl(userModel.profilePictureImageName), Arrays.asList(userModel.roles.split(",")));
-    }
-
-    private URL getAvatarImageUrl(String imageName) {
-        try {
-            return new URL(org.iatoki.judgels.jophiel.controllers.apis.routes.UserAPIController.renderAvatarImage(imageName).absoluteURL(Http.Context.current().request(), Http.Context.current().request().secure()));
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-        }
     }
 }

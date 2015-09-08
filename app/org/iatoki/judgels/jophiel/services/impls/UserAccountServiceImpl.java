@@ -13,18 +13,14 @@ import org.iatoki.judgels.jophiel.models.entities.UserModel;
 import org.iatoki.judgels.jophiel.services.UserAccountService;
 import org.iatoki.judgels.play.IdentityUtils;
 import org.iatoki.judgels.play.JudgelsPlayUtils;
-import play.mvc.Http;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import javax.persistence.NoResultException;
 import javax.validation.ConstraintViolationException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
-import java.util.Arrays;
 import java.util.UUID;
 
 @Singleton
@@ -43,7 +39,7 @@ public final class UserAccountServiceImpl implements UserAccountService {
     }
 
     @Override
-    public String registerUser(String username, String name, String email, String password) throws IllegalStateException {
+    public String registerUser(String username, String name, String email, String password, String ipAddress) throws IllegalStateException {
         UserModel userModel = new UserModel();
         userModel.username = username;
         userModel.name = name;
@@ -59,7 +55,7 @@ public final class UserAccountServiceImpl implements UserAccountService {
         userModel.roles = "user";
 
         try {
-            userDao.persist(userModel, "guest", IdentityUtils.getIpAddress());
+            userDao.persist(userModel, "guest", ipAddress);
         } catch (ConstraintViolationException e) {
             throw new IllegalStateException(e);
         }
@@ -70,17 +66,17 @@ public final class UserAccountServiceImpl implements UserAccountService {
         emailModel.emailCode = emailCode;
         emailModel.userJid = userModel.jid;
 
-        userEmailDao.persist(emailModel, "guest", IdentityUtils.getIpAddress());
+        userEmailDao.persist(emailModel, "guest", ipAddress);
 
         userModel.emailJid = emailModel.jid;
 
-        userDao.edit(userModel, "guest", IdentityUtils.getIpAddress());
+        userDao.edit(userModel, "guest", ipAddress);
 
         return emailCode;
     }
 
     @Override
-    public String generateForgotPasswordRequest(String username, String email) {
+    public String generateForgotPasswordRequest(String username, String email, String ipAddress) {
         UserModel userModel = userDao.findByUsername(username);
 
         String code = JudgelsPlayUtils.hashMD5(UUID.randomUUID().toString());
@@ -89,7 +85,7 @@ public final class UserAccountServiceImpl implements UserAccountService {
         forgotPasswordModel.code = code;
         forgotPasswordModel.used = false;
 
-        userForgotPasswordDao.persist(forgotPasswordModel, "guest", IdentityUtils.getIpAddress());
+        userForgotPasswordDao.persist(forgotPasswordModel, "guest", ipAddress);
         return code;
     }
 
@@ -99,11 +95,11 @@ public final class UserAccountServiceImpl implements UserAccountService {
     }
 
     @Override
-    public void processChangePassword(String code, String password) {
+    public void processChangePassword(String code, String password, String ipAddress) {
         UserForgotPasswordModel forgotPasswordModel = userForgotPasswordDao.findByForgotPasswordCode(code);
         forgotPasswordModel.used = true;
 
-        userForgotPasswordDao.edit(forgotPasswordModel, "guest", IdentityUtils.getIpAddress());
+        userForgotPasswordDao.edit(forgotPasswordModel, "guest", ipAddress);
 
         UserModel userModel = userDao.findByJid(forgotPasswordModel.userJid);
 
@@ -113,7 +109,7 @@ public final class UserAccountServiceImpl implements UserAccountService {
             throw new IllegalStateException(e);
         }
 
-        userDao.edit(userModel, "guest", IdentityUtils.getIpAddress());
+        userDao.edit(userModel, "guest", ipAddress);
     }
 
     @Override
@@ -133,7 +129,7 @@ public final class UserAccountServiceImpl implements UserAccountService {
 
             if (userModel.password.contains(":") && PasswordHash.validatePassword(password, userModel.password)) {
                 if (emailModel.emailVerified) {
-                    return createUserFromModels(userModel);
+                    return UserServiceUtils.createUserFromModel(userModel);
                 } else {
                     throw new EmailNotVerifiedException();
                 }
@@ -142,7 +138,7 @@ public final class UserAccountServiceImpl implements UserAccountService {
 
                 userDao.edit(userModel, "guest", IdentityUtils.getIpAddress());
                 if (emailModel.emailVerified) {
-                    return createUserFromModels(userModel);
+                    return UserServiceUtils.createUserFromModel(userModel);
                 } else {
                     throw new EmailNotVerifiedException();
                 }
@@ -155,7 +151,7 @@ public final class UserAccountServiceImpl implements UserAccountService {
     }
 
     @Override
-    public void updateUserPassword(String userJid, String password) {
+    public void updateUserPassword(String userJid, String password, String ipAddress) {
         UserModel userModel = userDao.findByJid(userJid);
 
         try {
@@ -164,18 +160,6 @@ public final class UserAccountServiceImpl implements UserAccountService {
             throw new IllegalStateException(e);
         }
 
-        userDao.edit(userModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
-    }
-
-    private User createUserFromModels(UserModel userModel) {
-        return new User(userModel.id, userModel.jid, userModel.username, userModel.name, userModel.emailJid, userModel.phoneJid, userModel.showName, getAvatarImageUrl(userModel.profilePictureImageName), Arrays.asList(userModel.roles.split(",")));
-    }
-
-    private URL getAvatarImageUrl(String imageName) {
-        try {
-            return new URL(org.iatoki.judgels.jophiel.controllers.apis.routes.UserAPIController.renderAvatarImage(imageName).absoluteURL(Http.Context.current().request(), Http.Context.current().request().secure()));
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-        }
+        userDao.edit(userModel, userJid, ipAddress);
     }
 }

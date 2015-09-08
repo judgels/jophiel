@@ -18,7 +18,6 @@
         "id" -> Messages.get("commons.id"),
         "username" -> Messages.get("user.username"),
         "name" -> Messages.get("user.name"),
-        "email" -> Messages.get("user.email"),
         "roles" -> Messages.get("user.roles")
     )
 
@@ -28,7 +27,6 @@
                 <td>@user.getId</td>
                 <td>@user.getUsername</td>
                 <td>@user.getName</td>
-                <td>@user.getEmailJid</td>
                 <td>@user.getRoles</td>
                 <td class="text-center">
                     <a href="@routes.UserController.viewUser(user.getId)"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></a>

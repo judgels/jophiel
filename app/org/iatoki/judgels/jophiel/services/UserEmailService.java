@@ -17,9 +17,9 @@ public interface UserEmailService {
 
     String getEmailCodeOfUnverifiedEmail(String emailJid);
 
-    String addFirstEmail(String userJid, String email);
+    String addFirstEmail(String userJid, String email, String userIpAddress);
 
-    String addEmail(String userJid, String email);
+    String addEmail(String userJid, String email, String userIpAddress);
 
     UserEmail findEmailById(long emailId) throws UserEmailNotFoundException;
 
@@ -27,9 +27,9 @@ public interface UserEmailService {
 
     List<UserEmail> getEmailsByUserJid(String userJid);
 
-    void makeEmailPrimary(String userJid, String emailJid);
+    void makeEmailPrimary(String userJid, String emailJid, String userIpAddress);
 
-    void activateEmail(String emailCode);
+    void activateEmail(String emailCode, String userIpAddress);
 
     void sendEmailVerification(String name, String email, String link);
 

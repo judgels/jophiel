@@ -13,6 +13,7 @@ import org.iatoki.judgels.jophiel.forms.ProvinceUploadForm;
 import org.iatoki.judgels.jophiel.services.ProvinceService;
 import org.iatoki.judgels.jophiel.services.UserActivityService;
 import org.iatoki.judgels.jophiel.views.html.suggestion.province.listCreateProvincesView;
+import org.iatoki.judgels.play.IdentityUtils;
 import org.iatoki.judgels.play.InternalLink;
 import org.iatoki.judgels.play.LazyHtml;
 import org.iatoki.judgels.play.Page;
@@ -80,7 +81,7 @@ public final class ProvinceController extends AbstractJudgelsController {
         }
 
         ProvinceCreateForm provinceCreateData = provinceCreateForm.get();
-        provinceService.createProvince(provinceCreateData.name);
+        provinceService.createProvince(provinceCreateData.name, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
 
         JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Create province " + provinceCreateData.name + ".");
 
@@ -99,8 +100,8 @@ public final class ProvinceController extends AbstractJudgelsController {
             try {
                 String[] provinces = FileUtils.readFileToString(userFile).split("\n");
                 for (String province : provinces) {
-                    if (!"".equals(province) && !provinceService.provinceExistsByName(province)) {
-                        provinceService.createProvince(province);
+                    if (!province.isEmpty() && !provinceService.provinceExistsByName(province)) {
+                        provinceService.createProvince(province, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
                     }
 
                 }

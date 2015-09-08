@@ -14,7 +14,7 @@ public interface ProvinceService {
 
     Province findProvinceById(long provinceId) throws ProvinceNotFoundException;
 
-    void createProvince(String name);
+    void createProvince(String name, String userJid, String userIpAddress);
 
     void deleteProvince(long provinceId) throws ProvinceNotFoundException;
 

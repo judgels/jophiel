@@ -13,6 +13,7 @@ import org.iatoki.judgels.jophiel.forms.CityUploadForm;
 import org.iatoki.judgels.jophiel.services.CityService;
 import org.iatoki.judgels.jophiel.services.UserActivityService;
 import org.iatoki.judgels.jophiel.views.html.suggestion.city.listCreateCitiesView;
+import org.iatoki.judgels.play.IdentityUtils;
 import org.iatoki.judgels.play.InternalLink;
 import org.iatoki.judgels.play.LazyHtml;
 import org.iatoki.judgels.play.Page;
@@ -80,7 +81,7 @@ public final class CityController extends AbstractJudgelsController {
         }
 
         CityCreateForm cityCreateData = cityCreateForm.get();
-        cityService.createCity(cityCreateData.name);
+        cityService.createCity(cityCreateData.name, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
 
         JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Create city " + cityCreateData.name + ".");
 
@@ -100,8 +101,8 @@ public final class CityController extends AbstractJudgelsController {
             try {
                 String[] cities = FileUtils.readFileToString(userFile).split("\n");
                 for (String city : cities) {
-                    if (!"".equals(city) && !cityService.cityExistsByName(city)) {
-                        cityService.createCity(city);
+                    if (!city.isEmpty() && !cityService.cityExistsByName(city)) {
+                        cityService.createCity(city, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
                     }
 
                 }

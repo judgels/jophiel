@@ -10,9 +10,9 @@ import java.util.List;
 
 public interface UserService {
 
-    boolean existsUserByUsername(String username);
+    boolean userExistsByUsername(String username);
 
-    boolean existsUserByJid(String userJid);
+    boolean userExistsByJid(String userJid);
 
     List<User> getUsersByTerm(String term);
 
@@ -28,11 +28,11 @@ public interface UserService {
 
     User findUserByUsername(String username);
 
-    void createUser(String username, String name, String email, String password, List<String> roles);
+    void createUser(String username, String name, String email, String password, List<String> roles, String userJid, String userIpAddress);
 
-    void updateUser(long userId, String username, String name, String email, List<String> roles) throws UserNotFoundException;
+    void updateUser(String userJid, String username, String name, String email, List<String> roles, String updaterJid, String updaterIpAddress);
 
-    void updateUser(long userId, String username, String name, String email, String password, List<String> roles)  throws UserNotFoundException;
+    void updateUser(String userJid, String username, String name, String email, String password, List<String> roles, String updaterJid, String updaterIpAddress);
 
-    void deleteUser(long userId);
+    void deleteUser(String userJid);
 }

@@ -47,9 +47,9 @@ public final class UserPhoneController extends AbstractJudgelsController {
         User user = userService.findUserByJid(IdentityUtils.getUserJid());
         UserPhoneCreateForm userPhoneCreateData = userPhoneCreateForm.get();
         if (user.getPhoneJid() == null) {
-            userPhoneService.addFirstPhone(IdentityUtils.getUserJid(), userPhoneCreateData.phone);
+            userPhoneService.addFirstPhone(IdentityUtils.getUserJid(), userPhoneCreateData.phone, IdentityUtils.getIpAddress());
         } else {
-            userPhoneService.addPhone(IdentityUtils.getUserJid(), userPhoneCreateData.phone);
+            userPhoneService.addPhone(IdentityUtils.getUserJid(), userPhoneCreateData.phone, IdentityUtils.getIpAddress());
         }
 
         return redirect(UserProfileControllerUtils.getInstance().getUpdateProfileCall());
@@ -76,7 +76,7 @@ public final class UserPhoneController extends AbstractJudgelsController {
             return redirect(UserProfileControllerUtils.getInstance().getUpdateProfileCall());
         }
 
-        userPhoneService.makePhonePrimary(user.getJid(), userPhone.getJid());
+        userPhoneService.makePhonePrimary(user.getJid(), userPhone.getJid(), IdentityUtils.getIpAddress());
 
         return redirect(UserProfileControllerUtils.getInstance().getUpdateProfileCall());
     }

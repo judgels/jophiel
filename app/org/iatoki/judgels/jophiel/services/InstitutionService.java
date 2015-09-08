@@ -14,7 +14,7 @@ public interface InstitutionService {
 
     Institution findInstitutionById(long institutionId) throws InstitutionNotFoundException;
 
-    void createInstitution(String name);
+    void createInstitution(String name, String userJid, String userIpAddress);
 
     void deleteInstitution(long institutionId) throws InstitutionNotFoundException;
 

@@ -16,7 +16,7 @@ import play.api.mvc.Call;
 import play.i18n.Messages;
 import play.mvc.Http;
 
-public final class JophielControllerUtils extends AbstractJudgelsControllerUtils {
+final class JophielControllerUtils extends AbstractJudgelsControllerUtils {
 
     private static final JophielControllerUtils INSTANCE = new JophielControllerUtils();
 
@@ -43,16 +43,16 @@ public final class JophielControllerUtils extends AbstractJudgelsControllerUtils
         content.appendLayout(c -> sidebarLayout.render(sidebarContent.render(), c));
     }
 
-    public void addActivityLog(UserActivityService userActivityService, String log) {
+    void addActivityLog(UserActivityService userActivityService, String log) {
         userActivityService.createUserActivity("localhost", IdentityUtils.getUserJid(), System.currentTimeMillis(), log, IdentityUtils.getIpAddress());
     }
 
-    public Call mainPage() {
+    Call mainPage() {
         return routes.WelcomeController.index();
     }
 
-    public boolean loggedIn(UserService userService) {
-        return (IdentityUtils.getUserJid() != null) && userService.existsUserByJid(IdentityUtils.getUserJid());
+    boolean loggedIn(UserService userService) {
+        return (IdentityUtils.getUserJid() != null) && userService.userExistsByJid(IdentityUtils.getUserJid());
     }
 
     static JophielControllerUtils getInstance() {

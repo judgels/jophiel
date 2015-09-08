@@ -68,7 +68,7 @@ public final class UserActivityController extends AbstractJudgelsController {
         String[] username = usernames.split(",");
         ImmutableSet.Builder<String> usernamesSetBuilder = ImmutableSet.builder();
         for (String user : username) {
-            if (!"".equals(user) && userService.existsUserByUsername(user)) {
+            if (!"".equals(user) && userService.userExistsByUsername(user)) {
                 usernamesSetBuilder.add(user);
             }
         }
@@ -135,7 +135,7 @@ public final class UserActivityController extends AbstractJudgelsController {
     @Authorized("admin")
     @Transactional
     public Result listUserActivities(String username, long page, String orderBy, String orderDir, String filterString, String clientNames) {
-        if (!userService.existsUserByUsername(username)) {
+        if (!userService.userExistsByUsername(username)) {
             return notFound();
         }
 

@@ -100,7 +100,7 @@ public final class UserAccountController extends AbstractJudgelsController {
         }
 
         RegisterForm registerData = registerForm.get();
-        if (userService.existsUserByUsername(registerData.username)) {
+        if (userService.userExistsByUsername(registerData.username)) {
             registerForm.reject("register.error.usernameExists");
             return showRegister(registerForm);
         }
@@ -130,8 +130,8 @@ public final class UserAccountController extends AbstractJudgelsController {
         }
 
         try {
-            String emailCode = userAccountService.registerUser(registerData.username, registerData.name, registerData.email, registerData.password);
-            userEmailService.sendRegistrationEmailActivation(registerData.name, registerData.email, org.iatoki.judgels.jophiel.controllers.routes.UserEmailController.verifyEmail(emailCode).absoluteURL(request(), request().secure()));
+            String emailCode = userAccountService.registerUser(registerData.username, registerData.name, registerData.email, registerData.password, IdentityUtils.getIpAddress());
+            userEmailService.sendRegistrationEmailActivation(registerData.name, registerData.email, routes.UserEmailController.verifyEmail(emailCode).absoluteURL(request(), request().secure()));
 
             return redirect(routes.UserAccountController.afterRegister(registerData.email));
         } catch (IllegalStateException e) {
@@ -173,7 +173,7 @@ public final class UserAccountController extends AbstractJudgelsController {
         }
 
         ForgotPasswordForm forgotPasswordData = forgotPasswordForm.get();
-        if (!userService.existsUserByUsername(forgotPasswordData.username)) {
+        if (!userService.userExistsByUsername(forgotPasswordData.username)) {
             forgotPasswordForm.reject("forgot_pass.error.usernameNotExists");
             return showForgotPassword(forgotPasswordForm);
         }
@@ -188,7 +188,7 @@ public final class UserAccountController extends AbstractJudgelsController {
             return showForgotPassword(forgotPasswordForm);
         }
 
-        String forgotPasswordCode = userAccountService.generateForgotPasswordRequest(forgotPasswordData.username, forgotPasswordData.email);
+        String forgotPasswordCode = userAccountService.generateForgotPasswordRequest(forgotPasswordData.username, forgotPasswordData.email, IdentityUtils.getIpAddress());
         userEmailService.sendChangePasswordEmail(forgotPasswordData.email, routes.UserAccountController.changePassword(forgotPasswordCode).absoluteURL(request(), request().secure()));
 
         return redirect(routes.UserAccountController.afterForgotPassword(forgotPasswordData.email));
@@ -240,7 +240,7 @@ public final class UserAccountController extends AbstractJudgelsController {
             return showChangePassword(changePasswordForm, code);
         }
 
-        userAccountService.processChangePassword(code, changePasswordData.password);
+        userAccountService.processChangePassword(code, changePasswordData.password, IdentityUtils.getIpAddress());
 
         return redirect(routes.UserAccountController.afterChangePassword());
     }
@@ -400,10 +400,10 @@ public final class UserAccountController extends AbstractJudgelsController {
         Scope scope = authRequest.getScope();
         String nonce = (authRequest.getNonce() != null) ? authRequest.getNonce().toString() : "";
 
-        AuthorizationCode authCode = clientService.generateAuthorizationCode(client.getJid(), redirectURI.toString(), responseType.toString(), scope.toStringList(), System.currentTimeMillis() + TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES));
-        String accessToken = clientService.generateAccessToken(authCode.getValue(), IdentityUtils.getUserJid(), clientID.toString(), scope.toStringList(), System.currentTimeMillis() + TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES));
-        clientService.generateRefreshToken(authCode.getValue(), IdentityUtils.getUserJid(), clientID.toString(), scope.toStringList());
-        clientService.generateIdToken(authCode.getValue(), IdentityUtils.getUserJid(), client.getJid(), nonce, System.currentTimeMillis(), accessToken, System.currentTimeMillis() + TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES));
+        AuthorizationCode authCode = clientService.generateAuthorizationCode(IdentityUtils.getUserJid(), client.getJid(), redirectURI.toString(), responseType.toString(), scope.toStringList(), System.currentTimeMillis() + TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES), IdentityUtils.getIpAddress());
+        String accessToken = clientService.generateAccessToken(authCode.getValue(), IdentityUtils.getUserJid(), clientID.toString(), scope.toStringList(), System.currentTimeMillis() + TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES), IdentityUtils.getIpAddress());
+        clientService.generateRefreshToken(authCode.getValue(), IdentityUtils.getUserJid(), clientID.toString(), scope.toStringList(), IdentityUtils.getIpAddress());
+        clientService.generateIdToken(authCode.getValue(), IdentityUtils.getUserJid(), client.getJid(), nonce, System.currentTimeMillis(), accessToken, System.currentTimeMillis() + TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES), IdentityUtils.getIpAddress());
 
         URI result;
         try {
