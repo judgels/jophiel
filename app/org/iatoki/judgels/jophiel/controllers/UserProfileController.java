@@ -208,36 +208,7 @@ public final class UserProfileController extends AbstractJudgelsController {
 
         String username = searchProfileForm.get().username;
 
-        if (!userService.userExistsByUsername(username)) {
-            return redirect(routes.UserProfileController.userNotFound());
-        }
-
-        User user = userService.findUserByUsername(username);
-
-        UserInfo userInfo = null;
-        if (userProfileService.infoExists(user.getJid())) {
-            userInfo = userProfileService.getInfo(user.getJid());
-        }
-
-        LazyHtml content = new LazyHtml(viewProfileView.render(user, userInfo));
-        if (IdentityUtils.getUserJid() != null) {
-            if (JophielUtils.hasRole("admin")) {
-                content.appendLayout(c -> tabLayout.render(ImmutableList.of(new InternalLink(Messages.get("profile.profile"), routes.UserProfileController.viewProfile(username)), new InternalLink(Messages.get("profile.activities"), routes.UserActivityController.viewUserActivities(username))), c));
-            }
-            content.appendLayout(c -> headingLayout.render(user.getUsername(), c));
-            JophielControllerUtils.getInstance().appendSidebarLayout(content);
-            JophielControllerUtils.getInstance().appendBreadcrumbsLayout(content, ImmutableList.of(
-                    new InternalLink(Messages.get("profile.profile"), routes.UserProfileController.viewProfile(username))
-            ));
-
-            JophielControllerUtils.getInstance().addActivityLog(userActivityService, "View user profile " + user.getUsername() + " <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
-        } else {
-            content.appendLayout(c -> headingLayout.render(user.getUsername(), c));
-            JophielControllerUtils.getInstance().appendSidebarLayout(content);
-        }
-        JophielControllerUtils.getInstance().appendTemplateLayout(content, "Profile");
-
-        return JophielControllerUtils.getInstance().lazyOk(content);
+        return redirect(routes.UserProfileController.viewProfile(username));
     }
 
     public Result userNotFound() {
