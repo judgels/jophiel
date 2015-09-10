@@ -20,7 +20,7 @@ import play.data.Form;
 import play.i18n.Messages;
 import play.mvc.Http;
 
-final class JophielControllerUtils extends AbstractJudgelsControllerUtils {
+public final class JophielControllerUtils extends AbstractJudgelsControllerUtils {
 
     private static final JophielControllerUtils INSTANCE = new JophielControllerUtils();
 
@@ -48,13 +48,13 @@ final class JophielControllerUtils extends AbstractJudgelsControllerUtils {
             sidebarContent = new LazyHtml(guestLoginView.render(routes.UserAccountController.login().absoluteURL(Http.Context.current().request(), Http.Context.current().request().secure()), routes.UserAccountController.register().absoluteURL(Http.Context.current().request(), Http.Context.current().request().secure())));
         }
 
-        sidebarContent.appendLayout(c -> linkedClientsLayout.render(org.iatoki.judgels.jophiel.controllers.apis.routes.ClientAPIController.linkedClientList().path(), "lib/jophielcommons/javascripts/linkedClients.js", c));
+        sidebarContent.appendLayout(c -> linkedClientsLayout.render(org.iatoki.judgels.jophiel.controllers.api.pub.v1.client.routes.PublicClientAPIControllerV1.getLinkedClients().path(), "lib/jophielcommons/javascripts/linkedClients.js", c));
         Form<SearchProfileForm> searchProfileForm = Form.form(SearchProfileForm.class);
-        sidebarContent.appendLayout(c -> searchProfileLayout.render(searchProfileForm, org.iatoki.judgels.jophiel.controllers.apis.routes.UserAPIController.userAutoCompleteList().absoluteURL(Http.Context.current().request(), Http.Context.current().request().secure()), "lib/jophielcommons/javascripts/userAutoComplete.js", routes.UserProfileController.postViewProfile().absoluteURL(Http.Context.current().request(), Http.Context.current().request().secure()), c));
+        sidebarContent.appendLayout(c -> searchProfileLayout.render(searchProfileForm, org.iatoki.judgels.jophiel.controllers.api.pub.v1.user.routes.PublicUserAPIControllerV1.autocompleteUser(null).absoluteURL(Http.Context.current().request(), Http.Context.current().request().secure()), "lib/jophielcommons/javascripts/userAutoComplete.js", routes.UserProfileController.postViewProfile().absoluteURL(Http.Context.current().request(), Http.Context.current().request().secure()), c));
         content.appendLayout(c -> sidebarLayout.render(sidebarContent.render(), c));
     }
 
-    void addActivityLog(UserActivityService userActivityService, String log) {
+    public void addActivityLog(UserActivityService userActivityService, String log) {
         userActivityService.createUserActivity("localhost", IdentityUtils.getUserJid(), System.currentTimeMillis(), log, IdentityUtils.getIpAddress());
     }
 
@@ -62,11 +62,11 @@ final class JophielControllerUtils extends AbstractJudgelsControllerUtils {
         return routes.WelcomeController.index();
     }
 
-    boolean loggedIn(UserService userService) {
+    public boolean loggedIn(UserService userService) {
         return (IdentityUtils.getUserJid() != null) && userService.userExistsByJid(IdentityUtils.getUserJid());
     }
 
-    static JophielControllerUtils getInstance() {
+    public static JophielControllerUtils getInstance() {
         return INSTANCE;
     }
 }

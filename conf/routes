@@ -38,8 +38,6 @@ GET            /afterForgotPass                                             @org
 GET            /changePass/:code                                            @org.iatoki.judgels.jophiel.controllers.UserAccountController.changePassword(code: String)
 POST           /changePass/:code                                            @org.iatoki.judgels.jophiel.controllers.UserAccountController.postChangePassword(code: String)
 GET            /afterChangePass                                             @org.iatoki.judgels.jophiel.controllers.UserAccountController.afterChangePassword()
-GET            /auth                                                        @org.iatoki.judgels.jophiel.controllers.UserAccountController.serviceAuthRequest()
-POST           /auth                                                        @org.iatoki.judgels.jophiel.controllers.UserAccountController.postServiceAuthRequest(path: String)
 GET            /login                                                       @org.iatoki.judgels.jophiel.controllers.UserAccountController.login()
 POST           /login                                                       @org.iatoki.judgels.jophiel.controllers.UserAccountController.postLogin()
 GET            /serviceLogin                                                @org.iatoki.judgels.jophiel.controllers.UserAccountController.serviceLogin(continueUrl: String ?= "")
@@ -91,28 +89,36 @@ POST           /autoSuggestions/provinces/create                            @org
 POST           /autoSuggestions/provinces/upload                            @org.iatoki.judgels.jophiel.controllers.ProvinceController.postUploadProvince(pageIndex: Long ?= 0, orderBy ?= "id", orderDir ?= "asc", filterString ?= "")
 GET            /autoSuggestions/provinces/:pId/delete                       @org.iatoki.judgels.jophiel.controllers.ProvinceController.deleteProvince(pId: Long)
 
-POST           /token                                                       @org.iatoki.judgels.jophiel.controllers.apis.UserAPIController.token()
-GET            /userinfo                                                    @org.iatoki.judgels.jophiel.controllers.apis.UserAPIController.userInfo()
-POST           /userinfo                                                    @org.iatoki.judgels.jophiel.controllers.apis.UserAPIController.userInfo()
-GET            /verifyUsername                                              @org.iatoki.judgels.jophiel.controllers.apis.UserAPIController.verifyUsername()
-GET            /userInfoByJid                                               @org.iatoki.judgels.jophiel.controllers.apis.UserAPIController.userInfoByUserJid()
-POST           /userActivities                                              @org.iatoki.judgels.jophiel.controllers.apis.UserActivityAPIController.postCreateUserActivity()
-GET            /loggedIn                                                    @org.iatoki.judgels.jophiel.controllers.apis.UserAPIController.loggedIn()
+# OAuth2 API
 
-OPTIONS        /userAutoComplete                                            @org.iatoki.judgels.jophiel.controllers.apis.UserAPIController.preUserAutocompleteList()
-GET            /userAutoComplete                                            @org.iatoki.judgels.jophiel.controllers.apis.UserAPIController.userAutoCompleteList()
+GET            /api/oauth2/auth                                             @org.iatoki.judgels.jophiel.controllers.api.oauth2.OAuth2APIController.auth()
+POST           /api/oauth2/auth                                             @org.iatoki.judgels.jophiel.controllers.api.oauth2.OAuth2APIController.postAuth(path: String)
+POST           /api/oauth2/token                                            @org.iatoki.judgels.jophiel.controllers.api.oauth2.OAuth2APIController.token()
+GET            /api/oauth2/userinfo                                         @org.iatoki.judgels.jophiel.controllers.api.oauth2.OAuth2APIController.userInfo()
 
-OPTIONS        /clientAutoComplete                                          @org.iatoki.judgels.jophiel.controllers.apis.ClientAPIController.preClientAutocompleteList()
-GET            /clientAutoComplete                                          @org.iatoki.judgels.jophiel.controllers.apis.ClientAPIController.clientAutoCompleteList()
-GET            /linkedClients                                               @org.iatoki.judgels.jophiel.controllers.apis.ClientAPIController.linkedClientList()
+# Internal API
 
-OPTIONS        /institutionAutoComplete                                     @org.iatoki.judgels.jophiel.controllers.apis.InstitutionAPIController.preInstitutionAutocompleteList()
-GET            /institutionAutoComplete                                     @org.iatoki.judgels.jophiel.controllers.apis.InstitutionAPIController.institutionAutoCompleteList()
+GET            /api/cities/autocomplete                                     @org.iatoki.judgels.jophiel.controllers.api.internal.city.InternalCityAPIController.autocompleteCity(term ?= null)
 
-OPTIONS        /cityAutoComplete                                            @org.iatoki.judgels.jophiel.controllers.apis.CityAPIController.preCityAutocompleteList()
-GET            /cityAutoComplete                                            @org.iatoki.judgels.jophiel.controllers.apis.CityAPIController.cityAutoCompleteList()
+GET            /api/clients/autocomplete                                    @org.iatoki.judgels.jophiel.controllers.api.internal.client.InternalClientAPIController.autocompleteClient(term ?= null)
 
-OPTIONS        /provinceAutoComplete                                        @org.iatoki.judgels.jophiel.controllers.apis.ProvinceAPIController.preProvinceAutocompleteList()
-GET            /provinceAutoComplete                                        @org.iatoki.judgels.jophiel.controllers.apis.ProvinceAPIController.provinceAutoCompleteList()
+GET            /api/institutions/autocomplete                               @org.iatoki.judgels.jophiel.controllers.api.internal.institution.InternalInstitutionAPIController.autocompleteInstitution(term ?= null)
 
-GET            /avatar/:imageName                                           @org.iatoki.judgels.jophiel.controllers.apis.UserAPIController.renderAvatarImage(imageName: String)
+GET            /api/provinces/autocomplete                                  @org.iatoki.judgels.jophiel.controllers.api.internal.province.InternalProvinceAPIController.autocompleteProvince(term ?= null)
+
+# Client API
+
+GET            /api/v1/users/usernamePassword                               @org.iatoki.judgels.jophiel.controllers.api.client.v1.user.ClientUserAPIControllerV1.findUserByUsernameAndPassword(username, password)
+GET            /api/v1/users/accessToken                                    @org.iatoki.judgels.jophiel.controllers.api.client.v1.user.ClientUserAPIControllerV1.findUserByAccessToken(accessToken)
+
+POST           /api/v1/activities                                           @org.iatoki.judgels.jophiel.controllers.api.client.v1.activity.ClientActivityAPIControllerV1.createActivity()
+
+# Public API
+
+GET            /api/v1/users/username/:username                             @org.iatoki.judgels.jophiel.controllers.api.pub.v1.user.PublicUserAPIControllerV1.findUserByUsername(username)
+GET            /api/v1/users/avatar/:imageName                              @org.iatoki.judgels.jophiel.controllers.api.pub.v1.user.PublicUserAPIControllerV1.renderAvatarImage(imageName)
+GET            /api/v1/users/autocomplete                                   @org.iatoki.judgels.jophiel.controllers.api.pub.v1.user.PublicUserAPIControllerV1.autocompleteUser(term ?= null)
+GET            /api/v1/users/:userJid                                       @org.iatoki.judgels.jophiel.controllers.api.pub.v1.user.PublicUserAPIControllerV1.findUserByJid(userJid)
+GET            /api/v1/users/me/isLoggedIn                                  @org.iatoki.judgels.jophiel.controllers.api.pub.v1.user.PublicUserAPIControllerV1.isLoggedIn()
+
+GET            /api/v1/clients/linked                                       @org.iatoki.judgels.jophiel.controllers.api.pub.v1.client.PublicClientAPIControllerV1.getLinkedClients()

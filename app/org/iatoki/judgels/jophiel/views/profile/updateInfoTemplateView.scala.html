@@ -30,9 +30,9 @@
 }
 
 <script type="text/javascript">
-    var institutionAutoCompleteUrl = "@org.iatoki.judgels.jophiel.controllers.apis.routes.InstitutionAPIController.institutionAutoCompleteList()";
-    var cityAutoCompleteUrl = "@org.iatoki.judgels.jophiel.controllers.apis.routes.CityAPIController.cityAutoCompleteList()";
-    var provinceAutoCompleteUrl = "@org.iatoki.judgels.jophiel.controllers.apis.routes.ProvinceAPIController.provinceAutoCompleteList()";
+    var institutionAutoCompleteUrl = "@org.iatoki.judgels.jophiel.controllers.api.internal.institution.routes.InternalInstitutionAPIController.autocompleteInstitution()";
+    var cityAutoCompleteUrl = "@org.iatoki.judgels.jophiel.controllers.api.internal.city.routes.InternalCityAPIController.autocompleteCity()";
+    var provinceAutoCompleteUrl = "@org.iatoki.judgels.jophiel.controllers.api.internal.province.routes.InternalProvinceAPIController.autocompleteProvince()";
 </script>
 <script type="text/javascript" src="@controllers.routes.Assets.versioned("javascripts/institutionAutoComplete.js")"></script>
 <script type="text/javascript" src="@controllers.routes.Assets.versioned("javascripts/cityAutoComplete.js")"></script>

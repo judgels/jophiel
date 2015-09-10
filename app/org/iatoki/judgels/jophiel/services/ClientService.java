@@ -7,10 +7,11 @@ import org.iatoki.judgels.jophiel.Client;
 import org.iatoki.judgels.jophiel.ClientNotFoundException;
 import org.iatoki.judgels.jophiel.IdToken;
 import org.iatoki.judgels.jophiel.RefreshToken;
+import org.iatoki.judgels.play.services.JudgelsAppClientService;
 
 import java.util.List;
 
-public interface ClientService {
+public interface ClientService extends JudgelsAppClientService {
 
     List<Client> getAllClients();
 

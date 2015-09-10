@@ -1,16 +1,6 @@
 package org.iatoki.judgels.jophiel.controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.nimbusds.oauth2.sdk.AuthorizationCode;
-import com.nimbusds.oauth2.sdk.ParseException;
-import com.nimbusds.oauth2.sdk.ResponseType;
-import com.nimbusds.oauth2.sdk.Scope;
-import com.nimbusds.oauth2.sdk.SerializeException;
-import com.nimbusds.oauth2.sdk.id.ClientID;
-import com.nimbusds.oauth2.sdk.id.State;
-import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
-import com.nimbusds.openid.connect.sdk.AuthenticationSuccessResponse;
-import org.iatoki.judgels.jophiel.Client;
 import org.iatoki.judgels.jophiel.EmailNotVerifiedException;
 import org.iatoki.judgels.jophiel.JophielProperties;
 import org.iatoki.judgels.jophiel.JophielUtils;
@@ -29,13 +19,10 @@ import org.iatoki.judgels.jophiel.views.html.account.changePasswordView;
 import org.iatoki.judgels.jophiel.views.html.account.forgotPasswordView;
 import org.iatoki.judgels.jophiel.views.html.account.loginView;
 import org.iatoki.judgels.jophiel.views.html.account.registerView;
-import org.iatoki.judgels.jophiel.views.html.account.serviceAuthView;
 import org.iatoki.judgels.jophiel.views.html.account.serviceLoginView;
 import org.iatoki.judgels.play.IdentityUtils;
 import org.iatoki.judgels.play.LazyHtml;
 import org.iatoki.judgels.play.controllers.AbstractJudgelsController;
-import org.iatoki.judgels.play.controllers.ControllerUtils;
-import org.iatoki.judgels.play.views.html.layouts.centerLayout;
 import org.iatoki.judgels.play.views.html.layouts.headingLayout;
 import org.iatoki.judgels.play.views.html.layouts.messageView;
 import play.Logger;
@@ -53,8 +40,6 @@ import play.mvc.Result;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
-import java.net.URI;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Singleton
@@ -342,80 +327,6 @@ public final class UserAccountController extends AbstractJudgelsController {
         }
 
         return redirect(returnUri);
-    }
-
-    @Transactional
-    public Result serviceAuthRequest() {
-        if (!JophielControllerUtils.getInstance().loggedIn(userService)) {
-            return redirect((routes.UserAccountController.serviceLogin(ControllerUtils.getCurrentUrl(request()))));
-        }
-
-        String path = request().uri().substring(request().uri().indexOf("?") + 1);
-        try {
-            AuthenticationRequest req = AuthenticationRequest.parse(path);
-            ClientID clientID = req.getClientID();
-            if (!clientService.clientExistsByJid(clientID.toString())) {
-                return redirect(path + "?error=unauthorized_client");
-            }
-
-            Client client = clientService.findClientByJid(clientID.toString());
-
-            List<String> scopes = req.getScope().toStringList();
-            if (clientService.isClientAuthorized(clientID.toString(), scopes)) {
-                return postServiceAuthRequest(path);
-            }
-
-            LazyHtml content = new LazyHtml(serviceAuthView.render(path, client, scopes));
-            content.appendLayout(c -> centerLayout.render(c));
-            JophielControllerUtils.getInstance().appendTemplateLayout(content, "Auth");
-
-            JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Try authorize client " + client.getName() + " <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
-
-            return JophielControllerUtils.getInstance().lazyOk(content);
-        } catch (com.nimbusds.oauth2.sdk.ParseException e) {
-            Logger.error("Exception when parsing authentication request.", e);
-            return redirect(path + "?error=invalid_request");
-        }
-    }
-
-    @Transactional
-    public Result postServiceAuthRequest(String path) {
-        AuthenticationRequest authRequest;
-        try {
-            authRequest = AuthenticationRequest.parse(path);
-        } catch (ParseException e) {
-            Logger.error("Exception when parsing authentication request.", e);
-            return redirect(path + "?error=invalid_request");
-        }
-
-        ClientID clientID = authRequest.getClientID();
-        if (!clientService.clientExistsByJid(clientID.toString())) {
-            return redirect(path + "?error=unauthorized_client");
-        }
-
-        Client client = clientService.findClientByJid(clientID.toString());
-        URI redirectURI = authRequest.getRedirectionURI();
-        ResponseType responseType = authRequest.getResponseType();
-        State state = authRequest.getState();
-        Scope scope = authRequest.getScope();
-        String nonce = (authRequest.getNonce() != null) ? authRequest.getNonce().toString() : "";
-
-        AuthorizationCode authCode = clientService.generateAuthorizationCode(IdentityUtils.getUserJid(), client.getJid(), redirectURI.toString(), responseType.toString(), scope.toStringList(), System.currentTimeMillis() + TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES), IdentityUtils.getIpAddress());
-        String accessToken = clientService.generateAccessToken(authCode.getValue(), IdentityUtils.getUserJid(), clientID.toString(), scope.toStringList(), System.currentTimeMillis() + TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES), IdentityUtils.getIpAddress());
-        clientService.generateRefreshToken(authCode.getValue(), IdentityUtils.getUserJid(), clientID.toString(), scope.toStringList(), IdentityUtils.getIpAddress());
-        clientService.generateIdToken(authCode.getValue(), IdentityUtils.getUserJid(), client.getJid(), nonce, System.currentTimeMillis(), accessToken, System.currentTimeMillis() + TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES), IdentityUtils.getIpAddress());
-
-        URI result;
-        try {
-            result = new AuthenticationSuccessResponse(redirectURI, authCode, null, null, state).toURI();
-        } catch (SerializeException e) {
-            Logger.error("Exception when parsing authentication request.", e);
-            return redirect(path + "?error=invalid_request");
-        }
-
-        JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Authorize client " + client.getName() + ".");
-
-        return redirect(result.toString());
     }
 
     private Result showRegister(Form<RegisterForm> registerForm) {

@@ -1,9 +1,11 @@
 package org.iatoki.judgels.jophiel;
 
+import org.iatoki.judgels.play.JudgelsAppClient;
+
 import java.util.List;
 import java.util.Set;
 
-public final class Client {
+public final class Client implements JudgelsAppClient {
 
     private final long id;
     private final String jid;
@@ -27,14 +29,17 @@ public final class Client {
         return id;
     }
 
+    @Override
     public String getJid() {
         return jid;
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public String getSecret() {
         return secret;
     }

@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import org.apache.commons.lang3.StringUtils;
 import org.iatoki.judgels.jophiel.PasswordHash;
-import org.iatoki.judgels.jophiel.PublicUser;
 import org.iatoki.judgels.jophiel.UnverifiedUserEmail;
 import org.iatoki.judgels.jophiel.User;
 import org.iatoki.judgels.jophiel.UserNotFoundException;
@@ -13,6 +12,7 @@ import org.iatoki.judgels.jophiel.models.daos.UserEmailDao;
 import org.iatoki.judgels.jophiel.models.entities.UserEmailModel;
 import org.iatoki.judgels.jophiel.models.entities.UserModel;
 import org.iatoki.judgels.jophiel.services.UserService;
+import org.iatoki.judgels.play.JudgelsPlayUtils;
 import org.iatoki.judgels.play.Page;
 
 import javax.inject.Inject;
@@ -38,6 +38,24 @@ public final class UserServiceImpl implements UserService {
     @Override
     public boolean userExistsByUsername(String username) {
         return userDao.existByUsername(username);
+    }
+
+    @Override
+    public boolean userExistsByUsernameAndPassword(String username, String password) {
+        if (!userDao.existByUsername(username)) {
+            return false;
+        }
+
+        UserModel userModel = userDao.findByUsername(username);
+        if (userModel.password.contains(":")) {
+            try {
+                return PasswordHash.validatePassword(password, userModel.password);
+            } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+                return false;
+            }
+        } else {
+            return userModel.password.equals(JudgelsPlayUtils.hashSHA256(password));
+        }
     }
 
     @Override
@@ -142,13 +160,6 @@ public final class UserServiceImpl implements UserService {
         UserModel userModel = userDao.findByJid(userJid);
 
         return UserServiceUtils.createUserFromModel(userModel);
-    }
-
-    @Override
-    public PublicUser findPublicUserByJid(String userJid) {
-        UserModel userModel = userDao.findByJid(userJid);
-
-        return UserServiceUtils.createPublicUserFromModels(userModel);
     }
 
     @Override

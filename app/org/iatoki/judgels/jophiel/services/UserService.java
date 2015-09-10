@@ -1,6 +1,5 @@
 package org.iatoki.judgels.jophiel.services;
 
-import org.iatoki.judgels.jophiel.PublicUser;
 import org.iatoki.judgels.jophiel.UnverifiedUserEmail;
 import org.iatoki.judgels.jophiel.User;
 import org.iatoki.judgels.jophiel.UserNotFoundException;
@@ -11,6 +10,8 @@ import java.util.List;
 public interface UserService {
 
     boolean userExistsByUsername(String username);
+
+    boolean userExistsByUsernameAndPassword(String username, String password);
 
     boolean userExistsByJid(String userJid);
 
@@ -23,8 +24,6 @@ public interface UserService {
     User findUserById(long userId) throws UserNotFoundException;
 
     User findUserByJid(String userJid);
-
-    PublicUser findPublicUserByJid(String userJid);
 
     User findUserByUsername(String username);
 

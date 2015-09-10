@@ -1,49 +1,54 @@
-package org.iatoki.judgels.jophiel.controllers.apis;
+package org.iatoki.judgels.jophiel.controllers.api.oauth2;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.collect.ImmutableList;
+import com.nimbusds.oauth2.sdk.ParseException;
+import com.nimbusds.oauth2.sdk.ResponseType;
+import com.nimbusds.oauth2.sdk.Scope;
+import com.nimbusds.oauth2.sdk.SerializeException;
+import com.nimbusds.oauth2.sdk.id.ClientID;
+import com.nimbusds.oauth2.sdk.id.State;
+import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
+import com.nimbusds.openid.connect.sdk.AuthenticationSuccessResponse;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.auth.UsernamePasswordCredentials;
-import org.iatoki.judgels.AutoComplete;
 import org.iatoki.judgels.jophiel.AccessToken;
 import org.iatoki.judgels.jophiel.AuthorizationCode;
 import org.iatoki.judgels.jophiel.Client;
 import org.iatoki.judgels.jophiel.IdToken;
-import org.iatoki.judgels.jophiel.PublicUser;
 import org.iatoki.judgels.jophiel.RefreshToken;
 import org.iatoki.judgels.jophiel.User;
 import org.iatoki.judgels.jophiel.UserEmail;
 import org.iatoki.judgels.jophiel.UserInfo;
 import org.iatoki.judgels.jophiel.UserPhone;
+import org.iatoki.judgels.jophiel.controllers.JophielControllerUtils;
+import org.iatoki.judgels.jophiel.controllers.routes;
 import org.iatoki.judgels.jophiel.services.ClientService;
+import org.iatoki.judgels.jophiel.services.UserActivityService;
 import org.iatoki.judgels.jophiel.services.UserEmailService;
 import org.iatoki.judgels.jophiel.services.UserPhoneService;
 import org.iatoki.judgels.jophiel.services.UserProfileService;
 import org.iatoki.judgels.jophiel.services.UserService;
+import org.iatoki.judgels.jophiel.views.html.oauth2.serviceAuthView;
 import org.iatoki.judgels.play.IdentityUtils;
 import org.iatoki.judgels.play.JudgelsPlayUtils;
+import org.iatoki.judgels.play.LazyHtml;
+import org.iatoki.judgels.play.controllers.ControllerUtils;
 import org.iatoki.judgels.play.controllers.apis.AbstractJudgelsAPIController;
+import org.iatoki.judgels.play.views.html.layouts.centerLayout;
+import play.Logger;
 import play.data.DynamicForm;
 import play.db.jpa.Transactional;
 import play.libs.Json;
+import play.mvc.Http;
 import play.mvc.Result;
 
-import javax.imageio.ImageIO;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.text.ParseException;
+import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -51,65 +56,97 @@ import java.util.stream.Collectors;
 
 @Singleton
 @Named
-public final class UserAPIController extends AbstractJudgelsAPIController {
+public final class OAuth2APIController extends AbstractJudgelsAPIController {
 
     private final ClientService clientService;
     private final UserEmailService userEmailService;
     private final UserPhoneService userPhoneService;
     private final UserProfileService userProfileService;
     private final UserService userService;
+    private final UserActivityService userActivityService;
 
     @Inject
-    public UserAPIController(ClientService clientService, UserEmailService userEmailService, UserPhoneService userPhoneService, UserProfileService userProfileService, UserService userService) {
+    public OAuth2APIController(ClientService clientService, UserEmailService userEmailService, UserPhoneService userPhoneService, UserProfileService userProfileService, UserService userService, UserActivityService userActivityService) {
         this.clientService = clientService;
         this.userEmailService = userEmailService;
         this.userPhoneService = userPhoneService;
         this.userProfileService = userProfileService;
         this.userService = userService;
+        this.userActivityService = userActivityService;
     }
 
-    public Result loggedIn() {
-        response().setHeader("Access-Control-Allow-Origin", "*");
-        response().setContentType("application/javascript");
-
-        DynamicForm dForm = DynamicForm.form().bindFromRequest();
-        String callback = dForm.get("callback");
-
-        ObjectNode jsonResponse = Json.newObject();
-        if (IdentityUtils.getUserJid() != null) {
-            jsonResponse.put("loggedIn", true);
-        } else {
-            jsonResponse.put("loggedIn", false);
+    @Transactional
+    public Result auth() {
+        if (!JophielControllerUtils.getInstance().loggedIn(userService)) {
+            return redirect((routes.UserAccountController.serviceLogin(ControllerUtils.getCurrentUrl(request()))));
         }
 
-        return ok(createJsonPResponse(callback, jsonResponse.toString()));
-    }
-
-    public Result preUserAutocompleteList() {
-        setAccessControlOrigin("*", "GET", TimeUnit.SECONDS.convert(5, TimeUnit.MINUTES));
-        return ok();
-    }
-
-    @Transactional(readOnly = true)
-    public Result userAutoCompleteList() {
-        response().setHeader("Access-Control-Allow-Origin", "*");
-        response().setContentType("application/javascript");
-
-        DynamicForm dForm = DynamicForm.form().bindFromRequest();
-        String callback = dForm.get("callback");
-
-        String term = dForm.get("term");
-        List<User> users = userService.getUsersByTerm(term);
-        ImmutableList.Builder<AutoComplete> autoCompleteBuilder = ImmutableList.builder();
-        for (User user : users) {
-            String display = user.getUsername();
-            if (user.isShowName()) {
-                display += " (" + user.getName() + ")";
+        String path = request().uri().substring(request().uri().indexOf("?") + 1);
+        try {
+            AuthenticationRequest req = AuthenticationRequest.parse(path);
+            ClientID clientID = req.getClientID();
+            if (!clientService.clientExistsByJid(clientID.toString())) {
+                return redirect(path + "?error=unauthorized_client");
             }
-            autoCompleteBuilder.add(new AutoComplete(user.getJid(), user.getUsername(), display));
+
+            Client client = clientService.findClientByJid(clientID.toString());
+
+            List<String> scopes = req.getScope().toStringList();
+            if (clientService.isClientAuthorized(clientID.toString(), scopes)) {
+                return postAuth(path);
+            }
+
+            LazyHtml content = new LazyHtml(serviceAuthView.render(path, client, scopes));
+            content.appendLayout(c -> centerLayout.render(c));
+            JophielControllerUtils.getInstance().appendTemplateLayout(content, "Auth");
+
+            JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Try authorize client " + client.getName() + " <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
+
+            return JophielControllerUtils.getInstance().lazyOk(content);
+        } catch (com.nimbusds.oauth2.sdk.ParseException e) {
+            Logger.error("Exception when parsing authentication request.", e);
+            return redirect(path + "?error=invalid_request");
+        }
+    }
+
+    @Transactional
+    public Result postAuth(String path) {
+        AuthenticationRequest authRequest;
+        try {
+            authRequest = AuthenticationRequest.parse(path);
+        } catch (ParseException e) {
+            Logger.error("Exception when parsing authentication request.", e);
+            return redirect(path + "?error=invalid_request");
         }
 
-        return ok(createJsonPResponse(callback, Json.toJson(autoCompleteBuilder.build()).toString()));
+        ClientID clientID = authRequest.getClientID();
+        if (!clientService.clientExistsByJid(clientID.toString())) {
+            return redirect(path + "?error=unauthorized_client");
+        }
+
+        Client client = clientService.findClientByJid(clientID.toString());
+        URI redirectURI = authRequest.getRedirectionURI();
+        ResponseType responseType = authRequest.getResponseType();
+        State state = authRequest.getState();
+        Scope scope = authRequest.getScope();
+        String nonce = (authRequest.getNonce() != null) ? authRequest.getNonce().toString() : "";
+
+        com.nimbusds.oauth2.sdk.AuthorizationCode authCode = clientService.generateAuthorizationCode(IdentityUtils.getUserJid(), client.getJid(), redirectURI.toString(), responseType.toString(), scope.toStringList(), System.currentTimeMillis() + TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES), IdentityUtils.getIpAddress());
+        String accessToken = clientService.generateAccessToken(authCode.getValue(), IdentityUtils.getUserJid(), clientID.toString(), scope.toStringList(), System.currentTimeMillis() + TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES), IdentityUtils.getIpAddress());
+        clientService.generateRefreshToken(authCode.getValue(), IdentityUtils.getUserJid(), clientID.toString(), scope.toStringList(), IdentityUtils.getIpAddress());
+        clientService.generateIdToken(authCode.getValue(), IdentityUtils.getUserJid(), client.getJid(), nonce, System.currentTimeMillis(), accessToken, System.currentTimeMillis() + TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES), IdentityUtils.getIpAddress());
+
+        URI result;
+        try {
+            result = new AuthenticationSuccessResponse(redirectURI, authCode, null, null, state).toURI();
+        } catch (SerializeException e) {
+            Logger.error("Exception when parsing authentication request.", e);
+            return redirect(path + "?error=invalid_request");
+        }
+
+        JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Authorize client " + client.getName() + ".");
+
+        return redirect(result.toString());
     }
 
     @Transactional
@@ -190,135 +227,6 @@ public final class UserAPIController extends AbstractJudgelsAPIController {
         return ok(jsonResponse);
     }
 
-    @Transactional(readOnly = true)
-    public Result verifyUsername() {
-        UsernamePasswordCredentials credentials = JudgelsPlayUtils.parseBasicAuthFromRequest(request());
-
-        if (credentials == null) {
-            response().setHeader("WWW-Authenticate", "Basic realm=\"" + request().host() + "\"");
-            return unauthorized();
-        }
-
-        String clientJid = credentials.getUserName();
-        String clientSecret = credentials.getPassword();
-
-        DynamicForm dForm = DynamicForm.form().bindFromRequest();
-        if ((clientJid == null) || !clientService.clientExistsByJid(clientJid)) {
-            ObjectNode jsonResponse = Json.newObject();
-            jsonResponse.put("error", "invalid_client");
-            return badRequest(jsonResponse);
-        }
-
-        Client client = clientService.findClientByJid(clientJid);
-        if (!client.getSecret().equals(clientSecret)) {
-            ObjectNode jsonResponse = Json.newObject();
-            jsonResponse.put("error", "unauthorized_client");
-            return unauthorized(jsonResponse);
-        }
-
-        String username = dForm.get("username");
-
-        if (!userService.userExistsByUsername(username)) {
-            ObjectNode result = Json.newObject();
-            result.put("success", false);
-
-            return ok(result);
-        }
-
-        User user = userService.findUserByUsername(username);
-        ObjectNode jsonResponse = Json.newObject();
-        jsonResponse.put("success", true);
-        jsonResponse.put("jid", user.getJid());
-
-        return ok(jsonResponse);
-    }
-
-    @Transactional(readOnly = true)
-    public Result userInfoByUserJid() {
-        UsernamePasswordCredentials credentials = JudgelsPlayUtils.parseBasicAuthFromRequest(request());
-
-        if (credentials == null) {
-            response().setHeader("WWW-Authenticate", "Basic realm=\"" + request().host() + "\"");
-            return unauthorized();
-        }
-
-        String clientJid = credentials.getUserName();
-        String clientSecret = credentials.getPassword();
-
-        DynamicForm dForm = DynamicForm.form().bindFromRequest();
-        if ((clientJid == null) || !clientService.clientExistsByJid(clientJid)) {
-            ObjectNode jsonResponse = Json.newObject();
-            jsonResponse.put("error", "invalid_client");
-            return badRequest(jsonResponse);
-        }
-
-        Client client = clientService.findClientByJid(clientJid);
-        if (!client.getSecret().equals(clientSecret)) {
-            ObjectNode jsonResponse = Json.newObject();
-            jsonResponse.put("error", "unauthorized_client");
-            return unauthorized(jsonResponse);
-        }
-
-        String userJid = dForm.get("userJid");
-        if (!userService.userExistsByJid(userJid)) {
-            ObjectNode jsonResponse = Json.newObject();
-            jsonResponse.put("error", "invalid_user");
-            return unauthorized(jsonResponse);
-        }
-
-        PublicUser publicUser = userService.findPublicUserByJid(userJid);
-
-        return ok(Json.toJson(publicUser));
-    }
-
-    public Result renderAvatarImage(String imageName) {
-        response().setHeader("Cache-Control", "no-transform,public,max-age=300,s-maxage=900");
-
-        String avatarURL = userProfileService.getAvatarImageUrlString(imageName);
-        try {
-            new URL(avatarURL);
-            return temporaryRedirect(avatarURL);
-        } catch (MalformedURLException e) {
-            File avatarFile = new File(avatarURL);
-            if (!avatarFile.exists()) {
-                return notFound();
-            }
-
-            SimpleDateFormat sdf = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z");
-            response().setHeader("Last-Modified", sdf.format(new Date(avatarFile.lastModified())));
-
-            if (!request().hasHeader("If-Modified-Since")) {
-                try {
-                    BufferedImage in = ImageIO.read(avatarFile);
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-                    String type = FilenameUtils.getExtension(avatarFile.getAbsolutePath());
-
-                    ImageIO.write(in, type, baos);
-                    return ok(baos.toByteArray()).as("image/" + type);
-                } catch (IOException e2) {
-                    return internalServerError();
-                }
-            }
-
-            try {
-                Date lastUpdate = sdf.parse(request().getHeader("If-Modified-Since"));
-                if (avatarFile.lastModified() <= lastUpdate.getTime()) {
-                    return status(304);
-                }
-
-                BufferedImage in = ImageIO.read(avatarFile);
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-                String type = FilenameUtils.getExtension(avatarFile.getAbsolutePath());
-                ImageIO.write(in, type, baos);
-
-                return ok(baos.toByteArray()).as("image/" + type);
-            } catch (ParseException | IOException e2) {
-                throw new RuntimeException(e2);
-            }
-        }
-    }
 
     private Result processTokenAuthCodeRequest(DynamicForm dForm) {
         String authCode = dForm.get("code");

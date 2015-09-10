@@ -1,6 +1,6 @@
 @import play.i18n.Messages
 @import org.iatoki.judgels.jophiel.Client
-@import org.iatoki.judgels.jophiel.controllers.routes
+@import org.iatoki.judgels.jophiel.controllers.api.oauth2.routes
 
 @(path: String, client: Client, scopes: java.util.List[String])
 
@@ -8,7 +8,7 @@
 
 <h2>@Messages.get("auth.authorization")</h2>
 <p>@Messages.get("auth.wantToAuthorize")  @client.getName @Messages.get("auth.inTheseScopes")?</p>
-@b3.form(routes.UserAccountController.postServiceAuthRequest(path)) {
+@b3.form(routes.OAuth2APIController.postAuth(path)) {
 
     @helper.CSRF.formField
 
