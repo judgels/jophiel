@@ -652,7 +652,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
 
         Assert.assertTrue(remainingTime <= (60L * 60L * 1L), "Remaining cannot greater than 3600");
         Assert.assertTrue(accessTokenModel.redeemed, "Access token has not been redeemed");
-        Assert.assertTrue(accessTokenModel.timeUpdate > accessTokenModel.timeCreate, "Time update not updated");
+        Assert.assertTrue(accessTokenModel.timeUpdate >= accessTokenModel.timeCreate, "Time update not updated");
     }
 
     @Test(expectedExceptions = RuntimeException.class)
@@ -697,7 +697,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         clientService.redeemRefreshTokenById(tokenId, getClientJid, getIpAddress);
 
         Assert.assertTrue(refreshTokenModel.redeemed, "Refresh token has not been redeemed");
-        Assert.assertTrue(refreshTokenModel.timeUpdate > refreshTokenModel.timeCreate, "Time update not updated");
+        Assert.assertTrue(refreshTokenModel.timeUpdate >= refreshTokenModel.timeCreate, "Time update not updated");
     }
 
     @Test(expectedExceptions = RuntimeException.class)
@@ -741,7 +741,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         clientService.redeemIdTokenById(tokenId, getClientJid, getIpAddress);
 
         Assert.assertTrue(idTokenModel.redeemed, "Id token has not been redeemed");
-        Assert.assertTrue(idTokenModel.timeUpdate > idTokenModel.timeCreate, "Time update not updated");
+        Assert.assertTrue(idTokenModel.timeUpdate >= idTokenModel.timeCreate, "Time update not updated");
     }
 
     @Test(expectedExceptions = RuntimeException.class)
@@ -835,7 +835,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         Assert.assertEquals(scopesString, clientModel.scopes, "Client scopes not changed");
         Mockito.verify(redirectURIDao, Mockito.times(oldRedirectURIModels.size())).remove(Mockito.any());
         Mockito.verify(redirectURIDao, Mockito.times(redirectURIs.size())).persist(Mockito.any(), Mockito.anyString(), Mockito.anyString());
-        Assert.assertTrue(clientModel.timeUpdate > clientModel.timeCreate, "Time update not updated");
+        Assert.assertTrue(clientModel.timeUpdate >= clientModel.timeCreate, "Time update not updated");
     }
 
     @Test
