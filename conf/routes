@@ -110,6 +110,7 @@ GET            /api/provinces/autocomplete                                  @org
 
 GET            /api/v1/users/usernamePassword                               @org.iatoki.judgels.jophiel.controllers.api.client.v1.user.ClientUserAPIControllerV1.findUserByUsernameAndPassword(username, password)
 GET            /api/v1/users/accessToken                                    @org.iatoki.judgels.jophiel.controllers.api.client.v1.user.ClientUserAPIControllerV1.findUserByAccessToken(accessToken)
+GET            /api/v1/clients/linked                                       @org.iatoki.judgels.jophiel.controllers.api.client.v1.client.ClientClientAPIControllerV1.getLinkedClients()
 
 POST           /api/v1/activities                                           @org.iatoki.judgels.jophiel.controllers.api.client.v1.activity.ClientActivityAPIControllerV1.createActivity()
 
@@ -120,5 +121,3 @@ GET            /api/v1/users/avatar/:imageName                              @org
 GET            /api/v1/users/autocomplete                                   @org.iatoki.judgels.jophiel.controllers.api.pub.v1.user.PublicUserAPIControllerV1.autocompleteUser(term ?= null)
 GET            /api/v1/users/:userJid                                       @org.iatoki.judgels.jophiel.controllers.api.pub.v1.user.PublicUserAPIControllerV1.findUserByJid(userJid)
 GET            /api/v1/users/me/isLoggedIn                                  @org.iatoki.judgels.jophiel.controllers.api.pub.v1.user.PublicUserAPIControllerV1.isLoggedIn()
-
-GET            /api/v1/clients/linked                                       @org.iatoki.judgels.jophiel.controllers.api.pub.v1.client.PublicClientAPIControllerV1.getLinkedClients()
