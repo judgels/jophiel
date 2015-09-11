@@ -73,8 +73,6 @@ public final class PublicUserAPIControllerV1 extends AbstractJophielAPIControlle
     }
 
     public Result renderAvatarImage(String imageName) {
-        response().setHeader("Cache-Control", "no-transform,public,max-age=300,s-maxage=900");
-
         String avatarURL = userProfileService.getAvatarImageUrlString(imageName);
         try {
             new URL(avatarURL);
