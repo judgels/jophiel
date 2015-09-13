@@ -14,7 +14,7 @@ import org.iatoki.judgels.jophiel.controllers.securities.Authorized;
 import org.iatoki.judgels.jophiel.controllers.securities.HasRole;
 import org.iatoki.judgels.jophiel.controllers.securities.LoggedIn;
 import org.iatoki.judgels.jophiel.forms.UserCreateForm;
-import org.iatoki.judgels.jophiel.forms.UserUpdateForm;
+import org.iatoki.judgels.jophiel.forms.UserEditForm;
 import org.iatoki.judgels.jophiel.services.UserActivityService;
 import org.iatoki.judgels.jophiel.services.UserEmailService;
 import org.iatoki.judgels.jophiel.services.UserPhoneService;
@@ -24,7 +24,7 @@ import org.iatoki.judgels.jophiel.views.html.profile.viewFullProfileView;
 import org.iatoki.judgels.jophiel.views.html.user.createUserView;
 import org.iatoki.judgels.jophiel.views.html.user.listUnverifiedUsersView;
 import org.iatoki.judgels.jophiel.views.html.user.listUsersView;
-import org.iatoki.judgels.jophiel.views.html.user.updateUserView;
+import org.iatoki.judgels.jophiel.views.html.user.editUserView;
 import org.iatoki.judgels.play.IdentityUtils;
 import org.iatoki.judgels.play.InternalLink;
 import org.iatoki.judgels.play.LazyHtml;
@@ -141,7 +141,7 @@ public final class UserController extends AbstractJudgelsController {
         }
 
         LazyHtml content = new LazyHtml(viewFullProfileView.render(user, userPrimaryEmail, userEmailService.getEmailsByUserJid(user.getJid()), userPrimaryPhone, userPhoneService.getPhonesByUserJid(user.getJid()), userInfo));
-        content.appendLayout(c -> headingWithActionLayout.render(Messages.get("user.user") + " #" + userId + ": " + user.getName(), new InternalLink(Messages.get("commons.update"), routes.UserController.updateUser(userId)), c));
+        content.appendLayout(c -> headingWithActionLayout.render(Messages.get("user.user") + " #" + userId + ": " + user.getName(), new InternalLink(Messages.get("commons.update"), routes.UserController.editUser(userId)), c));
         JophielControllerUtils.getInstance().appendSidebarLayout(content);
         appendBreadcrumbsLayout(content,
                 new InternalLink(Messages.get("user.view"), routes.UserController.viewUser(userId))
@@ -188,37 +188,37 @@ public final class UserController extends AbstractJudgelsController {
     @Authorized(value = "admin")
     @Transactional
     @AddCSRFToken
-    public Result updateUser(long userId) throws UserNotFoundException {
+    public Result editUser(long userId) throws UserNotFoundException {
         User user = userService.findUserById(userId);
-        UserUpdateForm userUpdateData = new UserUpdateForm();
-        userUpdateData.username = user.getUsername();
-        userUpdateData.name = user.getName();
-        userUpdateData.email = user.getEmailJid();
-        userUpdateData.roles = StringUtils.join(user.getRoles(), ",");
-        Form<UserUpdateForm> userUpdateForm = Form.form(UserUpdateForm.class).fill(userUpdateData);
+        UserEditForm userEditData = new UserEditForm();
+        userEditData.username = user.getUsername();
+        userEditData.name = user.getName();
+        userEditData.email = user.getEmailJid();
+        userEditData.roles = StringUtils.join(user.getRoles(), ",");
+        Form<UserEditForm> userEditForm = Form.form(UserEditForm.class).fill(userEditData);
 
         JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Try to update user " + user.getUsername() + " <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
 
-        return showUpdateUser(userUpdateForm, user);
+        return showEditUser(userEditForm, user);
     }
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Authorized(value = "admin")
     @Transactional
     @RequireCSRFCheck
-    public Result postUpdateUser(long userId) throws UserNotFoundException {
+    public Result postEditUser(long userId) throws UserNotFoundException {
         User user = userService.findUserById(userId);
-        Form<UserUpdateForm> userUpdateForm = Form.form(UserUpdateForm.class).bindFromRequest();
+        Form<UserEditForm> userEditForm = Form.form(UserEditForm.class).bindFromRequest();
 
-        if (formHasErrors(userUpdateForm)) {
-            return showUpdateUser(userUpdateForm, user);
+        if (formHasErrors(userEditForm)) {
+            return showEditUser(userEditForm, user);
         }
 
-        UserUpdateForm userUpdateData = userUpdateForm.get();
-        if (!"".equals(userUpdateData.password)) {
-            userService.updateUser(user.getJid(), userUpdateData.username, userUpdateData.name, userUpdateData.email, userUpdateData.password, Arrays.asList(userUpdateData.roles.split(",")), IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
+        UserEditForm userEditData = userEditForm.get();
+        if (!"".equals(userEditData.password)) {
+            userService.updateUser(user.getJid(), userEditData.username, userEditData.name, userEditData.email, userEditData.password, Arrays.asList(userEditData.roles.split(",")), IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
         } else {
-            userService.updateUser(user.getJid(), userUpdateData.username, userUpdateData.name, userUpdateData.email, Arrays.asList(userUpdateData.roles.split(",")), IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
+            userService.updateUser(user.getJid(), userEditData.username, userEditData.name, userEditData.email, Arrays.asList(userEditData.roles.split(",")), IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
         }
 
         JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Update user " + user.getUsername() + ".");
@@ -249,12 +249,12 @@ public final class UserController extends AbstractJudgelsController {
         return JophielControllerUtils.getInstance().lazyOk(content);
     }
 
-    private Result showUpdateUser(Form<UserUpdateForm> form, User user) {
-        LazyHtml content = new LazyHtml(updateUserView.render(form, user.getId()));
+    private Result showEditUser(Form<UserEditForm> form, User user) {
+        LazyHtml content = new LazyHtml(editUserView.render(form, user.getId()));
         content.appendLayout(c -> headingLayout.render(Messages.get("user.user") + " #" + user.getId() + ": " + user.getUsername(), c));
         JophielControllerUtils.getInstance().appendSidebarLayout(content);
         appendBreadcrumbsLayout(content,
-                new InternalLink(Messages.get("user.update"), routes.UserController.updateUser(user.getId()))
+                new InternalLink(Messages.get("user.update"), routes.UserController.editUser(user.getId()))
         );
         JophielControllerUtils.getInstance().appendTemplateLayout(content, "User - Update");
         return JophielControllerUtils.getInstance().lazyOk(content);

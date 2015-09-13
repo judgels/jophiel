@@ -11,7 +11,7 @@ import org.iatoki.judgels.jophiel.controllers.securities.LoggedIn;
 import org.iatoki.judgels.jophiel.forms.SearchProfileForm;
 import org.iatoki.judgels.jophiel.forms.UserAvatarForm;
 import org.iatoki.judgels.jophiel.forms.UserInfoUpsertForm;
-import org.iatoki.judgels.jophiel.forms.UserProfileUpdateForm;
+import org.iatoki.judgels.jophiel.forms.UserProfileEditForm;
 import org.iatoki.judgels.jophiel.services.UserActivityService;
 import org.iatoki.judgels.jophiel.services.UserProfileService;
 import org.iatoki.judgels.jophiel.services.UserService;
@@ -60,50 +60,50 @@ public final class UserProfileController extends AbstractJudgelsController {
     @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Transactional
     @AddCSRFToken
-    public Result updateProfile() {
+    public Result editOwnProfile() {
         JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Try to update profile <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
 
-        return UserProfileControllerUtils.getInstance().showUpdateProfile();
+        return UserProfileControllerUtils.getInstance().showEditOwnProfile();
     }
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Transactional
     @RequireCSRFCheck
-    public Result postUpdateProfile() {
-        Form<UserProfileUpdateForm> userProfileUpdateForm = Form.form(UserProfileUpdateForm.class).bindFromRequest();
+    public Result postEditOwnProfile() {
+        Form<UserProfileEditForm> userProfileEditForm = Form.form(UserProfileEditForm.class).bindFromRequest();
         User user = userService.findUserByJid(IdentityUtils.getUserJid());
 
-        if (formHasErrors(userProfileUpdateForm)) {
-            Logger.error(userProfileUpdateForm.errors().toString());
+        if (formHasErrors(userProfileEditForm)) {
+            Logger.error(userProfileEditForm.errors().toString());
 
-            return UserProfileControllerUtils.getInstance().showUpdateProfileWithProfileUpdateForm(userProfileUpdateForm);
+            return UserProfileControllerUtils.getInstance().showEditOwnProfileWithProfileEditForm(userProfileEditForm);
         }
 
-        UserProfileUpdateForm userProfileUpdateData = userProfileUpdateForm.get();
+        UserProfileEditForm userProfileEditData = userProfileEditForm.get();
 
-        if (!userProfileUpdateData.password.isEmpty()) {
-            if (!userProfileUpdateData.password.equals(userProfileUpdateData.confirmPassword)) {
-                userProfileUpdateForm.reject("profile.error.passwordsDidntMatch");
+        if (!userProfileEditData.password.isEmpty()) {
+            if (!userProfileEditData.password.equals(userProfileEditData.confirmPassword)) {
+                userProfileEditForm.reject("profile.error.passwordsDidntMatch");
 
-                return UserProfileControllerUtils.getInstance().showUpdateProfileWithProfileUpdateForm(userProfileUpdateForm);
+                return UserProfileControllerUtils.getInstance().showEditOwnProfileWithProfileEditForm(userProfileEditForm);
             }
 
-            userProfileService.updateProfile(IdentityUtils.getUserJid(), userProfileUpdateData.name, userProfileUpdateData.showName, userProfileUpdateData.password, IdentityUtils.getIpAddress());
+            userProfileService.updateProfile(IdentityUtils.getUserJid(), userProfileEditData.name, userProfileEditData.showName, userProfileEditData.password, IdentityUtils.getIpAddress());
         } else {
-            userProfileService.updateProfile(IdentityUtils.getUserJid(), userProfileUpdateData.name, userProfileUpdateData.showName, IdentityUtils.getIpAddress());
+            userProfileService.updateProfile(IdentityUtils.getUserJid(), userProfileEditData.name, userProfileEditData.showName, IdentityUtils.getIpAddress());
         }
-        session("name", userProfileUpdateData.name);
+        session("name", userProfileEditData.name);
 
         JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Update profile.");
 
-        return redirect(UserProfileControllerUtils.getInstance().getUpdateProfileCall());
+        return redirect(UserProfileControllerUtils.getInstance().getEditOwnProfileCall());
     }
 
     @BodyParser.Of(value = BodyParser.MultipartFormData.class, maxLength = (2 << 20))
     @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Transactional
     @RequireCSRFCheck
-    public Result postAvatar() {
+    public Result postEditOwnAvatar() {
         // TODO catch 413 http response
         Http.MultipartFormData body = request().body().asMultipartFormData();
         Http.MultipartFormData.FilePart avatar = body.getFile("avatar");
@@ -113,7 +113,7 @@ public final class UserProfileController extends AbstractJudgelsController {
             Form<UserAvatarForm> userAvatarForm = Form.form(UserAvatarForm.class);
 
             userAvatarForm.reject("profile.error.not_picture");
-            return UserProfileControllerUtils.getInstance().showUpdateProfileWithAvatarForm(userAvatarForm);
+            return UserProfileControllerUtils.getInstance().showEditOwnProfileWithAvatarForm(userAvatarForm);
         }
 
         String contentType = avatar.getContentType();
@@ -121,7 +121,7 @@ public final class UserProfileController extends AbstractJudgelsController {
             Form<UserAvatarForm> userAvatarForm = Form.form(UserAvatarForm.class);
 
             userAvatarForm.reject("error.profile.not_picture");
-            return UserProfileControllerUtils.getInstance().showUpdateProfileWithAvatarForm(userAvatarForm);
+            return UserProfileControllerUtils.getInstance().showEditOwnProfileWithAvatarForm(userAvatarForm);
         }
 
         try {
@@ -137,23 +137,23 @@ public final class UserProfileController extends AbstractJudgelsController {
             Form<UserAvatarForm> userAvatarForm = Form.form(UserAvatarForm.class);
 
             userAvatarForm.reject("profile.error.cantUpload");
-            return UserProfileControllerUtils.getInstance().showUpdateProfileWithAvatarForm(userAvatarForm);
+            return UserProfileControllerUtils.getInstance().showEditOwnProfileWithAvatarForm(userAvatarForm);
         }
 
         JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Update avatar.");
 
-        return redirect(UserProfileControllerUtils.getInstance().getUpdateProfileCall());
+        return redirect(UserProfileControllerUtils.getInstance().getEditOwnProfileCall());
     }
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Transactional
-    public Result postUpdateInfo() {
+    public Result postEditOwnInfo() {
         Form<UserInfoUpsertForm> userInfoUpsertForm = Form.form(UserInfoUpsertForm.class).bindFromRequest();
 
         if (formHasErrors(userInfoUpsertForm)) {
             Logger.error(userInfoUpsertForm.errors().toString());
 
-            return UserProfileControllerUtils.getInstance().showUpdateProfileWithInfoUpsertForm(userInfoUpsertForm);
+            return UserProfileControllerUtils.getInstance().showEditOwnProfileWithInfoUpsertForm(userInfoUpsertForm);
         }
 
         UserInfoUpsertForm userInfoUpsertData = userInfoUpsertForm.get();
@@ -161,7 +161,7 @@ public final class UserProfileController extends AbstractJudgelsController {
 
         JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Update info.");
 
-        return redirect(UserProfileControllerUtils.getInstance().getUpdateProfileCall());
+        return redirect(UserProfileControllerUtils.getInstance().getEditOwnProfileCall());
     }
 
     @Transactional

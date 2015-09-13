@@ -33,7 +33,7 @@
                 <td>
                     @if((primaryPhone == null) || !primaryPhone.getJid.equals(userPhone.getJid)) {
                         <a href="@routes.UserPhoneController.makePhonePrimary(userPhone.getId)" class="btn btn-xs btn-primary">@Messages.get("user.phone.makePrimary")</a>
-                        <a href="@routes.UserPhoneController.removePhone(userPhone.getId)" class="btn btn-xs btn-danger">@Messages.get("commons.remove")</a>
+                        <a href="@routes.UserPhoneController.deletePhone(userPhone.getId)" class="btn btn-xs btn-danger">@Messages.get("commons.remove")</a>
                     }
                 </td>
             </tr>

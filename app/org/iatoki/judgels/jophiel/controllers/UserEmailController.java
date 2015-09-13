@@ -60,7 +60,7 @@ public final class UserEmailController extends AbstractJudgelsController {
         Form<UserEmailCreateForm> userEmailCreateForm = Form.form(UserEmailCreateForm.class).bindFromRequest();
 
         if (formHasErrors(userEmailCreateForm)) {
-            return UserProfileControllerUtils.getInstance().showUpdateProfileWithEmailCreateForm(userEmailCreateForm);
+            return UserProfileControllerUtils.getInstance().showEditOwnProfileWithEmailCreateForm(userEmailCreateForm);
         }
 
         UserEmailCreateForm userEmailCreateData = userEmailCreateForm.get();
@@ -76,7 +76,7 @@ public final class UserEmailController extends AbstractJudgelsController {
 
         flashInfo(Messages.get("user.email.verificationEmailSentTo") + " " + userEmailCreateData.email + ".");
 
-        return redirect(UserProfileControllerUtils.getInstance().getUpdateProfileCall());
+        return redirect(UserProfileControllerUtils.getInstance().getEditOwnProfileCall());
     }
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
@@ -87,43 +87,43 @@ public final class UserEmailController extends AbstractJudgelsController {
 
         if (!user.getJid().equals(userEmail.getUserJid())) {
             flashError(Messages.get("user.email.makePrimary.error.emailIsNotOwned"));
-            return redirect(UserProfileControllerUtils.getInstance().getUpdateProfileCall());
+            return redirect(UserProfileControllerUtils.getInstance().getEditOwnProfileCall());
         }
 
         if (user.getEmailJid().equals(userEmail.getJid())) {
             flashError(Messages.get("user.email.makePrimary.error.emailIsPrimary"));
-            return redirect(UserProfileControllerUtils.getInstance().getUpdateProfileCall());
+            return redirect(UserProfileControllerUtils.getInstance().getEditOwnProfileCall());
         }
 
         if (!userEmail.isEmailVerified()) {
             flashError(Messages.get("user.email.makePrimary.error.emailIsNotVerified"));
-            return redirect(UserProfileControllerUtils.getInstance().getUpdateProfileCall());
+            return redirect(UserProfileControllerUtils.getInstance().getEditOwnProfileCall());
         }
 
         userEmailService.makeEmailPrimary(user.getJid(), userEmail.getJid(), IdentityUtils.getIpAddress());
 
-        return redirect(UserProfileControllerUtils.getInstance().getUpdateProfileCall());
+        return redirect(UserProfileControllerUtils.getInstance().getEditOwnProfileCall());
     }
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Transactional
-    public Result removeEmail(long emailId) throws UserEmailNotFoundException {
+    public Result deleteEmail(long emailId) throws UserEmailNotFoundException {
         User user = userService.findUserByJid(IdentityUtils.getUserJid());
         UserEmail userEmail = userEmailService.findEmailById(emailId);
 
         if (!user.getJid().equals(userEmail.getUserJid())) {
             flashError(Messages.get("user.email.remove.error.emailIsNotOwned"));
-            return redirect(UserProfileControllerUtils.getInstance().getUpdateProfileCall());
+            return redirect(UserProfileControllerUtils.getInstance().getEditOwnProfileCall());
         }
 
         if (user.getEmailJid().equals(userEmail.getJid())) {
             flashError(Messages.get("user.email.remove.error.emailIsPrimary"));
-            return redirect(UserProfileControllerUtils.getInstance().getUpdateProfileCall());
+            return redirect(UserProfileControllerUtils.getInstance().getEditOwnProfileCall());
         }
 
         userEmailService.removeEmail(userEmail.getJid());
 
-        return redirect(UserProfileControllerUtils.getInstance().getUpdateProfileCall());
+        return redirect(UserProfileControllerUtils.getInstance().getEditOwnProfileCall());
     }
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})

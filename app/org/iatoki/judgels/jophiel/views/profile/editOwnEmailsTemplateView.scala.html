@@ -33,7 +33,7 @@
                 <td>
                     @if((primaryEmail == null) || !primaryEmail.getJid.equals(userEmail.getJid)) {
                         <a href="@routes.UserEmailController.makeEmailPrimary(userEmail.getId)" class="btn btn-xs btn-primary">@Messages.get("user.email.makePrimary")</a>
-                        <a href="@routes.UserEmailController.removeEmail(userEmail.getId)" class="btn btn-xs btn-danger">@Messages.get("commons.remove")</a>
+                        <a href="@routes.UserEmailController.deleteEmail(userEmail.getId)" class="btn btn-xs btn-danger">@Messages.get("commons.remove")</a>
                     }
                 </td>
             </tr>

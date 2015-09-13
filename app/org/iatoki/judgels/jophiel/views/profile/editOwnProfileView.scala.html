@@ -1,6 +1,6 @@
 @import play.i18n.Messages
 @import org.iatoki.judgels.jophiel.controllers.routes
-@import org.iatoki.judgels.jophiel.forms.UserProfileUpdateForm
+@import org.iatoki.judgels.jophiel.forms.UserProfileEditForm
 @import org.iatoki.judgels.jophiel.forms.UserAvatarForm
 @import org.iatoki.judgels.jophiel.forms.UserEmailCreateForm
 @import org.iatoki.judgels.jophiel.forms.UserPhoneCreateForm
@@ -8,14 +8,14 @@
 @import org.iatoki.judgels.jophiel.UserEmail
 @import org.iatoki.judgels.jophiel.UserPhone
 
-@(userProfileUpdateForm: Form[UserProfileUpdateForm], userProfilePictureForm: Form[UserAvatarForm], userEmailCreateForm: Form[UserEmailCreateForm], primaryEmail: UserEmail, userEmails: List[UserEmail], userPhoneCreateForm: Form[UserPhoneCreateForm], primaryPhone: UserPhone, userPhones: List[UserPhone], userInfoUpsertForm: Form[UserInfoUpsertForm])
+@(userProfileEditForm: Form[UserProfileEditForm], userProfilePictureForm: Form[UserAvatarForm], userEmailCreateForm: Form[UserEmailCreateForm], primaryEmail: UserEmail, userEmails: List[UserEmail], userPhoneCreateForm: Form[UserPhoneCreateForm], primaryPhone: UserPhone, userPhones: List[UserPhone], userInfoUpsertForm: Form[UserInfoUpsertForm])
 
 <hr />
 <h3>@Messages.get("user.account")</h3>
 <hr />
 <div class="clearfix">
     <div class="col-md-12">
-        @updateProfileTemplateView(userProfileUpdateForm, userProfilePictureForm, routes.UserProfileController.postAvatar(), routes.UserProfileController.postUpdateProfile())
+        @editOwnProfileTemplateView(userProfileEditForm, userProfilePictureForm, routes.UserProfileController.postEditOwnAvatar(), routes.UserProfileController.postEditOwnProfile())
     </div>
 </div>
 
@@ -25,10 +25,10 @@
 <div class="clearfix">
     <div class="col-md-12">
         <h4>@Messages.get("user.emails")</h4>
-        @updateEmailsTemplateView(userEmailCreateForm, primaryEmail, userEmails)
+        @editOwnEmailsTemplateView(userEmailCreateForm, primaryEmail, userEmails)
 
         <h4>@Messages.get("user.phones")</h4>
-        @updatePhonesTemplateView(userPhoneCreateForm, primaryPhone, userPhones)
+        @editOwnPhonesTemplateView(userPhoneCreateForm, primaryPhone, userPhones)
     </div>
 </div>
 
@@ -37,6 +37,6 @@
 <hr />
 <div class="clearfix">
     <div class="col-md-12">
-        @updateInfoTemplateView(userInfoUpsertForm)
+        @editOwnInfoTemplateView(userInfoUpsertForm)
     </div>
 </div>

@@ -10,12 +10,12 @@ import org.iatoki.judgels.jophiel.forms.UserEmailCreateForm;
 import org.iatoki.judgels.jophiel.forms.UserInfoUpsertForm;
 import org.iatoki.judgels.jophiel.forms.UserPhoneCreateForm;
 import org.iatoki.judgels.jophiel.forms.UserAvatarForm;
-import org.iatoki.judgels.jophiel.forms.UserProfileUpdateForm;
+import org.iatoki.judgels.jophiel.forms.UserProfileEditForm;
 import org.iatoki.judgels.jophiel.services.UserEmailService;
 import org.iatoki.judgels.jophiel.services.UserPhoneService;
 import org.iatoki.judgels.jophiel.services.UserProfileService;
 import org.iatoki.judgels.jophiel.services.UserService;
-import org.iatoki.judgels.jophiel.views.html.profile.updateProfileView;
+import org.iatoki.judgels.jophiel.views.html.profile.editOwnProfileView;
 import org.iatoki.judgels.play.IdentityUtils;
 import org.iatoki.judgels.play.InternalLink;
 import org.iatoki.judgels.play.JudgelsPlayUtils;
@@ -58,104 +58,104 @@ public final class UserProfileControllerUtils {
         return instance;
     }
 
-    Call getUpdateProfileCall() {
-        return routes.UserProfileController.updateProfile();
+    Call getEditOwnProfileCall() {
+        return routes.UserProfileController.editOwnProfile();
     }
 
-    Result showUpdateProfileWithAvatarForm(Form<UserAvatarForm> userAvatarForm) {
+    Result showEditOwnProfileWithAvatarForm(Form<UserAvatarForm> userAvatarForm) {
         User user = userService.findUserByJid(IdentityUtils.getUserJid());
 
-        Form<UserProfileUpdateForm> userProfileUpdateForm = prepareProfileUpdateForm(user);
+        Form<UserProfileEditForm> userProfileEditForm = prepareProfileEditForm(user);
         Form<UserEmailCreateForm> userEmailCreateForm = Form.form(UserEmailCreateForm.class);
         Form<UserPhoneCreateForm> userPhoneCreateForm = Form.form(UserPhoneCreateForm.class);
         Form<UserInfoUpsertForm> userInfoUpsertForm = prepareInfoUpsertForm(user.getJid());
 
-        return showUpdateProfileWithContact(user, userProfileUpdateForm, userAvatarForm, userEmailCreateForm, userPhoneCreateForm, userInfoUpsertForm);
+        return showEditProfileWithContact(user, userProfileEditForm, userAvatarForm, userEmailCreateForm, userPhoneCreateForm, userInfoUpsertForm);
     }
 
-    Result showUpdateProfileWithInfoUpsertForm(Form<UserInfoUpsertForm> userInfoUpsertForm) {
+    Result showEditOwnProfileWithInfoUpsertForm(Form<UserInfoUpsertForm> userInfoUpsertForm) {
         User user = userService.findUserByJid(IdentityUtils.getUserJid());
 
-        Form<UserProfileUpdateForm> userProfileUpdateForm = prepareProfileUpdateForm(user);
+        Form<UserProfileEditForm> userProfileEditForm = prepareProfileEditForm(user);
         Form<UserAvatarForm> userAvatarForm = Form.form(UserAvatarForm.class);
         Form<UserEmailCreateForm> userEmailCreateForm = Form.form(UserEmailCreateForm.class);
         Form<UserPhoneCreateForm> userPhoneCreateForm = Form.form(UserPhoneCreateForm.class);
 
-        return showUpdateProfileWithContact(user, userProfileUpdateForm, userAvatarForm, userEmailCreateForm, userPhoneCreateForm, userInfoUpsertForm);
+        return showEditProfileWithContact(user, userProfileEditForm, userAvatarForm, userEmailCreateForm, userPhoneCreateForm, userInfoUpsertForm);
     }
 
-    Result showUpdateProfileWithProfileUpdateForm(Form<UserProfileUpdateForm> userProfileUpdateForm) {
+    Result showEditOwnProfileWithProfileEditForm(Form<UserProfileEditForm> userProfileEditForm) {
         User user = userService.findUserByJid(IdentityUtils.getUserJid());
 
-        Form<UserAvatarForm> userAvatarForm = Form.form(UserAvatarForm.class);
-        Form<UserEmailCreateForm> userEmailCreateForm = Form.form(UserEmailCreateForm.class);
-        Form<UserPhoneCreateForm> userPhoneCreateForm = Form.form(UserPhoneCreateForm.class);
-        Form<UserInfoUpsertForm> userInfoUpsertForm = prepareInfoUpsertForm(user.getJid());
-
-        return showUpdateProfileWithContact(user, userProfileUpdateForm, userAvatarForm, userEmailCreateForm, userPhoneCreateForm, userInfoUpsertForm);
-    }
-
-    Result showUpdateProfileWithPhoneCreateForm(Form<UserPhoneCreateForm> userPhoneCreateForm) {
-        User user = userService.findUserByJid(IdentityUtils.getUserJid());
-
-        Form<UserProfileUpdateForm> userProfileUpdateForm = prepareProfileUpdateForm(user);
-        Form<UserAvatarForm> userAvatarForm = Form.form(UserAvatarForm.class);
-        Form<UserEmailCreateForm> userEmailCreateForm = Form.form(UserEmailCreateForm.class);
-        Form<UserInfoUpsertForm> userInfoUpsertForm = prepareInfoUpsertForm(user.getJid());
-
-        return showUpdateProfileWithContact(user, userProfileUpdateForm, userAvatarForm, userEmailCreateForm, userPhoneCreateForm, userInfoUpsertForm);
-    }
-
-    Result showUpdateProfileWithEmailCreateForm(Form<UserEmailCreateForm> userEmailCreateForm) {
-        User user = userService.findUserByJid(IdentityUtils.getUserJid());
-
-        Form<UserProfileUpdateForm> userProfileUpdateForm = prepareProfileUpdateForm(user);
-        Form<UserAvatarForm> userAvatarForm = Form.form(UserAvatarForm.class);
-        Form<UserPhoneCreateForm> userPhoneCreateForm = Form.form(UserPhoneCreateForm.class);
-        Form<UserInfoUpsertForm> userInfoUpsertForm = prepareInfoUpsertForm(user.getJid());
-
-        return showUpdateProfileWithContact(user, userProfileUpdateForm, userAvatarForm, userEmailCreateForm, userPhoneCreateForm, userInfoUpsertForm);
-    }
-
-    Result showUpdateProfile() {
-        User user = userService.findUserByJid(IdentityUtils.getUserJid());
-
-        Form<UserProfileUpdateForm> userProfileUpdateForm = prepareProfileUpdateForm(user);
         Form<UserAvatarForm> userAvatarForm = Form.form(UserAvatarForm.class);
         Form<UserEmailCreateForm> userEmailCreateForm = Form.form(UserEmailCreateForm.class);
         Form<UserPhoneCreateForm> userPhoneCreateForm = Form.form(UserPhoneCreateForm.class);
         Form<UserInfoUpsertForm> userInfoUpsertForm = prepareInfoUpsertForm(user.getJid());
 
-        return showUpdateProfileWithContact(user, userProfileUpdateForm, userAvatarForm, userEmailCreateForm, userPhoneCreateForm, userInfoUpsertForm);
+        return showEditProfileWithContact(user, userProfileEditForm, userAvatarForm, userEmailCreateForm, userPhoneCreateForm, userInfoUpsertForm);
     }
 
-    private Result showUpdateProfile(Form<UserProfileUpdateForm> userProfileUpdateForm, Form<UserAvatarForm> userAvatarForm, Form<UserEmailCreateForm> userEmailCreateForm, UserEmail primaryEmail, List<UserEmail> userEmails, Form<UserPhoneCreateForm> userPhoneCreateForm, UserPhone primaryPhone, List<UserPhone> userPhones, Form<UserInfoUpsertForm> userInfoUpsertForm) {
-        LazyHtml content = new LazyHtml(updateProfileView.render(userProfileUpdateForm, userAvatarForm, userEmailCreateForm, primaryEmail, userEmails, userPhoneCreateForm, primaryPhone, userPhones, userInfoUpsertForm));
+    Result showEditOwnProfileWithPhoneCreateForm(Form<UserPhoneCreateForm> userPhoneCreateForm) {
+        User user = userService.findUserByJid(IdentityUtils.getUserJid());
+
+        Form<UserProfileEditForm> userProfileEditForm = prepareProfileEditForm(user);
+        Form<UserAvatarForm> userAvatarForm = Form.form(UserAvatarForm.class);
+        Form<UserEmailCreateForm> userEmailCreateForm = Form.form(UserEmailCreateForm.class);
+        Form<UserInfoUpsertForm> userInfoUpsertForm = prepareInfoUpsertForm(user.getJid());
+
+        return showEditProfileWithContact(user, userProfileEditForm, userAvatarForm, userEmailCreateForm, userPhoneCreateForm, userInfoUpsertForm);
+    }
+
+    Result showEditOwnProfileWithEmailCreateForm(Form<UserEmailCreateForm> userEmailCreateForm) {
+        User user = userService.findUserByJid(IdentityUtils.getUserJid());
+
+        Form<UserProfileEditForm> userProfileEditForm = prepareProfileEditForm(user);
+        Form<UserAvatarForm> userAvatarForm = Form.form(UserAvatarForm.class);
+        Form<UserPhoneCreateForm> userPhoneCreateForm = Form.form(UserPhoneCreateForm.class);
+        Form<UserInfoUpsertForm> userInfoUpsertForm = prepareInfoUpsertForm(user.getJid());
+
+        return showEditProfileWithContact(user, userProfileEditForm, userAvatarForm, userEmailCreateForm, userPhoneCreateForm, userInfoUpsertForm);
+    }
+
+    Result showEditOwnProfile() {
+        User user = userService.findUserByJid(IdentityUtils.getUserJid());
+
+        Form<UserProfileEditForm> userProfileEditForm = prepareProfileEditForm(user);
+        Form<UserAvatarForm> userAvatarForm = Form.form(UserAvatarForm.class);
+        Form<UserEmailCreateForm> userEmailCreateForm = Form.form(UserEmailCreateForm.class);
+        Form<UserPhoneCreateForm> userPhoneCreateForm = Form.form(UserPhoneCreateForm.class);
+        Form<UserInfoUpsertForm> userInfoUpsertForm = prepareInfoUpsertForm(user.getJid());
+
+        return showEditProfileWithContact(user, userProfileEditForm, userAvatarForm, userEmailCreateForm, userPhoneCreateForm, userInfoUpsertForm);
+    }
+
+    private Result showEditOwnProfile(Form<UserProfileEditForm> userProfileEditForm, Form<UserAvatarForm> userAvatarForm, Form<UserEmailCreateForm> userEmailCreateForm, UserEmail primaryEmail, List<UserEmail> userEmails, Form<UserPhoneCreateForm> userPhoneCreateForm, UserPhone primaryPhone, List<UserPhone> userPhones, Form<UserInfoUpsertForm> userInfoUpsertForm) {
+        LazyHtml content = new LazyHtml(editOwnProfileView.render(userProfileEditForm, userAvatarForm, userEmailCreateForm, primaryEmail, userEmails, userPhoneCreateForm, primaryPhone, userPhones, userInfoUpsertForm));
         content.appendLayout(c -> headingLayout.render(Messages.get("profile.profile"), c));
         JophielControllerUtils.getInstance().appendSidebarLayout(content);
         JophielControllerUtils.getInstance().appendBreadcrumbsLayout(content, ImmutableList.of(
-                new InternalLink(Messages.get("profile.profile"), routes.UserProfileController.updateProfile())
+                new InternalLink(Messages.get("profile.profile"), routes.UserProfileController.editOwnProfile())
         ));
         JophielControllerUtils.getInstance().appendTemplateLayout(content, "Profile");
         return JophielControllerUtils.getInstance().lazyOk(content);
     }
 
-    private Form<UserProfileUpdateForm> prepareProfileUpdateForm(User user) {
-        Form<UserProfileUpdateForm> userProfileUpdateForm = Form.form(UserProfileUpdateForm.class);
-        UserProfileUpdateForm userProfileUpdateData = new UserProfileUpdateForm();
-        userProfileUpdateData.name = user.getName();
-        userProfileUpdateData.showName = user.isShowName();
+    private Form<UserProfileEditForm> prepareProfileEditForm(User user) {
+        Form<UserProfileEditForm> userProfileEditForm = Form.form(UserProfileEditForm.class);
+        UserProfileEditForm userProfileEditData = new UserProfileEditForm();
+        userProfileEditData.name = user.getName();
+        userProfileEditData.showName = user.isShowName();
 
-        userProfileUpdateForm = userProfileUpdateForm.fill(userProfileUpdateData);
+        userProfileEditForm = userProfileEditForm.fill(userProfileEditData);
 
-        return userProfileUpdateForm;
+        return userProfileEditForm;
     }
 
     private Form<UserInfoUpsertForm> prepareInfoUpsertForm(String userJid) {
         Form<UserInfoUpsertForm> userInfoUpsertForm = Form.form(UserInfoUpsertForm.class);
 
         UserInfoUpsertForm userInfoUpsertData = new UserInfoUpsertForm();
-        if (userProfileService.infoExists(IdentityUtils.getUserJid())) {
+        if (userProfileService.infoExists(userJid)) {
             UserInfo userInfo = userProfileService.getInfo(IdentityUtils.getUserJid());
             userInfoUpsertData.birthDate = JudgelsPlayUtils.formatDate(userInfo.getBirthDate());
             userInfoUpsertData.city = userInfo.getCity();
@@ -175,7 +175,7 @@ public final class UserProfileControllerUtils {
         return userInfoUpsertForm;
     }
 
-    private Result showUpdateProfileWithContact(User user, Form<UserProfileUpdateForm> userProfileUpdateForm, Form<UserAvatarForm> userAvatarForm, Form<UserEmailCreateForm> userEmailCreateForm, Form<UserPhoneCreateForm> userPhoneCreateForm, Form<UserInfoUpsertForm> userInfoUpsertForm) {
+    private Result showEditProfileWithContact(User user, Form<UserProfileEditForm> userProfileEditForm, Form<UserAvatarForm> userAvatarForm, Form<UserEmailCreateForm> userEmailCreateForm, Form<UserPhoneCreateForm> userPhoneCreateForm, Form<UserInfoUpsertForm> userInfoUpsertForm) {
         UserEmail userPrimaryEmail = null;
         if (user.getEmailJid() != null) {
             userPrimaryEmail = userEmailService.findEmailByJid(user.getEmailJid());
@@ -186,6 +186,6 @@ public final class UserProfileControllerUtils {
             userPrimaryPhone = userPhoneService.findPhoneByJid(user.getPhoneJid());
         }
 
-        return showUpdateProfile(userProfileUpdateForm, userAvatarForm, userEmailCreateForm, userPrimaryEmail, userEmailService.getEmailsByUserJid(user.getJid()), userPhoneCreateForm, userPrimaryPhone, userPhoneService.getPhonesByUserJid(user.getJid()), userInfoUpsertForm);
+        return showEditOwnProfile(userProfileEditForm, userAvatarForm, userEmailCreateForm, userPrimaryEmail, userEmailService.getEmailsByUserJid(user.getJid()), userPhoneCreateForm, userPrimaryPhone, userPhoneService.getPhonesByUserJid(user.getJid()), userInfoUpsertForm);
     }
 }

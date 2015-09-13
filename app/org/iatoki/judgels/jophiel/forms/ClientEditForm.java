@@ -4,7 +4,7 @@ import play.data.validation.Constraints;
 
 import java.util.List;
 
-public final class ClientUpdateForm {
+public final class ClientEditForm {
 
     @Constraints.Required
     public String name;

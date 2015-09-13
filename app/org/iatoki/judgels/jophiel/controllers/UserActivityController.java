@@ -110,11 +110,11 @@ public final class UserActivityController extends AbstractJudgelsController {
         Page<UserActivity> pageOfUserActivities = userActivityService.getPageOfUserActivities(page, PAGE_SIZE, orderBy, orderDir, filterString, clientNamesSetBuilder.build(), username);
 
         LazyHtml content = new LazyHtml(listOwnActivitiesView.render(pageOfUserActivities, orderBy, orderDir, filterString, clientNames));
-        content.appendLayout(c -> tabLayout.render(ImmutableList.of(new InternalLink(Messages.get("profile.profile"), routes.UserProfileController.updateProfile()), new InternalLink(Messages.get("profile.activities"), routes.UserActivityController.viewOwnActivities())), c));
+        content.appendLayout(c -> tabLayout.render(ImmutableList.of(new InternalLink(Messages.get("profile.profile"), routes.UserProfileController.editOwnProfile()), new InternalLink(Messages.get("profile.activities"), routes.UserActivityController.viewOwnActivities())), c));
         content.appendLayout(c -> headingLayout.render("user.activities", c));
         JophielControllerUtils.getInstance().appendSidebarLayout(content);
         JophielControllerUtils.getInstance().appendBreadcrumbsLayout(content, ImmutableList.of(
-                new InternalLink(Messages.get("profile.profile"), routes.UserProfileController.updateProfile()),
+                new InternalLink(Messages.get("profile.profile"), routes.UserProfileController.editOwnProfile()),
                 new InternalLink(Messages.get("user.activities"), routes.UserActivityController.viewOwnActivities())
         ));
         JophielControllerUtils.getInstance().appendTemplateLayout(content, "User - Activities");

@@ -13,7 +13,7 @@ import org.iatoki.judgels.play.views.html.layouts.headingWithActionLayout;
 import org.iatoki.judgels.jophiel.Client;
 import org.iatoki.judgels.jophiel.ClientNotFoundException;
 import org.iatoki.judgels.jophiel.forms.ClientCreateForm;
-import org.iatoki.judgels.jophiel.forms.ClientUpdateForm;
+import org.iatoki.judgels.jophiel.forms.ClientEditForm;
 import org.iatoki.judgels.jophiel.controllers.securities.Authenticated;
 import org.iatoki.judgels.jophiel.controllers.securities.Authorized;
 import org.iatoki.judgels.jophiel.controllers.securities.HasRole;
@@ -22,7 +22,7 @@ import org.iatoki.judgels.jophiel.services.ClientService;
 import org.iatoki.judgels.jophiel.services.UserActivityService;
 import org.iatoki.judgels.jophiel.views.html.client.createClientView;
 import org.iatoki.judgels.jophiel.views.html.client.listClientsView;
-import org.iatoki.judgels.jophiel.views.html.client.updateClientView;
+import org.iatoki.judgels.jophiel.views.html.client.editClientView;
 import org.iatoki.judgels.jophiel.views.html.client.viewClientView;
 import play.data.Form;
 import play.db.jpa.Transactional;
@@ -79,7 +79,7 @@ public final class ClientController extends AbstractJudgelsController {
         Client client = clientService.findClientById(clientId);
 
         LazyHtml content = new LazyHtml(viewClientView.render(client));
-        content.appendLayout(c -> headingWithActionLayout.render(Messages.get("client.client") + " #" + clientId + ": " + client.getName(), new InternalLink(Messages.get("commons.update"), routes.ClientController.updateClient(clientId)), c));
+        content.appendLayout(c -> headingWithActionLayout.render(Messages.get("client.client") + " #" + clientId + ": " + client.getName(), new InternalLink(Messages.get("commons.update"), routes.ClientController.editClient(clientId)), c));
         JophielControllerUtils.getInstance().appendSidebarLayout(content);
         appendBreadcrumbsLayout(content,
                 new InternalLink(Messages.get("client.view"), routes.ClientController.viewClient(clientId))
@@ -120,33 +120,33 @@ public final class ClientController extends AbstractJudgelsController {
 
     @Transactional
     @AddCSRFToken
-    public Result updateClient(long clientId) throws ClientNotFoundException {
+    public Result editClient(long clientId) throws ClientNotFoundException {
         Client client = clientService.findClientById(clientId);
-        ClientUpdateForm clientUpdateForm = new ClientUpdateForm();
+        ClientEditForm clientEditForm = new ClientEditForm();
 
-        clientUpdateForm.name = client.getName();
-        clientUpdateForm.redirectURIs = StringUtils.join(client.getRedirectURIs(), ",");
-        clientUpdateForm.scopes = Lists.newArrayList(client.getScopes());
+        clientEditForm.name = client.getName();
+        clientEditForm.redirectURIs = StringUtils.join(client.getRedirectURIs(), ",");
+        clientEditForm.scopes = Lists.newArrayList(client.getScopes());
 
-        Form<ClientUpdateForm> clientUpdateData = Form.form(ClientUpdateForm.class).fill(clientUpdateForm);
+        Form<ClientEditForm> clientEditData = Form.form(ClientEditForm.class).fill(clientEditForm);
 
         JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Try to update client " + client.getName() + " <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
 
-        return showUpdateClient(clientUpdateData, clientId, client.getName());
+        return showEditClient(clientEditData, clientId, client.getName());
     }
 
     @Transactional
     @RequireCSRFCheck
-    public Result postUpdateClient(long clientId) throws ClientNotFoundException {
+    public Result postEditClient(long clientId) throws ClientNotFoundException {
         Client client = clientService.findClientById(clientId);
 
-        Form<ClientUpdateForm> clientUpdateForm = Form.form(ClientUpdateForm.class).bindFromRequest();
-        if (formHasErrors(clientUpdateForm)) {
-            return showUpdateClient(clientUpdateForm, client.getId(), client.getName());
+        Form<ClientEditForm> clientEditForm = Form.form(ClientEditForm.class).bindFromRequest();
+        if (formHasErrors(clientEditForm)) {
+            return showEditClient(clientEditForm, client.getId(), client.getName());
         }
 
-        ClientUpdateForm clientUpdateData = clientUpdateForm.get();
-        clientService.updateClient(client.getJid(), clientUpdateData.name, clientUpdateData.scopes, Arrays.asList(clientUpdateData.redirectURIs.split(",")), IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
+        ClientEditForm clientEditData = clientEditForm.get();
+        clientService.updateClient(client.getJid(), clientEditData.name, clientEditData.scopes, Arrays.asList(clientEditData.redirectURIs.split(",")), IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
 
         JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Update client " + client.getName() + ".");
 
@@ -175,12 +175,12 @@ public final class ClientController extends AbstractJudgelsController {
         return JophielControllerUtils.getInstance().lazyOk(content);
     }
 
-    private Result showUpdateClient(Form<ClientUpdateForm> clientUpdateForm, long clientId, String clientName) {
-        LazyHtml content = new LazyHtml(updateClientView.render(clientUpdateForm, clientId));
+    private Result showEditClient(Form<ClientEditForm> clientEditForm, long clientId, String clientName) {
+        LazyHtml content = new LazyHtml(editClientView.render(clientEditForm, clientId));
         content.appendLayout(c -> headingLayout.render(Messages.get("client.client") + " #" + clientId + ": " + clientName, c));
         JophielControllerUtils.getInstance().appendSidebarLayout(content);
         appendBreadcrumbsLayout(content,
-                new InternalLink(Messages.get("client.update"), routes.ClientController.updateClient(clientId))
+                new InternalLink(Messages.get("client.update"), routes.ClientController.editClient(clientId))
         );
         JophielControllerUtils.getInstance().appendTemplateLayout(content, "Client - Update");
 

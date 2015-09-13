@@ -1,10 +1,10 @@
 @import play.i18n.Messages
 @import play.api.mvc.Call
-@import org.iatoki.judgels.jophiel.forms.UserProfileUpdateForm
+@import org.iatoki.judgels.jophiel.forms.UserProfileEditForm
 @import org.iatoki.judgels.jophiel.forms.UserAvatarForm
 @import org.iatoki.judgels.play.views.html.formErrorView
 
-@(userProfileUpdateForm: Form[UserProfileUpdateForm], userProfilePictureForm: Form[UserAvatarForm], updatePictureCall: Call, updateProfileCall: Call)
+@(userProfileEditForm: Form[UserProfileEditForm], userProfilePictureForm: Form[UserAvatarForm], updatePictureCall: Call, updateProfileCall: Call)
 
 @implicitFieldConstructor = @{ b3.horizontal.fieldConstructor("col-md-3", "col-md-9") }
 
@@ -24,15 +24,15 @@
     @b3.file(userProfilePictureForm("avatar"), '_label -> Messages.get("user.profile.avatar"), 'id -> "avatar-input", 'class -> "")
 }
 
-@formErrorView(userProfileUpdateForm)
+@formErrorView(userProfileEditForm)
 
 @b3.form(updateProfileCall) {
     @helper.CSRF.formField
 
-    @b3.text(userProfileUpdateForm("name"), '_label -> Messages.get("user.account.name"))
-    @b3.checkbox(userProfileUpdateForm("showName"), '_label -> Messages.get("user.account.showName"), '_help -> Messages.get("user.account.help.showName"))
-    @b3.password(userProfileUpdateForm("password"), '_label -> Messages.get("user.account.password"), 'class -> "form-control zxcvbn match-src")
-    @b3.password(userProfileUpdateForm("confirmPassword"), '_label -> Messages.get("user.account.confirmPassword"), 'class -> "form-control match-tgt")
+    @b3.text(userProfileEditForm("name"), '_label -> Messages.get("user.account.name"))
+    @b3.checkbox(userProfileEditForm("showName"), '_label -> Messages.get("user.account.showName"), '_help -> Messages.get("user.account.help.showName"))
+    @b3.password(userProfileEditForm("password"), '_label -> Messages.get("user.account.password"), 'class -> "form-control zxcvbn match-src")
+    @b3.password(userProfileEditForm("confirmPassword"), '_label -> Messages.get("user.account.confirmPassword"), 'class -> "form-control match-tgt")
 
     @b3.submit('class -> "btn btn-primary") { @Messages.get("commons.update") }
 }

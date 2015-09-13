@@ -13,7 +13,7 @@
 
 @formErrorView(userInfoUpsertForm)
 
-@b3.form(routes.UserProfileController.postUpdateInfo()) {
+@b3.form(routes.UserProfileController.postEditOwnInfo()) {
     @b3.radio(userInfoUpsertForm("gender"), UserInfoGenders.values.map(e => (e.name() -> Messages.get("user.info.gender." + e.name()))).toSeq, '_label -> Messages.get("user.info.gender"))
     @b3.text(userInfoUpsertForm("birthDate"), '_label -> Messages.get("user.info.birthDate"), 'class -> "form-control datepicker")
     @b3.textarea(userInfoUpsertForm("streetAddress"), '_label -> Messages.get("user.info.streetAddress"))
