@@ -7,7 +7,6 @@ import org.iatoki.judgels.jophiel.controllers.api.AbstractJophielAPIController;
 import org.iatoki.judgels.jophiel.controllers.api.object.v1.UserV1;
 import org.iatoki.judgels.jophiel.services.UserProfileService;
 import org.iatoki.judgels.jophiel.services.UserService;
-import org.iatoki.judgels.play.IdentityUtils;
 import org.iatoki.judgels.play.apis.JudgelsAPINotFoundException;
 import play.db.jpa.Transactional;
 import play.mvc.Result;
@@ -31,10 +30,6 @@ public final class PublicUserAPIControllerV1 extends AbstractJophielAPIControlle
     public PublicUserAPIControllerV1(UserService userService, UserProfileService userProfileService) {
         this.userService = userService;
         this.userProfileService = userProfileService;
-    }
-
-    public Result isLoggedIn() {
-        return okAsJson(IdentityUtils.getUserJid() != null);
     }
 
     @Transactional(readOnly = true)

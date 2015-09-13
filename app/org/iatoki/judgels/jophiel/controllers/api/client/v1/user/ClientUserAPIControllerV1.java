@@ -6,6 +6,7 @@ import org.iatoki.judgels.jophiel.controllers.api.AbstractJophielAPIController;
 import org.iatoki.judgels.jophiel.controllers.api.object.v1.UserV1;
 import org.iatoki.judgels.jophiel.services.ClientService;
 import org.iatoki.judgels.jophiel.services.UserService;
+import org.iatoki.judgels.play.IdentityUtils;
 import org.iatoki.judgels.play.apis.JudgelsAPINotFoundException;
 import org.iatoki.judgels.play.apis.JudgelsAppClientAPIIdentity;
 import play.mvc.Result;
@@ -21,6 +22,10 @@ public final class ClientUserAPIControllerV1 extends AbstractJophielAPIControlle
     public ClientUserAPIControllerV1(UserService userService, ClientService clientService) {
         this.userService = userService;
         this.clientService = clientService;
+    }
+
+    public Result isLoggedIn() {
+        return okAsJson(IdentityUtils.getUserJid() != null);
     }
 
     public Result findUserByUsernameAndPassword(String username, String password) {
