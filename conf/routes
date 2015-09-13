@@ -98,13 +98,13 @@ GET            /api/oauth2/userinfo                                         @org
 
 # Internal API
 
-GET            /api/cities/autocomplete                                     @org.iatoki.judgels.jophiel.controllers.api.internal.city.InternalCityAPIController.autocompleteCity(term ?= "")
+GET            /api/cities/autocomplete                                     @org.iatoki.judgels.jophiel.controllers.api.internal.city.InternalCityAPIController.autocompleteCity(term ?= null)
 
-GET            /api/clients/autocomplete                                    @org.iatoki.judgels.jophiel.controllers.api.internal.client.InternalClientAPIController.autocompleteClient(term ?= "")
+GET            /api/clients/autocomplete                                    @org.iatoki.judgels.jophiel.controllers.api.internal.client.InternalClientAPIController.autocompleteClient(term ?= null)
 
-GET            /api/institutions/autocomplete                               @org.iatoki.judgels.jophiel.controllers.api.internal.institution.InternalInstitutionAPIController.autocompleteInstitution(term ?= "")
+GET            /api/institutions/autocomplete                               @org.iatoki.judgels.jophiel.controllers.api.internal.institution.InternalInstitutionAPIController.autocompleteInstitution(term ?= null)
 
-GET            /api/provinces/autocomplete                                  @org.iatoki.judgels.jophiel.controllers.api.internal.province.InternalProvinceAPIController.autocompleteProvince(term ?= "")
+GET            /api/provinces/autocomplete                                  @org.iatoki.judgels.jophiel.controllers.api.internal.province.InternalProvinceAPIController.autocompleteProvince(term ?= null)
 
 # Client API
 
@@ -118,6 +118,6 @@ POST           /api/v1/activities                                           @org
 
 GET            /api/v1/users/username/:username                             @org.iatoki.judgels.jophiel.controllers.api.pub.v1.user.PublicUserAPIControllerV1.findUserByUsername(username)
 GET            /api/v1/users/avatar/:imageName                              @org.iatoki.judgels.jophiel.controllers.api.pub.v1.user.PublicUserAPIControllerV1.renderAvatarImage(imageName)
-GET            /api/v1/users/autocomplete                                   @org.iatoki.judgels.jophiel.controllers.api.pub.v1.user.PublicUserAPIControllerV1.autocompleteUser(term ?= "")
+GET            /api/v1/users/autocomplete                                   @org.iatoki.judgels.jophiel.controllers.api.pub.v1.user.PublicUserAPIControllerV1.autocompleteUser(term ?= null)
 GET            /api/v1/users/:userJid                                       @org.iatoki.judgels.jophiel.controllers.api.pub.v1.user.PublicUserAPIControllerV1.findUserByJid(userJid)
 GET            /api/v1/user/isLoggedIn                                      @org.iatoki.judgels.jophiel.controllers.api.pub.v1.user.PublicUserAPIControllerV1.isLoggedIn()
