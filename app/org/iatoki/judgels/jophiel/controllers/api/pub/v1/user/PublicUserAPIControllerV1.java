@@ -68,7 +68,7 @@ public final class PublicUserAPIControllerV1 extends AbstractJophielAPIControlle
             throw new JudgelsAPINotFoundException();
         }
 
-        User user = userService.findUserByJid(username);
+        User user = userService.findUserByUsername(username);
         return okAsJson(createUserV1FromUser(user));
     }
 
