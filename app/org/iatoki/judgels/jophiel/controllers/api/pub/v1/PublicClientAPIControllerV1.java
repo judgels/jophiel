@@ -1,13 +1,19 @@
-package org.iatoki.judgels.jophiel.controllers.api.client.v1.client;
+package org.iatoki.judgels.jophiel.controllers.api.pub.v1;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.gson.Gson;
 import org.iatoki.judgels.jophiel.JophielProperties;
 import org.iatoki.judgels.play.JudgelsPlayProperties;
 import org.iatoki.judgels.play.controllers.apis.AbstractJudgelsAPIController;
 import play.db.jpa.Transactional;
 import play.mvc.Result;
 
-public final class ClientClientAPIControllerV1 extends AbstractJudgelsAPIController {
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Singleton
+@Named
+public final class PublicClientAPIControllerV1 extends AbstractJudgelsAPIController {
 
     @Transactional(readOnly = true)
     public Result getLinkedClients() {
@@ -25,7 +31,6 @@ public final class ClientClientAPIControllerV1 extends AbstractJudgelsAPIControl
             }
         }
 
-        return okAsJson(linkedClientsBuilder.build());
+        return ok(new Gson().toJson(linkedClientsBuilder.build()));
     }
 }
-

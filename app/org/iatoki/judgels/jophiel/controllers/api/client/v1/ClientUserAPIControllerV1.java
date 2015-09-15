@@ -1,4 +1,4 @@
-package org.iatoki.judgels.jophiel.controllers.api.client.v1.user;
+package org.iatoki.judgels.jophiel.controllers.api.client.v1;
 
 import org.iatoki.judgels.jophiel.AccessToken;
 import org.iatoki.judgels.jophiel.User;

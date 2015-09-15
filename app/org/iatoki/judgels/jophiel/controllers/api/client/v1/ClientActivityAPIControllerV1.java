@@ -1,4 +1,4 @@
-package org.iatoki.judgels.jophiel.controllers.api.client.v1.activity;
+package org.iatoki.judgels.jophiel.controllers.api.client.v1;
 
 import com.google.gson.reflect.TypeToken;
 import org.iatoki.judgels.jophiel.controllers.api.AbstractJophielAPIController;

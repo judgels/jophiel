@@ -1,4 +1,4 @@
-package org.iatoki.judgels.jophiel.controllers.api.internal.institution;
+package org.iatoki.judgels.jophiel.controllers.api.internal;
 
 import com.google.gson.Gson;
 import org.iatoki.judgels.AutoComplete;

@@ -1,4 +1,4 @@
-package org.iatoki.judgels.jophiel.controllers.api.pub.v1.user;
+package org.iatoki.judgels.jophiel.controllers.api.pub.v1;
 
 import com.google.common.collect.ImmutableList;
 import org.iatoki.judgels.AutoComplete;
@@ -14,9 +14,6 @@ import play.mvc.Result;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.List;
 
 @Singleton
@@ -68,18 +65,8 @@ public final class PublicUserAPIControllerV1 extends AbstractJophielAPIControlle
     }
 
     public Result renderAvatarImage(String imageName) {
-        String avatarURL = userProfileService.getAvatarImageUrlString(imageName);
-        try {
-            new URL(avatarURL);
-            return temporaryRedirect(avatarURL);
-        } catch (MalformedURLException e) {
-            File avatarFile = new File(avatarURL);
-            if (!avatarFile.exists()) {
-                return notFound();
-            }
-
-            return okAsImage(avatarFile);
-        }
+        String avatarUrl = userProfileService.getAvatarImageUrlString(imageName);
+        return okAsImage(avatarUrl);
     }
 
     private UserV1 createUserV1FromUser(User user) {

@@ -48,9 +48,9 @@ public final class JophielControllerUtils extends AbstractJudgelsControllerUtils
             sidebarContent = new LazyHtml(guestLoginView.render(routes.UserAccountController.login().absoluteURL(Http.Context.current().request(), Http.Context.current().request().secure()), routes.UserAccountController.register().absoluteURL(Http.Context.current().request(), Http.Context.current().request().secure())));
         }
 
-        sidebarContent.appendLayout(c -> linkedClientsLayout.render(org.iatoki.judgels.jophiel.controllers.api.client.v1.client.routes.ClientClientAPIControllerV1.getLinkedClients().path(), "lib/jophielcommons/javascripts/linkedClients.js", c));
+        sidebarContent.appendLayout(c -> linkedClientsLayout.render(org.iatoki.judgels.jophiel.controllers.api.client.v1.routes.ClientClientAPIControllerV1.getLinkedClients().path(), "lib/jophielcommons/javascripts/linkedClients.js", c));
         Form<SearchProfileForm> searchProfileForm = Form.form(SearchProfileForm.class);
-        sidebarContent.appendLayout(c -> searchProfileLayout.render(searchProfileForm, org.iatoki.judgels.jophiel.controllers.api.pub.v1.user.routes.PublicUserAPIControllerV1.autocompleteUser(null).absoluteURL(Http.Context.current().request(), Http.Context.current().request().secure()), "lib/jophielcommons/javascripts/userAutoComplete.js", routes.UserProfileController.postViewProfile().absoluteURL(Http.Context.current().request(), Http.Context.current().request().secure()), c));
+        sidebarContent.appendLayout(c -> searchProfileLayout.render(searchProfileForm, org.iatoki.judgels.jophiel.controllers.api.pub.v1.routes.PublicUserAPIControllerV1.autocompleteUser(null).absoluteURL(Http.Context.current().request(), Http.Context.current().request().secure()), "lib/jophielcommons/javascripts/userAutoComplete.js", routes.UserProfileController.postViewProfile().absoluteURL(Http.Context.current().request(), Http.Context.current().request().secure()), c));
         content.appendLayout(c -> sidebarLayout.render(sidebarContent.render(), c));
     }
 

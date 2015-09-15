@@ -131,7 +131,7 @@ public final class UserProfileController extends AbstractJudgelsController {
                 new URL(profilePictureUrl);
                 session("avatar", profilePictureUrl.toString());
             } catch (MalformedURLException e) {
-                session("avatar", org.iatoki.judgels.jophiel.controllers.api.pub.v1.user.routes.PublicUserAPIControllerV1.renderAvatarImage(profilePictureName).absoluteURL(request()));
+                session("avatar", org.iatoki.judgels.jophiel.controllers.api.pub.v1.routes.PublicUserAPIControllerV1.renderAvatarImage(profilePictureName).absoluteURL(request()));
             }
         } catch (IOException e) {
             Form<UserAvatarForm> userAvatarForm = Form.form(UserAvatarForm.class);
