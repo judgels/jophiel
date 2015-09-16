@@ -23,15 +23,15 @@ import java.util.stream.Collectors;
 @Named("userEmailService")
 public final class UserEmailServiceImpl implements UserEmailService {
 
+    private final MailerClient mailerClient;
     private final UserDao userDao;
     private final UserEmailDao userEmailDao;
-    private final MailerClient mailerClient;
 
     @Inject
-    public UserEmailServiceImpl(UserDao userDao, UserEmailDao userEmailDao, MailerClient mailerClient) {
+    public UserEmailServiceImpl(MailerClient mailerClient, UserDao userDao, UserEmailDao userEmailDao) {
+        this.mailerClient = mailerClient;
         this.userDao = userDao;
         this.userEmailDao = userEmailDao;
-        this.mailerClient = mailerClient;
     }
 
     @Override

@@ -175,7 +175,7 @@ public final class OAuth2APIController extends AbstractJudgelsAPIController {
             token = dForm.get("token");
         }
 
-        if (!clientService.isAccessTokenValid(token)) {
+        if (!clientService.isAccessTokenValid(token, System.currentTimeMillis())) {
             ObjectNode jsonResponse = Json.newObject();
             jsonResponse.put("error", "invalid_token");
             return unauthorized(jsonResponse);

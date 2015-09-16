@@ -1,4 +1,4 @@
-package org.iatoki.judgels.jophiel.models.daos.impls;
+package org.iatoki.judgels.jophiel.models.daos.hibernate;
 
 import org.iatoki.judgels.play.models.daos.impls.AbstractHibernateDao;
 import org.iatoki.judgels.jophiel.models.daos.AccessTokenDao;
@@ -21,13 +21,13 @@ public final class AccessTokenHibernateDao extends AbstractHibernateDao<Long, Ac
     }
 
     @Override
-    public boolean existsByToken(String token) {
+    public boolean existsValidByTokenAndTime(String token, long time) {
         CriteriaBuilder cb = JPA.em().getCriteriaBuilder();
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
 
         Root<AccessTokenModel> root = query.from(AccessTokenModel.class);
 
-        query.select(cb.count(root)).where(cb.equal(root.get(AccessTokenModel_.token), token));
+        query.select(cb.count(root)).where(cb.and(cb.equal(root.get(AccessTokenModel_.token), token), cb.gt(root.get(AccessTokenModel_.expireTime), time)));
 
         return (JPA.em().createQuery(query).getSingleResult() != 0);
     }

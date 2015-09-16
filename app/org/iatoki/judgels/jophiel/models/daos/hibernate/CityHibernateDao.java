@@ -1,4 +1,4 @@
-package org.iatoki.judgels.jophiel.models.daos.impls;
+package org.iatoki.judgels.jophiel.models.daos.hibernate;
 
 import com.google.common.collect.ImmutableList;
 import org.iatoki.judgels.jophiel.models.daos.CityDao;

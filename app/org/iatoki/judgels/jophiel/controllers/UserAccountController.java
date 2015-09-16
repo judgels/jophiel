@@ -10,7 +10,6 @@ import org.iatoki.judgels.jophiel.forms.ChangePasswordForm;
 import org.iatoki.judgels.jophiel.forms.ForgotPasswordForm;
 import org.iatoki.judgels.jophiel.forms.LoginForm;
 import org.iatoki.judgels.jophiel.forms.RegisterForm;
-import org.iatoki.judgels.jophiel.services.ClientService;
 import org.iatoki.judgels.jophiel.services.UserAccountService;
 import org.iatoki.judgels.jophiel.services.UserActivityService;
 import org.iatoki.judgels.jophiel.services.UserEmailService;
@@ -46,15 +45,13 @@ import java.util.concurrent.TimeUnit;
 @Named
 public final class UserAccountController extends AbstractJudgelsController {
 
-    private final ClientService clientService;
     private final UserAccountService userAccountService;
     private final UserActivityService userActivityService;
     private final UserEmailService userEmailService;
     private final UserService userService;
 
     @Inject
-    public UserAccountController(ClientService clientService, UserAccountService userAccountService, UserActivityService userActivityService, UserEmailService userEmailService, UserService userService) {
-        this.clientService = clientService;
+    public UserAccountController(UserAccountService userAccountService, UserActivityService userActivityService, UserEmailService userEmailService, UserService userService) {
         this.userAccountService = userAccountService;
         this.userActivityService = userActivityService;
         this.userEmailService = userEmailService;

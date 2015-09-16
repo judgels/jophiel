@@ -17,7 +17,7 @@ public class JophielModule extends AbstractJudgelsPlayModule {
 
     @Override
     protected String getDaosImplPackage() {
-        return "org.iatoki.judgels.jophiel.models.daos.impls";
+        return "org.iatoki.judgels.jophiel.models.daos.hibernate";
     }
 
     @Override

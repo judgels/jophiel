@@ -42,7 +42,7 @@ public final class ClientUserAPIControllerV1 extends AbstractJophielAPIControlle
     public Result findUserByAccessToken(String accessToken) {
         JudgelsAppClientAPIIdentity identity = authenticateAsJudgelsAppClient(clientService);
 
-        if (!clientService.isAccessTokenValid(accessToken)) {
+        if (!clientService.isAccessTokenValid(accessToken, System.currentTimeMillis())) {
             throw new JudgelsAPINotFoundException();
         }
 

@@ -46,7 +46,7 @@ public class UserEmailServiceImplTest extends PowerMockTestCase {
         PowerMockito.mockStatic(JophielProperties.class);
         PowerMockito.mockStatic(Messages.class);
 
-        userEmailService = new UserEmailServiceImpl(userDao, userEmailDao, mailerClient);
+        userEmailService = new UserEmailServiceImpl(mailerClient, userDao, userEmailDao);
     }
 
     @Test

@@ -1,12 +1,14 @@
-package org.iatoki.judgels.jophiel.models.daos.impls;
+package org.iatoki.judgels.jophiel.models.daos.jedishibernate;
 
 import com.google.common.collect.ImmutableList;
 import org.iatoki.judgels.jophiel.models.daos.ProvinceDao;
 import org.iatoki.judgels.jophiel.models.entities.ProvinceModel;
 import org.iatoki.judgels.jophiel.models.entities.ProvinceModel_;
-import org.iatoki.judgels.play.models.daos.impls.AbstractHibernateDao;
+import org.iatoki.judgels.play.models.daos.impls.AbstractJedisHibernateDao;
 import play.db.jpa.JPA;
+import redis.clients.jedis.JedisPool;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -17,10 +19,11 @@ import java.util.List;
 
 @Singleton
 @Named("provinceDao")
-public final class ProvinceHibernateDao extends AbstractHibernateDao<Long, ProvinceModel> implements ProvinceDao {
+public final class ProvinceJedisHibernateDao extends AbstractJedisHibernateDao<Long, ProvinceModel> implements ProvinceDao {
 
-    public ProvinceHibernateDao() {
-        super(ProvinceModel.class);
+    @Inject
+    public ProvinceJedisHibernateDao(JedisPool jedisPool) {
+        super(jedisPool, ProvinceModel.class);
     }
 
     @Override

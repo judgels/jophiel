@@ -182,17 +182,19 @@ public class ClientServiceImplTest extends PowerMockTestCase {
     @Test
     public void isValidAccessTokenExistValidAccessTokenReturnsTrue() {
         String validAccessToken = "validaccesstoken";
-        Mockito.when(accessTokenDao.existsByToken(validAccessToken)).thenReturn(true);
+        long time = System.currentTimeMillis();
+        Mockito.when(accessTokenDao.existsValidByTokenAndTime(validAccessToken, time)).thenReturn(true);
 
-        Assert.assertTrue(clientService.isAccessTokenValid(validAccessToken), "Access token invalid");
+        Assert.assertTrue(clientService.isAccessTokenValid(validAccessToken, time), "Access token invalid");
     }
 
     @Test
     public void isValidAccessTokenExistInvalidAccessTokenReturnsFalse() {
         String invalidAccessToken = "invalidaccesstoken";
-        Mockito.when(accessTokenDao.existsByToken(invalidAccessToken)).thenReturn(false);
+        long time = System.currentTimeMillis();
+        Mockito.when(accessTokenDao.existsValidByTokenAndTime(invalidAccessToken, time)).thenReturn(false);
 
-        Assert.assertFalse(clientService.isAccessTokenValid(invalidAccessToken), "Access token valid");
+        Assert.assertFalse(clientService.isAccessTokenValid(invalidAccessToken, time), "Access token valid");
     }
 
     @Test
@@ -886,11 +888,11 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         secondClientModel.applicationType = "Web Server";
         secondClientModel.scopes = "OPENID,OFFLINE_ACCESS";
         List<ClientModel> clientModels = Arrays.asList(firstClientModel, secondClientModel);
-        Mockito.when(clientDao.findSortedByFilters(Mockito.eq(orderBy), Mockito.eq(orderDir), Mockito.eq(filterString), Matchers.<Map<SingularAttribute<? super ClientModel, String>, String>>any(), Matchers.<Map<SingularAttribute<? super ClientModel, String>, Set<String>>>any(), Mockito.eq(pageIndex * pageSize), Mockito.eq(pageSize)))
+        Mockito.when(clientDao.findSortedByFilters(Mockito.eq(orderBy), Mockito.eq(orderDir), Mockito.eq(filterString), Mockito.eq(pageIndex * pageSize), Mockito.eq(pageSize)))
                 .thenReturn(clientModels);
 
         long totalRows = clientModels.size();
-        Mockito.when(clientDao.countByFilters(Mockito.eq(filterString), Matchers.<Map<SingularAttribute<? super ClientModel, String>, String>>any(), Matchers.<Map<SingularAttribute<? super ClientModel, String>, Set<String>>>any())).thenReturn(totalRows);
+        Mockito.when(clientDao.countByFilters(Mockito.eq(filterString))).thenReturn(totalRows);
 
         Page<Client> clientPage = clientService.getPageOfClients(pageIndex, pageSize, orderBy, orderDir, filterString);
 

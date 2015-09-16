@@ -1,11 +1,13 @@
-package org.iatoki.judgels.jophiel.models.daos.impls;
+package org.iatoki.judgels.jophiel.models.daos.jedishibernate;
 
-import org.iatoki.judgels.play.models.daos.impls.AbstractHibernateDao;
 import org.iatoki.judgels.jophiel.models.daos.RedirectURIDao;
 import org.iatoki.judgels.jophiel.models.entities.RedirectURIModel;
 import org.iatoki.judgels.jophiel.models.entities.RedirectURIModel_;
+import org.iatoki.judgels.play.models.daos.impls.AbstractJedisHibernateDao;
 import play.db.jpa.JPA;
+import redis.clients.jedis.JedisPool;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -15,10 +17,11 @@ import java.util.List;
 
 @Singleton
 @Named("redirectURIDao")
-public final class RedirectURIHibernateDao extends AbstractHibernateDao<Long, RedirectURIModel> implements RedirectURIDao {
+public final class RedirectURIJedisHibernateDao extends AbstractJedisHibernateDao<Long, RedirectURIModel> implements RedirectURIDao {
 
-    public RedirectURIHibernateDao() {
-        super(RedirectURIModel.class);
+    @Inject
+    public RedirectURIJedisHibernateDao(JedisPool jedisPool) {
+        super(jedisPool, RedirectURIModel.class);
     }
 
     @Override

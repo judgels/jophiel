@@ -19,7 +19,7 @@ public interface ClientService extends JudgelsAppClientService {
 
     boolean isClientAuthorized(String clientJid, List<String> scopes);
 
-    boolean isAccessTokenValid(String accessToken);
+    boolean isAccessTokenValid(String accessToken, long time);
 
     boolean clientExistsByJid(String clientJid);
 

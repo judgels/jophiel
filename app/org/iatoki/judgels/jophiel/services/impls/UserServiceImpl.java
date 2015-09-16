@@ -152,7 +152,9 @@ public final class UserServiceImpl implements UserService {
             throw new UserNotFoundException("User not found.");
         }
 
-        return UserServiceUtils.createUserFromModel(userModel);
+        User user = UserServiceUtils.createUserFromModel(userModel);
+
+        return user;
     }
 
     @Override

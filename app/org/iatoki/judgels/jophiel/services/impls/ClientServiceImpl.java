@@ -1,7 +1,6 @@
 package org.iatoki.judgels.jophiel.services.impls;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.nimbusds.jose.JOSEException;
@@ -15,9 +14,6 @@ import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
-import org.iatoki.judgels.play.IdentityUtils;
-import org.iatoki.judgels.play.JudgelsPlayUtils;
-import org.iatoki.judgels.play.Page;
 import org.iatoki.judgels.jophiel.AccessToken;
 import org.iatoki.judgels.jophiel.Client;
 import org.iatoki.judgels.jophiel.ClientNotFoundException;
@@ -38,6 +34,9 @@ import org.iatoki.judgels.jophiel.models.entities.IdTokenModel;
 import org.iatoki.judgels.jophiel.models.entities.RedirectURIModel;
 import org.iatoki.judgels.jophiel.models.entities.RefreshTokenModel;
 import org.iatoki.judgels.jophiel.services.ClientService;
+import org.iatoki.judgels.play.IdentityUtils;
+import org.iatoki.judgels.play.JudgelsPlayUtils;
+import org.iatoki.judgels.play.Page;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -117,9 +116,8 @@ public final class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public boolean isAccessTokenValid(String accessToken) {
-        // TODO check for access token expiry
-        return accessTokenDao.existsByToken(accessToken);
+    public boolean isAccessTokenValid(String accessToken, long time) {
+        return accessTokenDao.existsValidByTokenAndTime(accessToken, time);
     }
 
     @Override
@@ -411,8 +409,8 @@ public final class ClientServiceImpl implements ClientService {
 
     @Override
     public Page<Client> getPageOfClients(long pageIndex, long pageSize, String orderBy, String orderDir, String filterString) {
-        long totalPages = clientDao.countByFilters(filterString, ImmutableMap.of(), ImmutableMap.of());
-        List<ClientModel> clientModels = clientDao.findSortedByFilters(orderBy, orderDir, filterString, ImmutableMap.of(), ImmutableMap.of(), pageIndex * pageSize, pageSize);
+        long totalPages = clientDao.countByFilters(filterString);
+        List<ClientModel> clientModels = clientDao.findSortedByFilters(orderBy, orderDir, filterString, pageIndex * pageSize, pageSize);
 
         List<Client> clients = Lists.transform(clientModels, m -> ClientServiceUtils.createClientFromModel(m, ImmutableSet.copyOf(m.scopes.split(",")), ImmutableList.of()));
 

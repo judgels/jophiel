@@ -1,11 +1,13 @@
-package org.iatoki.judgels.jophiel.models.daos.impls;
+package org.iatoki.judgels.jophiel.models.daos.jedishibernate;
 
 import com.google.common.collect.ImmutableList;
-import org.iatoki.judgels.play.models.daos.impls.AbstractHibernateDao;
 import org.iatoki.judgels.jophiel.models.daos.UserActivityDao;
 import org.iatoki.judgels.jophiel.models.entities.UserActivityModel;
 import org.iatoki.judgels.jophiel.models.entities.UserActivityModel_;
+import org.iatoki.judgels.play.models.daos.impls.AbstractJedisHibernateDao;
+import redis.clients.jedis.JedisPool;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import javax.persistence.metamodel.SingularAttribute;
@@ -13,10 +15,11 @@ import java.util.List;
 
 @Singleton
 @Named("userActivityDao")
-public final class UserActivityHibernateDao extends AbstractHibernateDao<Long, UserActivityModel> implements UserActivityDao {
+public final class UserActivityJedisHibernateDao extends AbstractJedisHibernateDao<Long, UserActivityModel> implements UserActivityDao {
 
-    public UserActivityHibernateDao() {
-        super(UserActivityModel.class);
+    @Inject
+    public UserActivityJedisHibernateDao(JedisPool jedisPool) {
+        super(jedisPool, UserActivityModel.class);
     }
 
     @Override
