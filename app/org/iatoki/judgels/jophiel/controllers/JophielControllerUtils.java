@@ -11,6 +11,7 @@ import org.iatoki.judgels.play.IdentityUtils;
 import org.iatoki.judgels.play.InternalLink;
 import org.iatoki.judgels.play.LazyHtml;
 import org.iatoki.judgels.play.controllers.AbstractJudgelsControllerUtils;
+import org.iatoki.judgels.play.views.html.layouts.contentLayout;
 import org.iatoki.judgels.play.views.html.layouts.guestLoginView;
 import org.iatoki.judgels.play.views.html.layouts.menusLayout;
 import org.iatoki.judgels.play.views.html.layouts.profileView;
@@ -26,6 +27,8 @@ public final class JophielControllerUtils extends AbstractJudgelsControllerUtils
 
     @Override
     public void appendSidebarLayout(LazyHtml content) {
+        content.appendLayout(c -> contentLayout.render(c));
+
         ImmutableList.Builder<InternalLink> internalLinkBuilder = ImmutableList.builder();
         LazyHtml sidebarContent;
         if (IdentityUtils.getUserJid() != null) {
