@@ -9,6 +9,7 @@ import org.iatoki.judgels.jophiel.services.UserService;
 import org.iatoki.judgels.play.IdentityUtils;
 import org.iatoki.judgels.play.apis.JudgelsAPINotFoundException;
 import org.iatoki.judgels.play.apis.JudgelsAppClientAPIIdentity;
+import play.data.DynamicForm;
 import play.mvc.Result;
 
 import javax.inject.Inject;
@@ -25,7 +26,14 @@ public final class ClientUserAPIControllerV1 extends AbstractJophielAPIControlle
     }
 
     public Result isLoggedIn() {
-        return okAsJson(IdentityUtils.getUserJid() != null);
+        DynamicForm dForm = DynamicForm.form().bindFromRequest();
+
+        boolean isLoggedIn = (IdentityUtils.getUserJid() != null);
+        if (isLoggedIn && dForm.data().containsKey("userJid")) {
+            isLoggedIn = IdentityUtils.getUserJid().equals(dForm.get("userJid"));
+        }
+
+        return okAsJson(isLoggedIn);
     }
 
     public Result findUserByUsernameAndPassword(String username, String password) {
