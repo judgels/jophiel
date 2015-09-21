@@ -4,7 +4,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.iatoki.judgels.jophiel.AccessToken;
 import org.iatoki.judgels.jophiel.User;
-import org.iatoki.judgels.jophiel.apis.JophielUserAPIIdentity;
+import org.iatoki.judgels.jophiel.api.JophielUserAPIIdentity;
 import org.iatoki.judgels.jophiel.services.ClientService;
 import org.iatoki.judgels.jophiel.services.UserService;
 import org.iatoki.judgels.play.apis.JudgelsAPIUnauthorizedException;
