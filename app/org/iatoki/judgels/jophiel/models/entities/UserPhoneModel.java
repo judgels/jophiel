@@ -16,14 +16,4 @@ public final class UserPhoneModel extends AbstractJudgelsModel {
     public String phoneNumber;
 
     public boolean phoneNumberVerified;
-
-    public UserPhoneModel() {
-
-    }
-
-    public UserPhoneModel(long id, String phoneNumber, boolean phoneNumberVerified) {
-        this.id = id;
-        this.phoneNumber = phoneNumber;
-        this.phoneNumberVerified = phoneNumberVerified;
-    }
 }
