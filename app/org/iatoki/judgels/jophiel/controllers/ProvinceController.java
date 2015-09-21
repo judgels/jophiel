@@ -1,6 +1,5 @@
 package org.iatoki.judgels.jophiel.controllers;
 
-import com.google.common.collect.ImmutableList;
 import org.apache.commons.io.FileUtils;
 import org.iatoki.judgels.jophiel.Province;
 import org.iatoki.judgels.jophiel.ProvinceNotFoundException;
@@ -13,12 +12,8 @@ import org.iatoki.judgels.jophiel.forms.ProvinceUploadForm;
 import org.iatoki.judgels.jophiel.services.ProvinceService;
 import org.iatoki.judgels.jophiel.services.UserActivityService;
 import org.iatoki.judgels.jophiel.views.html.suggestion.province.listCreateProvincesView;
-import org.iatoki.judgels.play.IdentityUtils;
-import org.iatoki.judgels.play.InternalLink;
-import org.iatoki.judgels.play.LazyHtml;
+import org.iatoki.judgels.play.HtmlTemplate;
 import org.iatoki.judgels.play.Page;
-import org.iatoki.judgels.play.controllers.AbstractJudgelsController;
-import org.iatoki.judgels.play.views.html.layouts.headingLayout;
 import play.data.Form;
 import play.db.jpa.Transactional;
 import play.filters.csrf.AddCSRFToken;
@@ -37,17 +32,17 @@ import java.io.IOException;
 @Authorized(value = "admin")
 @Singleton
 @Named
-public final class ProvinceController extends AbstractJudgelsController {
+public final class ProvinceController extends AbstractAutosuggestionController {
 
     private static final long PAGE_SIZE = 20;
 
     private final ProvinceService provinceService;
-    private final UserActivityService userActivityService;
 
     @Inject
-    public ProvinceController(ProvinceService provinceService, UserActivityService userActivityService) {
+    public ProvinceController(UserActivityService userActivityService, ProvinceService provinceService) {
+        super(userActivityService);
+
         this.provinceService = provinceService;
-        this.userActivityService = userActivityService;
     }
 
     @Transactional
@@ -62,8 +57,6 @@ public final class ProvinceController extends AbstractJudgelsController {
         Page<Province> pageOfProvinces = provinceService.getPageOfProvinces(page, PAGE_SIZE, orderBy, orderDir, filterString);
         Form<ProvinceCreateForm> provinceCreateForm = Form.form(ProvinceCreateForm.class);
         Form<ProvinceUploadForm> provinceUploadForm = Form.form(ProvinceUploadForm.class);
-
-        JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Open all provinces <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
 
         return showListCreateProvince(pageOfProvinces, orderBy, orderDir, filterString, provinceCreateForm, provinceUploadForm);
     }
@@ -81,9 +74,7 @@ public final class ProvinceController extends AbstractJudgelsController {
         }
 
         ProvinceCreateForm provinceCreateData = provinceCreateForm.get();
-        provinceService.createProvince(provinceCreateData.name, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
-
-        JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Create province " + provinceCreateData.name + ".");
+        provinceService.createProvince(provinceCreateData.name, getCurrentUserJid(), getCurrentUserIpAddress());
 
         return redirect(routes.ProvinceController.listCreateProvinces(page, orderBy, orderDir, filterString));
     }
@@ -101,12 +92,10 @@ public final class ProvinceController extends AbstractJudgelsController {
                 String[] provinces = FileUtils.readFileToString(userFile).split("\n");
                 for (String province : provinces) {
                     if (!province.isEmpty() && !provinceService.provinceExistsByName(province)) {
-                        provinceService.createProvince(province, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
+                        provinceService.createProvince(province, getCurrentUserJid(), getCurrentUserIpAddress());
                     }
 
                 }
-
-                JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Upload provinces.");
 
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -121,27 +110,15 @@ public final class ProvinceController extends AbstractJudgelsController {
         Province province = provinceService.findProvinceById(provinceId);
         provinceService.deleteProvince(province.getId());
 
-        JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Delete province " + province.getName() + " <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
-
         return redirect(routes.ProvinceController.index());
     }
 
     private Result showListCreateProvince(Page<Province> pageOfProvinces, String orderBy, String orderDir, String filterString, Form<ProvinceCreateForm> provinceCreateForm, Form<ProvinceUploadForm> provinceUploadForm) {
-        LazyHtml content = new LazyHtml(listCreateProvincesView.render(pageOfProvinces, orderBy, orderDir, filterString, provinceCreateForm, provinceUploadForm));
-        content.appendLayout(c -> headingLayout.render(Messages.get("province.list"), c));
-        AutoSuggestionControllerUtils.appendTabLayout(content);
-        JophielControllerUtils.getInstance().appendSidebarLayout(content);
-        appendBreadcrumbsLayout(content);
-        JophielControllerUtils.getInstance().appendTemplateLayout(content, "Provinces");
+        HtmlTemplate template = new HtmlTemplate();
 
-        return JophielControllerUtils.getInstance().lazyOk(content);
-    }
+        template.setContent(listCreateProvincesView.render(pageOfProvinces, orderBy, orderDir, filterString, provinceCreateForm, provinceUploadForm));
+        template.markBreadcrumbLocation(Messages.get("province.text.provinces"), routes.ProvinceController.index());
 
-    private void appendBreadcrumbsLayout(LazyHtml content, InternalLink... lastLinks) {
-        ImmutableList.Builder<InternalLink> breadcrumbsBuilder = AutoSuggestionControllerUtils.getBreadcrumbsBuilder();
-        breadcrumbsBuilder.add(new InternalLink(Messages.get("province.provinces"), routes.AutoSuggestionController.jumpToProvinces()));
-        breadcrumbsBuilder.add(lastLinks);
-
-        JophielControllerUtils.getInstance().appendBreadcrumbsLayout(content, breadcrumbsBuilder.build());
+        return renderTemplate(template);
     }
 }

@@ -1,6 +1,5 @@
 package org.iatoki.judgels.jophiel.unit.service.impls;
 
-import org.iatoki.judgels.play.IdentityUtils;
 import org.iatoki.judgels.play.JudgelsPlayProperties;
 import org.iatoki.judgels.jophiel.JophielProperties;
 import org.iatoki.judgels.jophiel.models.daos.UserDao;
@@ -25,7 +24,7 @@ import play.libs.mailer.MailerPlugin;
 /**
  * Created by bagus.seto on 6/9/2015.
  */
-@PrepareForTest({IdentityUtils.class, JophielProperties.class, JudgelsPlayProperties.class, MailerPlugin.class, Messages.class})
+@PrepareForTest({JophielProperties.class, JudgelsPlayProperties.class, MailerPlugin.class, Messages.class})
 public class UserEmailServiceImplTest extends PowerMockTestCase {
 
     @Mock
@@ -41,7 +40,6 @@ public class UserEmailServiceImplTest extends PowerMockTestCase {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
 
-        PowerMockito.mockStatic(IdentityUtils.class);
         PowerMockito.mockStatic(JudgelsPlayProperties.class);
         PowerMockito.mockStatic(JophielProperties.class);
         PowerMockito.mockStatic(Messages.class);
@@ -105,8 +103,7 @@ public class UserEmailServiceImplTest extends PowerMockTestCase {
         String emailCode = "UNVERIFIED_EMAIL_CODE";
         Mockito.when(userEmailDao.existsByEmailCode(emailCode)).thenReturn(true);
 
-        String getIpAddress = "10.10.10.10";
-        Mockito.when(IdentityUtils.getIpAddress()).thenReturn(getIpAddress);
+        String ipAddress = "10.10.10.10";
 
         UserEmailModel userEmailModel = new UserEmailModel();
         userEmailModel.emailVerified = false;
@@ -125,7 +122,7 @@ public class UserEmailServiceImplTest extends PowerMockTestCase {
                 return null;
             }).when(userEmailDao).edit(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 
-        userEmailService.activateEmail(emailCode, getIpAddress);
+        userEmailService.activateEmail(emailCode, ipAddress);
 
         Assert.assertTrue(userEmailModel.emailVerified, "Invalid email code or email has been activated");
         Assert.assertNotEquals(userEmailModel.userCreate, userEmailModel.userUpdate, "UserInfo update not updated");
@@ -197,9 +194,8 @@ public class UserEmailServiceImplTest extends PowerMockTestCase {
         Mockito.when(jophielProperties.getNoreplyName()).thenReturn("No reply");
         Mockito.when(jophielProperties.getNoreplyEmail()).thenReturn("no-reply@email.com");
 
-        Mockito.when(Messages.get("registrationEmail.userRegistration")).thenReturn("user registration");
-        Mockito.when(Messages.get("registrationEmail.thankYou")).thenReturn("thank you");
-        Mockito.when(Messages.get("registrationEmail.pleaseActivate")).thenReturn("please activate");
+        Mockito.when(Messages.get(Mockito.eq("register.email.subject"), Mockito.anyString())).thenReturn("user registration");
+        Mockito.when(Messages.get(Mockito.eq("register.email.body"), Mockito.anyString(), Mockito.anyString())).thenReturn("please activate on " + link);
 
         Email sentMail = new Email();
         Mockito.when(mailerClient.send(Mockito.any())).thenAnswer(invocation -> {
@@ -233,9 +229,8 @@ public class UserEmailServiceImplTest extends PowerMockTestCase {
         Mockito.when(jophielProperties.getNoreplyName()).thenReturn("No reply");
         Mockito.when(jophielProperties.getNoreplyEmail()).thenReturn("no-reply@email.com");
 
-        Mockito.when(Messages.get("forgotPasswordEmail.forgotPassword")).thenReturn("forgot password");
-        Mockito.when(Messages.get("registrationEmail.request")).thenReturn("request");
-        Mockito.when(Messages.get("registrationEmail.changePassword")).thenReturn("change password");
+        Mockito.when(Messages.get(Mockito.eq("forgotPassword.email.subject"), Mockito.anyString())).thenReturn("forgot password");
+        Mockito.when(Messages.get(Mockito.eq("forgotPassword.email.body"), Mockito.anyString(), Mockito.anyString())).thenReturn("click " + link);
 
         Email sentMail = new Email();
         Mockito.when(mailerClient.send(Mockito.any())).thenAnswer(invocation -> {

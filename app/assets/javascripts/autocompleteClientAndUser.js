@@ -9,13 +9,13 @@ requirejs.config({
     }
 });
 
-require(["jquery", "jquery-textcomplete"], function( __tes__ ) {
+require(["jquery", "jquery-textcomplete"], function() {
     $(".client_multicomplete").textcomplete([
         {
             match: /\b(\w{2,})$/,
             search: function (term, callback) {
                 $.ajax({
-                    url: clientAutoCompleteUrl + "?term=" + term,
+                    url: autocompleteClientAPIEndpoint + "?term=" + term,
                     type: 'GET',
                     dataType: "json",
                     success: function( data ) {
@@ -38,7 +38,7 @@ require(["jquery", "jquery-textcomplete"], function( __tes__ ) {
             match: /\b(\w{2,})$/,
             search: function (term, callback) {
                 $.ajax({
-                    url: userAutoCompleteUrl + "?term=" + term,
+                    url: autocompleteUserAPIEndpoint + "?term=" + term,
                     type: 'GET',
                     dataType: "jsonp",
                     success: function( data ) {

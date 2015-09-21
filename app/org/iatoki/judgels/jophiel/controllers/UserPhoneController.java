@@ -7,10 +7,11 @@ import org.iatoki.judgels.jophiel.controllers.securities.Authenticated;
 import org.iatoki.judgels.jophiel.controllers.securities.HasRole;
 import org.iatoki.judgels.jophiel.controllers.securities.LoggedIn;
 import org.iatoki.judgels.jophiel.forms.UserPhoneCreateForm;
+import org.iatoki.judgels.jophiel.services.UserActivityService;
+import org.iatoki.judgels.jophiel.services.UserEmailService;
 import org.iatoki.judgels.jophiel.services.UserPhoneService;
+import org.iatoki.judgels.jophiel.services.UserProfileService;
 import org.iatoki.judgels.jophiel.services.UserService;
-import org.iatoki.judgels.play.IdentityUtils;
-import org.iatoki.judgels.play.controllers.AbstractJudgelsController;
 import play.data.Form;
 import play.db.jpa.Transactional;
 import play.filters.csrf.RequireCSRFCheck;
@@ -23,14 +24,14 @@ import javax.inject.Singleton;
 
 @Singleton
 @Named
-public final class UserPhoneController extends AbstractJudgelsController {
+public final class UserPhoneController extends AbstractUserProfileController {
 
-    private final UserPhoneService userPhoneService;
     private final UserService userService;
 
     @Inject
-    public UserPhoneController(UserPhoneService userPhoneService, UserService userService) {
-        this.userPhoneService = userPhoneService;
+    public UserPhoneController(UserActivityService userActivityService, UserProfileService userProfileService, UserEmailService userEmailService, UserPhoneService userPhoneService, UserService userService) {
+        super(userActivityService, userProfileService, userEmailService, userPhoneService);
+
         this.userService = userService;
     }
 
@@ -38,67 +39,68 @@ public final class UserPhoneController extends AbstractJudgelsController {
     @Transactional
     @RequireCSRFCheck
     public Result postCreatePhone() {
+        User user = userService.findUserByJid(getCurrentUserJid());
+
         Form<UserPhoneCreateForm> userPhoneCreateForm = Form.form(UserPhoneCreateForm.class).bindFromRequest();
 
         if (formHasErrors(userPhoneCreateForm)) {
-            return UserProfileControllerUtils.getInstance().showEditOwnProfileWithPhoneCreateForm(userPhoneCreateForm);
+            return showEditProfileWithPhoneCreateForm(user, userPhoneCreateForm);
         }
 
-        User user = userService.findUserByJid(IdentityUtils.getUserJid());
         UserPhoneCreateForm userPhoneCreateData = userPhoneCreateForm.get();
         if (user.getPhoneJid() == null) {
-            userPhoneService.addFirstPhone(IdentityUtils.getUserJid(), userPhoneCreateData.phone, IdentityUtils.getIpAddress());
+            userPhoneService.addFirstPhone(getCurrentUserJid(), userPhoneCreateData.phone, getCurrentUserJid());
         } else {
-            userPhoneService.addPhone(IdentityUtils.getUserJid(), userPhoneCreateData.phone, IdentityUtils.getIpAddress());
+            userPhoneService.addPhone(getCurrentUserJid(), userPhoneCreateData.phone, getCurrentUserJid());
         }
 
-        return redirect(UserProfileControllerUtils.getInstance().getEditOwnProfileCall());
+        return redirect(routes.UserProfileController.index());
     }
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Transactional
     public Result makePhonePrimary(long phoneId) throws UserPhoneNotFoundException {
-        User user = userService.findUserByJid(IdentityUtils.getUserJid());
+        User user = userService.findUserByJid(getCurrentUserJid());
         UserPhone userPhone = userPhoneService.findPhoneById(phoneId);
 
         if (!user.getJid().equals(userPhone.getUserJid())) {
-            flashError(Messages.get("user.phone.makePrimary.error.phoneIsNotOwned"));
-            return redirect(UserProfileControllerUtils.getInstance().getEditOwnProfileCall());
+            flashError(Messages.get("phone.makePrimary.error.notOwned"));
+            return redirect(routes.UserProfileController.index());
         }
 
         if (user.getEmailJid().equals(userPhone.getJid())) {
-            flashError(Messages.get("user.phone.makePrimary.error.phoneIsPrimary"));
-            return redirect(UserProfileControllerUtils.getInstance().getEditOwnProfileCall());
+            flashError(Messages.get("phone.makePrimary.error.alreadyPrimary"));
+            return redirect(routes.UserProfileController.index());
         }
 
         if (!userPhone.isPhoneVerified()) {
-            flashError(Messages.get("user.phone.makePrimary.error.phoneIsNotVerified"));
-            return redirect(UserProfileControllerUtils.getInstance().getEditOwnProfileCall());
+            flashError(Messages.get("phone.makePrimary.error.notVerified"));
+            return redirect(routes.UserProfileController.index());
         }
 
-        userPhoneService.makePhonePrimary(user.getJid(), userPhone.getJid(), IdentityUtils.getIpAddress());
+        userPhoneService.makePhonePrimary(user.getJid(), userPhone.getJid(), getCurrentUserJid());
 
-        return redirect(UserProfileControllerUtils.getInstance().getEditOwnProfileCall());
+        return redirect(routes.UserProfileController.index());
     }
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Transactional
     public Result deletePhone(long phoneId) throws UserPhoneNotFoundException {
-        User user = userService.findUserByJid(IdentityUtils.getUserJid());
+        User user = userService.findUserByJid(getCurrentUserJid());
         UserPhone userPhone = userPhoneService.findPhoneById(phoneId);
 
         if (!user.getJid().equals(userPhone.getUserJid())) {
-            flashError(Messages.get("user.phone.remove.error.phoneIsNotOwned"));
-            return redirect(UserProfileControllerUtils.getInstance().getEditOwnProfileCall());
+            flashError(Messages.get("phone.remove.error.notOwned"));
+            return redirect(routes.UserProfileController.index());
         }
 
         if (user.getEmailJid().equals(userPhone.getJid())) {
-            flashError(Messages.get("user.phone.remove.error.phoneIsPrimary"));
-            return redirect(UserProfileControllerUtils.getInstance().getEditOwnProfileCall());
+            flashError(Messages.get("phone.remove.error.primary"));
+            return redirect(routes.UserProfileController.index());
         }
 
         userPhoneService.removePhone(userPhone.getJid());
 
-        return redirect(UserProfileControllerUtils.getInstance().getEditOwnProfileCall());
+        return redirect(routes.UserProfileController.index());
     }
 }

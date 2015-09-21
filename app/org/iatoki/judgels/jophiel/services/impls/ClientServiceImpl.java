@@ -34,7 +34,6 @@ import org.iatoki.judgels.jophiel.models.entities.IdTokenModel;
 import org.iatoki.judgels.jophiel.models.entities.RedirectURIModel;
 import org.iatoki.judgels.jophiel.models.entities.RefreshTokenModel;
 import org.iatoki.judgels.jophiel.services.ClientService;
-import org.iatoki.judgels.play.IdentityUtils;
 import org.iatoki.judgels.play.JudgelsPlayUtils;
 import org.iatoki.judgels.play.Page;
 
@@ -108,8 +107,7 @@ public final class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public boolean isClientAuthorized(String clientJid, List<String> scopes) {
-        String userJid = IdentityUtils.getUserJid();
+    public boolean isClientAuthorized(String userJid, String clientJid, List<String> scopes) {
         Collections.sort(scopes);
 
         return authorizationCodeDao.isAuthorized(clientJid, userJid, StringUtils.join(scopes, ","));

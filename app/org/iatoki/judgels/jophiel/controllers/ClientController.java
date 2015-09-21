@@ -1,15 +1,10 @@
 package org.iatoki.judgels.jophiel.controllers;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
-import org.iatoki.judgels.play.IdentityUtils;
-import org.iatoki.judgels.play.InternalLink;
-import org.iatoki.judgels.play.LazyHtml;
+import org.iatoki.judgels.jophiel.services.UserActivityService;
+import org.iatoki.judgels.play.HtmlTemplate;
 import org.iatoki.judgels.play.Page;
-import org.iatoki.judgels.play.controllers.AbstractJudgelsController;
-import org.iatoki.judgels.play.views.html.layouts.headingLayout;
-import org.iatoki.judgels.play.views.html.layouts.headingWithActionLayout;
 import org.iatoki.judgels.jophiel.Client;
 import org.iatoki.judgels.jophiel.ClientNotFoundException;
 import org.iatoki.judgels.jophiel.forms.ClientCreateForm;
@@ -19,7 +14,6 @@ import org.iatoki.judgels.jophiel.controllers.securities.Authorized;
 import org.iatoki.judgels.jophiel.controllers.securities.HasRole;
 import org.iatoki.judgels.jophiel.controllers.securities.LoggedIn;
 import org.iatoki.judgels.jophiel.services.ClientService;
-import org.iatoki.judgels.jophiel.services.UserActivityService;
 import org.iatoki.judgels.jophiel.views.html.client.createClientView;
 import org.iatoki.judgels.jophiel.views.html.client.listClientsView;
 import org.iatoki.judgels.jophiel.views.html.client.editClientView;
@@ -29,7 +23,6 @@ import play.db.jpa.Transactional;
 import play.filters.csrf.AddCSRFToken;
 import play.filters.csrf.RequireCSRFCheck;
 import play.i18n.Messages;
-import play.mvc.Http;
 import play.mvc.Result;
 
 import javax.inject.Inject;
@@ -41,17 +34,17 @@ import java.util.Arrays;
 @Authorized(value = "admin")
 @Singleton
 @Named
-public final class ClientController extends AbstractJudgelsController {
+public final class ClientController extends AbstractJophielController {
 
     private static final long PAGE_SIZE = 20;
 
     private final ClientService clientService;
-    private final UserActivityService userActivityService;
 
     @Inject
-    public ClientController(ClientService clientService, UserActivityService userActivityService) {
+    public ClientController(UserActivityService userActivityService, ClientService clientService) {
+        super(userActivityService);
+
         this.clientService = clientService;
-        this.userActivityService = userActivityService;
     }
 
     @Transactional
@@ -60,43 +53,23 @@ public final class ClientController extends AbstractJudgelsController {
     }
 
     @Transactional
-    public Result listClients(long page, String orderBy, String orderDir, String filterString) {
-        Page<Client> pageOfClients = clientService.getPageOfClients(page, PAGE_SIZE, orderBy, orderDir, filterString);
+    public Result listClients(long pageIndex, String orderBy, String orderDir, String filterString) {
+        Page<Client> pageOfClients = clientService.getPageOfClients(pageIndex, PAGE_SIZE, orderBy, orderDir, filterString);
 
-        LazyHtml content = new LazyHtml(listClientsView.render(pageOfClients, orderBy, orderDir, filterString));
-        content.appendLayout(c -> headingWithActionLayout.render(Messages.get("client.list"), new InternalLink(Messages.get("commons.create"), routes.ClientController.createClient()), c));
-        JophielControllerUtils.getInstance().appendSidebarLayout(content);
-        appendBreadcrumbsLayout(content);
-        JophielControllerUtils.getInstance().appendTemplateLayout(content, "Clients");
-
-        JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Open all clients <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
-
-        return JophielControllerUtils.getInstance().lazyOk(content);
+        return showListClients(pageOfClients, orderBy, orderDir, filterString);
     }
 
     @Transactional
     public Result viewClient(long clientId) throws ClientNotFoundException {
         Client client = clientService.findClientById(clientId);
 
-        LazyHtml content = new LazyHtml(viewClientView.render(client));
-        content.appendLayout(c -> headingWithActionLayout.render(Messages.get("client.client") + " #" + clientId + ": " + client.getName(), new InternalLink(Messages.get("commons.update"), routes.ClientController.editClient(clientId)), c));
-        JophielControllerUtils.getInstance().appendSidebarLayout(content);
-        appendBreadcrumbsLayout(content,
-                new InternalLink(Messages.get("client.view"), routes.ClientController.viewClient(clientId))
-        );
-        JophielControllerUtils.getInstance().appendTemplateLayout(content, "Client - View");
-
-        JophielControllerUtils.getInstance().addActivityLog(userActivityService, "View client " + client.getName() + " <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
-
-        return JophielControllerUtils.getInstance().lazyOk(content);
+        return showViewClient(client);
     }
 
     @Transactional
     @AddCSRFToken
     public Result createClient() {
         Form<ClientCreateForm> clientCreateForm = Form.form(ClientCreateForm.class);
-
-        JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Try to create client <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
 
         return showCreateClient(clientCreateForm);
     }
@@ -111,9 +84,7 @@ public final class ClientController extends AbstractJudgelsController {
         }
 
         ClientCreateForm clientCreateData = clientCreateForm.get();
-        clientService.createClient(clientCreateData.name, clientCreateData.applicationType, clientCreateData.scopes, Arrays.asList(clientCreateData.redirectURIs.split(",")), IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
-
-        JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Create client " + clientCreateData.name + ".");
+        clientService.createClient(clientCreateData.name, clientCreateData.applicationType, clientCreateData.scopes, Arrays.asList(clientCreateData.redirectURIs.split(",")), getCurrentUserJid(), getCurrentUserIpAddress());
 
         return redirect(routes.ClientController.index());
     }
@@ -122,17 +93,15 @@ public final class ClientController extends AbstractJudgelsController {
     @AddCSRFToken
     public Result editClient(long clientId) throws ClientNotFoundException {
         Client client = clientService.findClientById(clientId);
-        ClientEditForm clientEditForm = new ClientEditForm();
+        ClientEditForm clientEditData = new ClientEditForm();
 
-        clientEditForm.name = client.getName();
-        clientEditForm.redirectURIs = StringUtils.join(client.getRedirectURIs(), ",");
-        clientEditForm.scopes = Lists.newArrayList(client.getScopes());
+        clientEditData.name = client.getName();
+        clientEditData.redirectURIs = StringUtils.join(client.getRedirectURIs(), ",");
+        clientEditData.scopes = Lists.newArrayList(client.getScopes());
 
-        Form<ClientEditForm> clientEditData = Form.form(ClientEditForm.class).fill(clientEditForm);
+        Form<ClientEditForm> clientEditForm = Form.form(ClientEditForm.class).fill(clientEditData);
 
-        JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Try to update client " + client.getName() + " <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
-
-        return showEditClient(clientEditData, clientId, client.getName());
+        return showEditClient(client, clientEditForm);
     }
 
     @Transactional
@@ -142,56 +111,65 @@ public final class ClientController extends AbstractJudgelsController {
 
         Form<ClientEditForm> clientEditForm = Form.form(ClientEditForm.class).bindFromRequest();
         if (formHasErrors(clientEditForm)) {
-            return showEditClient(clientEditForm, client.getId(), client.getName());
+            return showEditClient(client, clientEditForm);
         }
 
         ClientEditForm clientEditData = clientEditForm.get();
-        clientService.updateClient(client.getJid(), clientEditData.name, clientEditData.scopes, Arrays.asList(clientEditData.redirectURIs.split(",")), IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
-
-        JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Update client " + client.getName() + ".");
+        clientService.updateClient(client.getJid(), clientEditData.name, clientEditData.scopes, Arrays.asList(clientEditData.redirectURIs.split(",")), getCurrentUserJid(), getCurrentUserIpAddress());
 
         return redirect(routes.ClientController.index());
     }
 
-    @Transactional
-    public Result deleteClient(long clientId) throws ClientNotFoundException {
-        Client client = clientService.findClientById(clientId);
-        clientService.deleteClient(client.getJid());
+    @Override
+    protected Result renderTemplate(HtmlTemplate template) {
+        template.markBreadcrumbLocation(Messages.get("client.text.clients"), routes.ClientController.index());
 
-        JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Delete client " + client.getName() + " <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
+        return super.renderTemplate(template);
+    }
 
-        return redirect(routes.ClientController.index());
+    protected Result renderTemplate(HtmlTemplate template, Client client) {
+        template.markBreadcrumbLocation(client.getName(), routes.ClientController.viewClient(client.getId()));
+        template.setMainTitle("#" + client.getId() + ": " + client.getName());
+        template.setPageTitle(client.getName());
+
+        return renderTemplate(template);
+    }
+
+    private Result showListClients(Page<Client> pageOfClients, String orderBy, String orderDir, String filterString) {
+        HtmlTemplate template = new HtmlTemplate();
+
+        template.setContent(listClientsView.render(pageOfClients, orderBy, orderDir, filterString));
+        template.setMainTitle(Messages.get("client.text.list"));
+        template.addMainButton(Messages.get("commons.button.new"), routes.ClientController.createClient());
+
+        return renderTemplate(template);
+    }
+
+    private Result showViewClient(Client client) {
+        HtmlTemplate template = new HtmlTemplate();
+
+        template.setContent(viewClientView.render(client));
+
+        return renderTemplate(template, client);
     }
 
     private Result showCreateClient(Form<ClientCreateForm> clientCreateForm) {
-        LazyHtml content = new LazyHtml(createClientView.render(clientCreateForm));
-        content.appendLayout(c -> headingLayout.render(Messages.get("client.create"), c));
-        JophielControllerUtils.getInstance().appendSidebarLayout(content);
-        appendBreadcrumbsLayout(content,
-                new InternalLink(Messages.get("client.create"), routes.ClientController.createClient())
-        );
-        JophielControllerUtils.getInstance().appendTemplateLayout(content, "Client - Create");
+        HtmlTemplate template = new HtmlTemplate();
 
-        return JophielControllerUtils.getInstance().lazyOk(content);
+        template.setContent(createClientView.render(clientCreateForm));
+        template.setMainTitle(Messages.get("client.text.new"));
+        template.markBreadcrumbLocation(Messages.get("commons.text.new"), routes.ClientController.createClient());
+
+        return renderTemplate(template);
     }
 
-    private Result showEditClient(Form<ClientEditForm> clientEditForm, long clientId, String clientName) {
-        LazyHtml content = new LazyHtml(editClientView.render(clientEditForm, clientId));
-        content.appendLayout(c -> headingLayout.render(Messages.get("client.client") + " #" + clientId + ": " + clientName, c));
-        JophielControllerUtils.getInstance().appendSidebarLayout(content);
-        appendBreadcrumbsLayout(content,
-                new InternalLink(Messages.get("client.update"), routes.ClientController.editClient(clientId))
-        );
-        JophielControllerUtils.getInstance().appendTemplateLayout(content, "Client - Update");
+    private Result showEditClient(Client client, Form<ClientEditForm> clientEditForm) {
+        HtmlTemplate template = new HtmlTemplate();
 
-        return JophielControllerUtils.getInstance().lazyOk(content);
-    }
+        template.setContent(editClientView.render(client, clientEditForm));
+        template.markBreadcrumbLocation(Messages.get("commons.text.edit"), routes.ClientController.editClient(client.getId()));
+        template.setPageTitle(client.getName());
 
-    private void appendBreadcrumbsLayout(LazyHtml content, InternalLink... lastLinks) {
-        ImmutableList.Builder<InternalLink> breadcrumbsBuilder = ImmutableList.builder();
-        breadcrumbsBuilder.add(new InternalLink(Messages.get("client.clients"), routes.ClientController.index()));
-        breadcrumbsBuilder.add(lastLinks);
-
-        JophielControllerUtils.getInstance().appendBreadcrumbsLayout(content, breadcrumbsBuilder.build());
+        return renderTemplate(template, client);
     }
 }

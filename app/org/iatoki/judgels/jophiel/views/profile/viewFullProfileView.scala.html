@@ -3,8 +3,12 @@
 @import org.iatoki.judgels.jophiel.UserEmail
 @import org.iatoki.judgels.jophiel.UserPhone
 @import org.iatoki.judgels.jophiel.UserInfo
+@import org.iatoki.judgels.jophiel.views.html.profile.viewEmailsTemplateView
+@import org.iatoki.judgels.jophiel.views.html.profile.viewFullAccountTemplateView
+@import org.iatoki.judgels.jophiel.views.html.profile.viewFullInfoTemplateView
+@import org.iatoki.judgels.jophiel.views.html.profile.viewPhonesTemplateView
 
-@(user:User, primaryEmail: UserEmail, userEmails: List[UserEmail], primaryPhone: UserPhone, userPhones: List[UserPhone], userInfo: UserInfo)
+@(user: User, userPrimaryEmail: UserEmail, userEmails: List[UserEmail], userPrimaryPhone: UserPhone, userPhones: List[UserPhone], userInfo: UserInfo)
 
 <hr />
 <h3>@Messages.get("user.account")</h3>
@@ -21,10 +25,10 @@
 <div class="clearfix">
     <div class="col-md-12">
         <h4>@Messages.get("user.emails")</h4>
-        @viewEmailsTemplateView(primaryEmail, userEmails)
+        @viewEmailsTemplateView(userPrimaryEmail, userEmails)
 
         <h4>@Messages.get("user.phones")</h4>
-        @viewPhonesTemplateView(primaryPhone, userPhones)
+        @viewPhonesTemplateView(userPrimaryPhone, userPhones)
     </div>
 </div>
 

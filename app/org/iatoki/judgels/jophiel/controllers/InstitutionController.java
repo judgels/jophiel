@@ -1,6 +1,5 @@
 package org.iatoki.judgels.jophiel.controllers;
 
-import com.google.common.collect.ImmutableList;
 import org.apache.commons.io.FileUtils;
 import org.iatoki.judgels.jophiel.Institution;
 import org.iatoki.judgels.jophiel.InstitutionNotFoundException;
@@ -13,12 +12,8 @@ import org.iatoki.judgels.jophiel.forms.InstitutionUploadForm;
 import org.iatoki.judgels.jophiel.services.InstitutionService;
 import org.iatoki.judgels.jophiel.services.UserActivityService;
 import org.iatoki.judgels.jophiel.views.html.suggestion.institution.listCreateInstitutionsView;
-import org.iatoki.judgels.play.IdentityUtils;
-import org.iatoki.judgels.play.InternalLink;
-import org.iatoki.judgels.play.LazyHtml;
+import org.iatoki.judgels.play.HtmlTemplate;
 import org.iatoki.judgels.play.Page;
-import org.iatoki.judgels.play.controllers.AbstractJudgelsController;
-import org.iatoki.judgels.play.views.html.layouts.headingLayout;
 import play.data.Form;
 import play.db.jpa.Transactional;
 import play.filters.csrf.AddCSRFToken;
@@ -37,17 +32,17 @@ import java.io.IOException;
 @Authorized(value = "admin")
 @Singleton
 @Named
-public final class InstitutionController extends AbstractJudgelsController {
+public final class InstitutionController extends AbstractAutosuggestionController {
 
     private static final long PAGE_SIZE = 20;
 
     private final InstitutionService institutionService;
-    private final UserActivityService userActivityService;
 
     @Inject
-    public InstitutionController(InstitutionService institutionService, UserActivityService userActivityService) {
+    public InstitutionController(UserActivityService userActivityService, InstitutionService institutionService) {
+        super(userActivityService);
+
         this.institutionService = institutionService;
-        this.userActivityService = userActivityService;
     }
 
     @Transactional
@@ -62,8 +57,6 @@ public final class InstitutionController extends AbstractJudgelsController {
         Page<Institution> pageOfInstitutions = institutionService.getPageOfInstitutions(page, PAGE_SIZE, orderBy, orderDir, filterString);
         Form<InstitutionCreateForm> institutionCreateForm = Form.form(InstitutionCreateForm.class);
         Form<InstitutionUploadForm> institutionUploadForm = Form.form(InstitutionUploadForm.class);
-
-        JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Open all institutions <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
 
         return showListCreateInstitution(pageOfInstitutions, orderBy, orderDir, filterString, institutionCreateForm, institutionUploadForm);
     }
@@ -81,9 +74,7 @@ public final class InstitutionController extends AbstractJudgelsController {
         }
 
         InstitutionCreateForm institutionCreateData = institutionCreateForm.get();
-        institutionService.createInstitution(institutionCreateData.name, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
-
-        JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Create institution " + institutionCreateData.name + ".");
+        institutionService.createInstitution(institutionCreateData.name, getCurrentUserJid(), getCurrentUserIpAddress());
 
         return redirect(routes.InstitutionController.listCreateInstitutions(page, orderBy, orderDir, filterString));
     }
@@ -101,12 +92,10 @@ public final class InstitutionController extends AbstractJudgelsController {
                 String[] institutions = FileUtils.readFileToString(userFile).split("\n");
                 for (String institution : institutions) {
                     if (!institution.isEmpty() && !institutionService.institutionExistsByName(institution)) {
-                        institutionService.createInstitution(institution, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
+                        institutionService.createInstitution(institution, getCurrentUserJid(), getCurrentUserIpAddress());
                     }
 
                 }
-
-                JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Upload institutions.");
 
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -121,27 +110,15 @@ public final class InstitutionController extends AbstractJudgelsController {
         Institution institution = institutionService.findInstitutionById(institutionId);
         institutionService.deleteInstitution(institution.getId());
 
-        JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Delete institution " + institution.getName() + " <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
-
         return redirect(routes.InstitutionController.index());
     }
 
     private Result showListCreateInstitution(Page<Institution> pageOfInstitutions, String orderBy, String orderDir, String filterString, Form<InstitutionCreateForm> institutionCreateForm, Form<InstitutionUploadForm> institutionUploadForm) {
-        LazyHtml content = new LazyHtml(listCreateInstitutionsView.render(pageOfInstitutions, orderBy, orderDir, filterString, institutionCreateForm, institutionUploadForm));
-        content.appendLayout(c -> headingLayout.render(Messages.get("institution.list"), c));
-        AutoSuggestionControllerUtils.appendTabLayout(content);
-        JophielControllerUtils.getInstance().appendSidebarLayout(content);
-        appendBreadcrumbsLayout(content);
-        JophielControllerUtils.getInstance().appendTemplateLayout(content, "Institutions");
+        HtmlTemplate template = new HtmlTemplate();
 
-        return JophielControllerUtils.getInstance().lazyOk(content);
-    }
+        template.setContent(listCreateInstitutionsView.render(pageOfInstitutions, orderBy, orderDir, filterString, institutionCreateForm, institutionUploadForm));
+        template.markBreadcrumbLocation(Messages.get("institution.text.institutions"), routes.InstitutionController.index());
 
-    private void appendBreadcrumbsLayout(LazyHtml content, InternalLink... lastLinks) {
-        ImmutableList.Builder<InternalLink> breadcrumbsBuilder = AutoSuggestionControllerUtils.getBreadcrumbsBuilder();
-        breadcrumbsBuilder.add(new InternalLink(Messages.get("institution.institutions"), routes.AutoSuggestionController.jumpToInstitutions()));
-        breadcrumbsBuilder.add(lastLinks);
-
-        JophielControllerUtils.getInstance().appendBreadcrumbsLayout(content, breadcrumbsBuilder.build());
+        return renderTemplate(template);
     }
 }

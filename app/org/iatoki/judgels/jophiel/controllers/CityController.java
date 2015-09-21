@@ -1,6 +1,5 @@
 package org.iatoki.judgels.jophiel.controllers;
 
-import com.google.common.collect.ImmutableList;
 import org.apache.commons.io.FileUtils;
 import org.iatoki.judgels.jophiel.City;
 import org.iatoki.judgels.jophiel.CityNotFoundException;
@@ -13,12 +12,8 @@ import org.iatoki.judgels.jophiel.forms.CityUploadForm;
 import org.iatoki.judgels.jophiel.services.CityService;
 import org.iatoki.judgels.jophiel.services.UserActivityService;
 import org.iatoki.judgels.jophiel.views.html.suggestion.city.listCreateCitiesView;
-import org.iatoki.judgels.play.IdentityUtils;
-import org.iatoki.judgels.play.InternalLink;
-import org.iatoki.judgels.play.LazyHtml;
+import org.iatoki.judgels.play.HtmlTemplate;
 import org.iatoki.judgels.play.Page;
-import org.iatoki.judgels.play.controllers.AbstractJudgelsController;
-import org.iatoki.judgels.play.views.html.layouts.headingLayout;
 import play.data.Form;
 import play.db.jpa.Transactional;
 import play.filters.csrf.AddCSRFToken;
@@ -37,17 +32,18 @@ import java.io.IOException;
 @Authorized(value = "admin")
 @Singleton
 @Named
-public final class CityController extends AbstractJudgelsController {
+public final class CityController extends AbstractAutosuggestionController {
 
     private static final long PAGE_SIZE = 20;
 
     private final CityService cityService;
-    private final UserActivityService userActivityService;
 
     @Inject
-    public CityController(CityService cityService, UserActivityService userActivityService) {
+
+    public CityController(UserActivityService userActivityService, CityService cityService) {
+        super(userActivityService);
+
         this.cityService = cityService;
-        this.userActivityService = userActivityService;
     }
 
     @Transactional
@@ -63,9 +59,7 @@ public final class CityController extends AbstractJudgelsController {
         Form<CityCreateForm> cityCreateForm = Form.form(CityCreateForm.class);
         Form<CityUploadForm> cityUploadForm = Form.form(CityUploadForm.class);
 
-        JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Open all cities <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
-
-        return showListCreateCity(pageOfCities, orderBy, orderDir, filterString, cityCreateForm, cityUploadForm);
+        return showListCreateCities(pageOfCities, orderBy, orderDir, filterString, cityCreateForm, cityUploadForm);
     }
 
     @Transactional
@@ -77,17 +71,14 @@ public final class CityController extends AbstractJudgelsController {
             Page<City> pageOfCities = cityService.getPageOfCities(page, PAGE_SIZE, orderBy, orderDir, filterString);
             Form<CityUploadForm> cityUploadForm = Form.form(CityUploadForm.class);
 
-            return showListCreateCity(pageOfCities, orderBy, orderDir, filterString, cityCreateForm, cityUploadForm);
+            return showListCreateCities(pageOfCities, orderBy, orderDir, filterString, cityCreateForm, cityUploadForm);
         }
 
         CityCreateForm cityCreateData = cityCreateForm.get();
-        cityService.createCity(cityCreateData.name, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
-
-        JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Create city " + cityCreateData.name + ".");
+        cityService.createCity(cityCreateData.name, getCurrentUserJid(), getCurrentUserIpAddress());
 
         return redirect(routes.CityController.listCreateCities(page, orderBy, orderDir, filterString));
     }
-
 
     @Transactional
     @RequireCSRFCheck
@@ -95,19 +86,17 @@ public final class CityController extends AbstractJudgelsController {
         Http.MultipartFormData body = request().body().asMultipartFormData();
         Http.MultipartFormData.FilePart file;
 
-        file = body.getFile("cities");
+        file = body.getFile("citys");
         if (file != null) {
             File userFile = file.getFile();
             try {
-                String[] cities = FileUtils.readFileToString(userFile).split("\n");
-                for (String city : cities) {
+                String[] citys = FileUtils.readFileToString(userFile).split("\n");
+                for (String city : citys) {
                     if (!city.isEmpty() && !cityService.cityExistsByName(city)) {
-                        cityService.createCity(city, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
+                        cityService.createCity(city, getCurrentUserJid(), getCurrentUserIpAddress());
                     }
 
                 }
-
-                JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Upload cities.");
 
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -122,27 +111,15 @@ public final class CityController extends AbstractJudgelsController {
         City city = cityService.findCityById(cityId);
         cityService.deleteCity(city.getId());
 
-        JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Delete city " + city.getName() + " <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
-
         return redirect(routes.CityController.index());
     }
 
-    private Result showListCreateCity(Page<City> pageOfCities, String orderBy, String orderDir, String filterString, Form<CityCreateForm> cityCreateForm, Form<CityUploadForm> cityUploadForm) {
-        LazyHtml content = new LazyHtml(listCreateCitiesView.render(pageOfCities, orderBy, orderDir, filterString, cityCreateForm, cityUploadForm));
-        content.appendLayout(c -> headingLayout.render(Messages.get("city.list"), c));
-        AutoSuggestionControllerUtils.appendTabLayout(content);
-        JophielControllerUtils.getInstance().appendSidebarLayout(content);
-        appendBreadcrumbsLayout(content);
-        JophielControllerUtils.getInstance().appendTemplateLayout(content, "Cities");
+    private Result showListCreateCities(Page<City> pageOfCities, String orderBy, String orderDir, String filterString, Form<CityCreateForm> cityCreateForm, Form<CityUploadForm> cityUploadForm) {
+        HtmlTemplate template = new HtmlTemplate();
 
-        return JophielControllerUtils.getInstance().lazyOk(content);
-    }
+        template.setContent(listCreateCitiesView.render(pageOfCities, orderBy, orderDir, filterString, cityCreateForm, cityUploadForm));
+        template.markBreadcrumbLocation(Messages.get("city.text.cities"), routes.CityController.index());
 
-    private void appendBreadcrumbsLayout(LazyHtml content, InternalLink... lastLinks) {
-        ImmutableList.Builder<InternalLink> breadcrumbsBuilder = AutoSuggestionControllerUtils.getBreadcrumbsBuilder();
-        breadcrumbsBuilder.add(new InternalLink(Messages.get("city.cities"), routes.AutoSuggestionController.jumpToCities()));
-        breadcrumbsBuilder.add(lastLinks);
-
-        JophielControllerUtils.getInstance().appendBreadcrumbsLayout(content, breadcrumbsBuilder.build());
+        return renderTemplate(template);
     }
 }

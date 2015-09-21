@@ -1,16 +1,11 @@
 ->             /                                                            playcommons.Routes
 
-GET            /                                                            @org.iatoki.judgels.jophiel.controllers.ApplicationController.index()
-
 GET            /register                                                    @org.iatoki.judgels.jophiel.controllers.UserAccountController.register()
 POST           /register                                                    @org.iatoki.judgels.jophiel.controllers.UserAccountController.postRegister()
-GET            /afterRegister                                               @org.iatoki.judgels.jophiel.controllers.UserAccountController.afterRegister(email ?= "")
 GET            /forgotPass                                                  @org.iatoki.judgels.jophiel.controllers.UserAccountController.forgotPassword()
 POST           /forgotPass                                                  @org.iatoki.judgels.jophiel.controllers.UserAccountController.postForgotPassword()
-GET            /afterForgotPass                                             @org.iatoki.judgels.jophiel.controllers.UserAccountController.afterForgotPassword(email ?= "")
 GET            /changePass/:code                                            @org.iatoki.judgels.jophiel.controllers.UserAccountController.changePassword(code)
 POST           /changePass/:code                                            @org.iatoki.judgels.jophiel.controllers.UserAccountController.postChangePassword(code)
-GET            /afterChangePass                                             @org.iatoki.judgels.jophiel.controllers.UserAccountController.afterChangePassword()
 GET            /login                                                       @org.iatoki.judgels.jophiel.controllers.UserAccountController.login()
 POST           /login                                                       @org.iatoki.judgels.jophiel.controllers.UserAccountController.postLogin()
 GET            /serviceLogin                                                @org.iatoki.judgels.jophiel.controllers.UserAccountController.serviceLogin(continueUrl ?= "")
@@ -18,7 +13,7 @@ POST           /serviceLogin                                                @org
 GET            /logout                                                      @org.iatoki.judgels.jophiel.controllers.UserAccountController.logout()
 GET            /serviceLogout                                               @org.iatoki.judgels.jophiel.controllers.UserAccountController.serviceLogout(continueUrl ?= "")
 
-GET            /welcome                                                     @org.iatoki.judgels.jophiel.controllers.WelcomeController.index()
+GET            /                                                            @org.iatoki.judgels.jophiel.controllers.WelcomeController.index()
 
 GET            /users                                                       @org.iatoki.judgels.jophiel.controllers.UserController.index()
 GET            /users/                                                      @org.iatoki.judgels.jophiel.controllers.UserController.listUsers(pageIndex: Long ?= 0, orderBy ?= "id", orderDir ?= "asc", filterString ?= "")
@@ -29,14 +24,9 @@ POST           /users                                                       @org
 GET            /users/:userId                                               @org.iatoki.judgels.jophiel.controllers.UserController.viewUser(userId: Long)
 GET            /users/:userId/edit                                          @org.iatoki.judgels.jophiel.controllers.UserController.editUser(userId: Long)
 POST           /users/:userId                                               @org.iatoki.judgels.jophiel.controllers.UserController.postEditUser(userId: Long)
-GET            /users/:userId/delete                                        @org.iatoki.judgels.jophiel.controllers.UserController.deleteUser(userId: Long)
 
-GET            /activity                                                    @org.iatoki.judgels.jophiel.controllers.UserActivityController.viewOwnActivities()
-GET            /activity/                                                   @org.iatoki.judgels.jophiel.controllers.UserActivityController.listOwnActivities(pageIndex: Long ?= 0, orderBy ?= "id", orderDir ?= "asc", filterString ?= "", clientNames ?= "")
 GET            /activities                                                  @org.iatoki.judgels.jophiel.controllers.UserActivityController.index()
 GET            /activities/                                                 @org.iatoki.judgels.jophiel.controllers.UserActivityController.listUsersActivities(pageIndex: Long ?= 0, orderBy ?= "id", orderDir ?= "asc", filterString ?= "", clientNames ?= "", usernames ?= "")
-GET            /activities/:username                                        @org.iatoki.judgels.jophiel.controllers.UserActivityController.viewUserActivities(username)
-GET            /activities/:username/                                       @org.iatoki.judgels.jophiel.controllers.UserActivityController.listUserActivities(username, pageIndex: Long ?= 0, orderBy ?= "id", orderDir ?= "asc", filterString ?= "", clientNames ?= "")
 
 GET            /clients                                                     @org.iatoki.judgels.jophiel.controllers.ClientController.index()
 GET            /clients/                                                    @org.iatoki.judgels.jophiel.controllers.ClientController.listClients(pageIndex: Long ?= 0, orderBy ?= "id", orderDir ?= "asc", filterString ?= "")
@@ -45,13 +35,12 @@ POST           /clients                                                     @org
 GET            /clients/:clientId                                           @org.iatoki.judgels.jophiel.controllers.ClientController.viewClient(clientId: Long)
 GET            /clients/:clientId/edit                                      @org.iatoki.judgels.jophiel.controllers.ClientController.editClient(clientId: Long)
 POST           /clients/:clientId                                           @org.iatoki.judgels.jophiel.controllers.ClientController.postEditClient(clientId: Long)
-GET            /clients/:clientId/delete                                    @org.iatoki.judgels.jophiel.controllers.ClientController.deleteClient(clientId: Long)
 
-GET            /profile                                                     @org.iatoki.judgels.jophiel.controllers.UserProfileController.editOwnProfile()
+GET            /profile                                                     @org.iatoki.judgels.jophiel.controllers.UserProfileController.index()
 POST           /profile                                                     @org.iatoki.judgels.jophiel.controllers.UserProfileController.postEditOwnProfile()
 POST           /profiles/userInfo                                           @org.iatoki.judgels.jophiel.controllers.UserProfileController.postEditOwnInfo()
 POST           /profiles/avatar                                             @org.iatoki.judgels.jophiel.controllers.UserProfileController.postEditOwnAvatar()
-POST           /profiles/search                                             @org.iatoki.judgels.jophiel.controllers.UserProfileController.postViewProfile()
+POST           /profiles/search                                             @org.iatoki.judgels.jophiel.controllers.UserProfileController.postSearchProfile()
 GET            /profiles/:username                                          @org.iatoki.judgels.jophiel.controllers.UserProfileController.viewProfile(username)
 GET            /profilesNotFound                                            @org.iatoki.judgels.jophiel.controllers.UserProfileController.userNotFound()
 
@@ -66,33 +55,30 @@ POST           /phones                                                      @org
 GET            /phones/:phoneId/makePrimary                                 @org.iatoki.judgels.jophiel.controllers.UserPhoneController.makePhonePrimary(phoneId: Long)
 GET            /phones/:phoneId/delete                                      @org.iatoki.judgels.jophiel.controllers.UserPhoneController.deletePhone(phoneId: Long)
 
-GET            /autoSuggestions                                             @org.iatoki.judgels.jophiel.controllers.AutoSuggestionController.index()
-GET            /autoSuggestions/jumpToInstitutions                          @org.iatoki.judgels.jophiel.controllers.AutoSuggestionController.jumpToInstitutions()
-GET            /autoSuggestions/jumpToCities                                @org.iatoki.judgels.jophiel.controllers.AutoSuggestionController.jumpToCities()
-GET            /autoSuggestions/jumpToProvinces                             @org.iatoki.judgels.jophiel.controllers.AutoSuggestionController.jumpToProvinces()
+GET            /autosuggestions                                             @org.iatoki.judgels.jophiel.controllers.AutosuggestionController.index()
 
-GET            /autoSuggestions/institutions                                @org.iatoki.judgels.jophiel.controllers.InstitutionController.index()
-GET            /autoSuggestions/institutions/                               @org.iatoki.judgels.jophiel.controllers.InstitutionController.listCreateInstitutions(pageIndex: Long ?= 0, orderBy ?= "id", orderDir ?= "asc", filterString ?= "")
-POST           /autoSuggestions/institutions                                @org.iatoki.judgels.jophiel.controllers.InstitutionController.postCreateInstitution(pageIndex: Long ?= 0, orderBy ?= "id", orderDir ?= "asc", filterString ?= "")
-POST           /autoSuggestions/institutions/upload                         @org.iatoki.judgels.jophiel.controllers.InstitutionController.postUploadInstitution(pageIndex: Long ?= 0, orderBy ?= "id", orderDir ?= "asc", filterString ?= "")
-GET            /autoSuggestions/institutions/:institutionId/delete          @org.iatoki.judgels.jophiel.controllers.InstitutionController.deleteInstitution(institutionId: Long)
+GET            /autosuggestions/institutions                                @org.iatoki.judgels.jophiel.controllers.InstitutionController.index()
+GET            /autosuggestions/institutions/                               @org.iatoki.judgels.jophiel.controllers.InstitutionController.listCreateInstitutions(pageIndex: Long ?= 0, orderBy ?= "id", orderDir ?= "asc", filterString ?= "")
+POST           /autosuggestions/institutions                                @org.iatoki.judgels.jophiel.controllers.InstitutionController.postCreateInstitution(pageIndex: Long ?= 0, orderBy ?= "id", orderDir ?= "asc", filterString ?= "")
+POST           /autosuggestions/institutions/upload                         @org.iatoki.judgels.jophiel.controllers.InstitutionController.postUploadInstitution(pageIndex: Long ?= 0, orderBy ?= "id", orderDir ?= "asc", filterString ?= "")
+GET            /autosuggestions/institutions/:institutionId/delete          @org.iatoki.judgels.jophiel.controllers.InstitutionController.deleteInstitution(institutionId: Long)
 
-GET            /autoSuggestions/cities                                      @org.iatoki.judgels.jophiel.controllers.CityController.index()
-GET            /autoSuggestions/cities/                                     @org.iatoki.judgels.jophiel.controllers.CityController.listCreateCities(pageIndex: Long ?= 0, orderBy ?= "id", orderDir ?= "asc", filterString ?= "")
-POST           /autoSuggestions/cities                                      @org.iatoki.judgels.jophiel.controllers.CityController.postCreateCity(pageIndex: Long ?= 0, orderBy ?= "id", orderDir ?= "asc", filterString ?= "")
-POST           /autoSuggestions/cities/upload                               @org.iatoki.judgels.jophiel.controllers.CityController.postUploadCity(pageIndex: Long ?= 0, orderBy ?= "id", orderDir ?= "asc", filterString ?= "")
-GET            /autoSuggestions/cities/:cityId/delete                       @org.iatoki.judgels.jophiel.controllers.CityController.deleteCity(cityId: Long)
+GET            /autosuggestions/cities                                      @org.iatoki.judgels.jophiel.controllers.CityController.index()
+GET            /autosuggestions/cities/                                     @org.iatoki.judgels.jophiel.controllers.CityController.listCreateCities(pageIndex: Long ?= 0, orderBy ?= "id", orderDir ?= "asc", filterString ?= "")
+POST           /autosuggestions/cities                                      @org.iatoki.judgels.jophiel.controllers.CityController.postCreateCity(pageIndex: Long ?= 0, orderBy ?= "id", orderDir ?= "asc", filterString ?= "")
+POST           /autosuggestions/cities/upload                               @org.iatoki.judgels.jophiel.controllers.CityController.postUploadCity(pageIndex: Long ?= 0, orderBy ?= "id", orderDir ?= "asc", filterString ?= "")
+GET            /autosuggestions/cities/:cityId/delete                       @org.iatoki.judgels.jophiel.controllers.CityController.deleteCity(cityId: Long)
 
-GET            /autoSuggestions/provinces                                   @org.iatoki.judgels.jophiel.controllers.ProvinceController.index()
-GET            /autoSuggestions/provinces/                                  @org.iatoki.judgels.jophiel.controllers.ProvinceController.listCreateProvinces(pageIndex: Long ?= 0, orderBy ?= "id", orderDir ?= "asc", filterString ?= "")
-POST           /autoSuggestions/provinces                                   @org.iatoki.judgels.jophiel.controllers.ProvinceController.postCreateProvince(pageIndex: Long ?= 0, orderBy ?= "id", orderDir ?= "asc", filterString ?= "")
-POST           /autoSuggestions/provinces/upload                            @org.iatoki.judgels.jophiel.controllers.ProvinceController.postUploadProvince(pageIndex: Long ?= 0, orderBy ?= "id", orderDir ?= "asc", filterString ?= "")
-GET            /autoSuggestions/provinces/:provinceId/delete                @org.iatoki.judgels.jophiel.controllers.ProvinceController.deleteProvince(provinceId: Long)
+GET            /autosuggestions/provinces                                   @org.iatoki.judgels.jophiel.controllers.ProvinceController.index()
+GET            /autosuggestions/provinces/                                  @org.iatoki.judgels.jophiel.controllers.ProvinceController.listCreateProvinces(pageIndex: Long ?= 0, orderBy ?= "id", orderDir ?= "asc", filterString ?= "")
+POST           /autosuggestions/provinces                                   @org.iatoki.judgels.jophiel.controllers.ProvinceController.postCreateProvince(pageIndex: Long ?= 0, orderBy ?= "id", orderDir ?= "asc", filterString ?= "")
+POST           /autosuggestions/provinces/upload                            @org.iatoki.judgels.jophiel.controllers.ProvinceController.postUploadProvince(pageIndex: Long ?= 0, orderBy ?= "id", orderDir ?= "asc", filterString ?= "")
+GET            /autosuggestions/provinces/:provinceId/delete                @org.iatoki.judgels.jophiel.controllers.ProvinceController.deleteProvince(provinceId: Long)
 
 # OAuth2 API
 
-GET            /api/oauth2/auth                                             @org.iatoki.judgels.jophiel.controllers.api.oauth2.OAuth2APIController.auth()
-POST           /api/oauth2/auth                                             @org.iatoki.judgels.jophiel.controllers.api.oauth2.OAuth2APIController.postAuth(path)
+GET            /api/oauth2/auth                                             @org.iatoki.judgels.jophiel.controllers.api.oauth2.OAuth2WebAPIController.auth()
+POST           /api/oauth2/auth                                             @org.iatoki.judgels.jophiel.controllers.api.oauth2.OAuth2WebAPIController.postAuth(path)
 POST           /api/oauth2/token                                            @org.iatoki.judgels.jophiel.controllers.api.oauth2.OAuth2APIController.token()
 GET            /api/oauth2/userinfo                                         @org.iatoki.judgels.jophiel.controllers.api.oauth2.OAuth2APIController.userInfo()
 

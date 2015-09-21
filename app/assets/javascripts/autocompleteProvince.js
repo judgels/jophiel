@@ -1,8 +1,8 @@
-require(["jquery", "jquery-ui"], function( __tes__ ) {
-    $(".institution_autocomplete").autocomplete({
+require(["jquery", "jquery-ui"], function() {
+    $(".province_autocomplete").autocomplete({
         source: function( request, response ) {
             $.ajax({
-                url: institutionAutoCompleteUrl,
+                url: autocompleteProvinceAPIEndpoint,
                 type: 'GET',
                 data: {
                     term: request.term

@@ -1,5 +1,5 @@
 @import play.i18n.Messages
-@import org.iatoki.judgels.play.views.html.formErrorView
+@import org.iatoki.judgels.play.views.html.form.globalFormErrorsView
 @import org.iatoki.judgels.jophiel.ApplicationTypes
 @import org.iatoki.judgels.jophiel.Scope
 @import org.iatoki.judgels.jophiel.forms.ClientCreateForm
@@ -9,17 +9,17 @@
 
 @implicitFieldConstructor = @{ b3.horizontal.fieldConstructor("col-md-2", "col-md-10") }
 
-@formErrorView(clientCreateForm)
+@globalFormErrorsView(clientCreateForm)
 
 @b3.form(routes.ClientController.postCreateClient()) {
 
     @helper.CSRF.formField
 
-    @b3.text(clientCreateForm("name"), '_label -> Messages.get("client.name"))
-    @b3.select(clientCreateForm("applicationType"), ApplicationTypes.values.map(e => (e.name() -> e.name())).toSeq, '_label -> Messages.get("client.applicationType"))
-    @b3.text(clientCreateForm("redirectURIs"), '_label -> Messages.get("client.redirectURIs"))
+    @b3.text(clientCreateForm("name"), '_label -> Messages.get("client.field.name"))
+    @b3.select(clientCreateForm("applicationType"), ApplicationTypes.values.map(e => (e.name() -> e.name())).toSeq, '_label -> Messages.get("client.field.applicationType"))
+    @b3.text(clientCreateForm("redirectURIs"), '_label -> Messages.get("client.field.redirectURIs"))
     <div class="form-group" id="">
-        <label class="control-label col-md-2">@Messages.get("client.scopes")</label>
+        <label class="control-label col-md-2">@Messages.get("client.field.scopes")</label>
         <div class="col-xs-10">
             <div class="multi-checkbox-list">
             @for(scope <- Scope.values().zipWithIndex) {
@@ -36,5 +36,5 @@
         </div>
     </div>
 
-    @b3.submit('class -> "btn btn-primary") { @Messages.get("commons.create") }
+    @b3.submit('class -> "btn btn-primary") { @Messages.get("commons.button.new") }
 }

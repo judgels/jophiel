@@ -1,0 +1,40 @@
+@import java.util.Locale
+@import play.i18n.Messages
+@import org.iatoki.judgels.play.views.html.form.globalFormErrorsView
+@import org.iatoki.judgels.jophiel.controllers.routes
+@import org.iatoki.judgels.WorldCountryRegistry
+@import org.iatoki.judgels.jophiel.forms.UserInfoEditForm
+@import org.iatoki.judgels.jophiel.UserInfoGenders
+@import org.iatoki.judgels.jophiel.UserInfoShirtSizes
+
+@(infoEditForm: Form[UserInfoEditForm])
+
+@implicitFieldConstructor = @{ b3.horizontal.fieldConstructor("col-md-3", "col-md-9") }
+
+@globalFormErrorsView(infoEditForm)
+
+@b3.form(routes.UserProfileController.postEditOwnInfo()) {
+    @b3.radio(infoEditForm("gender"), UserInfoGenders.values.map(e => (e.name() -> Messages.get("info.field.gender." + e.name()))).toSeq, '_label -> Messages.get("info.field.gender"))
+    @b3.text(infoEditForm("birthDate"), '_label -> Messages.get("info.field.birthDate"), 'class -> "form-control datepicker")
+    @b3.textarea(infoEditForm("streetAddress"), '_label -> Messages.get("info.field.streetAddress"))
+    @b3.text(infoEditForm("postalCode"), '_label -> Messages.get("info.field.postalCode"))
+    @b3.text(infoEditForm("institution"), '_label -> Messages.get("info.field.institution"), '_help -> Messages.get("info.help.institution"), 'class -> "form-control institution_autocomplete", 'autocomplete -> "off")
+    @b3.text(infoEditForm("city"), '_label -> Messages.get("info.field.city"), '_help -> Messages.get("info.help.city"), 'class -> "form-control city_autocomplete", 'autocomplete -> "off")
+    @b3.text(infoEditForm("provinceOrState"), '_label -> Messages.get("info.field.provinceOrState"), '_help -> Messages.get("info.help.provinceOrState"), 'class -> "form-control province_autocomplete", 'autocomplete -> "off")
+
+    @b3.select(infoEditForm("country"), (Seq(Messages.get("info.field.country.DO_NOT_WANT_TO_STATE") -> Messages.get("info.field.country.DO_NOT_WANT_TO_STATE")) ++ WorldCountryRegistry.getInstance().getCountries.map(c => (c -> c)).toSeq), '_label -> Messages.get("info.field.country"), 'class -> "form-control selectpicker", '_help -> Messages.get("info.help.country"))
+
+    @b3.select(infoEditForm("shirtSize"), UserInfoShirtSizes.values.map(e => (e.name() -> Messages.get("info.field.shirtSize." + e.name()))).toSeq, '_label -> Messages.get("info.field.shirtSize"), 'class -> "form-control selectpicker")
+
+    @b3.submit('class -> "btn btn-primary") { @Messages.get("commons.button.save") }
+}
+
+<script type="text/javascript">
+    var autocompleteInstitutionAPIEndpoint = "@org.iatoki.judgels.jophiel.controllers.api.internal.routes.InternalInstitutionAPIController.autocompleteInstitution()";
+    var autocompleteCityAPIEndpoint = "@org.iatoki.judgels.jophiel.controllers.api.internal.routes.InternalCityAPIController.autocompleteCity()";
+    var autocompleteProvinceAPIEndpoint = "@org.iatoki.judgels.jophiel.controllers.api.internal.routes.InternalProvinceAPIController.autocompleteProvince()";
+</script>
+<script type="text/javascript" src="@controllers.routes.Assets.versioned("javascripts/autocompleteInstitution.js")"></script>
+<script type="text/javascript" src="@controllers.routes.Assets.versioned("javascripts/autocompleteCity.js")"></script>
+<script type="text/javascript" src="@controllers.routes.Assets.versioned("javascripts/autocompleteProvince.js")"></script>
+<script type="text/javascript" src="@controllers.routes.Assets.versioned("lib/playcommons/javascripts/datepicker.js")"></script>

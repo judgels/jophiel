@@ -1,29 +1,24 @@
 package org.iatoki.judgels.jophiel.controllers;
 
-import com.google.common.collect.ImmutableList;
 import org.apache.commons.io.FilenameUtils;
-import org.iatoki.judgels.jophiel.JophielUtils;
 import org.iatoki.judgels.jophiel.User;
 import org.iatoki.judgels.jophiel.UserInfo;
 import org.iatoki.judgels.jophiel.controllers.securities.Authenticated;
 import org.iatoki.judgels.jophiel.controllers.securities.HasRole;
 import org.iatoki.judgels.jophiel.controllers.securities.LoggedIn;
-import org.iatoki.judgels.jophiel.forms.SearchProfileForm;
 import org.iatoki.judgels.jophiel.forms.UserAvatarForm;
-import org.iatoki.judgels.jophiel.forms.UserInfoUpsertForm;
+import org.iatoki.judgels.jophiel.forms.UserInfoEditForm;
 import org.iatoki.judgels.jophiel.forms.UserProfileEditForm;
+import org.iatoki.judgels.jophiel.forms.UserProfileSearchForm;
 import org.iatoki.judgels.jophiel.services.UserActivityService;
+import org.iatoki.judgels.jophiel.services.UserEmailService;
+import org.iatoki.judgels.jophiel.services.UserPhoneService;
 import org.iatoki.judgels.jophiel.services.UserProfileService;
 import org.iatoki.judgels.jophiel.services.UserService;
 import org.iatoki.judgels.jophiel.views.html.profile.viewProfileView;
-import org.iatoki.judgels.play.IdentityUtils;
-import org.iatoki.judgels.play.InternalLink;
+import org.iatoki.judgels.play.HtmlTemplate;
 import org.iatoki.judgels.play.JudgelsPlayUtils;
-import org.iatoki.judgels.play.LazyHtml;
-import org.iatoki.judgels.play.controllers.AbstractJudgelsController;
-import org.iatoki.judgels.play.views.html.layouts.headingLayout;
 import org.iatoki.judgels.play.views.html.layouts.messageView;
-import org.iatoki.judgels.play.views.html.layouts.tabLayout;
 import play.Logger;
 import play.data.Form;
 import play.db.jpa.Transactional;
@@ -42,86 +37,83 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
 
+@Authenticated(value = {LoggedIn.class, HasRole.class})
 @Singleton
 @Named
-public final class UserProfileController extends AbstractJudgelsController {
+public final class UserProfileController extends AbstractUserProfileController {
 
-    private final UserActivityService userActivityService;
-    private final UserProfileService userProfileService;
     private final UserService userService;
 
     @Inject
-    public UserProfileController(UserActivityService userActivityService, UserProfileService userProfileService, UserService userService) {
-        this.userActivityService = userActivityService;
-        this.userProfileService = userProfileService;
+    public UserProfileController(UserActivityService userActivityService, UserProfileService userProfileService, UserEmailService userEmailService, UserPhoneService userPhoneService, UserService userService) {
+        super(userActivityService, userProfileService, userEmailService, userPhoneService);
+
         this.userService = userService;
     }
 
-    @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Transactional
     @AddCSRFToken
-    public Result editOwnProfile() {
-        JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Try to update profile <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
+    public Result index() {
+        User user = userService.findUserByJid(getCurrentUserJid());
 
-        return UserProfileControllerUtils.getInstance().showEditOwnProfile();
+        return showEditProfile(user);
     }
 
-    @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Transactional
     @RequireCSRFCheck
     public Result postEditOwnProfile() {
+        User user = userService.findUserByJid(getCurrentUserJid());
+
         Form<UserProfileEditForm> userProfileEditForm = Form.form(UserProfileEditForm.class).bindFromRequest();
-        User user = userService.findUserByJid(IdentityUtils.getUserJid());
 
         if (formHasErrors(userProfileEditForm)) {
             Logger.error(userProfileEditForm.errors().toString());
 
-            return UserProfileControllerUtils.getInstance().showEditOwnProfileWithProfileEditForm(userProfileEditForm);
+            return showEditProfileWithProfileEditForm(user, userProfileEditForm);
         }
 
         UserProfileEditForm userProfileEditData = userProfileEditForm.get();
 
         if (!userProfileEditData.password.isEmpty()) {
             if (!userProfileEditData.password.equals(userProfileEditData.confirmPassword)) {
-                userProfileEditForm.reject("profile.error.passwordsDidntMatch");
+                userProfileEditForm.reject(Messages.get("basicProfile.error.passwordsDidntMatch"));
 
-                return UserProfileControllerUtils.getInstance().showEditOwnProfileWithProfileEditForm(userProfileEditForm);
+                return showEditProfileWithProfileEditForm(user, userProfileEditForm);
             }
 
-            userProfileService.updateProfile(IdentityUtils.getUserJid(), userProfileEditData.name, userProfileEditData.showName, userProfileEditData.password, IdentityUtils.getIpAddress());
+            userProfileService.updateProfile(getCurrentUserJid(), userProfileEditData.name, userProfileEditData.showName, userProfileEditData.password, getCurrentUserIpAddress());
         } else {
-            userProfileService.updateProfile(IdentityUtils.getUserJid(), userProfileEditData.name, userProfileEditData.showName, IdentityUtils.getIpAddress());
+            userProfileService.updateProfile(getCurrentUserJid(), userProfileEditData.name, userProfileEditData.showName, getCurrentUserIpAddress());
         }
+
         session("name", userProfileEditData.name);
 
-        JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Update profile.");
-
-        return redirect(UserProfileControllerUtils.getInstance().getEditOwnProfileCall());
+        return redirect(routes.UserProfileController.index());
     }
 
     @BodyParser.Of(value = BodyParser.MultipartFormData.class, maxLength = (2 << 20))
-    @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Transactional
     @RequireCSRFCheck
     public Result postEditOwnAvatar() {
+        User user = userService.findUserByJid(getCurrentUserJid());
+
         // TODO catch 413 http response
         Http.MultipartFormData body = request().body().asMultipartFormData();
         Http.MultipartFormData.FilePart avatar = body.getFile("avatar");
-        User user = userService.findUserByJid(IdentityUtils.getUserJid());
 
         if (avatar == null) {
             Form<UserAvatarForm> userAvatarForm = Form.form(UserAvatarForm.class);
 
-            userAvatarForm.reject("profile.error.not_picture");
-            return UserProfileControllerUtils.getInstance().showEditOwnProfileWithAvatarForm(userAvatarForm);
+            userAvatarForm.reject(Messages.get("basicProfile.avatar.error.noFile"));
+            return showEditProfileWithAvatarForm(user, userAvatarForm);
         }
 
         String contentType = avatar.getContentType();
         if (!(contentType.equals("image/png") || contentType.equals("image/jpg") || contentType.equals("image/jpeg"))) {
             Form<UserAvatarForm> userAvatarForm = Form.form(UserAvatarForm.class);
 
-            userAvatarForm.reject("error.profile.not_picture");
-            return UserProfileControllerUtils.getInstance().showEditOwnProfileWithAvatarForm(userAvatarForm);
+            userAvatarForm.reject(Messages.get("basicProfile.avatar.error.notImage"));
+            return showEditProfileWithAvatarForm(user, userAvatarForm);
         }
 
         try {
@@ -129,39 +121,36 @@ public final class UserProfileController extends AbstractJudgelsController {
             String profilePictureUrl = userProfileService.getAvatarImageUrlString(profilePictureName);
             try {
                 new URL(profilePictureUrl);
-                session("avatar", profilePictureUrl.toString());
+                session("avatar", profilePictureUrl);
             } catch (MalformedURLException e) {
                 session("avatar", org.iatoki.judgels.jophiel.controllers.api.pub.v1.routes.PublicUserAPIControllerV1.renderAvatarImage(profilePictureName).absoluteURL(request()));
             }
         } catch (IOException e) {
             Form<UserAvatarForm> userAvatarForm = Form.form(UserAvatarForm.class);
 
-            userAvatarForm.reject("profile.error.cantUpload");
-            return UserProfileControllerUtils.getInstance().showEditOwnProfileWithAvatarForm(userAvatarForm);
+            userAvatarForm.reject(Messages.get("basicProfile.avatar.error.cantUpload"));
+            return showEditProfileWithAvatarForm(user, userAvatarForm);
         }
 
-        JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Update avatar.");
-
-        return redirect(UserProfileControllerUtils.getInstance().getEditOwnProfileCall());
+        return redirect(routes.UserProfileController.index());
     }
 
-    @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Transactional
     public Result postEditOwnInfo() {
-        Form<UserInfoUpsertForm> userInfoUpsertForm = Form.form(UserInfoUpsertForm.class).bindFromRequest();
+        User user = userService.findUserByJid(getCurrentUserJid());
 
-        if (formHasErrors(userInfoUpsertForm)) {
-            Logger.error(userInfoUpsertForm.errors().toString());
+        Form<UserInfoEditForm> userInfoEditForm = Form.form(UserInfoEditForm.class).bindFromRequest();
 
-            return UserProfileControllerUtils.getInstance().showEditOwnProfileWithInfoUpsertForm(userInfoUpsertForm);
+        if (formHasErrors(userInfoEditForm)) {
+            Logger.error(userInfoEditForm.errors().toString());
+
+            return showEditProfileWithInfoEditForm(user, userInfoEditForm);
         }
 
-        UserInfoUpsertForm userInfoUpsertData = userInfoUpsertForm.get();
-        userProfileService.upsertInfo(IdentityUtils.getUserJid(), userInfoUpsertData.gender, new Date(JudgelsPlayUtils.parseDate(userInfoUpsertData.birthDate)), userInfoUpsertData.streetAddress, userInfoUpsertData.postalCode, userInfoUpsertData.institution, userInfoUpsertData.city, userInfoUpsertData.provinceOrState, userInfoUpsertData.country, userInfoUpsertData.shirtSize, IdentityUtils.getIpAddress());
+        UserInfoEditForm userInfoEditData = userInfoEditForm.get();
+        userProfileService.upsertInfo(getCurrentUserJid(), userInfoEditData.gender, new Date(JudgelsPlayUtils.parseDate(userInfoEditData.birthDate)), userInfoEditData.streetAddress, userInfoEditData.postalCode, userInfoEditData.institution, userInfoEditData.city, userInfoEditData.provinceOrState, userInfoEditData.country, userInfoEditData.shirtSize, getCurrentUserIpAddress());
 
-        JophielControllerUtils.getInstance().addActivityLog(userActivityService, "Update info.");
-
-        return redirect(UserProfileControllerUtils.getInstance().getEditOwnProfileCall());
+        return redirect(routes.UserProfileController.index());
     }
 
     @Transactional
@@ -177,46 +166,39 @@ public final class UserProfileController extends AbstractJudgelsController {
             userInfo = userProfileService.getInfo(user.getJid());
         }
 
-        LazyHtml content = new LazyHtml(viewProfileView.render(user, userInfo));
-        if (IdentityUtils.getUserJid() != null) {
-            if (JophielUtils.hasRole("admin")) {
-                content.appendLayout(c -> tabLayout.render(ImmutableList.of(new InternalLink(Messages.get("profile.profile"), routes.UserProfileController.viewProfile(username)), new InternalLink(Messages.get("profile.activities"), routes.UserActivityController.viewUserActivities(username))), c));
-            }
-            content.appendLayout(c -> headingLayout.render(user.getUsername(), c));
-            JophielControllerUtils.getInstance().appendSidebarLayout(content);
-            JophielControllerUtils.getInstance().appendBreadcrumbsLayout(content, ImmutableList.of(
-                    new InternalLink(Messages.get("profile.profile"), routes.UserProfileController.viewProfile(username))
-            ));
-
-            JophielControllerUtils.getInstance().addActivityLog(userActivityService, "View user profile " + user.getUsername() + " <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
-        } else {
-            content.appendLayout(c -> headingLayout.render(user.getUsername(), c));
-            JophielControllerUtils.getInstance().appendSidebarLayout(content);
-        }
-        JophielControllerUtils.getInstance().appendTemplateLayout(content, "Profile");
-
-        return JophielControllerUtils.getInstance().lazyOk(content);
+        return showViewProfile(user, userInfo);
     }
 
     @Transactional
-    public Result postViewProfile() {
-        Form<SearchProfileForm> searchProfileForm = Form.form(SearchProfileForm.class).bindFromRequest();
+    public Result postSearchProfile() {
+        Form<UserProfileSearchForm> userProfileSearchForm = Form.form(UserProfileSearchForm.class).bindFromRequest();
 
-        if (formHasErrors(searchProfileForm)) {
+        if (formHasErrors(userProfileSearchForm)) {
             return redirect(routes.UserProfileController.userNotFound());
         }
 
-        String username = searchProfileForm.get().username;
+        String username = userProfileSearchForm.get().username;
 
         return redirect(routes.UserProfileController.viewProfile(username));
     }
 
     public Result userNotFound() {
-        LazyHtml content = new LazyHtml(messageView.render(Messages.get("user.search.notFound")));
-        content.appendLayout(c -> headingLayout.render(Messages.get("user.search"), c));
-        JophielControllerUtils.getInstance().appendSidebarLayout(content);
-        JophielControllerUtils.getInstance().appendTemplateLayout(content, "User not Found");
+        return showUserNotFound();
+    }
 
-        return JophielControllerUtils.getInstance().lazyOk(content);
+    private Result showViewProfile(User user, UserInfo userInfo) {
+        HtmlTemplate template = new HtmlTemplate();
+
+        template.setContent(viewProfileView.render(user, userInfo));
+
+        return renderTemplate(template, user);
+    }
+
+    private Result showUserNotFound() {
+        HtmlTemplate template = new HtmlTemplate();
+
+        template.setContent(messageView.render(Messages.get("user.search.notFound")));
+
+        return renderTemplate(template);
     }
 }

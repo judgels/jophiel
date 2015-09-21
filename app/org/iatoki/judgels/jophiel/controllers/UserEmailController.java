@@ -8,13 +8,13 @@ import org.iatoki.judgels.jophiel.controllers.securities.Authorized;
 import org.iatoki.judgels.jophiel.controllers.securities.HasRole;
 import org.iatoki.judgels.jophiel.controllers.securities.LoggedIn;
 import org.iatoki.judgels.jophiel.forms.UserEmailCreateForm;
+import org.iatoki.judgels.jophiel.services.UserActivityService;
 import org.iatoki.judgels.jophiel.services.UserEmailService;
+import org.iatoki.judgels.jophiel.services.UserPhoneService;
+import org.iatoki.judgels.jophiel.services.UserProfileService;
 import org.iatoki.judgels.jophiel.services.UserService;
 import org.iatoki.judgels.jophiel.views.html.account.activationView;
-import org.iatoki.judgels.play.IdentityUtils;
-import org.iatoki.judgels.play.LazyHtml;
-import org.iatoki.judgels.play.controllers.AbstractJudgelsController;
-import org.iatoki.judgels.play.views.html.layouts.centerLayout;
+import org.iatoki.judgels.play.HtmlTemplate;
 import play.data.Form;
 import play.db.jpa.Transactional;
 import play.filters.csrf.RequireCSRFCheck;
@@ -27,16 +27,17 @@ import javax.inject.Singleton;
 
 @Singleton
 @Named
-public final class UserEmailController extends AbstractJudgelsController {
+public final class UserEmailController extends AbstractUserProfileController {
 
-    private final UserEmailService userEmailService;
     private final UserService userService;
 
     @Inject
-    public UserEmailController(UserEmailService userEmailService, UserService userService) {
-        this.userEmailService = userEmailService;
+    public UserEmailController(UserActivityService userActivityService, UserProfileService userProfileService, UserEmailService userEmailService, UserPhoneService userPhoneService, UserService userService) {
+        super(userActivityService, userProfileService, userEmailService, userPhoneService);
+
         this.userService = userService;
     }
+
 
     @Transactional
     public Result verifyEmail(String emailCode) {
@@ -44,86 +45,83 @@ public final class UserEmailController extends AbstractJudgelsController {
             return notFound();
         }
 
-        userEmailService.activateEmail(emailCode, IdentityUtils.getIpAddress());
+        userEmailService.activateEmail(emailCode, getCurrentUserIpAddress());
 
-        LazyHtml content = new LazyHtml(activationView.render());
-        content.appendLayout(c -> centerLayout.render(c));
-        JophielControllerUtils.getInstance().appendTemplateLayout(content, "Verify Email");
-
-        return JophielControllerUtils.getInstance().lazyOk(content);
+        return showAfterActivateEmail();
     }
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Transactional
     @RequireCSRFCheck
     public Result postCreateEmail() {
+        User user = userService.findUserByJid(getCurrentUserJid());
+
         Form<UserEmailCreateForm> userEmailCreateForm = Form.form(UserEmailCreateForm.class).bindFromRequest();
 
         if (formHasErrors(userEmailCreateForm)) {
-            return UserProfileControllerUtils.getInstance().showEditOwnProfileWithEmailCreateForm(userEmailCreateForm);
+            return showEditProfileWithEmailCreateForm(user, userEmailCreateForm);
         }
 
         UserEmailCreateForm userEmailCreateData = userEmailCreateForm.get();
 
-        User user = userService.findUserByJid(IdentityUtils.getUserJid());
         String emailCode;
         if (user.getEmailJid() == null) {
-            emailCode = userEmailService.addFirstEmail(IdentityUtils.getUserJid(), userEmailCreateData.email, IdentityUtils.getIpAddress());
+            emailCode = userEmailService.addFirstEmail(getCurrentUserJid(), userEmailCreateData.email, getCurrentUserIpAddress());
         } else {
-            emailCode = userEmailService.addEmail(IdentityUtils.getUserJid(), userEmailCreateData.email, IdentityUtils.getIpAddress());
+            emailCode = userEmailService.addEmail(getCurrentUserJid(), userEmailCreateData.email, getCurrentUserIpAddress());
         }
-        userEmailService.sendEmailVerification(user.getName(), userEmailCreateData.email, routes.UserEmailController.verifyEmail(emailCode).absoluteURL(request(), request().secure()));
+        userEmailService.sendEmailVerification(user.getName(), userEmailCreateData.email, getAbsoluteUrl(routes.UserEmailController.verifyEmail(emailCode)));
 
-        flashInfo(Messages.get("user.email.verificationEmailSentTo") + " " + userEmailCreateData.email + ".");
+        flashInfo(Messages.get("email.verify.text.verificationSentTo", userEmailCreateData.email));
 
-        return redirect(UserProfileControllerUtils.getInstance().getEditOwnProfileCall());
+        return redirect(routes.UserProfileController.index());
     }
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Transactional
     public Result makeEmailPrimary(long emailId) throws UserEmailNotFoundException {
-        User user = userService.findUserByJid(IdentityUtils.getUserJid());
+        User user = userService.findUserByJid(getCurrentUserJid());
         UserEmail userEmail = userEmailService.findEmailById(emailId);
 
         if (!user.getJid().equals(userEmail.getUserJid())) {
-            flashError(Messages.get("user.email.makePrimary.error.emailIsNotOwned"));
-            return redirect(UserProfileControllerUtils.getInstance().getEditOwnProfileCall());
+            flashError(Messages.get("email.makePrimary.error.notOwned"));
+            return redirect(routes.UserProfileController.index());
         }
 
         if (user.getEmailJid().equals(userEmail.getJid())) {
-            flashError(Messages.get("user.email.makePrimary.error.emailIsPrimary"));
-            return redirect(UserProfileControllerUtils.getInstance().getEditOwnProfileCall());
+            flashError(Messages.get("email.makePrimary.error.alreadyPrimary"));
+            return redirect(routes.UserProfileController.index());
         }
 
         if (!userEmail.isEmailVerified()) {
-            flashError(Messages.get("user.email.makePrimary.error.emailIsNotVerified"));
-            return redirect(UserProfileControllerUtils.getInstance().getEditOwnProfileCall());
+            flashError(Messages.get("email.makePrimary.error.notVerified"));
+            return redirect(routes.UserProfileController.index());
         }
 
-        userEmailService.makeEmailPrimary(user.getJid(), userEmail.getJid(), IdentityUtils.getIpAddress());
+        userEmailService.makeEmailPrimary(user.getJid(), userEmail.getJid(), getCurrentUserIpAddress());
 
-        return redirect(UserProfileControllerUtils.getInstance().getEditOwnProfileCall());
+        return redirect(routes.UserProfileController.index());
     }
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Transactional
     public Result deleteEmail(long emailId) throws UserEmailNotFoundException {
-        User user = userService.findUserByJid(IdentityUtils.getUserJid());
+        User user = userService.findUserByJid(getCurrentUserJid());
         UserEmail userEmail = userEmailService.findEmailById(emailId);
 
         if (!user.getJid().equals(userEmail.getUserJid())) {
-            flashError(Messages.get("user.email.remove.error.emailIsNotOwned"));
-            return redirect(UserProfileControllerUtils.getInstance().getEditOwnProfileCall());
+            flashError(Messages.get("email.remove.error.notOwned"));
+            return redirect(routes.UserProfileController.index());
         }
 
         if (user.getEmailJid().equals(userEmail.getJid())) {
-            flashError(Messages.get("user.email.remove.error.emailIsPrimary"));
-            return redirect(UserProfileControllerUtils.getInstance().getEditOwnProfileCall());
+            flashError(Messages.get("email.remove.error.primary"));
+            return redirect(routes.UserProfileController.index());
         }
 
         userEmailService.removeEmail(userEmail.getJid());
 
-        return redirect(UserProfileControllerUtils.getInstance().getEditOwnProfileCall());
+        return redirect(routes.UserProfileController.index());
     }
 
     @Authenticated(value = {LoggedIn.class, HasRole.class})
@@ -134,14 +132,14 @@ public final class UserEmailController extends AbstractJudgelsController {
         User user = userService.findUserByJid(userEmail.getUserJid());
 
         if (!userEmailService.isEmailNotVerified(userEmail.getJid())) {
-            flashError(Messages.get("user.email.resend.error.emailIsAlreadyVerified"));
+            flashError(Messages.get("email.resend.error.alreadyVerified"));
             return redirect(routes.UserController.viewUnverifiedUsers());
         }
 
         String emailCode = userEmailService.getEmailCodeOfUnverifiedEmail(userEmail.getJid());
-        userEmailService.sendEmailVerification(user.getName(), userEmail.getEmail(), routes.UserEmailController.verifyEmail(emailCode).absoluteURL(request(), request().secure()));
+        userEmailService.sendEmailVerification(user.getName(), userEmail.getEmail(), getAbsoluteUrl(routes.UserEmailController.verifyEmail(emailCode)));
 
-        flashInfo(Messages.get("user.email.verificationEmailSentTo") + " " + userEmail.getEmail() + ".");
+        flashInfo(Messages.get("email.verify.text.verificationSentTo") + " " + userEmail.getEmail() + ".");
 
         return redirect(routes.UserController.viewUnverifiedUsers());
     }
@@ -153,13 +151,22 @@ public final class UserEmailController extends AbstractJudgelsController {
         UserEmail userEmail = userEmailService.findEmailById(emailId);
 
         if (!userEmailService.isEmailNotVerified(userEmail.getJid())) {
-            flashError(Messages.get("user.email.activate.error.emailIsAlreadyVerified"));
+            flashError(Messages.get("email.activate.error.alreadyVerified"));
             return redirect(routes.UserController.viewUnverifiedUsers());
         }
 
         String code = userEmailService.getEmailCodeOfUnverifiedEmail(userEmail.getJid());
-        userEmailService.activateEmail(code, IdentityUtils.getIpAddress());
+        userEmailService.activateEmail(code, getCurrentUserIpAddress());
 
         return redirect(routes.UserController.viewUnverifiedUsers());
+    }
+
+    private Result showAfterActivateEmail() {
+        HtmlTemplate template = new HtmlTemplate();
+
+        template.setContent(activationView.render());
+        template.setMainTitle(Messages.get("activation.text.successful"));
+
+        return renderTemplate(template);
     }
 }

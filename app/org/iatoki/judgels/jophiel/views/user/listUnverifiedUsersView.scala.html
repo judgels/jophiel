@@ -16,8 +16,8 @@
 @tableView() {
     @tableHeadersView(pageOfUnverifiedUserEmails.getPageIndex, orderBy, orderDir, filterString, routes.UserController.listUnverifiedUsers)(
         "id" -> Messages.get("commons.id"),
-        "username" -> Messages.get("user.username"),
-        "email" -> Messages.get("user.email")
+        "username" -> Messages.get("user.field.username"),
+        "email" -> Messages.get("user.field.email")
     )
 
     <tbody>
@@ -27,8 +27,8 @@
                 <td>@userEmail.getUsername</td>
                 <td>@userEmail.getEmail</td>
                 <td class="text-center">
-                    <a href="@routes.UserEmailController.resendEmailVerification(userEmail.getId)" class="btn btn-primary btn-sm">@Messages.get("user.email.resendVerification")</a>
-                    <a href="@routes.UserEmailController.activateEmail(userEmail.getId)" class="btn btn-primary btn-sm">@Messages.get("user.email.activate")</a>
+                    <a href="@routes.UserEmailController.resendEmailVerification(userEmail.getId)" class="btn btn-primary btn-sm">@Messages.get("email.button.resend")</a>
+                    <a href="@routes.UserEmailController.activateEmail(userEmail.getId)" class="btn btn-primary btn-sm">@Messages.get("email.button.activate")</a>
                 </td>
             </tr>
         }

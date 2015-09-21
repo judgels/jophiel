@@ -6,15 +6,14 @@
 
 @implicitFieldConstructor = @{ b3.horizontal.fieldConstructor("col-md-4", "col-md-8") }
 
-<h2>@Messages.get("auth.authorization")</h2>
-<p>@Messages.get("auth.wantToAuthorize")  @client.getName @Messages.get("auth.inTheseScopes")?</p>
-@b3.form(routes.OAuth2APIController.postAuth(path)) {
+<p>@Messages.get("auth.text.authorize", client.getName)</p>
+@b3.form(routes.OAuth2WebAPIController.postAuth(path)) {
 
     @helper.CSRF.formField
 
     @for(scope <- scopes) {
-        @b3.static(Messages.get("client.scopes")) {@scope}
+        @b3.static(Messages.get("auth.field.scope")) {@scope}
     }
 
-    @b3.submit('class -> "btn btn-primary") { @Messages.get("auth.authorize") }
+    @b3.submit('class -> "btn btn-primary") { @Messages.get("auth.button.authorize") }
 }

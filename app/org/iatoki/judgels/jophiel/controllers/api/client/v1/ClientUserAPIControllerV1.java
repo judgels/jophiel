@@ -6,7 +6,6 @@ import org.iatoki.judgels.jophiel.controllers.api.AbstractJophielAPIController;
 import org.iatoki.judgels.jophiel.controllers.api.object.v1.UserV1;
 import org.iatoki.judgels.jophiel.services.ClientService;
 import org.iatoki.judgels.jophiel.services.UserService;
-import org.iatoki.judgels.play.IdentityUtils;
 import org.iatoki.judgels.play.apis.JudgelsAPINotFoundException;
 import org.iatoki.judgels.play.apis.JudgelsAppClientAPIIdentity;
 import play.data.DynamicForm;
@@ -28,9 +27,9 @@ public final class ClientUserAPIControllerV1 extends AbstractJophielAPIControlle
     public Result isLoggedIn() {
         DynamicForm dForm = DynamicForm.form().bindFromRequest();
 
-        boolean isLoggedIn = (IdentityUtils.getUserJid() != null);
+        boolean isLoggedIn = (getCurrentUserJid() != null);
         if (isLoggedIn && dForm.data().containsKey("userJid")) {
-            isLoggedIn = IdentityUtils.getUserJid().equals(dForm.get("userJid"));
+            isLoggedIn = getCurrentUserJid().equals(dForm.get("userJid"));
         }
 
         return okAsJson(isLoggedIn);

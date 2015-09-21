@@ -1,9 +1,10 @@
 @import play.i18n.Messages
+@import org.iatoki.judgels.play.views.html.action.deleteActionView
 @import org.iatoki.judgels.play.views.html.table.tableView
 @import org.iatoki.judgels.play.views.html.table.tableHeadersView
 @import org.iatoki.judgels.play.views.html.table.searchView
 @import org.iatoki.judgels.play.views.html.table.paginationView
-@import org.iatoki.judgels.play.views.html.formErrorView
+@import org.iatoki.judgels.play.views.html.form.globalFormErrorsView
 @import org.iatoki.judgels.jophiel.controllers.routes
 @import org.iatoki.judgels.play.Page
 @import org.iatoki.judgels.jophiel.Institution
@@ -14,31 +15,31 @@
 
 @implicitFieldConstructor = @{ b3.horizontal.fieldConstructor("col-md-3", "col-md-9") }
 
-<h4>@Messages.get("institution.importTXT")</h4>
+<h4>@Messages.get("institution.text.import")</h4>
 
-@formErrorView(institutionUploadForm)
+@globalFormErrorsView(institutionUploadForm)
 
 @b3.form(routes.InstitutionController.postUploadInstitution(pageOfInstitutions.getPageIndex, orderBy, orderDir, filterString), 'enctype->"multipart/form-data") {
 
     @helper.CSRF.formField
 
-    @b3.file(institutionUploadForm("institutions"), '_label -> Messages.get("institution.institutions"), 'class -> "form-control", '_help -> Messages.get("institution.help.importTXT"))
+    @b3.file(institutionUploadForm("institutions"), '_label -> Messages.get("institution.field.file"), 'class -> "form-control", '_help -> Messages.get("institution.help.file"))
 
-    @b3.submit('class -> "btn btn-primary") { @Messages.get("commons.upload") }
+    @b3.submit('class -> "btn btn-primary") { @Messages.get("commons.button.upload") }
 }
 
 
-<h4>@Messages.get("institution.manualCreate")</h4>
+<h4>@Messages.get("institution.text.manualCreate")</h4>
 
-@formErrorView(institutionCreateForm)
+@globalFormErrorsView(institutionCreateForm)
 
 @b3.form(routes.InstitutionController.postCreateInstitution(pageOfInstitutions.getPageIndex, orderBy, orderDir, filterString)) {
 
     @helper.CSRF.formField
 
-    @b3.text(institutionCreateForm("name"), '_label -> Messages.get("institution.name"), 'class -> "form-control")
+    @b3.text(institutionCreateForm("name"), '_label -> Messages.get("institution.field.name"), 'class -> "form-control")
 
-    @b3.submit('class -> "btn btn-primary") { @Messages.get("commons.add") }
+    @b3.submit('class -> "btn btn-primary") { @Messages.get("commons.button.new") }
 }
 
 
@@ -48,9 +49,9 @@
 
 @tableView() {
     @tableHeadersView(pageOfInstitutions.getPageIndex, orderBy, orderDir, filterString, routes.InstitutionController.listCreateInstitutions)(
-        "id" -> Messages.get("commons.id"),
-        "institution" -> Messages.get("institution.name"),
-        "referenceCount" -> Messages.get("institution.referenceCount")
+        "id" -> Messages.get("commons.field.id"),
+        "" -> Messages.get("institution.field.name"),
+        "" -> Messages.get("institution.field.referencesCount")
     )
     <tbody>
     @for(institution <- pageOfInstitutions.getData) {
@@ -59,7 +60,7 @@
             <td>@institution.getName</td>
             <td>@institution.getReferenceCount</td>
             <td class="text-center">
-                <a href="@routes.InstitutionController.deleteInstitution(institution.getId)" onclick="confirmLink ( event, this.href )"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
+                @deleteActionView(routes.InstitutionController.deleteInstitution(institution.getId))
             </td>
         </tr>
     }

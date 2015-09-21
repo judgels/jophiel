@@ -1,59 +1,51 @@
 package org.iatoki.judgels.jophiel.controllers;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.iatoki.judgels.jophiel.controllers.securities.Authenticated;
 import org.iatoki.judgels.jophiel.controllers.securities.HasRole;
 import org.iatoki.judgels.jophiel.controllers.securities.LoggedIn;
-import org.iatoki.judgels.play.InternalLink;
-import org.iatoki.judgels.play.LazyHtml;
-import org.iatoki.judgels.play.views.html.layouts.headingLayout;
-import org.iatoki.judgels.jophiel.JophielProperties;
 import org.iatoki.judgels.jophiel.services.UserActivityService;
+import org.iatoki.judgels.play.HtmlTemplate;
+import org.iatoki.judgels.jophiel.JophielProperties;
 import org.iatoki.judgels.jophiel.views.html.welcome.welcomeView;
 import play.db.jpa.Transactional;
 import play.i18n.Messages;
-import play.mvc.Http;
 import play.mvc.Result;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
+import java.util.Map;
 
+@Authenticated(value = {LoggedIn.class, HasRole.class})
 @Singleton
 @Named
-public class WelcomeController {
-
-    private final UserActivityService userActivityService;
+public class WelcomeController extends AbstractJophielController {
 
     @Inject
     public WelcomeController(UserActivityService userActivityService) {
-        this.userActivityService = userActivityService;
+        super(userActivityService);
     }
 
-    @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Transactional
     public Result index() {
-        ImmutableMap.Builder<String, String> clientMapBuilder = ImmutableMap.builder();
+        ImmutableMap.Builder<String, String> linkedClientsBuilder = ImmutableMap.builder();
         for (int i = 0; i < JophielProperties.getInstance().getJophielClientLabels().size(); ++i) {
             String target = JophielProperties.getInstance().getJophielClientTargets().get(i);
             String label = JophielProperties.getInstance().getJophielClientLabels().get(i);
-            clientMapBuilder.put(target, label);
+            linkedClientsBuilder.put(target, label);
         }
 
-        LazyHtml content = new LazyHtml(welcomeView.render(clientMapBuilder.build()));
+        return showWelcome(linkedClientsBuilder.build());
+    }
 
-        content.appendLayout(c -> headingLayout.render(Messages.get("welcome.welcome"), c));
+    private Result showWelcome(Map<String, String> linkedClients) {
+        HtmlTemplate template = new HtmlTemplate();
 
-        JophielControllerUtils.getInstance().appendSidebarLayout(content);
-        JophielControllerUtils.getInstance().appendBreadcrumbsLayout(content, ImmutableList.of(
-                        new InternalLink(Messages.get("welcome.welcome"), routes.WelcomeController.index()))
-        );
+        template.setContent(welcomeView.render(linkedClients));
+        template.setMainTitle(Messages.get("welcome.text.welcome"));
+        template.markBreadcrumbLocation(Messages.get("welcome.text.welcome"), routes.WelcomeController.index());
 
-        JophielControllerUtils.getInstance().appendTemplateLayout(content, "Welcome");
-
-        JophielControllerUtils.getInstance().addActivityLog(userActivityService, "View welcome page <a href=\"" + "http://" + Http.Context.current().request().host() + Http.Context.current().request().uri() + "\">link</a>.");
-
-        return JophielControllerUtils.getInstance().lazyOk(content);
+        return renderTemplate(template);
     }
 }

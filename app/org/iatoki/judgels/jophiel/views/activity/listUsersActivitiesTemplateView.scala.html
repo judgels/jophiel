@@ -16,27 +16,27 @@
     <input type="hidden" name="orderBy" value="@orderBy"/>
     <input type="hidden" name="orderDir" value="@orderDir"/>
     <div id="clientNames-input_field" class="form-group">
-        <label for="clientNames-input" class="control-label">@Messages.get("client.clients")</label>
+        <label for="clientNames-input" class="control-label">@Messages.get("activity.field.clients")</label>
         <div class="">
             <input id="clientNames" type="text" class="client_multicomplete form-control" name="clientNames" value="@clientNames" autocomplete="off">
         </div>
     </div>
     @if(filterUser) {
         <div id="usernames-input_field" class="form-group">
-            <label for="usernames-input" class="control-label">@Messages.get("user.users")</label>
+            <label for="usernames-input" class="control-label">@Messages.get("activity.field.users")</label>
             <div class="">
                 <input id="usernames" type="text" class="user_multicomplete form-control" name="usernames" value="@usernames" autocomplete="off">
             </div>
         </div>
     }
     <div id="filterString-input_field" class="form-group">
-        <label for="filterString-input" class="control-label">@Messages.get("commons.search")</label>
+        <label for="filterString-input" class="control-label">@Messages.get("commons.button.search")</label>
         <div class="">
             <input id="filterString" type="search" class="form-control" name="filterString" value="@filterString">
         </div>
     </div>
 
-    @b3.submit('class -> "btn btn-primary") { @Messages.get("commons.filter") }
+    @b3.submit('class -> "btn btn-primary") { @Messages.get("commons.button.filter") }
 }
 
 <div class="clearfix"></div>
@@ -44,24 +44,27 @@
 @tableView() {
     @if(filterUser) {
         @tableHeadersView(pageOfUserActivities.getPageIndex, orderBy, orderDir, filterString, listFunc)(
-            "time" -> Messages.get("user.activity.time"),
-            "userCreate" -> Messages.get("user.username"),
-            "clientJid" -> Messages.get("client.name"),
-            "ipCreate" -> Messages.get("user.activity.ip"),
-            "log" -> Messages.get("user.activity.log")
+            "" -> "",
+            "time" -> Messages.get("activity.field.time"),
+            "userCreate" -> Messages.get("activity.field.username"),
+            "clientJid" -> Messages.get("activity.field.client"),
+            "ipCreate" -> Messages.get("activity.field.ipAddress"),
+            "log" -> Messages.get("activity.field.log")
         )
     } else {
         @tableHeadersView(pageOfUserActivities.getPageIndex, orderBy, orderDir, filterString, listFunc)(
-            "time" -> Messages.get("user.activity.time"),
-            "clientJid" -> Messages.get("client.name"),
-            "ipCreate" -> Messages.get("user.activity.ip"),
-            "log" -> Messages.get("user.activity.log")
+            "" -> "",
+            "time" -> Messages.get("activity.field.time"),
+            "clientJid" -> Messages.get("activity.field.client"),
+            "ipCreate" -> Messages.get("activity.field.ipAddress"),
+            "log" -> Messages.get("activity.field.log")
         )
     }
 
     <tbody>
         @for(userActivity <- pageOfUserActivities.getData) {
             <tr>
+                <td></td>
                 <td><time class="display-time" datetime="@JudgelsPlayUtils.formatISOUTCDateTime(userActivity.getTime)">@JudgelsPlayUtils.formatDetailedDateTime(userActivity.getTime)</time></td>
                 @if(filterUser) {
                     <td>@userActivity.getUsername</td>
@@ -79,7 +82,7 @@
 @paginationView(pageOfUserActivities, orderBy, orderDir, filterString, listFunc)
 
 <script type="text/javascript">
-    var clientAutoCompleteUrl = "@org.iatoki.judgels.jophiel.controllers.api.internal.routes.InternalClientAPIController.autocompleteClient()";
-    var userAutoCompleteUrl = "@org.iatoki.judgels.jophiel.controllers.api.pub.v1.routes.PublicUserAPIControllerV1.autocompleteUser()";
+    var autocompleteClientAPIEndpoint = "@org.iatoki.judgels.jophiel.controllers.api.internal.routes.InternalClientAPIController.autocompleteClient()";
+    var autocompleteUserAPIEndpoint = "@org.iatoki.judgels.jophiel.controllers.api.pub.v1.routes.PublicUserAPIControllerV1.autocompleteUser()";
 </script>
-<script type="text/javascript" src="@controllers.routes.Assets.versioned("javascripts/clientAndUserMultiComplete.js")"></script>
+<script type="text/javascript" src="@routes.Assets.versioned("javascripts/autocompleteClientAndUser.js")"></script>

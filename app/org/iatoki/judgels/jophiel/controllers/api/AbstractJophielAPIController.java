@@ -49,4 +49,8 @@ public abstract class AbstractJophielAPIController extends AbstractJudgelsAPICon
             throw new JudgelsAPIUnauthorizedException("Basic/OAuth2 authentication required.");
         }
     }
+
+    protected static String getCurrentUserJid() {
+        return session("userJid");
+    }
 }

@@ -1,12 +1,18 @@
 @import play.i18n.Messages
-@import org.iatoki.judgels.jophiel.views.html.client.linkedClientView
+@import org.iatoki.judgels.play.JudgelsPlayProperties
 
-@(clientMap: Map[String, String])
+@(linkedClients: Map[String, String])
 
 <p>&nbsp;</p>
 
-<p>@Messages.get("welcome.loggedIn", "TLX")</p>
+<p>@Messages.get("welcome.text.loggedIn", JudgelsPlayProperties.getInstance.getAppCopyright)</p>
 
-<p>@Messages.get("welcome.goToApps", "TLX")</p>
+<p>@Messages.get("welcome.text.goToApps", JudgelsPlayProperties.getInstance.getAppCopyright)</p>
 
-@linkedClientView(clientMap)
+@for((target, label) <- linkedClients) {
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <a href="@target">@label</a>
+        </div>
+    </div>
+}

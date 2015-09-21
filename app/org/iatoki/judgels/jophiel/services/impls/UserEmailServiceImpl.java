@@ -126,30 +126,30 @@ public final class UserEmailServiceImpl implements UserEmailService {
     @Override
     public void sendEmailVerification(String name, String email, String link) {
         Email mail = new Email();
-        mail.setSubject(JudgelsPlayProperties.getInstance().getAppCopyright() + " " + Messages.get("email.verification"));
+        mail.setSubject(Messages.get("email.verify.email.subject", JudgelsPlayProperties.getInstance().getAppCopyright()));
         mail.setFrom(JophielProperties.getInstance().getNoreplyName() + " <" + JophielProperties.getInstance().getNoreplyEmail() + ">");
         mail.addTo(name + " <" + email + ">");
-        mail.setBodyHtml("<p>" + Messages.get("email.pleaseVerify") + " <a href='" + link + "'>here</a>.</p>");
+        mail.setBodyHtml(Messages.get("email.verify.email.body", JudgelsPlayProperties.getInstance().getAppCopyright(), link));
         mailerClient.send(mail);
     }
 
     @Override
     public void sendRegistrationEmailActivation(String name, String email, String link) {
         Email mail = new Email();
-        mail.setSubject(JudgelsPlayProperties.getInstance().getAppCopyright() + " " + Messages.get("registrationEmail.userRegistration"));
+        mail.setSubject(Messages.get("register.email.subject", JudgelsPlayProperties.getInstance().getAppCopyright()));
         mail.setFrom(JophielProperties.getInstance().getNoreplyName() + " <" + JophielProperties.getInstance().getNoreplyEmail() + ">");
         mail.addTo(name + " <" + email + ">");
-        mail.setBodyHtml("<p>" + Messages.get("registrationEmail.thankYou") + " " + JudgelsPlayProperties.getInstance().getAppCopyright() + ".</p><p>" + Messages.get("registrationEmail.pleaseActivate") + " <a href='" + link + "'>here</a>.</p>");
+        mail.setBodyHtml(Messages.get("register.email.body", JudgelsPlayProperties.getInstance().getAppCopyright(), link));
         mailerClient.send(mail);
     }
 
     @Override
     public void sendChangePasswordEmail(String email, String link) {
         Email mail = new Email();
-        mail.setSubject(JudgelsPlayProperties.getInstance().getAppCopyright() + " " + Messages.get("forgotPasswordEmail.forgotPassword"));
+        mail.setSubject(Messages.get("forgotPassword.email.subject", JudgelsPlayProperties.getInstance().getAppCopyright()));
         mail.setFrom(JophielProperties.getInstance().getNoreplyName() + " <" + JophielProperties.getInstance().getNoreplyEmail() + ">");
         mail.addTo(email);
-        mail.setBodyHtml("<p>" + Messages.get("forgotPasswordEmail.request") + " " + JudgelsPlayProperties.getInstance().getAppCopyright() + ".</p><p>" + Messages.get("forgotPasswordEmail.changePassword") + " <a href='" + link + "'>here</a>.</p>");
+        mail.setBodyHtml(Messages.get("forgotPassword.email.body", JudgelsPlayProperties.getInstance().getAppCopyright(), link));
         mailerClient.send(mail);
     }
 
