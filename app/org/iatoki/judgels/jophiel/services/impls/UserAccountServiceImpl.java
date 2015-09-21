@@ -11,7 +11,6 @@ import org.iatoki.judgels.jophiel.models.entities.UserEmailModel;
 import org.iatoki.judgels.jophiel.models.entities.UserForgotPasswordModel;
 import org.iatoki.judgels.jophiel.models.entities.UserModel;
 import org.iatoki.judgels.jophiel.services.UserAccountService;
-import org.iatoki.judgels.play.IdentityUtils;
 import org.iatoki.judgels.play.JudgelsPlayUtils;
 
 import javax.inject.Inject;
@@ -113,7 +112,7 @@ public final class UserAccountServiceImpl implements UserAccountService {
     }
 
     @Override
-    public User processLogin(String usernameOrEmail, String password) throws UserNotFoundException, EmailNotVerifiedException {
+    public User processLogin(String usernameOrEmail, String password, String ipAddress) throws UserNotFoundException, EmailNotVerifiedException {
         try {
             UserModel userModel;
             UserEmailModel emailModel;
@@ -136,7 +135,7 @@ public final class UserAccountServiceImpl implements UserAccountService {
             } else if (userModel.password.equals(JudgelsPlayUtils.hashSHA256(password))) {
                 userModel.password = PasswordHash.createHash(password);
 
-                userDao.edit(userModel, "guest", IdentityUtils.getIpAddress());
+                userDao.edit(userModel, "guest", ipAddress);
                 if (emailModel.emailVerified) {
                     return UserServiceUtils.createUserFromModel(userModel);
                 } else {

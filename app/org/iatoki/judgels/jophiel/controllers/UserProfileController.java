@@ -125,7 +125,7 @@ public final class UserProfileController extends AbstractJudgelsController {
         }
 
         try {
-            String profilePictureName = userProfileService.updateAvatarWithGeneratedFilename(IdentityUtils.getUserJid(), avatar.getFile(), FilenameUtils.getExtension(avatar.getFilename()));
+            String profilePictureName = userProfileService.updateAvatarWithGeneratedFilename(getCurrentUserJid(), avatar.getFile(), FilenameUtils.getExtension(avatar.getFilename()), getCurrentUserIpAddress());
             String profilePictureUrl = userProfileService.getAvatarImageUrlString(profilePictureName);
             try {
                 new URL(profilePictureUrl);

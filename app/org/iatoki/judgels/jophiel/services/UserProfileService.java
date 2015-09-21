@@ -18,7 +18,7 @@ public interface UserProfileService {
 
     UserInfo getInfo(String userJid);
 
-    String updateAvatarWithGeneratedFilename(String userJid, File imageFile, String imageType) throws IOException;
+    String updateAvatarWithGeneratedFilename(String userJid, File imageFile, String imageType, String ipAddress) throws IOException;
 
     String getAvatarImageUrlString(String imageName);
 }

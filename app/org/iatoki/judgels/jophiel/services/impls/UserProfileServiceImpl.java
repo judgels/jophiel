@@ -16,7 +16,6 @@ import org.iatoki.judgels.jophiel.models.entities.ProvinceModel;
 import org.iatoki.judgels.jophiel.models.entities.UserInfoModel;
 import org.iatoki.judgels.jophiel.models.entities.UserModel;
 import org.iatoki.judgels.jophiel.services.UserProfileService;
-import org.iatoki.judgels.play.IdentityUtils;
 import org.iatoki.judgels.play.JudgelsPlayUtils;
 
 import javax.annotation.PostConstruct;
@@ -178,8 +177,8 @@ public final class UserProfileServiceImpl implements UserProfileService {
     }
 
     @Override
-    public String updateAvatarWithGeneratedFilename(String userJid, File imageFile, String extension) throws IOException {
-        String newImageName = IdentityUtils.getUserJid() + "-" + JudgelsPlayUtils.hashMD5(UUID.randomUUID().toString()) + "." + extension;
+    public String updateAvatarWithGeneratedFilename(String userJid, File imageFile, String extension, String ipAddress) throws IOException {
+        String newImageName = userJid + "-" + JudgelsPlayUtils.hashMD5(UUID.randomUUID().toString()) + "." + extension;
         List<String> filePath = ImmutableList.of(newImageName);
         avatarFileSystemProvider.uploadFile(ImmutableList.of(), imageFile, newImageName);
         avatarFileSystemProvider.makeFilePublic(filePath);
@@ -187,7 +186,7 @@ public final class UserProfileServiceImpl implements UserProfileService {
         UserModel userModel = userDao.findByJid(userJid);
         userModel.profilePictureImageName = newImageName;
 
-        userDao.edit(userModel, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
+        userDao.edit(userModel, userJid, ipAddress);
         return newImageName;
     }
 

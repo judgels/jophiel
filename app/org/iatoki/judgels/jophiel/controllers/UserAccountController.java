@@ -280,7 +280,7 @@ public final class UserAccountController extends AbstractJudgelsController {
 
         try {
             LoginForm loginData = loginForm.get();
-            User user = userAccountService.processLogin(loginData.usernameOrEmail, loginData.password);
+            User user = userAccountService.processLogin(loginData.usernameOrEmail, loginData.password, getCurrentUserIpAddress());
             if (user == null) {
                 loginForm.reject("login.error.usernameOrEmailOrPasswordInvalid");
                 return showLogin(loginForm, continueUrl);

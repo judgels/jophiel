@@ -16,7 +16,7 @@ public interface UserAccountService {
 
     void processChangePassword(String code, String password, String ipAddress);
 
-    User processLogin(String usernameOrEmail, String password) throws NoResultException, UserNotFoundException, EmailNotVerifiedException;
+    User processLogin(String usernameOrEmail, String password, String ipAddress) throws NoResultException, UserNotFoundException, EmailNotVerifiedException;
 
     void updateUserPassword(String userJid, String password, String ipAddress);
 }

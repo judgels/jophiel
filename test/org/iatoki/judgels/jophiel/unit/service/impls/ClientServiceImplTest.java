@@ -3,7 +3,6 @@ package org.iatoki.judgels.jophiel.unit.service.impls;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.iatoki.judgels.play.IdentityUtils;
 import org.iatoki.judgels.play.Page;
 import org.iatoki.judgels.play.models.entities.AbstractModel;
 import org.iatoki.judgels.jophiel.AccessToken;
@@ -51,7 +50,7 @@ import java.util.stream.IntStream;
 /**
  * Created by bagus.seto on 5/25/2015.
  */
-@PrepareForTest({IdentityUtils.class, JophielProperties.class})
+@PrepareForTest(JophielProperties.class)
 @PowerMockIgnore("javax.crypto.*")
 public class ClientServiceImplTest extends PowerMockTestCase {
 
@@ -73,8 +72,6 @@ public class ClientServiceImplTest extends PowerMockTestCase {
     @BeforeMethod
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-
-        PowerMockito.mockStatic(IdentityUtils.class);
 
         clientService = new ClientServiceImpl(accessTokenDao, authorizationCodeDao, clientDao, idTokenDao, redirectURIDao, refreshTokenDao);
     }
@@ -160,10 +157,9 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         List<String> scopes1 = Arrays.asList("OPENID");
         String scopes1String = StringUtils.join(scopes1, ",");
 
-        Mockito.when(IdentityUtils.getUserJid()).thenReturn(userJid1);
         Mockito.when(authorizationCodeDao.isAuthorized(clientJid1, userJid1, scopes1String)).thenReturn(true);
 
-        Assert.assertTrue(clientService.isClientAuthorized(clientJid1, scopes1), "Client is not authorized");
+        Assert.assertTrue(clientService.isClientAuthorized(userJid1, clientJid1, scopes1), "Client is not authorized");
     }
 
     @Test
@@ -173,10 +169,9 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         List<String> scopes1 = Arrays.asList("OPENID");
         String scopes1String = StringUtils.join(scopes1, ",");
 
-        Mockito.when(IdentityUtils.getUserJid()).thenReturn(userJid1);
         Mockito.when(authorizationCodeDao.isAuthorized(clientJid1, userJid1, scopes1String)).thenReturn(false);
 
-        Assert.assertFalse(clientService.isClientAuthorized(clientJid1, scopes1), "Client is authorized");
+        Assert.assertFalse(clientService.isClientAuthorized(userJid1, clientJid1, scopes1), "Client is authorized");
     }
 
     @Test

@@ -11,7 +11,6 @@ import org.iatoki.judgels.jophiel.models.entities.UserEmailModel;
 import org.iatoki.judgels.jophiel.models.entities.UserForgotPasswordModel;
 import org.iatoki.judgels.jophiel.models.entities.UserModel;
 import org.iatoki.judgels.jophiel.services.impls.UserAccountServiceImpl;
-import org.iatoki.judgels.play.IdentityUtils;
 import org.iatoki.judgels.play.JudgelsPlayUtils;
 import org.iatoki.judgels.play.models.entities.AbstractModel;
 import org.mockito.Mock;
@@ -33,7 +32,7 @@ import java.security.spec.InvalidKeySpecException;
 /**
  * Created by bagus.seto on 6/3/2015.
  */
-@PrepareForTest({IdentityUtils.class, Http.Context.class})
+@PrepareForTest(Http.Context.class)
 public class UserAccountServiceImplTest extends PowerMockTestCase {
 
     @Mock
@@ -48,8 +47,6 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
     @BeforeMethod
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-
-        PowerMockito.mockStatic(IdentityUtils.class);
 
         userAccountService = new UserAccountServiceImpl(userDao, userEmailDao, userForgotPasswordDao);
     }
@@ -127,8 +124,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
         String username = "alice123";
         String email = "alice@email.com";
 
-        String getIpAddress = "10.10.10.10";
-        Mockito.when(IdentityUtils.getIpAddress()).thenReturn(getIpAddress);
+        String ipAddress = "10.10.10.10";
 
         UserModel userModel = new UserModel();
         userModel.jid = "JIDU0101";
@@ -178,8 +174,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
         String code = "FORGOT_PASS_CODE";
         String newPassword = "alice456";
 
-        String getIpAddress = "10.10.10.10";
-        Mockito.when(IdentityUtils.getIpAddress()).thenReturn(getIpAddress);
+        String ipAddress = "10.10.10.10";
 
         UserForgotPasswordModel userForgotPasswordModel = new UserForgotPasswordModel();
         userForgotPasswordModel.userJid = "JIDU0101";
@@ -220,6 +215,8 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
         String username = "alice123";
         String password = "alicepassword";
 
+        String ipAddress = "10.10.10.10";
+
         UserModel userModel = new UserModel();
         userModel.jid = "JIDU0101";
         userModel.username = username;
@@ -246,7 +243,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
         Mockito.when(Http.Context.current()).thenReturn(context);
         Mockito.when(context.request()).thenReturn(request);
 
-        User user = userAccountService.processLogin(username, password);
+        User user = userAccountService.processLogin(username, password, ipAddress);
 
         Assert.assertNotNull(user, "UserInfo must not be null");
         Assert.assertEquals(username, user.getUsername(), "Username not equals");
@@ -256,6 +253,8 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
     public void loginValidUserByEmailReturnsUser() throws UserNotFoundException, EmailNotVerifiedException {
         String email = "alice@email.com";
         String password = "alicepassword";
+
+        String ipAddress = "10.10.10.10";
 
         UserEmailModel userEmailModel = new UserEmailModel();
         userEmailModel.jid = "JIDE0101";
@@ -284,7 +283,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
         Mockito.when(Http.Context.current()).thenReturn(context);
         Mockito.when(context.request()).thenReturn(request);
 
-        User user = userAccountService.processLogin(email, password);
+        User user = userAccountService.processLogin(email, password, ipAddress);
 
         Assert.assertNotNull(user, "UserInfo must not be null");
         Assert.assertEquals(userEmailModel.jid, user.getEmailJid(), "Email not equals");
@@ -295,10 +294,12 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
         String username = "bob";
         String password = "bobpassword";
 
+        String ipAddress = "10.10.10.10";
+
         Mockito.when(userDao.existByUsername(username)).thenReturn(false);
         Mockito.when(userEmailDao.existsByEmail(username)).thenReturn(false);
 
-        User user = userAccountService.processLogin(username, password);
+        User user = userAccountService.processLogin(username, password, ipAddress);
 
         Assert.fail("Unreachable");
     }
@@ -307,6 +308,8 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
     public void loginValidUserUnverifiedEmailThrowsEmailNotVerifiedException() throws UserNotFoundException, EmailNotVerifiedException {
         String username = "alice123";
         String password = "alicepassword";
+
+        String ipAddress = "10.10.10.10";
 
         UserModel userModel = new UserModel();
         userModel.jid = "JIDU0101";
@@ -322,7 +325,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
         userEmailModel.emailVerified = false;
         Mockito.when(userEmailDao.findByJid(userModel.emailJid)).thenReturn(userEmailModel);
 
-        User user = userAccountService.processLogin(username, password);
+        User user = userAccountService.processLogin(username, password, ipAddress);
 
         Assert.fail("Unreachable");
     }
@@ -332,6 +335,8 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
         String username = "alice123";
         String password = "bobpassword";
         String validPassword = "alicepassword";
+
+        String ipAddress = "10.10.10.10";
 
         UserModel userModel = new UserModel();
         userModel.jid = "JIDU0101";
@@ -346,7 +351,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
         userEmailModel.userJid = userModel.jid;
         Mockito.when(userEmailDao.findByJid(userModel.emailJid)).thenReturn(userEmailModel);
 
-        User user = userAccountService.processLogin(username, password);
+        User user = userAccountService.processLogin(username, password, ipAddress);
 
         Assert.assertNull(user, "UserInfo not null");
     }
@@ -356,10 +361,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
         String userJid = "JIDU0101";
         String newPassword = "newalicepassword";
 
-        String getUserJid = userJid;
-        String getIpAddress = "10.10.10.10";
-        Mockito.when(IdentityUtils.getUserJid()).thenReturn(getUserJid);
-        Mockito.when(IdentityUtils.getIpAddress()).thenReturn(getIpAddress);
+        String ipAddress = "10.10.10.10";
 
         UserModel userModel = new UserModel();
         userModel.jid = userJid;
@@ -376,7 +378,7 @@ public class UserAccountServiceImplTest extends PowerMockTestCase {
                 return null;
             }).when(userDao).edit(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 
-        userAccountService.updateUserPassword(userJid, newPassword, IdentityUtils.getIpAddress());
+        userAccountService.updateUserPassword(userJid, newPassword, ipAddress);
 
         Assert.assertTrue(PasswordHash.validatePassword(newPassword, userModel.password), "Password not changed");
         Assert.assertNotEquals(userModel.userCreate, userModel.userUpdate, "UserInfo update not updated");
