@@ -1,6 +1,5 @@
 package org.iatoki.judgels.jophiel.controllers.api.internal;
 
-import com.google.gson.Gson;
 import org.iatoki.judgels.AutoComplete;
 import org.iatoki.judgels.jophiel.Province;
 import org.iatoki.judgels.jophiel.controllers.api.AbstractJophielAPIController;
@@ -34,6 +33,6 @@ public final class InternalProvinceAPIController extends AbstractJophielAPIContr
         List<AutoComplete> autocompletedProvinces = provinces.stream()
                 .map(c -> new AutoComplete("" + c.getId(), c.getName(), c.getName()))
                 .collect(Collectors.toList());
-        return ok(new Gson().toJson(autocompletedProvinces));
+        return okAsJson(autocompletedProvinces);
     }
 }
