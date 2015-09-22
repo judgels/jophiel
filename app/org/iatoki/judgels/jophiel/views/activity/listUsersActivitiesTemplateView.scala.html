@@ -43,8 +43,8 @@
 
 @tableView() {
     @if(filterUser) {
-        @tableHeadersView(pageOfUserActivities.getPageIndex, orderBy, orderDir, filterString, listFunc)(
-            "" -> "",
+        @tableHeadersView(pageOfUserActivities.getPageIndex, orderBy, orderDir, filterString, listFunc, false)(
+            "id" -> Messages.get("commons.field.id"),
             "time" -> Messages.get("activity.field.time"),
             "userCreate" -> Messages.get("activity.field.username"),
             "clientJid" -> Messages.get("activity.field.client"),
@@ -52,8 +52,8 @@
             "log" -> Messages.get("activity.field.log")
         )
     } else {
-        @tableHeadersView(pageOfUserActivities.getPageIndex, orderBy, orderDir, filterString, listFunc)(
-            "" -> "",
+        @tableHeadersView(pageOfUserActivities.getPageIndex, orderBy, orderDir, filterString, listFunc, false)(
+            "id" -> Messages.get("commons.field.id"),
             "time" -> Messages.get("activity.field.time"),
             "clientJid" -> Messages.get("activity.field.client"),
             "ipCreate" -> Messages.get("activity.field.ipAddress"),
@@ -64,7 +64,7 @@
     <tbody>
         @for(userActivity <- pageOfUserActivities.getData) {
             <tr>
-                <td></td>
+                <td>@userActivity.getId</td>
                 <td><time class="display-time" datetime="@JudgelsPlayUtils.formatISOUTCDateTime(userActivity.getTime)">@JudgelsPlayUtils.formatDetailedDateTime(userActivity.getTime)</time></td>
                 @if(filterUser) {
                     <td>@userActivity.getUsername</td>
@@ -72,8 +72,6 @@
                 <td>@userActivity.getClientName</td>
                 <td>@userActivity.getIpAddress</td>
                 <td>@Html(userActivity.getLog)</td>
-                <td class="text-center">
-                </td>
             </tr>
         }
     </tbody>
