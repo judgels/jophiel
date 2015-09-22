@@ -27,7 +27,7 @@ public interface UserService {
 
     User findUserByUsername(String username);
 
-    void createUser(String username, String name, String email, String password, List<String> roles, String userJid, String userIpAddress);
+    User createUser(String username, String name, String email, String password, List<String> roles, String userJid, String userIpAddress);
 
     void updateUser(String userJid, String username, String name, String email, List<String> roles, String updaterJid, String updaterIpAddress);
 

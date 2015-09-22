@@ -1,6 +1,7 @@
 package org.iatoki.judgels.jophiel.controllers;
 
 import org.apache.commons.io.FileUtils;
+import org.iatoki.judgels.jophiel.BasicActivityKeys;
 import org.iatoki.judgels.jophiel.City;
 import org.iatoki.judgels.jophiel.CityNotFoundException;
 import org.iatoki.judgels.jophiel.controllers.securities.Authenticated;
@@ -35,11 +36,11 @@ import java.io.IOException;
 public final class CityController extends AbstractAutosuggestionController {
 
     private static final long PAGE_SIZE = 20;
+    private static final String CITY = "city";
 
     private final CityService cityService;
 
     @Inject
-
     public CityController(UserActivityService userActivityService, CityService cityService) {
         super(userActivityService);
 
@@ -77,6 +78,8 @@ public final class CityController extends AbstractAutosuggestionController {
         CityCreateForm cityCreateData = cityCreateForm.get();
         cityService.createCity(cityCreateData.name, getCurrentUserJid(), getCurrentUserIpAddress());
 
+        addActivityLog(BasicActivityKeys.CREATE.construct(CITY, null, cityCreateData.name));
+
         return redirect(routes.CityController.listCreateCities(page, orderBy, orderDir, filterString));
     }
 
@@ -86,11 +89,11 @@ public final class CityController extends AbstractAutosuggestionController {
         Http.MultipartFormData body = request().body().asMultipartFormData();
         Http.MultipartFormData.FilePart file;
 
-        file = body.getFile("citys");
+        file = body.getFile("cities");
         if (file != null) {
-            File userFile = file.getFile();
+            File cityFile = file.getFile();
             try {
-                String[] citys = FileUtils.readFileToString(userFile).split("\n");
+                String[] citys = FileUtils.readFileToString(cityFile).split("\n");
                 for (String city : citys) {
                     if (!city.isEmpty() && !cityService.cityExistsByName(city)) {
                         cityService.createCity(city, getCurrentUserJid(), getCurrentUserIpAddress());
@@ -98,6 +101,7 @@ public final class CityController extends AbstractAutosuggestionController {
 
                 }
 
+                addActivityLog(BasicActivityKeys.UPLOAD.construct(CITY, null, cityFile.getName()));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -110,6 +114,8 @@ public final class CityController extends AbstractAutosuggestionController {
     public Result deleteCity(long cityId) throws CityNotFoundException {
         City city = cityService.findCityById(cityId);
         cityService.deleteCity(city.getId());
+
+        addActivityLog(BasicActivityKeys.REMOVE.construct(CITY, null, city.getName()));
 
         return redirect(routes.CityController.index());
     }

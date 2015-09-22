@@ -1,13 +1,13 @@
 package org.iatoki.judgels.jophiel.controllers;
 
 import com.google.common.collect.ImmutableMap;
+import org.iatoki.judgels.jophiel.JophielProperties;
 import org.iatoki.judgels.jophiel.controllers.securities.Authenticated;
 import org.iatoki.judgels.jophiel.controllers.securities.HasRole;
 import org.iatoki.judgels.jophiel.controllers.securities.LoggedIn;
 import org.iatoki.judgels.jophiel.services.UserActivityService;
-import org.iatoki.judgels.play.HtmlTemplate;
-import org.iatoki.judgels.jophiel.JophielProperties;
 import org.iatoki.judgels.jophiel.views.html.welcome.welcomeView;
+import org.iatoki.judgels.play.HtmlTemplate;
 import play.db.jpa.Transactional;
 import play.i18n.Messages;
 import play.mvc.Result;

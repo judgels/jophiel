@@ -172,7 +172,7 @@ public final class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void createUser(String username, String name, String email, String password, List<String> roles, String userJid, String userIpAddress) {
+    public User createUser(String username, String name, String email, String password, List<String> roles, String userJid, String userIpAddress) {
         UserModel userModel = new UserModel();
         userModel.username = username;
         userModel.name = name;
@@ -194,6 +194,8 @@ public final class UserServiceImpl implements UserService {
         emailModel.userJid = userModel.jid;
 
         userEmailDao.persist(emailModel, userJid, userIpAddress);
+
+        return UserServiceUtils.createUserFromModel(userModel);
     }
 
     @Override

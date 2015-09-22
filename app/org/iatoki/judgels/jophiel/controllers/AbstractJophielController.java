@@ -1,12 +1,15 @@
 package org.iatoki.judgels.jophiel.controllers;
 
+import org.iatoki.judgels.jophiel.ActivityKey;
 import org.iatoki.judgels.jophiel.forms.UserProfileSearchForm;
 import org.iatoki.judgels.jophiel.services.UserActivityService;
+import org.iatoki.judgels.jophiel.services.impls.ActivityLogServiceImpl;
 import org.iatoki.judgels.jophiel.views.html.sidebar.linkedClientsView;
-import org.iatoki.judgels.jophiel.views.html.sidebar.userProfileView;
 import org.iatoki.judgels.jophiel.views.html.sidebar.userProfileSearchView;
-import org.iatoki.judgels.play.views.html.sidebar.guestView;
+import org.iatoki.judgels.jophiel.views.html.sidebar.userProfileView;
 import org.iatoki.judgels.play.HtmlTemplate;
+import org.iatoki.judgels.play.IdentityUtils;
+import org.iatoki.judgels.play.views.html.sidebar.guestView;
 import play.api.mvc.Call;
 import play.data.Form;
 import play.i18n.Messages;
@@ -23,6 +26,10 @@ public abstract class AbstractJophielController extends AbstractBaseJophielContr
 
     protected Call getMainPage() {
         return routes.WelcomeController.index();
+    }
+
+    protected void addActivityLog(ActivityKey activityKey) {
+        ActivityLogServiceImpl.getInstance().addActivityLog(activityKey, session("username"), IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
     }
 
     @Override

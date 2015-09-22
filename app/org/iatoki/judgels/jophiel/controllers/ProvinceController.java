@@ -1,6 +1,7 @@
 package org.iatoki.judgels.jophiel.controllers;
 
 import org.apache.commons.io.FileUtils;
+import org.iatoki.judgels.jophiel.BasicActivityKeys;
 import org.iatoki.judgels.jophiel.Province;
 import org.iatoki.judgels.jophiel.ProvinceNotFoundException;
 import org.iatoki.judgels.jophiel.controllers.securities.Authenticated;
@@ -35,6 +36,7 @@ import java.io.IOException;
 public final class ProvinceController extends AbstractAutosuggestionController {
 
     private static final long PAGE_SIZE = 20;
+    private static final String PROVINCE = "province";
 
     private final ProvinceService provinceService;
 
@@ -76,6 +78,8 @@ public final class ProvinceController extends AbstractAutosuggestionController {
         ProvinceCreateForm provinceCreateData = provinceCreateForm.get();
         provinceService.createProvince(provinceCreateData.name, getCurrentUserJid(), getCurrentUserIpAddress());
 
+        addActivityLog(BasicActivityKeys.CREATE.construct(PROVINCE, null, provinceCreateData.name));
+
         return redirect(routes.ProvinceController.listCreateProvinces(page, orderBy, orderDir, filterString));
     }
 
@@ -87,15 +91,17 @@ public final class ProvinceController extends AbstractAutosuggestionController {
 
         file = body.getFile("provinces");
         if (file != null) {
-            File userFile = file.getFile();
+            File provinceFile = file.getFile();
             try {
-                String[] provinces = FileUtils.readFileToString(userFile).split("\n");
+                String[] provinces = FileUtils.readFileToString(provinceFile).split("\n");
                 for (String province : provinces) {
                     if (!province.isEmpty() && !provinceService.provinceExistsByName(province)) {
                         provinceService.createProvince(province, getCurrentUserJid(), getCurrentUserIpAddress());
                     }
 
                 }
+
+                addActivityLog(BasicActivityKeys.UPLOAD.construct(PROVINCE, null, provinceFile.getName()));
 
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -109,6 +115,8 @@ public final class ProvinceController extends AbstractAutosuggestionController {
     public Result deleteProvince(long provinceId) throws ProvinceNotFoundException {
         Province province = provinceService.findProvinceById(provinceId);
         provinceService.deleteProvince(province.getId());
+
+        addActivityLog(BasicActivityKeys.REMOVE.construct(PROVINCE, null, province.getName()));
 
         return redirect(routes.ProvinceController.index());
     }

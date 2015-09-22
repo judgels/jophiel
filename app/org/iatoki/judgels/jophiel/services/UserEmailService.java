@@ -17,9 +17,9 @@ public interface UserEmailService {
 
     String getEmailCodeOfUnverifiedEmail(String emailJid);
 
-    String addFirstEmail(String userJid, String email, String userIpAddress);
+    UserEmail addFirstEmail(String userJid, String email, String userIpAddress);
 
-    String addEmail(String userJid, String email, String userIpAddress);
+    UserEmail addEmail(String userJid, String email, String userIpAddress);
 
     UserEmail findEmailById(long emailId) throws UserEmailNotFoundException;
 

@@ -1,6 +1,7 @@
 package org.iatoki.judgels.jophiel.controllers;
 
 import org.apache.commons.io.FilenameUtils;
+import org.iatoki.judgels.jophiel.BasicActivityKeys;
 import org.iatoki.judgels.jophiel.User;
 import org.iatoki.judgels.jophiel.UserInfo;
 import org.iatoki.judgels.jophiel.controllers.securities.Authenticated;
@@ -41,6 +42,8 @@ import java.util.Date;
 @Singleton
 @Named
 public final class UserProfileController extends AbstractUserProfileController {
+
+    private static final String USER = "user";
 
     private final UserService userService;
 
@@ -86,7 +89,11 @@ public final class UserProfileController extends AbstractUserProfileController {
             userProfileService.updateProfile(getCurrentUserJid(), userProfileEditData.name, userProfileEditData.showName, getCurrentUserIpAddress());
         }
 
-        session("name", userProfileEditData.name);
+        if (!user.getName().equals(userProfileEditData.name)) {
+            session("name", userProfileEditData.name);
+            addActivityLog(BasicActivityKeys.RENAME.construct(USER, user.getJid(), user.getName(), userProfileEditData.name));
+        }
+        addActivityLog(BasicActivityKeys.EDIT.construct(USER, user.getJid(), userProfileEditData.name));
 
         return redirect(routes.UserProfileController.index());
     }

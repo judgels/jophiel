@@ -57,7 +57,7 @@ public interface ClientService extends JudgelsAppClientService {
 
     void redeemIdTokenById(long idTokenId, String clientJid, String clientIpAddress);
 
-    void createClient(String name, String applicationType, List<String> scopes, List<String> redirectURIs, String userJid, String userIpAddress);
+    Client createClient(String name, String applicationType, List<String> scopes, List<String> redirectURIs, String userJid, String userIpAddress);
 
     void updateClient(String clientJid, String name, List<String> scopes, List<String> redirectURIs, String userJid, String userIpAddress);
 

@@ -69,19 +69,19 @@ public final class UserEmailServiceImpl implements UserEmailService {
     }
 
     @Override
-    public String addFirstEmail(String userJid, String email, String userIpAddress) {
+    public UserEmail addFirstEmail(String userJid, String email, String userIpAddress) {
         UserEmailModel userEmailModel = UserEmailServiceUtils.persistEmail(userEmailDao, userJid, email, userIpAddress);
 
         makeEmailPrimary(userJid, userEmailModel.jid, userIpAddress);
 
-        return userEmailModel.emailCode;
+        return UserEmailServiceUtils.createUserEmailFromModel(userEmailModel);
     }
 
     @Override
-    public String addEmail(String userJid, String email, String userIpAddress) {
+    public UserEmail addEmail(String userJid, String email, String userIpAddress) {
         UserEmailModel userEmailModel = UserEmailServiceUtils.persistEmail(userEmailDao, userJid, email, userIpAddress);
 
-        return userEmailModel.emailCode;
+        return UserEmailServiceUtils.createUserEmailFromModel(userEmailModel);
     }
 
     @Override

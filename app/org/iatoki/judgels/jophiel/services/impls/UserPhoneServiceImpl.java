@@ -59,15 +59,19 @@ public final class UserPhoneServiceImpl implements UserPhoneService {
     }
 
     @Override
-    public void addFirstPhone(String userJid, String phone, String userIpAddress) {
+    public UserPhone addFirstPhone(String userJid, String phone, String userIpAddress) {
         UserPhoneModel userPhoneModel = UserPhoneServiceUtils.persistPhone(userPhoneDao, userJid, phone, userIpAddress);
 
         makePhonePrimary(userJid, userPhoneModel.jid, userIpAddress);
+
+        return UserPhoneServiceUtils.createUserPhoneFromModel(userPhoneModel);
     }
 
     @Override
-    public void addPhone(String userJid, String phone, String userIpAddress) {
-        UserPhoneServiceUtils.persistPhone(userPhoneDao, userJid, phone, userIpAddress);
+    public UserPhone addPhone(String userJid, String phone, String userIpAddress) {
+        UserPhoneModel userPhoneModel = UserPhoneServiceUtils.persistPhone(userPhoneDao, userJid, phone, userIpAddress);
+
+        return UserPhoneServiceUtils.createUserPhoneFromModel(userPhoneModel);
     }
 
     @Override

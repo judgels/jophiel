@@ -15,9 +15,9 @@ public interface UserPhoneService {
 
     void makePhonePrimary(String userJid, String phoneJid, String userIpAddress);
 
-    void addFirstPhone(String userJid, String phone, String userIpAddress);
+    UserPhone addFirstPhone(String userJid, String phone, String userIpAddress);
 
-    void addPhone(String userJid, String phone, String userIpAddress);
+    UserPhone addPhone(String userJid, String phone, String userIpAddress);
 
     void removePhone(String phoneJid);
 }

@@ -2,6 +2,7 @@ package org.iatoki.judgels.jophiel.controllers;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
+import org.iatoki.judgels.jophiel.BasicActivityKeys;
 import org.iatoki.judgels.jophiel.services.UserActivityService;
 import org.iatoki.judgels.play.HtmlTemplate;
 import org.iatoki.judgels.play.Page;
@@ -37,6 +38,7 @@ import java.util.Arrays;
 public final class ClientController extends AbstractJophielController {
 
     private static final long PAGE_SIZE = 20;
+    private static final String CLIENT = "client";
 
     private final ClientService clientService;
 
@@ -84,7 +86,9 @@ public final class ClientController extends AbstractJophielController {
         }
 
         ClientCreateForm clientCreateData = clientCreateForm.get();
-        clientService.createClient(clientCreateData.name, clientCreateData.applicationType, clientCreateData.scopes, Arrays.asList(clientCreateData.redirectURIs.split(",")), getCurrentUserJid(), getCurrentUserIpAddress());
+        Client client = clientService.createClient(clientCreateData.name, clientCreateData.applicationType, clientCreateData.scopes, Arrays.asList(clientCreateData.redirectURIs.split(",")), getCurrentUserJid(), getCurrentUserIpAddress());
+
+        addActivityLog(BasicActivityKeys.CREATE.construct(CLIENT, client.getJid(), clientCreateData.name));
 
         return redirect(routes.ClientController.index());
     }
@@ -116,6 +120,11 @@ public final class ClientController extends AbstractJophielController {
 
         ClientEditForm clientEditData = clientEditForm.get();
         clientService.updateClient(client.getJid(), clientEditData.name, clientEditData.scopes, Arrays.asList(clientEditData.redirectURIs.split(",")), getCurrentUserJid(), getCurrentUserIpAddress());
+
+        if (!client.getName().equals(clientEditData.name)) {
+            addActivityLog(BasicActivityKeys.RENAME.construct(CLIENT, client.getJid(), client.getName(), clientEditData.name));
+        }
+        addActivityLog(BasicActivityKeys.EDIT.construct(CLIENT, client.getJid(), clientEditData.name));
 
         return redirect(routes.ClientController.index());
     }

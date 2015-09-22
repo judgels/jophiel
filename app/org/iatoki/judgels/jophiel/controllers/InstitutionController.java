@@ -1,6 +1,7 @@
 package org.iatoki.judgels.jophiel.controllers;
 
 import org.apache.commons.io.FileUtils;
+import org.iatoki.judgels.jophiel.BasicActivityKeys;
 import org.iatoki.judgels.jophiel.Institution;
 import org.iatoki.judgels.jophiel.InstitutionNotFoundException;
 import org.iatoki.judgels.jophiel.controllers.securities.Authenticated;
@@ -35,6 +36,7 @@ import java.io.IOException;
 public final class InstitutionController extends AbstractAutosuggestionController {
 
     private static final long PAGE_SIZE = 20;
+    private static final String INSTITUTION = "institution";
 
     private final InstitutionService institutionService;
 
@@ -76,6 +78,8 @@ public final class InstitutionController extends AbstractAutosuggestionControlle
         InstitutionCreateForm institutionCreateData = institutionCreateForm.get();
         institutionService.createInstitution(institutionCreateData.name, getCurrentUserJid(), getCurrentUserIpAddress());
 
+        addActivityLog(BasicActivityKeys.CREATE.construct(INSTITUTION, null, institutionCreateData.name));
+
         return redirect(routes.InstitutionController.listCreateInstitutions(page, orderBy, orderDir, filterString));
     }
 
@@ -87,15 +91,17 @@ public final class InstitutionController extends AbstractAutosuggestionControlle
 
         file = body.getFile("institutions");
         if (file != null) {
-            File userFile = file.getFile();
+            File institutionFile = file.getFile();
             try {
-                String[] institutions = FileUtils.readFileToString(userFile).split("\n");
+                String[] institutions = FileUtils.readFileToString(institutionFile).split("\n");
                 for (String institution : institutions) {
                     if (!institution.isEmpty() && !institutionService.institutionExistsByName(institution)) {
                         institutionService.createInstitution(institution, getCurrentUserJid(), getCurrentUserIpAddress());
                     }
 
                 }
+
+                addActivityLog(BasicActivityKeys.UPLOAD.construct(INSTITUTION, null, institutionFile.getName()));
 
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -109,6 +115,8 @@ public final class InstitutionController extends AbstractAutosuggestionControlle
     public Result deleteInstitution(long institutionId) throws InstitutionNotFoundException {
         Institution institution = institutionService.findInstitutionById(institutionId);
         institutionService.deleteInstitution(institution.getId());
+
+        addActivityLog(BasicActivityKeys.REMOVE.construct(INSTITUTION, null, institution.getName()));
 
         return redirect(routes.InstitutionController.index());
     }

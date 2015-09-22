@@ -355,7 +355,7 @@ public final class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public void createClient(String name, String applicationType, List<String> scopes, List<String> redirectURIs, String userJid, String userIpAddress) {
+    public Client createClient(String name, String applicationType, List<String> scopes, List<String> redirectURIs, String userJid, String userIpAddress) {
         ClientModel clientModel = new ClientModel();
         clientModel.name = name;
         clientModel.secret = JudgelsPlayUtils.generateNewSecret();
@@ -372,6 +372,8 @@ public final class ClientServiceImpl implements ClientService {
 
             redirectURIDao.persist(redirectURIModel, userJid, userIpAddress);
         }
+
+        return ClientServiceUtils.createClientFromModel(clientModel, scopeList.stream().collect(Collectors.toSet()), redirectURIs);
     }
 
     @Override

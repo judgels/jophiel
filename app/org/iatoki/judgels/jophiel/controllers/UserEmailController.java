@@ -1,5 +1,6 @@
 package org.iatoki.judgels.jophiel.controllers;
 
+import org.iatoki.judgels.jophiel.BasicActivityKeys;
 import org.iatoki.judgels.jophiel.User;
 import org.iatoki.judgels.jophiel.UserEmail;
 import org.iatoki.judgels.jophiel.UserEmailNotFoundException;
@@ -28,6 +29,9 @@ import javax.inject.Singleton;
 @Singleton
 @Named
 public final class UserEmailController extends AbstractUserProfileController {
+
+    private static final String USER = "user";
+    private static final String EMAIL = "email";
 
     private final UserService userService;
 
@@ -64,15 +68,17 @@ public final class UserEmailController extends AbstractUserProfileController {
 
         UserEmailCreateForm userEmailCreateData = userEmailCreateForm.get();
 
-        String emailCode;
+        UserEmail userEmail;
         if (user.getEmailJid() == null) {
-            emailCode = userEmailService.addFirstEmail(getCurrentUserJid(), userEmailCreateData.email, getCurrentUserIpAddress());
+            userEmail = userEmailService.addFirstEmail(getCurrentUserJid(), userEmailCreateData.email, getCurrentUserIpAddress());
         } else {
-            emailCode = userEmailService.addEmail(getCurrentUserJid(), userEmailCreateData.email, getCurrentUserIpAddress());
+            userEmail = userEmailService.addEmail(getCurrentUserJid(), userEmailCreateData.email, getCurrentUserIpAddress());
         }
-        userEmailService.sendEmailVerification(user.getName(), userEmailCreateData.email, getAbsoluteUrl(routes.UserEmailController.verifyEmail(emailCode)));
+        userEmailService.sendEmailVerification(user.getName(), userEmailCreateData.email, getAbsoluteUrl(routes.UserEmailController.verifyEmail(userEmailService.getEmailCodeOfUnverifiedEmail(userEmail.getJid()))));
 
         flashInfo(Messages.get("email.verify.text.verificationSentTo", userEmailCreateData.email));
+
+        addActivityLog(BasicActivityKeys.ADD_IN.construct(USER, user.getJid(), user.getName(), EMAIL, userEmail.getJid(), userEmail.getEmail()));
 
         return redirect(routes.UserProfileController.index());
     }
@@ -120,6 +126,8 @@ public final class UserEmailController extends AbstractUserProfileController {
         }
 
         userEmailService.removeEmail(userEmail.getJid());
+
+        addActivityLog(BasicActivityKeys.REMOVE_FROM.construct(USER, user.getJid(), user.getName(), EMAIL, userEmail.getJid(), userEmail.getEmail()));
 
         return redirect(routes.UserProfileController.index());
     }

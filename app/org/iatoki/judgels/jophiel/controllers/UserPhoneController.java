@@ -1,5 +1,6 @@
 package org.iatoki.judgels.jophiel.controllers;
 
+import org.iatoki.judgels.jophiel.BasicActivityKeys;
 import org.iatoki.judgels.jophiel.User;
 import org.iatoki.judgels.jophiel.UserPhone;
 import org.iatoki.judgels.jophiel.UserPhoneNotFoundException;
@@ -26,6 +27,9 @@ import javax.inject.Singleton;
 @Named
 public final class UserPhoneController extends AbstractUserProfileController {
 
+    private static final String USER = "user";
+    private static final String PHONE = "phone";
+
     private final UserService userService;
 
     @Inject
@@ -48,11 +52,14 @@ public final class UserPhoneController extends AbstractUserProfileController {
         }
 
         UserPhoneCreateForm userPhoneCreateData = userPhoneCreateForm.get();
+        UserPhone userPhone;
         if (user.getPhoneJid() == null) {
-            userPhoneService.addFirstPhone(getCurrentUserJid(), userPhoneCreateData.phone, getCurrentUserJid());
+            userPhone = userPhoneService.addFirstPhone(getCurrentUserJid(), userPhoneCreateData.phone, getCurrentUserJid());
         } else {
-            userPhoneService.addPhone(getCurrentUserJid(), userPhoneCreateData.phone, getCurrentUserJid());
+            userPhone = userPhoneService.addPhone(getCurrentUserJid(), userPhoneCreateData.phone, getCurrentUserJid());
         }
+
+        addActivityLog(BasicActivityKeys.ADD_IN.construct(USER, user.getJid(), user.getName(), PHONE, userPhone.getJid(), userPhone.getPhone()));
 
         return redirect(routes.UserProfileController.index());
     }
@@ -100,6 +107,8 @@ public final class UserPhoneController extends AbstractUserProfileController {
         }
 
         userPhoneService.removePhone(userPhone.getJid());
+
+        addActivityLog(BasicActivityKeys.REMOVE_FROM.construct(USER, user.getJid(), user.getName(), PHONE, userPhone.getJid(), userPhone.getPhone()));
 
         return redirect(routes.UserProfileController.index());
     }

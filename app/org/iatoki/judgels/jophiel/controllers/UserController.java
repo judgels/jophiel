@@ -1,6 +1,7 @@
 package org.iatoki.judgels.jophiel.controllers;
 
 import org.apache.commons.lang3.StringUtils;
+import org.iatoki.judgels.jophiel.BasicActivityKeys;
 import org.iatoki.judgels.jophiel.JophielUtils;
 import org.iatoki.judgels.jophiel.UnverifiedUserEmail;
 import org.iatoki.judgels.jophiel.User;
@@ -46,6 +47,7 @@ import java.util.List;
 public final class UserController extends AbstractJophielController {
 
     private static final long PAGE_SIZE = 20;
+    private static final String USER = "user";
 
     private final UserEmailService userEmailService;
     private final UserPhoneService userPhoneService;
@@ -128,7 +130,9 @@ public final class UserController extends AbstractJophielController {
         }
 
         UserCreateForm userCreateData = userCreateForm.get();
-        userService.createUser(userCreateData.username, userCreateData.name, userCreateData.email, userCreateData.password, Arrays.asList(userCreateData.roles.split(",")), getCurrentUserJid(), getCurrentUserIpAddress());
+        User user = userService.createUser(userCreateData.username, userCreateData.name, userCreateData.email, userCreateData.password, Arrays.asList(userCreateData.roles.split(",")), getCurrentUserJid(), getCurrentUserIpAddress());
+
+        addActivityLog(BasicActivityKeys.CREATE.construct(USER, user.getJid(), userCreateData.name));
 
         return redirect(routes.UserController.index());
     }
@@ -163,6 +167,11 @@ public final class UserController extends AbstractJophielController {
         } else {
             userService.updateUser(user.getJid(), userEditData.username, userEditData.name, userEditData.email, Arrays.asList(userEditData.roles.split(",")), getCurrentUserJid(), getCurrentUserIpAddress());
         }
+
+        if (!user.getName().equals(userEditData.name)) {
+            addActivityLog(BasicActivityKeys.RENAME.construct(USER, user.getJid(), user.getName(), userEditData.name));
+        }
+        addActivityLog(BasicActivityKeys.EDIT.construct(USER, user.getJid(), userEditData.name));
 
         return redirect(routes.UserController.index());
     }
