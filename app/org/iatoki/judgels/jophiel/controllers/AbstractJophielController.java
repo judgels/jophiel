@@ -31,7 +31,7 @@ public abstract class AbstractJophielController extends AbstractBaseJophielContr
     protected void addActivityLog(ActivityKey activityKey) {
         long time = System.currentTimeMillis();
         ActivityLogServiceImpl.getInstance().addActivityLog(activityKey, session("username"), time, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
-        userActivityService.createUserActivity(null, IdentityUtils.getUserJid(), time, session("username") + " " + activityKey.toString(), IdentityUtils.getIpAddress());
+        userActivityService.createUserActivity(null, IdentityUtils.getUserJid(), time, activityKey.toString(), IdentityUtils.getIpAddress());
     }
 
     @Override
