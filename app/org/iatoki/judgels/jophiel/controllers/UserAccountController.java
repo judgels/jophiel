@@ -2,6 +2,7 @@ package org.iatoki.judgels.jophiel.controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.iatoki.judgels.jophiel.EmailNotVerifiedException;
+import org.iatoki.judgels.jophiel.JophielActivityKeys;
 import org.iatoki.judgels.jophiel.JophielProperties;
 import org.iatoki.judgels.jophiel.User;
 import org.iatoki.judgels.jophiel.UserNotFoundException;
@@ -261,6 +262,8 @@ public final class UserAccountController extends AbstractJophielController {
             session("name", user.getName());
             session("avatar", user.getProfilePictureUrl().toString());
             setCurrentUserRoles(user.getRoles());
+
+            addActivityLog(JophielActivityKeys.LOGIN.construct());
             if (continueUrl == null) {
                 return redirect(getMainPage());
             }
@@ -282,7 +285,9 @@ public final class UserAccountController extends AbstractJophielController {
 
     @Transactional
     public Result serviceLogout(String returnUri) {
+        addActivityLog(JophielActivityKeys.LOGOUT.construct());
         session().clear();
+
         if (returnUri == null) {
             return redirect(routes.UserAccountController.login());
         }

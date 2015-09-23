@@ -44,6 +44,7 @@ import java.util.Date;
 public final class UserProfileController extends AbstractUserProfileController {
 
     private static final String USER = "user";
+    private static final String INFO = "info";
 
     private final UserService userService;
 
@@ -91,9 +92,8 @@ public final class UserProfileController extends AbstractUserProfileController {
 
         if (!user.getName().equals(userProfileEditData.name)) {
             session("name", userProfileEditData.name);
-            addActivityLog(BasicActivityKeys.RENAME.construct(USER, user.getJid(), user.getName(), userProfileEditData.name));
         }
-        addActivityLog(BasicActivityKeys.EDIT.construct(USER, user.getJid(), userProfileEditData.name));
+        addActivityLog(BasicActivityKeys.EDIT.construct(USER, user.getJid(), user.getUsername()));
 
         return redirect(routes.UserProfileController.index());
     }
@@ -156,6 +156,8 @@ public final class UserProfileController extends AbstractUserProfileController {
 
         UserInfoEditForm userInfoEditData = userInfoEditForm.get();
         userProfileService.upsertInfo(getCurrentUserJid(), userInfoEditData.gender, new Date(JudgelsPlayUtils.parseDate(userInfoEditData.birthDate)), userInfoEditData.streetAddress, userInfoEditData.postalCode, userInfoEditData.institution, userInfoEditData.city, userInfoEditData.provinceOrState, userInfoEditData.country, userInfoEditData.shirtSize, getCurrentUserIpAddress());
+
+        addActivityLog(BasicActivityKeys.EDIT_IN.construct(USER, user.getJid(), user.getUsername(), INFO, user.getJid(), user.getUsername()));
 
         return redirect(routes.UserProfileController.index());
     }

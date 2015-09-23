@@ -59,7 +59,7 @@ public final class UserPhoneController extends AbstractUserProfileController {
             userPhone = userPhoneService.addPhone(getCurrentUserJid(), userPhoneCreateData.phone, getCurrentUserJid());
         }
 
-        addActivityLog(BasicActivityKeys.ADD_IN.construct(USER, user.getJid(), user.getName(), PHONE, userPhone.getJid(), userPhone.getPhone()));
+        addActivityLog(BasicActivityKeys.ADD_IN.construct(USER, user.getJid(), user.getUsername(), PHONE, userPhone.getJid(), userPhone.getPhone()));
 
         return redirect(routes.UserProfileController.index());
     }
@@ -108,7 +108,7 @@ public final class UserPhoneController extends AbstractUserProfileController {
 
         userPhoneService.removePhone(userPhone.getJid());
 
-        addActivityLog(BasicActivityKeys.REMOVE_FROM.construct(USER, user.getJid(), user.getName(), PHONE, userPhone.getJid(), userPhone.getPhone()));
+        addActivityLog(BasicActivityKeys.REMOVE_FROM.construct(USER, user.getJid(), user.getUsername(), PHONE, userPhone.getJid(), userPhone.getPhone()));
 
         return redirect(routes.UserProfileController.index());
     }

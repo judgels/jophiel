@@ -78,7 +78,7 @@ public final class UserEmailController extends AbstractUserProfileController {
 
         flashInfo(Messages.get("email.verify.text.verificationSentTo", userEmailCreateData.email));
 
-        addActivityLog(BasicActivityKeys.ADD_IN.construct(USER, user.getJid(), user.getName(), EMAIL, userEmail.getJid(), userEmail.getEmail()));
+        addActivityLog(BasicActivityKeys.ADD_IN.construct(USER, user.getJid(), user.getUsername(), EMAIL, userEmail.getJid(), userEmail.getEmail()));
 
         return redirect(routes.UserProfileController.index());
     }
@@ -127,7 +127,7 @@ public final class UserEmailController extends AbstractUserProfileController {
 
         userEmailService.removeEmail(userEmail.getJid());
 
-        addActivityLog(BasicActivityKeys.REMOVE_FROM.construct(USER, user.getJid(), user.getName(), EMAIL, userEmail.getJid(), userEmail.getEmail()));
+        addActivityLog(BasicActivityKeys.REMOVE_FROM.construct(USER, user.getJid(), user.getUsername(), EMAIL, userEmail.getJid(), userEmail.getEmail()));
 
         return redirect(routes.UserProfileController.index());
     }

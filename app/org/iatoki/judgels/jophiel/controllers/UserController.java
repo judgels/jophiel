@@ -132,7 +132,7 @@ public final class UserController extends AbstractJophielController {
         UserCreateForm userCreateData = userCreateForm.get();
         User user = userService.createUser(userCreateData.username, userCreateData.name, userCreateData.email, userCreateData.password, Arrays.asList(userCreateData.roles.split(",")), getCurrentUserJid(), getCurrentUserIpAddress());
 
-        addActivityLog(BasicActivityKeys.CREATE.construct(USER, user.getJid(), userCreateData.name));
+        addActivityLog(BasicActivityKeys.CREATE.construct(USER, user.getJid(), user.getUsername()));
 
         return redirect(routes.UserController.index());
     }
@@ -168,10 +168,7 @@ public final class UserController extends AbstractJophielController {
             userService.updateUser(user.getJid(), userEditData.username, userEditData.name, userEditData.email, Arrays.asList(userEditData.roles.split(",")), getCurrentUserJid(), getCurrentUserIpAddress());
         }
 
-        if (!user.getName().equals(userEditData.name)) {
-            addActivityLog(BasicActivityKeys.RENAME.construct(USER, user.getJid(), user.getName(), userEditData.name));
-        }
-        addActivityLog(BasicActivityKeys.EDIT.construct(USER, user.getJid(), userEditData.name));
+        addActivityLog(BasicActivityKeys.EDIT.construct(USER, user.getJid(), user.getUsername()));
 
         return redirect(routes.UserController.index());
     }
