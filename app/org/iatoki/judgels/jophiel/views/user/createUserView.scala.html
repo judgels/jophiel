@@ -13,11 +13,11 @@
 
     @helper.CSRF.formField
 
-    @b3.text(userCreateForm("username"), '_label -> Messages.get("user.username"))
-    @b3.text(userCreateForm("name"), '_label -> Messages.get("user.name"))
-    @b3.email(userCreateForm("email"), '_label -> Messages.get("user.email"))
-    @b3.password(userCreateForm("password"), '_label -> Messages.get("user.password"))
-    @b3.text(userCreateForm("roles"), '_label -> Messages.get("user.roles"))
+    @b3.text(userCreateForm("username"), '_label -> Messages.get("user.field.username"))
+    @b3.text(userCreateForm("name"), '_label -> Messages.get("user.field.name"))
+    @b3.email(userCreateForm("email"), '_label -> Messages.get("user.field.email"))
+    @b3.password(userCreateForm("password"), '_label -> Messages.get("user.field.password"))
+    @b3.text(userCreateForm("roles"), '_label -> Messages.get("user.field.roles"))
 
-    @b3.submit('class -> "btn btn-primary") { @Messages.get("commons.create") }
+    @b3.submit('class -> "btn btn-primary") { @Messages.get("commons.button.new") }
 }

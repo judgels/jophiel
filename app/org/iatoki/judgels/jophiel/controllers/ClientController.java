@@ -149,7 +149,7 @@ public final class ClientController extends AbstractJophielController {
 
         template.setContent(listClientsView.render(pageOfClients, orderBy, orderDir, filterString));
         template.setMainTitle(Messages.get("client.text.list"));
-        template.addMainButton(Messages.get("commons.button.new"), routes.ClientController.createClient());
+        template.addMainButton(Messages.get("client.button.new"), routes.ClientController.createClient());
 
         return renderTemplate(template);
     }
@@ -177,7 +177,6 @@ public final class ClientController extends AbstractJophielController {
 
         template.setContent(editClientView.render(client, clientEditForm));
         template.markBreadcrumbLocation(Messages.get("commons.text.edit"), routes.ClientController.editClient(client.getId()));
-        template.setPageTitle(client.getName());
 
         return renderTemplate(template, client);
     }
