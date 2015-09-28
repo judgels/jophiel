@@ -108,3 +108,6 @@ GET            /api/v1/users/username/:username                             @org
 GET            /api/v1/users/avatar/:imageName                              @org.iatoki.judgels.jophiel.controllers.api.pub.v1.PublicUserAPIControllerV1.renderAvatarImage(imageName)
 GET            /api/v1/users/autocomplete                                   @org.iatoki.judgels.jophiel.controllers.api.pub.v1.PublicUserAPIControllerV1.autocompleteUser(term ?= null)
 GET            /api/v1/users/:userJid                                       @org.iatoki.judgels.jophiel.controllers.api.pub.v1.PublicUserAPIControllerV1.findUserByJid(userJid)
+
+# Legacy
+GET            /avatar/:imageName                                           @org.iatoki.judgels.jophiel.controllers.api.pub.v1.PublicUserAPIControllerV1.renderAvatarImage(imageName)
