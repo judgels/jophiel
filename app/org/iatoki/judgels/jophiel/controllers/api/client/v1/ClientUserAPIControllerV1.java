@@ -3,6 +3,7 @@ package org.iatoki.judgels.jophiel.controllers.api.client.v1;
 import org.iatoki.judgels.jophiel.AccessToken;
 import org.iatoki.judgels.jophiel.User;
 import org.iatoki.judgels.jophiel.controllers.api.AbstractJophielAPIController;
+import org.iatoki.judgels.jophiel.controllers.api.object.v1.UserFindByUsernameAndPasswordRequestV1;
 import org.iatoki.judgels.jophiel.controllers.api.object.v1.UserV1;
 import org.iatoki.judgels.jophiel.services.ClientService;
 import org.iatoki.judgels.jophiel.services.UserService;
@@ -35,14 +36,15 @@ public final class ClientUserAPIControllerV1 extends AbstractJophielAPIControlle
         return okAsJson(isLoggedIn);
     }
 
-    public Result findUserByUsernameAndPassword(String username, String password) {
+    public Result findUserByUsernameAndPassword() {
         authenticateAsJudgelsAppClient(clientService);
+        UserFindByUsernameAndPasswordRequestV1 requestBody = parseRequestBody(UserFindByUsernameAndPasswordRequestV1.class);
 
-        if (!userService.userExistsByUsernameAndPassword(username, password)) {
+        if (!userService.userExistsByUsernameAndPassword(requestBody.username, requestBody.password)) {
             throw new JudgelsAPINotFoundException();
         }
 
-        User user = userService.findUserByJid(username);
+        User user = userService.findUserByJid(requestBody.username);
         return okAsJson(createUserV1FromUser(user));
     }
 

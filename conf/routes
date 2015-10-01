@@ -94,7 +94,7 @@ GET            /api/provinces/autocomplete                                  @org
 
 # Client API
 
-GET            /api/v1/users/usernamePassword                               @org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientUserAPIControllerV1.findUserByUsernameAndPassword(username, password)
+POST           /api/v1/users/usernamePassword                               @org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientUserAPIControllerV1.findUserByUsernameAndPassword()
 GET            /api/v1/users/accessToken                                    @org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientUserAPIControllerV1.findUserByAccessToken(accessToken)
 GET            /api/v1/user/isLoggedIn                                      @org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientUserAPIControllerV1.isLoggedIn()
 
