@@ -96,10 +96,12 @@ public final class OAuth2WebAPIController extends AbstractJophielController {
         Scope scope = authRequest.getScope();
         String nonce = (authRequest.getNonce() != null) ? authRequest.getNonce().toString() : "";
 
-        com.nimbusds.oauth2.sdk.AuthorizationCode authCode = clientService.generateAuthorizationCode(getCurrentUserJid(), client.getJid(), redirectURI.toString(), responseType.toString(), scope.toStringList(), System.currentTimeMillis() + TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES), getCurrentUserIpAddress());
-        String accessToken = clientService.generateAccessToken(authCode.getValue(), getCurrentUserJid(), clientID.toString(), scope.toStringList(), System.currentTimeMillis() + TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES), getCurrentUserIpAddress());
+        long expirationTime = TimeUnit.MILLISECONDS.convert(1, TimeUnit.HOURS);
+
+        com.nimbusds.oauth2.sdk.AuthorizationCode authCode = clientService.generateAuthorizationCode(getCurrentUserJid(), client.getJid(), redirectURI.toString(), responseType.toString(), scope.toStringList(), System.currentTimeMillis() + expirationTime, getCurrentUserIpAddress());
+        String accessToken = clientService.generateAccessToken(authCode.getValue(), getCurrentUserJid(), clientID.toString(), scope.toStringList(), System.currentTimeMillis() + expirationTime, getCurrentUserIpAddress());
         clientService.generateRefreshToken(authCode.getValue(), getCurrentUserJid(), clientID.toString(), scope.toStringList(), getCurrentUserIpAddress());
-        clientService.generateIdToken(authCode.getValue(), getCurrentUserJid(), client.getJid(), nonce, System.currentTimeMillis(), accessToken, System.currentTimeMillis() + TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES), getCurrentUserIpAddress());
+        clientService.generateIdToken(authCode.getValue(), getCurrentUserJid(), client.getJid(), nonce, System.currentTimeMillis(), accessToken, System.currentTimeMillis() + expirationTime, getCurrentUserIpAddress());
 
         URI result;
         try {
