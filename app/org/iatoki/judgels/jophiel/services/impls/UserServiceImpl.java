@@ -195,6 +195,10 @@ public final class UserServiceImpl implements UserService {
 
         userEmailDao.persist(emailModel, userJid, userIpAddress);
 
+        userModel.emailJid = emailModel.jid;
+
+        userDao.edit(userModel, userJid, userIpAddress);
+
         return UserServiceUtils.createUserFromModel(userModel);
     }
 
