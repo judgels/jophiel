@@ -1,6 +1,5 @@
 package org.iatoki.judgels.jophiel.services.impls;
 
-import com.google.common.collect.ImmutableMap;
 import org.iatoki.judgels.jophiel.Province;
 import org.iatoki.judgels.jophiel.ProvinceNotFoundException;
 import org.iatoki.judgels.jophiel.models.daos.ProvinceDao;
@@ -70,8 +69,8 @@ public final class ProvinceServiceImpl implements ProvinceService {
 
     @Override
     public Page<Province> getPageOfProvinces(long pageIndex, long pageSize, String orderBy, String orderDir, String filterString) {
-        long totalPages = provinceDao.countByFilters(filterString, ImmutableMap.of(), ImmutableMap.of());
-        List<ProvinceModel> provinceModels = provinceDao.findSortedByFilters(orderBy, orderDir, filterString, ImmutableMap.of(), ImmutableMap.of(), pageIndex * pageSize, pageSize);
+        long totalPages = provinceDao.countByFilters(filterString);
+        List<ProvinceModel> provinceModels = provinceDao.findSortedByFilters(orderBy, orderDir, filterString, pageIndex * pageSize, pageSize);
 
         List<Province> clients = provinceModels.stream().map(m -> ProvinceServiceUtils.createProvinceFromModel(m)).collect(Collectors.toList());
 

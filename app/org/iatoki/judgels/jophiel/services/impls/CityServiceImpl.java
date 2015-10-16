@@ -1,6 +1,5 @@
 package org.iatoki.judgels.jophiel.services.impls;
 
-import com.google.common.collect.ImmutableMap;
 import org.iatoki.judgels.jophiel.City;
 import org.iatoki.judgels.jophiel.CityNotFoundException;
 import org.iatoki.judgels.jophiel.models.daos.CityDao;
@@ -70,8 +69,8 @@ public final class CityServiceImpl implements CityService {
 
     @Override
     public Page<City> getPageOfCities(long pageIndex, long pageSize, String orderBy, String orderDir, String filterString) {
-        long totalPages = cityDao.countByFilters(filterString, ImmutableMap.of(), ImmutableMap.of());
-        List<CityModel> cityModels = cityDao.findSortedByFilters(orderBy, orderDir, filterString, ImmutableMap.of(), ImmutableMap.of(), pageIndex * pageSize, pageSize);
+        long totalPages = cityDao.countByFilters(filterString);
+        List<CityModel> cityModels = cityDao.findSortedByFilters(orderBy, orderDir, filterString, pageIndex * pageSize, pageSize);
 
         List<City> clients = cityModels.stream().map(m -> CityServiceUtils.createCityFromModel(m)).collect(Collectors.toList());
 

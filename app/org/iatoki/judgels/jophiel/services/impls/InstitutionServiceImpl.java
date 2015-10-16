@@ -1,6 +1,5 @@
 package org.iatoki.judgels.jophiel.services.impls;
 
-import com.google.common.collect.ImmutableMap;
 import org.iatoki.judgels.jophiel.Institution;
 import org.iatoki.judgels.jophiel.InstitutionNotFoundException;
 import org.iatoki.judgels.jophiel.models.daos.InstitutionDao;
@@ -70,8 +69,8 @@ public final class InstitutionServiceImpl implements InstitutionService {
 
     @Override
     public Page<Institution> getPageOfInstitutions(long pageIndex, long pageSize, String orderBy, String orderDir, String filterString) {
-        long totalPages = institutionDao.countByFilters(filterString, ImmutableMap.of(), ImmutableMap.of());
-        List<InstitutionModel> institutionModels = institutionDao.findSortedByFilters(orderBy, orderDir, filterString, ImmutableMap.of(), ImmutableMap.of(), pageIndex * pageSize, pageSize);
+        long totalPages = institutionDao.countByFilters(filterString);
+        List<InstitutionModel> institutionModels = institutionDao.findSortedByFilters(orderBy, orderDir, filterString, pageIndex * pageSize, pageSize);
 
         List<Institution> clients = institutionModels.stream().map(m -> InstitutionServiceUtils.createInstitutionFromModel(m)).collect(Collectors.toList());
 

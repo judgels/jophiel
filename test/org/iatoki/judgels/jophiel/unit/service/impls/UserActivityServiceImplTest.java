@@ -86,13 +86,13 @@ public class UserActivityServiceImplTest extends PowerMockTestCase {
         secondUserActivityModel.userCreate = "JIDU0101";
         secondUserActivityModel.ipCreate = "10.10.10.10";
         List<UserActivityModel> userActivityModels = Arrays.asList(firstUserActivityModel, secondUserActivityModel);
-        Mockito.when(userActivityDao.findSortedByFilters(Mockito.eq(orderBy), Mockito.eq(orderDir), Mockito.eq(filterString), Matchers.<Map<SingularAttribute<? super UserActivityModel, String>, String>>any(), Matchers.<Map<SingularAttribute<? super UserActivityModel, String>, ? extends Collection<String>>>any(), Mockito.eq(pageIndex * pageSize), Mockito.eq(pageSize)))
+        Mockito.when(userActivityDao.findSortedByFilters(Mockito.eq(orderBy), Mockito.eq(orderDir), Mockito.eq(filterString), Matchers.<Map<SingularAttribute<? super UserActivityModel, ? extends Object>, String>>any(), Matchers.<Map<SingularAttribute<? super UserActivityModel, String>, ? extends Collection<String>>>any(), Mockito.eq(pageIndex * pageSize), Mockito.eq(pageSize)))
                 .thenReturn(userActivityModels);
         Mockito.when(clientDao.existsByJid(firstUserActivityModel.clientJid)).thenReturn(true);
         Mockito.when(clientDao.existsByJid(secondUserActivityModel.clientJid)).thenReturn(false);
 
         long totalRow = userActivityModels.size();
-        Mockito.when(userActivityDao.countByFilters(Mockito.eq(filterString), Matchers.<Map<SingularAttribute<? super UserActivityModel, String>, String>>any(), Matchers.<Map<SingularAttribute<? super UserActivityModel, String>, Set<String>>>any())).thenReturn(totalRow);
+        Mockito.when(userActivityDao.countByFilters(Mockito.eq(filterString), Matchers.<Map<SingularAttribute<? super UserActivityModel, ? extends Object>, String>>any(), Matchers.<Map<SingularAttribute<? super UserActivityModel, String>, Set<String>>>any())).thenReturn(totalRow);
 
         ClientModel firstClientModel = new ClientModel();
         firstClientModel.jid = "JID0001";

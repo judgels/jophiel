@@ -1,5 +1,6 @@
 package org.iatoki.judgels.jophiel.unit.service.impls;
 
+import com.google.common.collect.ImmutableList;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -123,7 +124,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
     @Test
     public void findAllClientByTermSomeTermNotContainedInClientsReturnsEmptyList() {
         String randomTerm = "asdfasdf";
-        Mockito.when(clientDao.findSortedByFilters(Mockito.anyString(), Mockito.anyString(), Mockito.eq(randomTerm), Matchers.<Map<SingularAttribute<? super ClientModel, String>, String>>any(), Matchers.<Map<SingularAttribute<? super ClientModel, String>, Set<String>>>any(), Mockito.anyLong(), Mockito.anyLong()))
+        Mockito.when(clientDao.findSortedByFilters(Mockito.anyString(), Mockito.anyString(), Mockito.eq(randomTerm), Matchers.<Map<SingularAttribute<? super ClientModel, ? extends Object>, String>>any(), Matchers.<Map<SingularAttribute<? super ClientModel, String>, Set<String>>>any(), Mockito.anyLong(), Mockito.anyLong()))
                 .thenReturn(Collections.emptyList());
 
         List<Client> result = clientService.getClientsByTerm(randomTerm);
@@ -903,12 +904,12 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         String orderDir = "asc";
         String filterString = "asdfasdf";
 
-        List<ClientModel> clientModels = Arrays.asList();
-        Mockito.when(clientDao.findSortedByFilters(Mockito.eq(orderBy), Mockito.eq(orderDir), Mockito.eq(filterString), Matchers.<Map<SingularAttribute<? super ClientModel, String>, String>>any(), Matchers.<Map<SingularAttribute<? super ClientModel, String>, Set<String>>>any(), Mockito.eq(pageIndex * pageSize), Mockito.eq(pageSize)))
+        List<ClientModel> clientModels = ImmutableList.of();
+        Mockito.when(clientDao.findSortedByFilters(Mockito.eq(orderBy), Mockito.eq(orderDir), Mockito.eq(filterString), Matchers.<Map<SingularAttribute<? super ClientModel, ? extends Object>, String>>any(), Matchers.<Map<SingularAttribute<? super ClientModel, String>, Set<String>>>any(), Mockito.eq(pageIndex * pageSize), Mockito.eq(pageSize)))
                 .thenReturn(clientModels);
 
         long totalRows = clientModels.size();
-        Mockito.when(clientDao.countByFilters(Mockito.eq(filterString), Matchers.<Map<SingularAttribute<? super ClientModel, String>, String>>any(), Matchers.<Map<SingularAttribute<? super ClientModel, String>, Set<String>>>any())).thenReturn(totalRows);
+        Mockito.when(clientDao.countByFilters(Mockito.eq(filterString), Matchers.<Map<SingularAttribute<? super ClientModel, ? extends Object>, String>>any(), Matchers.<Map<SingularAttribute<? super ClientModel, String>, Set<String>>>any())).thenReturn(totalRows);
 
         Page<Client> clientPage = clientService.getPageOfClients(pageIndex, pageSize, orderBy, orderDir, filterString);
 
@@ -1043,7 +1044,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
 
 
     private Client createClientFromModel(ClientModel clientModel, Set<String> scopeString, List<String> redirectURIs) {
-        return new Client(clientModel.id, clientModel.jid, clientModel.name, clientModel.secret, clientModel.applicationType.toString(), scopeString, redirectURIs);
+        return new Client(clientModel.id, clientModel.jid, clientModel.name, clientModel.secret, clientModel.applicationType, scopeString, redirectURIs);
     }
 
     private org.iatoki.judgels.jophiel.AuthorizationCode createAuthorizationCodeFromModel(AuthorizationCodeModel authorizationCodeModel) {
