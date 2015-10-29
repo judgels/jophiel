@@ -13,10 +13,6 @@ public final class UserEditForm {
     @Constraints.Required
     public String name;
 
-    @Constraints.Required
-    @Constraints.Email
-    public String email;
-
     public String password;
 
     @Constraints.Required

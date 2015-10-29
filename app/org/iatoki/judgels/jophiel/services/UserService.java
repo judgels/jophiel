@@ -29,9 +29,9 @@ public interface UserService {
 
     User createUser(String username, String name, String email, String password, List<String> roles, String userJid, String userIpAddress);
 
-    void updateUser(String userJid, String username, String name, String email, List<String> roles, String updaterJid, String updaterIpAddress);
+    void updateUser(String userJid, String username, String name, List<String> roles, String updaterJid, String updaterIpAddress);
 
-    void updateUser(String userJid, String username, String name, String email, String password, List<String> roles, String updaterJid, String updaterIpAddress);
+    void updateUser(String userJid, String username, String name, String password, List<String> roles, String updaterJid, String updaterIpAddress);
 
     void deleteUser(String userJid);
 }

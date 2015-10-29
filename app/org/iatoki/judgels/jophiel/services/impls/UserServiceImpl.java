@@ -203,7 +203,7 @@ public final class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateUser(String userJid, String username, String name, String email, List<String> roles, String updaterJid, String updaterIpAddress) {
+    public void updateUser(String userJid, String username, String name, List<String> roles, String updaterJid, String updaterIpAddress) {
         UserModel userModel = userDao.findByJid(userJid);
 
         userModel.username = username;
@@ -214,7 +214,7 @@ public final class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateUser(String userJid, String username, String name, String email, String password, List<String> roles, String updaterJid, String updaterIpAddress) {
+    public void updateUser(String userJid, String username, String name, String password, List<String> roles, String updaterJid, String updaterIpAddress) {
         UserModel userModel = userDao.findByJid(userJid);
 
         userModel.username = username;

@@ -144,7 +144,6 @@ public final class UserController extends AbstractJophielController {
         UserEditForm userEditData = new UserEditForm();
         userEditData.username = user.getUsername();
         userEditData.name = user.getName();
-        userEditData.email = user.getEmailJid();
         userEditData.roles = StringUtils.join(user.getRoles(), ",");
         Form<UserEditForm> userEditForm = Form.form(UserEditForm.class).fill(userEditData);
 
@@ -163,9 +162,9 @@ public final class UserController extends AbstractJophielController {
 
         UserEditForm userEditData = userEditForm.get();
         if (!"".equals(userEditData.password)) {
-            userService.updateUser(user.getJid(), userEditData.username, userEditData.name, userEditData.email, userEditData.password, Arrays.asList(userEditData.roles.split(",")), getCurrentUserJid(), getCurrentUserIpAddress());
+            userService.updateUser(user.getJid(), userEditData.username, userEditData.name, userEditData.password, Arrays.asList(userEditData.roles.split(",")), getCurrentUserJid(), getCurrentUserIpAddress());
         } else {
-            userService.updateUser(user.getJid(), userEditData.username, userEditData.name, userEditData.email, Arrays.asList(userEditData.roles.split(",")), getCurrentUserJid(), getCurrentUserIpAddress());
+            userService.updateUser(user.getJid(), userEditData.username, userEditData.name, Arrays.asList(userEditData.roles.split(",")), getCurrentUserJid(), getCurrentUserIpAddress());
         }
 
         addActivityLog(BasicActivityKeys.EDIT.construct(USER, user.getJid(), user.getUsername()));
