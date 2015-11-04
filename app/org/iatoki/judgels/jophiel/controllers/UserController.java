@@ -183,7 +183,7 @@ public final class UserController extends AbstractJophielController {
     }
 
     protected Result renderTemplate(HtmlTemplate template, User user) {
-        template.setMainTitle("#" + user.getId() + ": " + user.getUsername());
+        template.setMainTitle("#" + user.getId() + ": " + user.getUsername() + " (" + user.getJid() + ")");
 
         template.markBreadcrumbLocation(user.getUsername(), routes.UserController.viewUser(user.getId()));
 
