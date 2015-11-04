@@ -113,13 +113,17 @@ email.verify.text.verificationSentTo                = Verification instruction s
 email.verify.email.subject                          = {0} Email Verification
 email.verify.email.body                             = <p>Please verify your email by clicking <a href="{1}">this link</a>.</p>
 
+email.verify.error.emailOwned                       = Email can't be verified already activated
+email.create.error.emailOwned                       = Email is already owned by other user
 email.makePrimary.error.notOwned                    = Email not owned by user
 email.makePrimary.error.alreadyPrimary              = Email already primary email
 email.makePrimary.error.notVerified                 = Email not verified
 email.remove.error.notOwned                         = Email not owned by user
 email.remove.error.primary                          = Email is primary email (cannot be removed)
 
+email.resend.error.emailOwned                       = The same email has already verified
 email.resend.error.alreadyVerified                  = Email already verified
+email.activate.error.emailOwned                     = The same email has already verified
 email.activate.error.alreadyVerified                = Email already verified
 
 phone.text.phones                                   = Phones

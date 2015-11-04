@@ -83,7 +83,7 @@ public final class UserAccountController extends AbstractJophielController {
             return showRegister(registerForm);
         }
 
-        if (userEmailService.emailExists(registerData.email)) {
+        if (userEmailService.isEmailOwned(registerData.email)) {
             registerForm.reject(Messages.get("register.error.emailExists"));
             return showRegister(registerForm);
         }

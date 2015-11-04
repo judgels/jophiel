@@ -40,6 +40,17 @@ public final class UserEmailJedisHibernateDao extends AbstractJudgelsJedisHibern
     }
 
     @Override
+    public boolean existsVerifiedEmail(String email) {
+        CriteriaBuilder cb = JPA.em().getCriteriaBuilder();
+        CriteriaQuery<Long> query = cb.createQuery(Long.class);
+        Root<UserEmailModel> root = query.from(UserEmailModel.class);
+
+        query.select(cb.count(root)).where(cb.and(cb.equal(root.get(UserEmailModel_.email), email), cb.equal(root.get(UserEmailModel_.emailVerified), true)));
+
+        return (JPA.em().createQuery(query).getSingleResult() != 0);
+    }
+
+    @Override
     public boolean existsUnverifiedEmailByJid(String jid) {
         CriteriaBuilder cb = JPA.em().getCriteriaBuilder();
         CriteriaQuery<Long> query = cb.createQuery(Long.class);

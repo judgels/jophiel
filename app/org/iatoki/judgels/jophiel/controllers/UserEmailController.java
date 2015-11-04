@@ -49,6 +49,15 @@ public final class UserEmailController extends AbstractUserProfileController {
             return notFound();
         }
 
+        UserEmail userEmail = userEmailService.findEmailByCode(emailCode);
+
+        if (userEmailService.isEmailOwned(userEmail.getEmail())) {
+            flashError(Messages.get("email.verify.error.emailOwned"));
+            userEmailService.removeEmail(userEmail.getJid());
+
+            return redirect(routes.UserProfileController.index());
+        }
+
         userEmailService.activateEmail(emailCode, getCurrentUserIpAddress());
 
         return showAfterActivateEmail();
@@ -67,6 +76,12 @@ public final class UserEmailController extends AbstractUserProfileController {
         }
 
         UserEmailCreateForm userEmailCreateData = userEmailCreateForm.get();
+
+        if (userEmailService.isEmailOwned(userEmailCreateData.email)) {
+            flashError(Messages.get("email.create.error.emailOwned"));
+
+            return redirect(routes.UserProfileController.index());
+        }
 
         UserEmail userEmail;
         if (user.getEmailJid() == null) {
@@ -139,6 +154,13 @@ public final class UserEmailController extends AbstractUserProfileController {
         UserEmail userEmail = userEmailService.findEmailById(emailId);
         User user = userService.findUserByJid(userEmail.getUserJid());
 
+        if (userEmailService.isEmailOwned(userEmail.getEmail())) {
+            flashError(Messages.get("email.resend.error.emailOwned"));
+            userEmailService.removeEmail(userEmail.getJid());
+
+            return redirect(routes.UserProfileController.index());
+        }
+
         if (!userEmailService.isEmailNotVerified(userEmail.getJid())) {
             flashError(Messages.get("email.resend.error.alreadyVerified"));
             return redirect(routes.UserController.viewUnverifiedUsers());
@@ -157,6 +179,13 @@ public final class UserEmailController extends AbstractUserProfileController {
     @Transactional
     public Result activateEmail(long emailId) throws UserEmailNotFoundException {
         UserEmail userEmail = userEmailService.findEmailById(emailId);
+
+        if (userEmailService.isEmailOwned(userEmail.getEmail())) {
+            flashError(Messages.get("email.activate.error.emailOwned"));
+            userEmailService.removeEmail(userEmail.getJid());
+
+            return redirect(routes.UserProfileController.index());
+        }
 
         if (!userEmailService.isEmailNotVerified(userEmail.getJid())) {
             flashError(Messages.get("email.activate.error.alreadyVerified"));

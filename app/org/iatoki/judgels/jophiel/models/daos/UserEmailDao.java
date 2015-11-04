@@ -10,6 +10,8 @@ public interface UserEmailDao extends JudgelsDao<UserEmailModel> {
 
     boolean existsByEmail(String email);
 
+    boolean existsVerifiedEmail(String email);
+
     boolean existsUnverifiedEmailByJid(String jid);
 
     boolean existsByEmailCode(String emailCode);

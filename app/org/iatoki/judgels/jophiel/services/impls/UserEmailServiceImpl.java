@@ -35,11 +35,16 @@ public final class UserEmailServiceImpl implements UserEmailService {
     }
 
     @Override
+    public boolean isEmailOwned(String email) {
+        return userEmailDao.existsVerifiedEmail(email);
+    }
+
+    @Override
     public boolean isEmailOwnedByUser(String email, String username) {
         UserModel userModel = userDao.findByUsername(username);
         UserEmailModel emailModel = userEmailDao.findByEmail(email);
 
-        return (emailModel.userJid.equals(userModel.jid));
+        return emailModel.userJid.equals(userModel.jid) && emailModel.emailVerified;
     }
 
     @Override
@@ -98,6 +103,13 @@ public final class UserEmailServiceImpl implements UserEmailService {
     @Override
     public UserEmail findEmailByJid(String emailJid) {
         return UserEmailServiceUtils.createUserEmailFromModel(userEmailDao.findByJid(emailJid));
+    }
+
+    @Override
+    public UserEmail findEmailByCode(String emailCode) {
+        UserEmailModel emailModel = userEmailDao.findByEmailCode(emailCode);
+
+        return UserEmailServiceUtils.createUserEmailFromModel(emailModel);
     }
 
     @Override

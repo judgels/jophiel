@@ -59,6 +59,7 @@ public class UserEmailServiceImplTest extends PowerMockTestCase {
 
         UserEmailModel userEmailModel = new UserEmailModel();
         userEmailModel.userJid = userJid;
+        userEmailModel.emailVerified = true;
         Mockito.when(userEmailDao.findByEmail(email)).thenReturn(userEmailModel);
 
         Assert.assertTrue(userEmailService.isEmailOwnedByUser(email, username), "Email not owned by user");

@@ -7,6 +7,8 @@ import java.util.List;
 
 public interface UserEmailService {
 
+    boolean isEmailOwned(String email);
+
     boolean isEmailOwnedByUser(String email, String username);
 
     boolean emailExists(String email);
@@ -24,6 +26,8 @@ public interface UserEmailService {
     UserEmail findEmailById(long emailId) throws UserEmailNotFoundException;
 
     UserEmail findEmailByJid(String emailJid);
+
+    UserEmail findEmailByCode(String emailCode);
 
     List<UserEmail> getEmailsByUserJid(String userJid);
 
