@@ -49,14 +49,14 @@ public final class UserActivityController extends AbstractJophielController {
         String[] clientName = clientNames.split(",");
         ImmutableSet.Builder<String> clientNamesSetBuilder = ImmutableSet.builder();
         for (String client : clientName) {
-            if (!"".equals(client) && clientService.clientExistsByName(client)) {
+            if (!client.isEmpty() && clientService.clientExistsByName(client)) {
                 clientNamesSetBuilder.add(client);
             }
         }
         String[] username = usernames.split(",");
         ImmutableSet.Builder<String> usernamesSetBuilder = ImmutableSet.builder();
         for (String user : username) {
-            if (!"".equals(user) && userService.userExistsByUsername(user)) {
+            if (!user.isEmpty() && userService.userExistsByUsername(user)) {
                 usernamesSetBuilder.add(user);
             }
         }

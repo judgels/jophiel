@@ -167,7 +167,7 @@ public final class OAuth2APIController extends AbstractJophielAPIController {
         }
 
         Set<String> addedSet = Arrays.asList(scope.split(" ")).stream()
-                .filter(s -> (!"".equals(s)) && (!client.getScopes().contains(StringUtils.upperCase(s))))
+                .filter(s -> (!s.isEmpty()) && (!client.getScopes().contains(StringUtils.upperCase(s))))
                 .collect(Collectors.toSet());
         if (!addedSet.isEmpty()) {
             ObjectNode jsonResponse = Json.newObject();

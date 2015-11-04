@@ -161,7 +161,7 @@ public final class UserController extends AbstractJophielController {
         }
 
         UserEditForm userEditData = userEditForm.get();
-        if (!"".equals(userEditData.password)) {
+        if (!userEditData.password.isEmpty()) {
             userService.updateUser(user.getJid(), userEditData.username, userEditData.name, userEditData.password, Arrays.asList(userEditData.roles.split(",")), getCurrentUserJid(), getCurrentUserIpAddress());
         } else {
             userService.updateUser(user.getJid(), userEditData.username, userEditData.name, Arrays.asList(userEditData.roles.split(",")), getCurrentUserJid(), getCurrentUserIpAddress());
