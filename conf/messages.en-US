@@ -77,6 +77,9 @@ user.field.password                                 = Password
 user.field.email                                    = Email
 user.field.roles                                    = Roles
 user.search.notFound                                = User not found.
+user.text.download                                  = Download Users
+user.field.file                                     = File
+user.help.file                                      = Text file containing newline-separated usernames
 
 profile.text.profile                                = Profile
 profile.text.of                                     = {0}''s Profile

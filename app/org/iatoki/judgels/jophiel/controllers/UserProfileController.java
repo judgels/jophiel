@@ -172,7 +172,7 @@ public final class UserProfileController extends AbstractUserProfileController {
 
         UserInfo userInfo = null;
         if (userProfileService.infoExists(user.getJid())) {
-            userInfo = userProfileService.getInfo(user.getJid());
+            userInfo = userProfileService.findInfo(user.getJid());
         }
 
         return showViewProfile(user, userInfo);

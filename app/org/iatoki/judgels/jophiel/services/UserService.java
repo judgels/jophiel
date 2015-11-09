@@ -5,6 +5,7 @@ import org.iatoki.judgels.jophiel.User;
 import org.iatoki.judgels.jophiel.UserNotFoundException;
 import org.iatoki.judgels.play.Page;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface UserService {
@@ -14,6 +15,8 @@ public interface UserService {
     boolean userExistsByUsernameAndPassword(String username, String password);
 
     boolean userExistsByJid(String userJid);
+
+    List<User> getUsersByUsernames(Collection<String> usernames);
 
     List<User> getUsersByTerm(String term);
 

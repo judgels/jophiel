@@ -1,6 +1,7 @@
 package org.iatoki.judgels.jophiel.services.impls;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import org.iatoki.judgels.FileSystemProvider;
 import org.iatoki.judgels.jophiel.UserInfo;
 import org.iatoki.judgels.jophiel.UserInfoBuilder;
@@ -14,6 +15,7 @@ import org.iatoki.judgels.jophiel.models.entities.CityModel;
 import org.iatoki.judgels.jophiel.models.entities.InstitutionModel;
 import org.iatoki.judgels.jophiel.models.entities.ProvinceModel;
 import org.iatoki.judgels.jophiel.models.entities.UserInfoModel;
+import org.iatoki.judgels.jophiel.models.entities.UserInfoModel_;
 import org.iatoki.judgels.jophiel.models.entities.UserModel;
 import org.iatoki.judgels.jophiel.services.UserProfileService;
 import org.iatoki.judgels.play.JudgelsPlayUtils;
@@ -24,9 +26,11 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Singleton
 @Named("userProfileService")
@@ -156,24 +160,17 @@ public final class UserProfileServiceImpl implements UserProfileService {
     }
 
     @Override
-    public UserInfo getInfo(String userJid) {
+    public List<UserInfo> getUsersInfoByUserJids(Collection<String> userJids) {
+        List<UserInfoModel> userInfoModels = userInfoDao.findSortedByFiltersIn("id", "asc", "", ImmutableMap.of(UserInfoModel_.userJid, userJids), 0, -1);
+
+        return userInfoModels.stream().map(m -> createUserInfoFromModel(m)).collect(Collectors.toList());
+    }
+
+    @Override
+    public UserInfo findInfo(String userJid) {
         UserInfoModel userInfoModel = userInfoDao.findByUserJid(userJid);
 
-        UserInfoBuilder userInfoBuilder = new UserInfoBuilder();
-        userInfoBuilder
-                .setBirthDate(userInfoModel.birthDate)
-                .setCity(userInfoModel.city)
-                .setCountry(userInfoModel.country)
-                .setGender(userInfoModel.gender)
-                .setId(userInfoModel.id)
-                .setInstitution(userInfoModel.institution)
-                .setPostalCode(userInfoModel.postalCode)
-                .setProvinceOrState(userInfoModel.provinceOrState)
-                .setShirtSize(userInfoModel.shirtSize)
-                .setStreetAddress(userInfoModel.streetAddress)
-                .setUserJid(userInfoModel.userJid);
-
-        return userInfoBuilder.createUserInfo();
+        return createUserInfoFromModel(userInfoModel);
     }
 
     @Override
@@ -193,5 +190,23 @@ public final class UserProfileServiceImpl implements UserProfileService {
     @Override
     public String getAvatarImageUrlString(String imageName) {
         return avatarFileSystemProvider.getURL(ImmutableList.of(imageName));
+    }
+
+    private UserInfo createUserInfoFromModel(UserInfoModel userInfoModel) {
+        UserInfoBuilder userInfoBuilder = new UserInfoBuilder();
+        userInfoBuilder
+                .setBirthDate(userInfoModel.birthDate)
+                .setCity(userInfoModel.city)
+                .setCountry(userInfoModel.country)
+                .setGender(userInfoModel.gender)
+                .setId(userInfoModel.id)
+                .setInstitution(userInfoModel.institution)
+                .setPostalCode(userInfoModel.postalCode)
+                .setProvinceOrState(userInfoModel.provinceOrState)
+                .setShirtSize(userInfoModel.shirtSize)
+                .setStreetAddress(userInfoModel.streetAddress)
+                .setUserJid(userInfoModel.userJid);
+
+        return userInfoBuilder.createUserInfo();
     }
 }

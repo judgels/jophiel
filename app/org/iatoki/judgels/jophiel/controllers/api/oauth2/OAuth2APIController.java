@@ -97,7 +97,7 @@ public final class OAuth2APIController extends AbstractJophielAPIController {
         }
         UserInfo userInfo = null;
         if (userProfileService.infoExists(user.getJid())) {
-            userInfo = userProfileService.getInfo(user.getJid());
+            userInfo = userProfileService.findInfo(user.getJid());
         }
 
         ObjectNode jsonResponse = Json.newObject();

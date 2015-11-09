@@ -1,6 +1,7 @@
 package org.iatoki.judgels.jophiel.services.impls;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import org.apache.commons.lang3.StringUtils;
 import org.iatoki.judgels.jophiel.PasswordHash;
@@ -11,6 +12,7 @@ import org.iatoki.judgels.jophiel.models.daos.UserDao;
 import org.iatoki.judgels.jophiel.models.daos.UserEmailDao;
 import org.iatoki.judgels.jophiel.models.entities.UserEmailModel;
 import org.iatoki.judgels.jophiel.models.entities.UserModel;
+import org.iatoki.judgels.jophiel.models.entities.UserModel_;
 import org.iatoki.judgels.jophiel.services.UserService;
 import org.iatoki.judgels.play.JudgelsPlayUtils;
 import org.iatoki.judgels.play.Page;
@@ -20,7 +22,9 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Singleton
 @Named("userService")
@@ -61,6 +65,13 @@ public final class UserServiceImpl implements UserService {
     @Override
     public boolean userExistsByJid(String userJid) {
         return userDao.existsByJid(userJid);
+    }
+
+    @Override
+    public List<User> getUsersByUsernames(Collection<String> usernames) {
+        List<UserModel> userModels =  userDao.findSortedByFiltersIn("id", "asc", "", ImmutableMap.of(UserModel_.username, usernames), 0, -1);
+
+        return userModels.stream().map(m -> UserServiceUtils.createUserFromModel(m)).collect(Collectors.toList());
     }
 
     @Override

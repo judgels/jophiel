@@ -1,6 +1,12 @@
 package org.iatoki.judgels.jophiel.controllers;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.iatoki.judgels.jophiel.BasicActivityKeys;
 import org.iatoki.judgels.jophiel.JophielUtils;
 import org.iatoki.judgels.jophiel.UnverifiedUserEmail;
@@ -14,6 +20,7 @@ import org.iatoki.judgels.jophiel.controllers.securities.Authorized;
 import org.iatoki.judgels.jophiel.controllers.securities.HasRole;
 import org.iatoki.judgels.jophiel.controllers.securities.LoggedIn;
 import org.iatoki.judgels.jophiel.forms.UserCreateForm;
+import org.iatoki.judgels.jophiel.forms.UserDownloadForm;
 import org.iatoki.judgels.jophiel.forms.UserEditForm;
 import org.iatoki.judgels.jophiel.services.UserActivityService;
 import org.iatoki.judgels.jophiel.services.UserEmailService;
@@ -22,23 +29,30 @@ import org.iatoki.judgels.jophiel.services.UserProfileService;
 import org.iatoki.judgels.jophiel.services.UserService;
 import org.iatoki.judgels.jophiel.views.html.profile.viewFullProfileView;
 import org.iatoki.judgels.jophiel.views.html.user.createUserView;
+import org.iatoki.judgels.jophiel.views.html.user.editUserView;
 import org.iatoki.judgels.jophiel.views.html.user.listUnverifiedUsersView;
 import org.iatoki.judgels.jophiel.views.html.user.listUsersView;
-import org.iatoki.judgels.jophiel.views.html.user.editUserView;
 import org.iatoki.judgels.play.HtmlTemplate;
+import org.iatoki.judgels.play.JudgelsPlayUtils;
 import org.iatoki.judgels.play.Page;
 import play.data.Form;
 import play.db.jpa.Transactional;
 import play.filters.csrf.AddCSRFToken;
 import play.filters.csrf.RequireCSRFCheck;
 import play.i18n.Messages;
+import play.mvc.Http;
 import play.mvc.Result;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Authenticated(value = {LoggedIn.class, HasRole.class})
 @Authorized(value = "admin")
@@ -65,15 +79,18 @@ public final class UserController extends AbstractJophielController {
     }
 
     @Transactional
+    @AddCSRFToken
     public Result index() {
         return listUsers(0, "id", "asc", "");
     }
 
     @Transactional
+    @AddCSRFToken
     public Result listUsers(long pageIndex, String orderBy, String orderDir, String filterString) {
         Page<User> pageOfUsers = userService.getPageOfUsers(pageIndex, PAGE_SIZE, orderBy, orderDir, filterString);
+        Form<UserDownloadForm> userDownloadForm = Form.form(UserDownloadForm.class);
 
-        return showListUsers(pageOfUsers, orderBy, orderDir, filterString);
+        return showListUsers(pageOfUsers, userDownloadForm, orderBy, orderDir, filterString);
     }
 
     @Transactional
@@ -106,7 +123,7 @@ public final class UserController extends AbstractJophielController {
 
         UserInfo userInfo = null;
         if (userProfileService.infoExists(user.getJid())) {
-            userInfo = userProfileService.getInfo(user.getJid());
+            userInfo = userProfileService.findInfo(user.getJid());
         }
 
         return showViewUser(user, userPrimaryEmail, userEmails, userPrimaryPhone, userPhones, userInfo);
@@ -172,6 +189,40 @@ public final class UserController extends AbstractJophielController {
         return redirect(routes.UserController.index());
     }
 
+    @Transactional
+    @RequireCSRFCheck
+    public Result postDownloadUsers() {
+        Http.MultipartFormData body = request().body().asMultipartFormData();
+        Http.MultipartFormData.FilePart file;
+
+        file = body.getFile("users");
+        if (file != null) {
+            File userFile = file.getFile();
+            try {
+                String[] usernames = FileUtils.readFileToString(userFile).split("\n");
+                List<User> users = userService.getUsersByUsernames(Arrays.asList(usernames));
+                Map<String, UserInfo> mapJidToUserInfo = userProfileService.getUsersInfoByUserJids(users.stream().map(User::getJid).collect(Collectors.toList())).stream().collect(Collectors.toMap(i -> i.getUserJid(), i -> i));
+
+                Workbook workbook = generateUserData(users, mapJidToUserInfo);
+
+                try {
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    workbook.write(baos);
+                    baos.close();
+                    response().setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+                    response().setHeader("Content-Disposition", "attachment; filename=\"" + Messages.get("user.text.users") + ".xls\"");
+                    return ok(baos.toByteArray());
+                } catch (IOException e) {
+                    return internalServerError();
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        return redirect(routes.UserController.index());
+    }
+
     @Override
     protected Result renderTemplate(HtmlTemplate template) {
         template.markBreadcrumbLocation(Messages.get("user.text.users"), routes.UserController.index());
@@ -190,10 +241,10 @@ public final class UserController extends AbstractJophielController {
         return renderTemplate(template);
     }
 
-    private Result showListUsers(Page<User> pageOfUsers, String orderBy, String orderDir, String filterString) {
+    private Result showListUsers(Page<User> pageOfUsers, Form<UserDownloadForm> userDownloadForm, String orderBy, String orderDir, String filterString) {
         HtmlTemplate template = new HtmlTemplate();
 
-        template.setContent(listUsersView.render(pageOfUsers, orderBy, orderDir, filterString));
+        template.setContent(listUsersView.render(pageOfUsers, userDownloadForm, orderBy, orderDir, filterString));
         template.setMainTitle(Messages.get("user.text.list"));
         template.addMainButton(Messages.get("user.text.new"), routes.UserController.createUser());
 
@@ -237,5 +288,67 @@ public final class UserController extends AbstractJophielController {
         template.setPageTitle(user.getUsername());
 
         return renderTemplate(template, user);
+    }
+
+    private Workbook generateUserData(List<User> users, Map<String, UserInfo> userInfoMap) {
+        Workbook workbook = new HSSFWorkbook();
+        Sheet sheet = workbook.createSheet(Messages.get("user.text.users"));
+
+        int rowNum = 0;
+        int cellNum = 0;
+        Row row = sheet.createRow(rowNum++);
+        Cell cell = row.createCell(cellNum++);
+        cell.setCellValue(Messages.get("user.field.username"));
+        cell = row.createCell(cellNum++);
+        cell.setCellValue(Messages.get("user.field.name"));
+        cell = row.createCell(cellNum++);
+        cell.setCellValue(Messages.get("info.field.gender"));
+        cell = row.createCell(cellNum++);
+        cell.setCellValue(Messages.get("info.field.birthDate"));
+        cell = row.createCell(cellNum++);
+        cell.setCellValue(Messages.get("info.field.streetAddress"));
+        cell = row.createCell(cellNum++);
+        cell.setCellValue(Messages.get("info.field.postalCode"));
+        cell = row.createCell(cellNum++);
+        cell.setCellValue(Messages.get("info.field.institution"));
+        cell = row.createCell(cellNum++);
+        cell.setCellValue(Messages.get("info.field.city"));
+        cell = row.createCell(cellNum++);
+        cell.setCellValue(Messages.get("info.field.provinceOrState"));
+        cell = row.createCell(cellNum++);
+        cell.setCellValue(Messages.get("info.field.country"));
+        cell = row.createCell(cellNum++);
+        cell.setCellValue(Messages.get("info.field.shirtSize"));
+        for (User user : users) {
+            cellNum = 0;
+            row = sheet.createRow(rowNum++);
+            cell = row.createCell(cellNum++);
+            cell.setCellValue(user.getUsername());
+            cell = row.createCell(cellNum++);
+            cell.setCellValue(user.getName());
+            if (userInfoMap.containsKey(user.getJid())) {
+                UserInfo userInfo = userInfoMap.get(user.getJid());
+                cell = row.createCell(cellNum++);
+                cell.setCellValue(userInfo.getGender());
+                cell = row.createCell(cellNum++);
+                cell.setCellValue(JudgelsPlayUtils.formatDate(userInfo.getBirthDate()));
+                cell = row.createCell(cellNum++);
+                cell.setCellValue(userInfo.getStreetAddress());
+                cell = row.createCell(cellNum++);
+                cell.setCellValue(userInfo.getPostalCode());
+                cell = row.createCell(cellNum++);
+                cell.setCellValue(userInfo.getInstitution());
+                cell = row.createCell(cellNum++);
+                cell.setCellValue(userInfo.getCity());
+                cell = row.createCell(cellNum++);
+                cell.setCellValue(userInfo.getProvinceOrState());
+                cell = row.createCell(cellNum++);
+                cell.setCellValue(userInfo.getCountry());
+                cell = row.createCell(cellNum++);
+                cell.setCellValue(userInfo.getShirtSize());
+            }
+        }
+
+        return workbook;
     }
 }

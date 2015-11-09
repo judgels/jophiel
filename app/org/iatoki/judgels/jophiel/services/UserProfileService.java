@@ -4,7 +4,9 @@ import org.iatoki.judgels.jophiel.UserInfo;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 public interface UserProfileService {
 
@@ -16,7 +18,9 @@ public interface UserProfileService {
 
     void upsertInfo(String userJid, String gender, Date birthDate, String streetAddress, int postalCode, String institution, String city, String provinceOrState, String country, String shirtSize, String userIpAddress);
 
-    UserInfo getInfo(String userJid);
+    List<UserInfo> getUsersInfoByUserJids(Collection<String> userJids);
+
+    UserInfo findInfo(String userJid);
 
     String updateAvatarWithGeneratedFilename(String userJid, File imageFile, String imageType, String ipAddress) throws IOException;
 

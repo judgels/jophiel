@@ -105,7 +105,7 @@ public abstract class AbstractUserProfileController extends AbstractJophielContr
 
         UserInfoEditForm infoEditDta = new UserInfoEditForm();
         if (userProfileService.infoExists(userJid)) {
-            UserInfo userInfo = userProfileService.getInfo(getCurrentUserJid());
+            UserInfo userInfo = userProfileService.findInfo(getCurrentUserJid());
             infoEditDta.birthDate = JudgelsPlayUtils.formatDate(userInfo.getBirthDate());
             infoEditDta.city = userInfo.getCity();
             infoEditDta.country = userInfo.getCountry();
