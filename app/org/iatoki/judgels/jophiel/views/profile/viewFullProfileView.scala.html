@@ -11,7 +11,7 @@
 @(user: User, userPrimaryEmail: UserEmail, userEmails: List[UserEmail], userPrimaryPhone: UserPhone, userPhones: List[UserPhone], userInfo: UserInfo)
 
 <hr />
-<h3>@Messages.get("user.account")</h3>
+<h3>@Messages.get("basicProfile.text.basicProfile")</h3>
 <hr />
 <div class="clearfix">
     <div class="col-md-12">
@@ -20,20 +20,20 @@
 </div>
 
 <hr />
-<h3>@Messages.get("user.contact")</h3>
+<h3>@Messages.get("contact.text.contact")</h3>
 <hr />
 <div class="clearfix">
     <div class="col-md-12">
-        <h4>@Messages.get("user.emails")</h4>
+        <h4>@Messages.get("email.text.emails")</h4>
         @viewEmailsTemplateView(userPrimaryEmail, userEmails)
 
-        <h4>@Messages.get("user.phones")</h4>
+        <h4>@Messages.get("phone.text.phones")</h4>
         @viewPhonesTemplateView(userPrimaryPhone, userPhones)
     </div>
 </div>
 
 <hr />
-<h3>@Messages.get("user.info")</h3>
+<h3>@Messages.get("info.text.info")</h3>
 <hr />
 <div class="clearfix">
     <div class="col-md-12">
