@@ -121,7 +121,7 @@ public final class CityController extends AbstractAutosuggestionController {
     }
 
     private Result showListCreateCities(Page<City> pageOfCities, String orderBy, String orderDir, String filterString, Form<CityCreateForm> cityCreateForm, Form<CityUploadForm> cityUploadForm) {
-        HtmlTemplate template = new HtmlTemplate();
+        HtmlTemplate template = super.getBaseHtmlTemplate();
 
         template.setContent(listCreateCitiesView.render(pageOfCities, orderBy, orderDir, filterString, cityCreateForm, cityUploadForm));
         template.markBreadcrumbLocation(Messages.get("city.text.cities"), routes.CityController.index());

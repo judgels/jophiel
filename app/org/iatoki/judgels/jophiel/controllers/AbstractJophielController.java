@@ -35,31 +35,33 @@ public abstract class AbstractJophielController extends AbstractBaseJophielContr
     }
 
     @Override
-    protected Result renderTemplate(HtmlTemplate template) {
+    protected HtmlTemplate getBaseHtmlTemplate() {
+        HtmlTemplate htmlTemplate = super.getBaseHtmlTemplate();
+
         String linkedClientsAPIEndpoint = getAbsoluteUrl(org.iatoki.judgels.jophiel.controllers.api.client.v1.routes.ClientClientAPIControllerV1.getLinkedClients());
         Html linkedClientsWidget = linkedClientsView.render(linkedClientsAPIEndpoint);
-        template.addLowerSidebarWidget(linkedClientsWidget);
+        htmlTemplate.addLowerSidebarWidget(linkedClientsWidget);
 
         if (isCurrentUserGuest()) {
             String registerUrl = getAbsoluteUrl(routes.UserAccountController.register());
             String loginUrl = getAbsoluteUrl(routes.UserAccountController.login());
             Html guestWidget = guestView.render(registerUrl, loginUrl);
-            template.addUpperSidebarWidget(guestWidget);
+            htmlTemplate.addUpperSidebarWidget(guestWidget);
         } else {
             String editProfileUrl = getAbsoluteUrl(routes.UserProfileController.index());
             String logoutUrl = getAbsoluteUrl(routes.UserAccountController.logout());
 
             Html userProfileWidget = userProfileView.render(getCurrentUsername(), getCurrentUserRealName(), getCurrentUserAvatarUrl(), editProfileUrl, logoutUrl);
-            template.addUpperSidebarWidget(userProfileWidget);
+            htmlTemplate.addUpperSidebarWidget(userProfileWidget);
 
-            template.addSidebarMenu(Messages.get("welcome.text.welcome"), routes.WelcomeController.index());
-            template.addSidebarMenu(Messages.get("profile.text.profile"), routes.UserProfileController.index());
+            htmlTemplate.addSidebarMenu(Messages.get("welcome.text.welcome"), routes.WelcomeController.index());
+            htmlTemplate.addSidebarMenu(Messages.get("profile.text.profile"), routes.UserProfileController.index());
 
             if (isCurrentUserAdmin()) {
-                template.addSidebarMenu(Messages.get("user.text.users"), routes.UserController.index());
-                template.addSidebarMenu(Messages.get("activity.text.activities"), routes.UserActivityController.index());
-                template.addSidebarMenu(Messages.get("client.text.clients"), routes.ClientController.index());
-                template.addSidebarMenu(Messages.get("autosuggestion.text.autosuggestions"), routes.AutosuggestionController.index());
+                htmlTemplate.addSidebarMenu(Messages.get("user.text.users"), routes.UserController.index());
+                htmlTemplate.addSidebarMenu(Messages.get("activity.text.activities"), routes.UserActivityController.index());
+                htmlTemplate.addSidebarMenu(Messages.get("client.text.clients"), routes.ClientController.index());
+                htmlTemplate.addSidebarMenu(Messages.get("autosuggestion.text.autosuggestions"), routes.AutosuggestionController.index());
             }
         }
 
@@ -67,8 +69,13 @@ public abstract class AbstractJophielController extends AbstractBaseJophielContr
         String autocompleteUserAPIEndpoint = getAbsoluteUrl(org.iatoki.judgels.jophiel.controllers.api.pub.v1.routes.PublicUserAPIControllerV1.autocompleteUser(null));
         String postSearchUserProfileUrl = getAbsoluteUrl(routes.UserProfileController.postSearchProfile());
         Html userProfileSearchWidget =  userProfileSearchView.render(userProfileSearchForm, autocompleteUserAPIEndpoint, postSearchUserProfileUrl);
-        template.addLowerSidebarWidget(userProfileSearchWidget);
+        htmlTemplate.addLowerSidebarWidget(userProfileSearchWidget);
 
+        return htmlTemplate;
+    }
+
+    @Override
+    protected Result renderTemplate(HtmlTemplate template) {
         return super.renderTemplate(template);
     }
 }

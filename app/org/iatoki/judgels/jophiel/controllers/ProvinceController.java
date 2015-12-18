@@ -122,7 +122,7 @@ public final class ProvinceController extends AbstractAutosuggestionController {
     }
 
     private Result showListCreateProvince(Page<Province> pageOfProvinces, String orderBy, String orderDir, String filterString, Form<ProvinceCreateForm> provinceCreateForm, Form<ProvinceUploadForm> provinceUploadForm) {
-        HtmlTemplate template = new HtmlTemplate();
+        HtmlTemplate template = super.getBaseHtmlTemplate();
 
         template.setContent(listCreateProvincesView.render(pageOfProvinces, orderBy, orderDir, filterString, provinceCreateForm, provinceUploadForm));
         template.markBreadcrumbLocation(Messages.get("province.text.provinces"), routes.ProvinceController.index());

@@ -122,7 +122,7 @@ public final class InstitutionController extends AbstractAutosuggestionControlle
     }
 
     private Result showListCreateInstitution(Page<Institution> pageOfInstitutions, String orderBy, String orderDir, String filterString, Form<InstitutionCreateForm> institutionCreateForm, Form<InstitutionUploadForm> institutionUploadForm) {
-        HtmlTemplate template = new HtmlTemplate();
+        HtmlTemplate template = super.getBaseHtmlTemplate();
 
         template.setContent(listCreateInstitutionsView.render(pageOfInstitutions, orderBy, orderDir, filterString, institutionCreateForm, institutionUploadForm));
         template.markBreadcrumbLocation(Messages.get("institution.text.institutions"), routes.InstitutionController.index());

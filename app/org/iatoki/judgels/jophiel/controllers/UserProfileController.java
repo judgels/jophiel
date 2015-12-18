@@ -196,7 +196,7 @@ public final class UserProfileController extends AbstractUserProfileController {
     }
 
     private Result showViewProfile(User user, UserInfo userInfo) {
-        HtmlTemplate template = new HtmlTemplate();
+        HtmlTemplate template = super.getBaseHtmlTemplate();
 
         template.setContent(viewProfileView.render(user, userInfo));
 
@@ -204,7 +204,7 @@ public final class UserProfileController extends AbstractUserProfileController {
     }
 
     private Result showUserNotFound() {
-        HtmlTemplate template = new HtmlTemplate();
+        HtmlTemplate template = super.getBaseHtmlTemplate();
 
         template.setContent(messageView.render(Messages.get("user.search.notFound")));
 

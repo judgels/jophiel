@@ -199,7 +199,7 @@ public final class UserEmailController extends AbstractUserProfileController {
     }
 
     private Result showAfterActivateEmail() {
-        HtmlTemplate template = new HtmlTemplate();
+        HtmlTemplate template = super.getBaseHtmlTemplate();
 
         template.setContent(activationView.render());
         template.setMainTitle(Messages.get("activation.text.successful"));

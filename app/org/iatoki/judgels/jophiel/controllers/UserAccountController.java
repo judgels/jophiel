@@ -296,7 +296,7 @@ public final class UserAccountController extends AbstractJophielController {
     }
 
     private Result showRegister(Form<RegisterForm> registerForm) {
-        HtmlTemplate template = new HtmlTemplate();
+        HtmlTemplate template = super.getBaseHtmlTemplate();
 
         template.setContent(registerView.render(registerForm));
         template.setMainTitle(Messages.get("register.text.register"));
@@ -305,7 +305,7 @@ public final class UserAccountController extends AbstractJophielController {
     }
 
     private Result showAfterRegister(String email) {
-        HtmlTemplate template = new HtmlTemplate();
+        HtmlTemplate template = super.getBaseHtmlTemplate();
 
         template.setContent(messageView.render(Messages.get("register.text.activationEmailSentTo", email)));
         template.setMainTitle(Messages.get("register.text.successful"));
@@ -314,7 +314,7 @@ public final class UserAccountController extends AbstractJophielController {
     }
 
     private Result showForgotPassword(Form<PasswordForgotForm> passwordForgotForm) {
-        HtmlTemplate template = new HtmlTemplate();
+        HtmlTemplate template = super.getBaseHtmlTemplate();
 
         template.setContent(forgotPasswordView.render(passwordForgotForm));
         template.setMainTitle(Messages.get("forgotPassword.text.forgotPassword"));
@@ -323,7 +323,7 @@ public final class UserAccountController extends AbstractJophielController {
     }
 
     private Result showAfterForgotPassword(String email) {
-        HtmlTemplate template = new HtmlTemplate();
+        HtmlTemplate template = super.getBaseHtmlTemplate();
 
         template.setContent(messageView.render(Messages.get("forgotPassword.text.emailSentTo", email)));
         template.setMainTitle(Messages.get("forgotPassword.text.requestSent"));
@@ -332,7 +332,7 @@ public final class UserAccountController extends AbstractJophielController {
     }
 
     private Result showChangePassword(Form<PasswordChangeForm> passwordChangeForm, String code) {
-        HtmlTemplate template = new HtmlTemplate();
+        HtmlTemplate template = super.getBaseHtmlTemplate();
 
         template.setContent(changePasswordView.render(passwordChangeForm, code));
         template.setMainTitle(Messages.get("forgotPassword.text.changePassword"));
@@ -341,7 +341,7 @@ public final class UserAccountController extends AbstractJophielController {
     }
 
     private Result showAfterChangePassword() {
-        HtmlTemplate template = new HtmlTemplate();
+        HtmlTemplate template = super.getBaseHtmlTemplate();
 
         template.setContent(messageView.render(Messages.get("forgotPassword.text.canNowLogin")));
         template.setMainTitle(Messages.get("forgotPassword.text.changePasswordSuccessful"));
@@ -350,7 +350,7 @@ public final class UserAccountController extends AbstractJophielController {
     }
 
     private Result showLogin(Form<LoginForm> loginForm, String continueUrl) {
-        HtmlTemplate template = new HtmlTemplate();
+        HtmlTemplate template = super.getBaseHtmlTemplate();
 
         if (continueUrl == null) {
             template.setContent(loginView.render(loginForm));

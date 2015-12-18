@@ -40,7 +40,7 @@ public class WelcomeController extends AbstractJophielController {
     }
 
     private Result showWelcome(Map<String, String> linkedClients) {
-        HtmlTemplate template = new HtmlTemplate();
+        HtmlTemplate template = super.getBaseHtmlTemplate();
 
         template.setContent(welcomeView.render(linkedClients));
         template.setMainTitle(Messages.get("welcome.text.welcome"));

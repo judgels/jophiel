@@ -145,7 +145,7 @@ public final class ClientController extends AbstractJophielController {
     }
 
     private Result showListClients(Page<Client> pageOfClients, String orderBy, String orderDir, String filterString) {
-        HtmlTemplate template = new HtmlTemplate();
+        HtmlTemplate template = super.getBaseHtmlTemplate();
 
         template.setContent(listClientsView.render(pageOfClients, orderBy, orderDir, filterString));
         template.setMainTitle(Messages.get("client.text.list"));
@@ -155,7 +155,7 @@ public final class ClientController extends AbstractJophielController {
     }
 
     private Result showViewClient(Client client) {
-        HtmlTemplate template = new HtmlTemplate();
+        HtmlTemplate template = super.getBaseHtmlTemplate();
 
         template.setContent(viewClientView.render(client));
 
@@ -163,7 +163,7 @@ public final class ClientController extends AbstractJophielController {
     }
 
     private Result showCreateClient(Form<ClientCreateForm> clientCreateForm) {
-        HtmlTemplate template = new HtmlTemplate();
+        HtmlTemplate template = super.getBaseHtmlTemplate();
 
         template.setContent(createClientView.render(clientCreateForm));
         template.setMainTitle(Messages.get("client.text.new"));
@@ -173,7 +173,7 @@ public final class ClientController extends AbstractJophielController {
     }
 
     private Result showEditClient(Client client, Form<ClientEditForm> clientEditForm) {
-        HtmlTemplate template = new HtmlTemplate();
+        HtmlTemplate template = super.getBaseHtmlTemplate();
 
         template.setContent(editClientView.render(client, clientEditForm));
         template.markBreadcrumbLocation(Messages.get("commons.text.edit"), routes.ClientController.editClient(client.getId()));

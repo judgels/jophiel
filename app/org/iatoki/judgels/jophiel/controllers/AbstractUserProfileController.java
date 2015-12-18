@@ -151,7 +151,7 @@ public abstract class AbstractUserProfileController extends AbstractJophielContr
     }
 
     private Result showEditProfile(User user, Form<UserProfileEditForm> profileEditForm, Form<UserAvatarForm> avatarForm, Form<UserEmailCreateForm> emailCreateForm, UserEmail primaryEmail, List<UserEmail> userEmails, Form<UserPhoneCreateForm> phoneCreateForm, UserPhone primaryPhone, List<UserPhone> userPhones, Form<UserInfoEditForm> infoEditForm) {
-        HtmlTemplate template = new HtmlTemplate();
+        HtmlTemplate template = super.getBaseHtmlTemplate();
 
         template.setContent(editProfileView.render(profileEditForm, avatarForm, user.getProfilePictureUrl().toString(), emailCreateForm, primaryEmail, userEmails, phoneCreateForm, primaryPhone, userPhones, infoEditForm));
 

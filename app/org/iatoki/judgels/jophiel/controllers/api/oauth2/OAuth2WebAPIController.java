@@ -60,7 +60,7 @@ public final class OAuth2WebAPIController extends AbstractJophielController {
                 return postAuth(path);
             }
 
-            HtmlTemplate template = new HtmlTemplate();
+            HtmlTemplate template = super.getBaseHtmlTemplate();
 
             template.setContent(serviceAuthView.render(path, client, scopes));
             template.setMainTitle(Messages.get("auth.text.request"));

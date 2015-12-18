@@ -242,7 +242,7 @@ public final class UserController extends AbstractJophielController {
     }
 
     private Result showListUsers(Page<User> pageOfUsers, Form<UserDownloadForm> userDownloadForm, String orderBy, String orderDir, String filterString) {
-        HtmlTemplate template = new HtmlTemplate();
+        HtmlTemplate template = super.getBaseHtmlTemplate();
 
         template.setContent(listUsersView.render(pageOfUsers, userDownloadForm, orderBy, orderDir, filterString));
         template.setMainTitle(Messages.get("user.text.list"));
@@ -252,7 +252,7 @@ public final class UserController extends AbstractJophielController {
     }
 
     private Result showListUnverifiedUsersWithEmails(Page<UnverifiedUserEmail> pageOfUnverifiedUsersWithEmails, String orderBy, String orderDir, String filterString) {
-        HtmlTemplate template = new HtmlTemplate();
+        HtmlTemplate template = super.getBaseHtmlTemplate();
 
         template.setContent(listUnverifiedUsersView.render(pageOfUnverifiedUsersWithEmails, orderBy, orderDir, filterString));
         template.setMainTitle(Messages.get("user.text.listUnverified"));
@@ -262,7 +262,7 @@ public final class UserController extends AbstractJophielController {
     }
 
     private Result showCreateUser(Form<UserCreateForm> userCreateForm) {
-        HtmlTemplate template = new HtmlTemplate();
+        HtmlTemplate template = super.getBaseHtmlTemplate();
 
         template.setContent(createUserView.render(userCreateForm));
         template.setMainTitle(Messages.get("user.text.new"));
@@ -272,7 +272,7 @@ public final class UserController extends AbstractJophielController {
     }
 
     private Result showViewUser(User user, UserEmail userPrimaryEmail, List<UserEmail> userEmails, UserPhone userPrimaryPhone, List<UserPhone> userPhones, UserInfo userInfo) {
-        HtmlTemplate template = new HtmlTemplate();
+        HtmlTemplate template = super.getBaseHtmlTemplate();
 
         template.setContent(viewFullProfileView.render(user, userPrimaryEmail, userEmails, userPrimaryPhone, userPhones, userInfo));
         template.setPageTitle(user.getUsername());
@@ -281,7 +281,7 @@ public final class UserController extends AbstractJophielController {
     }
 
     private Result showEditUser(User user, Form<UserEditForm> userEditForm) {
-        HtmlTemplate template = new HtmlTemplate();
+        HtmlTemplate template = super.getBaseHtmlTemplate();
 
         template.setContent(editUserView.render(user, userEditForm));
         template.markBreadcrumbLocation(Messages.get("commons.text.edit"), routes.UserController.editUser(user.getId()));

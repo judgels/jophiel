@@ -75,7 +75,7 @@ public final class UserActivityController extends AbstractJophielController {
     }
 
     private Result showListUsersActivites(Page<UserActivity> pageOfActivities, String orderBy, String orderDir, String filterString, String clientNames, String usernames) {
-        HtmlTemplate template = new HtmlTemplate();
+        HtmlTemplate template = super.getBaseHtmlTemplate();
 
         template.setContent(listUsersActivitiesView.render(pageOfActivities, orderBy, orderDir, filterString, clientNames, usernames));
 
