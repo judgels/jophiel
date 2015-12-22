@@ -24,9 +24,10 @@ public class JophielModule extends AbstractJudgelsPlayModule {
         bindConstant().annotatedWith(GeneralVersion.class).to(buildInfo.version());
 
         // <DEPRECATED>
-        JudgelsPlayProperties.buildInstance(buildInfo.name(), buildInfo.version(), ConfigFactory.load());
         Config config = ConfigFactory.load();
+        JudgelsPlayProperties.buildInstance(buildInfo.name(), buildInfo.version(), config);
         JophielProperties.buildInstance(config);
+        bind(JophielSingletonsBuilder.class).asEagerSingleton();
         // </DEPRECATED>
 
         bind(BaseDataMigrationService.class).to(JophielDataMigrationServiceImpl.class);
