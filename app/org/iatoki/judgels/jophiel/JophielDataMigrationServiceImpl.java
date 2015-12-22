@@ -1,17 +1,19 @@
-package org.iatoki.judgels.jophiel.services.impls;
+package org.iatoki.judgels.jophiel;
 
 import org.hibernate.Session;
 import org.hibernate.internal.SessionImpl;
 import org.iatoki.judgels.play.JidService;
-import org.iatoki.judgels.play.services.impls.AbstractBaseDataMigrationServiceImpl;
+import org.iatoki.judgels.play.migration.AbstractBaseDataMigrationServiceImpl;
 import play.db.jpa.JPA;
 
+import javax.inject.Singleton;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+@Singleton
 public final class JophielDataMigrationServiceImpl extends AbstractBaseDataMigrationServiceImpl {
 
     @Override

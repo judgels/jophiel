@@ -2,6 +2,7 @@ package org.iatoki.judgels.jophiel.controllers;
 
 import org.iatoki.judgels.jophiel.ActivityKey;
 import org.iatoki.judgels.jophiel.forms.UserProfileSearchForm;
+import org.iatoki.judgels.jophiel.services.ActivityLogService;
 import org.iatoki.judgels.jophiel.services.UserActivityService;
 import org.iatoki.judgels.jophiel.services.impls.ActivityLogServiceImpl;
 import org.iatoki.judgels.jophiel.views.html.sidebar.linkedClientsView;
@@ -16,7 +17,12 @@ import play.i18n.Messages;
 import play.mvc.Result;
 import play.twirl.api.Html;
 
+import javax.inject.Inject;
+
 public abstract class AbstractJophielController extends AbstractBaseJophielController {
+
+    @Inject
+    protected ActivityLogService activityLogService;
 
     protected final UserActivityService userActivityService;
 
@@ -30,7 +36,8 @@ public abstract class AbstractJophielController extends AbstractBaseJophielContr
 
     protected void addActivityLog(ActivityKey activityKey) {
         long time = System.currentTimeMillis();
-        ActivityLogServiceImpl.getInstance().addActivityLog(activityKey, session("username"), time, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
+
+        activityLogService.addActivityLog(activityKey, session("username"), time, IdentityUtils.getUserJid(), IdentityUtils.getIpAddress());
         userActivityService.createUserActivity(null, IdentityUtils.getUserJid(), time, activityKey.toString(), IdentityUtils.getIpAddress());
     }
 

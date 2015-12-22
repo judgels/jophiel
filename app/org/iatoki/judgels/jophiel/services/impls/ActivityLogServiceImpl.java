@@ -1,28 +1,17 @@
 package org.iatoki.judgels.jophiel.services.impls;
 
-import org.iatoki.judgels.jophiel.models.daos.BaseActivityLogDao;
+import org.iatoki.judgels.jophiel.models.daos.ActivityLogDao;
 import org.iatoki.judgels.jophiel.models.entities.ActivityLogModel;
 import org.iatoki.judgels.jophiel.services.ActivityLogService;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+
+@Named("activityLogService")
 public final class ActivityLogServiceImpl extends AbstractBaseActivityLogServiceImpl<ActivityLogModel> implements ActivityLogService {
 
-    private static ActivityLogServiceImpl INSTANCE;
-
-    private ActivityLogServiceImpl(BaseActivityLogDao<ActivityLogModel> activityLogDao) {
+    @Inject
+    public ActivityLogServiceImpl(ActivityLogDao activityLogDao) {
         super(activityLogDao);
-    }
-
-    public static synchronized void buildInstance(BaseActivityLogDao<ActivityLogModel> activityLogDao) {
-        if (INSTANCE != null) {
-            throw new UnsupportedOperationException("ActivityLogService instance has already been built");
-        }
-        INSTANCE = new ActivityLogServiceImpl(activityLogDao);
-    }
-
-    public static ActivityLogServiceImpl getInstance() {
-        if (INSTANCE == null) {
-            throw new UnsupportedOperationException("ActivityLogService instance has not been built");
-        }
-        return INSTANCE;
     }
 }
