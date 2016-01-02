@@ -1,11 +1,11 @@
 package org.iatoki.judgels.jophiel.controllers.api.internal;
 
 import org.iatoki.judgels.AutoComplete;
-import org.iatoki.judgels.jophiel.Institution;
+import org.iatoki.judgels.jophiel.user.profile.info.Institution;
 import org.iatoki.judgels.jophiel.controllers.api.AbstractJophielAPIController;
 import org.iatoki.judgels.jophiel.controllers.securities.Authenticated;
 import org.iatoki.judgels.jophiel.controllers.securities.LoggedIn;
-import org.iatoki.judgels.jophiel.services.InstitutionService;
+import org.iatoki.judgels.jophiel.user.profile.info.InstitutionService;
 import play.db.jpa.Transactional;
 import play.mvc.Result;
 

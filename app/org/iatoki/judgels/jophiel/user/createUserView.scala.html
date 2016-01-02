@@ -1,0 +1,23 @@
+@import org.iatoki.judgels.jophiel.user.UserCreateForm
+@import play.i18n.Messages
+@import org.iatoki.judgels.play.views.html.form.globalFormErrorsView
+@import org.iatoki.judgels.jophiel.user.routes
+
+@(userCreateForm: Form[UserCreateForm])
+
+@implicitFieldConstructor = @{ b3.horizontal.fieldConstructor("col-md-3", "col-md-9") }
+
+@globalFormErrorsView(userCreateForm)
+
+@b3.form(routes.UserController.postCreateUser()) {
+
+    @helper.CSRF.formField
+
+    @b3.text(userCreateForm("username"), '_label -> Messages.get("user.field.username"))
+    @b3.text(userCreateForm("name"), '_label -> Messages.get("user.field.name"))
+    @b3.email(userCreateForm("email"), '_label -> Messages.get("user.field.email"))
+    @b3.password(userCreateForm("password"), '_label -> Messages.get("user.field.password"))
+    @b3.text(userCreateForm("roles"), '_label -> Messages.get("user.field.roles"))
+
+    @b3.submit('class -> "btn btn-primary") { @Messages.get("commons.button.new") }
+}

@@ -1,0 +1,24 @@
+@import org.iatoki.judgels.jophiel.user.account.LoginForm
+@import play.i18n.Messages
+@import play.api.mvc.Call
+@import org.iatoki.judgels.play.views.html.form.globalFormErrorsView
+@import org.iatoki.judgels.jophiel.user.account.routes
+
+@(loginForm: Form[LoginForm], target: Call)
+
+@implicitFieldConstructor = @{ b3.horizontal.fieldConstructor("col-md-4", "col-md-8") }
+
+@globalFormErrorsView(loginForm)
+
+@b3.form(target) {
+
+    @helper.CSRF.formField
+
+    @b3.text(loginForm("usernameOrEmail"), '_label -> Messages.get("login.field.usernameOrEmail"))
+    @b3.password(loginForm("password"), '_label -> Messages.get("login.field.password"))
+
+    @b3.submit('class -> "btn btn-primary") { @Messages.get("login.button.logIn") }
+}
+<a href="@routes.UserAccountController.forgotPassword()" target="_blank">@Messages.get("login.text.forgotPassword")</a>
+<br />
+@Messages.get("login.text.dontHaveAccount") <a href="@routes.UserAccountController.register()" target="_blank">@Messages.get("login.text.register")</a>

@@ -1,0 +1,70 @@
+@import org.iatoki.judgels.jophiel.user.profile.info.City
+@import play.i18n.Messages
+@import org.iatoki.judgels.jophiel.user.profile.info.CityCreateForm
+@import org.iatoki.judgels.jophiel.user.profile.info.CityUploadForm
+@import org.iatoki.judgels.play.views.html.action.deleteActionView
+@import org.iatoki.judgels.play.views.html.table.tableView
+@import org.iatoki.judgels.play.views.html.table.tableHeadersView
+@import org.iatoki.judgels.play.views.html.table.searchView
+@import org.iatoki.judgels.play.views.html.table.paginationView
+@import org.iatoki.judgels.play.views.html.form.globalFormErrorsView
+@import org.iatoki.judgels.jophiel.user.profile.info.routes
+@import org.iatoki.judgels.play.Page
+
+@(pageOfCities: Page[City], orderBy: String, orderDir: String, filterString: String, cityCreateForm: Form[CityCreateForm], cityUploadForm: Form[CityUploadForm])
+
+@implicitFieldConstructor = @{ b3.horizontal.fieldConstructor("col-md-3", "col-md-9") }
+
+<h4>@Messages.get("city.text.import")</h4>
+
+@globalFormErrorsView(cityUploadForm)
+
+@b3.form(routes.CityController.postUploadCity(pageOfCities.getPageIndex, orderBy, orderDir, filterString), 'enctype->"multipart/form-data") {
+
+    @helper.CSRF.formField
+
+    @b3.file(cityUploadForm("cities"), '_label -> Messages.get("city.field.file"), 'class -> "form-control", '_help -> Messages.get("city.help.file"))
+
+    @b3.submit('class -> "btn btn-primary") { @Messages.get("commons.button.upload") }
+}
+
+
+<h4>@Messages.get("city.text.manualCreate")</h4>
+
+@globalFormErrorsView(cityCreateForm)
+
+@b3.form(routes.CityController.postCreateCity(pageOfCities.getPageIndex, orderBy, orderDir, filterString)) {
+
+    @helper.CSRF.formField
+
+    @b3.text(cityCreateForm("name"), '_label -> Messages.get("city.field.name"), 'class -> "form-control")
+
+    @b3.submit('class -> "btn btn-primary") { @Messages.get("commons.button.new") }
+}
+
+
+@searchView(pageOfCities.getPageIndex, orderBy, orderDir, filterString, routes.CityController.listCreateCities)
+
+<div class="clearfix"></div>
+
+@tableView() {
+    @tableHeadersView(pageOfCities.getPageIndex, orderBy, orderDir, filterString, routes.CityController.listCreateCities)(
+        "id" -> Messages.get("commons.id"),
+        "" -> Messages.get("city.field.name"),
+        "" -> Messages.get("city.field.referencesCount")
+    )
+    <tbody>
+    @for(city <- pageOfCities.getData) {
+        <tr>
+            <td>@city.getId</td>
+            <td>@city.getName</td>
+            <td>@city.getReferenceCount</td>
+            <td class="text-center">
+                @deleteActionView(routes.CityController.deleteCity(city.getId))
+            </td>
+        </tr>
+    }
+    </tbody>
+}
+
+@paginationView(pageOfCities, orderBy, orderDir, filterString, routes.CityController.listCreateCities)

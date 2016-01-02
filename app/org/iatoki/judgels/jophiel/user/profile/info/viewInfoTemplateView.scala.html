@@ -1,0 +1,28 @@
+@import org.iatoki.judgels.jophiel.user.profile.info.UserInfo
+@import play.i18n.Messages
+
+@(userInfo: UserInfo)
+
+@if(userInfo == null) {
+    @Messages.get("info.text.noInfoYet")
+} else {
+    <table class="table">
+        <tbody>
+            <tr>
+                <td>@Messages.get("info.field.gender")</td><td>@Messages.get("info.field.gender." + userInfo.getGender)</td>
+            </tr>
+            <tr>
+                <td>@Messages.get("info.field.institution")</td><td>@userInfo.getInstitution</td>
+            </tr>
+            <tr>
+                <td>@Messages.get("info.field.city")</td><td>@userInfo.getCity</td>
+            </tr>
+            <tr>
+                <td>@Messages.get("info.field.provinceOrState")</td><td>@userInfo.getProvinceOrState</td>
+            </tr>
+            <tr>
+                <td>@Messages.get("info.field.country")</td><td>@userInfo.getCountry</td>
+            </tr>
+        </tbody>
+    </table>
+}

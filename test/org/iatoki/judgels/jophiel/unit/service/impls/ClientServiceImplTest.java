@@ -4,27 +4,27 @@ import com.google.common.collect.ImmutableList;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.iatoki.judgels.play.Page;
-import org.iatoki.judgels.play.models.entities.AbstractModel;
-import org.iatoki.judgels.jophiel.AccessToken;
-import org.iatoki.judgels.jophiel.Client;
-import org.iatoki.judgels.jophiel.ClientNotFoundException;
-import org.iatoki.judgels.jophiel.IdToken;
 import org.iatoki.judgels.jophiel.JophielProperties;
-import org.iatoki.judgels.jophiel.RefreshToken;
-import org.iatoki.judgels.jophiel.models.daos.AccessTokenDao;
-import org.iatoki.judgels.jophiel.models.daos.AuthorizationCodeDao;
-import org.iatoki.judgels.jophiel.models.daos.ClientDao;
-import org.iatoki.judgels.jophiel.models.daos.IdTokenDao;
-import org.iatoki.judgels.jophiel.models.daos.RedirectURIDao;
-import org.iatoki.judgels.jophiel.models.daos.RefreshTokenDao;
-import org.iatoki.judgels.jophiel.models.entities.AccessTokenModel;
-import org.iatoki.judgels.jophiel.models.entities.AuthorizationCodeModel;
-import org.iatoki.judgels.jophiel.models.entities.ClientModel;
-import org.iatoki.judgels.jophiel.models.entities.IdTokenModel;
-import org.iatoki.judgels.jophiel.models.entities.RedirectURIModel;
-import org.iatoki.judgels.jophiel.models.entities.RefreshTokenModel;
-import org.iatoki.judgels.jophiel.services.impls.ClientServiceImpl;
+import org.iatoki.judgels.jophiel.client.Client;
+import org.iatoki.judgels.jophiel.client.ClientDao;
+import org.iatoki.judgels.jophiel.client.ClientModel;
+import org.iatoki.judgels.jophiel.client.ClientNotFoundException;
+import org.iatoki.judgels.jophiel.client.ClientServiceImpl;
+import org.iatoki.judgels.jophiel.oauth2.AccessToken;
+import org.iatoki.judgels.jophiel.oauth2.AccessTokenDao;
+import org.iatoki.judgels.jophiel.oauth2.AccessTokenModel;
+import org.iatoki.judgels.jophiel.oauth2.AuthorizationCodeDao;
+import org.iatoki.judgels.jophiel.oauth2.AuthorizationCodeModel;
+import org.iatoki.judgels.jophiel.oauth2.IdToken;
+import org.iatoki.judgels.jophiel.oauth2.IdTokenDao;
+import org.iatoki.judgels.jophiel.oauth2.IdTokenModel;
+import org.iatoki.judgels.jophiel.oauth2.RedirectURIDao;
+import org.iatoki.judgels.jophiel.oauth2.RedirectURIModel;
+import org.iatoki.judgels.jophiel.oauth2.RefreshToken;
+import org.iatoki.judgels.jophiel.oauth2.RefreshTokenDao;
+import org.iatoki.judgels.jophiel.oauth2.RefreshTokenModel;
+import org.iatoki.judgels.play.Page;
+import org.iatoki.judgels.play.model.AbstractModel;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -414,11 +414,11 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         authorizationCodeModel.expireTime = 600L;
         authorizationCodeModel.redirectURI = "http://alice.com/verify";
         authorizationCodeModel.scopes = StringUtils.join(Arrays.asList("OPENID"), ",");
-        org.iatoki.judgels.jophiel.AuthorizationCode authorizationCode = createAuthorizationCodeFromModel(authorizationCodeModel);
+        org.iatoki.judgels.jophiel.oauth2.AuthorizationCode authorizationCode = createAuthorizationCodeFromModel(authorizationCodeModel);
 
         Mockito.when(authorizationCodeDao.findByCode(validCode)).thenReturn(authorizationCodeModel);
 
-        org.iatoki.judgels.jophiel.AuthorizationCode result = clientService.findAuthorizationCodeByCode(validCode);
+        org.iatoki.judgels.jophiel.oauth2.AuthorizationCode result = clientService.findAuthorizationCodeByCode(validCode);
 
         Assert.assertTrue(authorizationCodeIsEquals(authorizationCode, result), "Authorization code not equals");
     }
@@ -429,7 +429,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
 
         Mockito.when(authorizationCodeDao.findByCode(invalidCode)).thenReturn(null);
 
-        org.iatoki.judgels.jophiel.AuthorizationCode result = clientService.findAuthorizationCodeByCode(invalidCode);
+        org.iatoki.judgels.jophiel.oauth2.AuthorizationCode result = clientService.findAuthorizationCodeByCode(invalidCode);
 
         Assert.fail("Unreachable");
     }
@@ -956,7 +956,7 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         return equalsBuilder.isEquals();
     }
 
-    private boolean authorizationCodeIsEquals(org.iatoki.judgels.jophiel.AuthorizationCode a, org.iatoki.judgels.jophiel.AuthorizationCode b) {
+    private boolean authorizationCodeIsEquals(org.iatoki.judgels.jophiel.oauth2.AuthorizationCode a, org.iatoki.judgels.jophiel.oauth2.AuthorizationCode b) {
         EqualsBuilder equalsBuilder = new EqualsBuilder();
         equalsBuilder.append(a.getId(), b.getId());
         equalsBuilder.append(a.getClientJid(), b.getClientJid());
@@ -1047,8 +1047,8 @@ public class ClientServiceImplTest extends PowerMockTestCase {
         return new Client(clientModel.id, clientModel.jid, clientModel.name, clientModel.secret, clientModel.applicationType, scopeString, redirectURIs);
     }
 
-    private org.iatoki.judgels.jophiel.AuthorizationCode createAuthorizationCodeFromModel(AuthorizationCodeModel authorizationCodeModel) {
-        return new org.iatoki.judgels.jophiel.AuthorizationCode(authorizationCodeModel.id, authorizationCodeModel.userJid, authorizationCodeModel.clientJid, authorizationCodeModel.code, authorizationCodeModel.redirectURI, authorizationCodeModel.expireTime, authorizationCodeModel.scopes);
+    private org.iatoki.judgels.jophiel.oauth2.AuthorizationCode createAuthorizationCodeFromModel(AuthorizationCodeModel authorizationCodeModel) {
+        return new org.iatoki.judgels.jophiel.oauth2.AuthorizationCode(authorizationCodeModel.id, authorizationCodeModel.userJid, authorizationCodeModel.clientJid, authorizationCodeModel.code, authorizationCodeModel.redirectURI, authorizationCodeModel.expireTime, authorizationCodeModel.scopes);
     }
 
     private AccessToken createAccessTokenFromModel(AccessTokenModel accessTokenModel) {

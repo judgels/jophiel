@@ -2,11 +2,11 @@ package org.iatoki.judgels.jophiel.controllers.api.internal;
 
 import com.google.gson.Gson;
 import org.iatoki.judgels.AutoComplete;
-import org.iatoki.judgels.jophiel.Client;
+import org.iatoki.judgels.jophiel.client.Client;
 import org.iatoki.judgels.jophiel.controllers.api.AbstractJophielAPIController;
 import org.iatoki.judgels.jophiel.controllers.securities.Authenticated;
 import org.iatoki.judgels.jophiel.controllers.securities.LoggedIn;
-import org.iatoki.judgels.jophiel.services.ClientService;
+import org.iatoki.judgels.jophiel.client.ClientService;
 import play.db.jpa.Transactional;
 import play.mvc.Result;
 

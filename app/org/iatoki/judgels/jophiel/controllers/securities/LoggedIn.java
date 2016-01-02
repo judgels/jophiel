@@ -13,6 +13,6 @@ public class LoggedIn extends Security.Authenticator {
 
     @Override
     public Result onUnauthorized(Http.Context context) {
-        return redirect(org.iatoki.judgels.jophiel.controllers.routes.UserAccountController.login());
+        return redirect(org.iatoki.judgels.jophiel.user.account.routes.UserAccountController.login());
     }
 }

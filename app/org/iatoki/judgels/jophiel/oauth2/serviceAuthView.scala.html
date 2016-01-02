@@ -1,0 +1,19 @@
+@import org.iatoki.judgels.jophiel.client.Client
+@import play.i18n.Messages
+@import org.iatoki.judgels.jophiel.controllers.api.oauth2.routes
+
+@(path: String, client: Client, scopes: java.util.List[String])
+
+@implicitFieldConstructor = @{ b3.horizontal.fieldConstructor("col-md-4", "col-md-8") }
+
+<p>@Messages.get("auth.text.authorize", client.getName)</p>
+@b3.form(routes.OAuth2WebAPIController.postAuth(path)) {
+
+    @helper.CSRF.formField
+
+    @for(scope <- scopes) {
+        @b3.static(Messages.get("auth.field.scope")) {@scope}
+    }
+
+    @b3.submit('class -> "btn btn-primary") { @Messages.get("auth.button.authorize") }
+}

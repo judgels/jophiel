@@ -2,11 +2,11 @@ package org.iatoki.judgels.jophiel.controllers.api;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.auth.UsernamePasswordCredentials;
-import org.iatoki.judgels.jophiel.AccessToken;
-import org.iatoki.judgels.jophiel.User;
+import org.iatoki.judgels.jophiel.oauth2.AccessToken;
+import org.iatoki.judgels.jophiel.user.User;
 import org.iatoki.judgels.jophiel.api.JophielUserAPIIdentity;
-import org.iatoki.judgels.jophiel.services.ClientService;
-import org.iatoki.judgels.jophiel.services.UserService;
+import org.iatoki.judgels.jophiel.client.ClientService;
+import org.iatoki.judgels.jophiel.user.UserService;
 import org.iatoki.judgels.play.apis.JudgelsAPIUnauthorizedException;
 import org.iatoki.judgels.play.controllers.apis.AbstractJudgelsAPIController;
 

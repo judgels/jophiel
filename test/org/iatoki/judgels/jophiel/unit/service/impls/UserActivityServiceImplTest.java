@@ -1,16 +1,16 @@
 package org.iatoki.judgels.jophiel.unit.service.impls;
 
+import org.iatoki.judgels.jophiel.activity.UserActivity;
+import org.iatoki.judgels.jophiel.activity.UserActivityDao;
+import org.iatoki.judgels.jophiel.activity.UserActivityModel;
+import org.iatoki.judgels.jophiel.activity.UserActivityModel_;
+import org.iatoki.judgels.jophiel.activity.UserActivityServiceImpl;
+import org.iatoki.judgels.jophiel.client.ClientDao;
+import org.iatoki.judgels.jophiel.client.ClientModel;
+import org.iatoki.judgels.jophiel.user.UserDao;
+import org.iatoki.judgels.jophiel.user.UserModel;
 import org.iatoki.judgels.play.Page;
-import org.iatoki.judgels.play.models.entities.AbstractModel;
-import org.iatoki.judgels.jophiel.UserActivity;
-import org.iatoki.judgels.jophiel.models.daos.ClientDao;
-import org.iatoki.judgels.jophiel.models.daos.UserActivityDao;
-import org.iatoki.judgels.jophiel.models.daos.UserDao;
-import org.iatoki.judgels.jophiel.models.entities.ClientModel;
-import org.iatoki.judgels.jophiel.models.entities.UserActivityModel;
-import org.iatoki.judgels.jophiel.models.entities.UserActivityModel_;
-import org.iatoki.judgels.jophiel.models.entities.UserModel;
-import org.iatoki.judgels.jophiel.services.impls.UserActivityServiceImpl;
+import org.iatoki.judgels.play.model.AbstractModel;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;

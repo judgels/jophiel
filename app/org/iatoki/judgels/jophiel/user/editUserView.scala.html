@@ -1,0 +1,23 @@
+@import org.iatoki.judgels.jophiel.user.User
+@import play.i18n.Messages
+@import org.iatoki.judgels.jophiel.user.UserEditForm
+@import org.iatoki.judgels.play.views.html.form.globalFormErrorsView
+@import org.iatoki.judgels.jophiel.user.routes
+
+@(user: User, userEditForm: Form[UserEditForm])
+
+@implicitFieldConstructor = @{ b3.horizontal.fieldConstructor("col-md-3", "col-md-9") }
+
+@globalFormErrorsView(userEditForm)
+
+@b3.form(routes.UserController.postEditUser(user.getId)) {
+
+    @helper.CSRF.formField
+
+    @b3.text(userEditForm("username"), '_label -> Messages.get("user.field.username"))
+    @b3.text(userEditForm("name"), '_label -> Messages.get("user.field.name"))
+    @b3.password(userEditForm("password"), '_label -> Messages.get("user.field.password"))
+    @b3.text(userEditForm("roles"), '_label -> Messages.get("user.field.roles"))
+
+    @b3.submit('class -> "btn btn-primary") { @Messages.get("commons.button.save") }
+}

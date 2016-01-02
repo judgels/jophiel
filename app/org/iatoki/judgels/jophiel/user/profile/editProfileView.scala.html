@@ -1,0 +1,46 @@
+@import org.iatoki.judgels.jophiel.user.profile.email.UserEmail
+@import org.iatoki.judgels.jophiel.user.profile.email.UserEmailCreateForm
+@import org.iatoki.judgels.jophiel.user.profile.UserProfileEditForm
+@import org.iatoki.judgels.jophiel.user.profile.UserAvatarForm
+@import org.iatoki.judgels.jophiel.user.profile.info.UserInfoEditForm
+@import play.i18n.Messages
+@import org.iatoki.judgels.jophiel.user.profile.routes
+@import org.iatoki.judgels.jophiel.user.profile.phone.UserPhoneCreateForm
+@import org.iatoki.judgels.jophiel.user.profile.phone.UserPhone
+@import org.iatoki.judgels.jophiel.user.profile.html.editBasicProfileTemplateView
+@import org.iatoki.judgels.jophiel.user.profile.email.html.editEmailsTemplateView
+@import org.iatoki.judgels.jophiel.user.profile.phone.html.editPhonesTemplateView
+@import org.iatoki.judgels.jophiel.user.profile.info.html.editInfoTemplateView
+
+@(profileEditForm: Form[UserProfileEditForm], avatarForm: Form[UserAvatarForm], avatarUrl: String, emailCreateForm: Form[UserEmailCreateForm], primaryEmail: UserEmail, userEmails: List[UserEmail], phoneCreateForm: Form[UserPhoneCreateForm], primaryPhone: UserPhone, userPhones: List[UserPhone], infoEditForm: Form[UserInfoEditForm])
+
+<hr />
+<h3>@Messages.get("basicProfile.text.basicProfile")</h3>
+<hr />
+<div class="clearfix">
+    <div class="col-md-12">
+        @editBasicProfileTemplateView(profileEditForm, avatarForm, avatarUrl, routes.UserProfileController.postEditOwnAvatar(), routes.UserProfileController.postEditOwnProfile())
+    </div>
+</div>
+
+<hr />
+<h3>@Messages.get("contact.text.contact")</h3>
+<hr />
+<div class="clearfix">
+    <div class="col-md-12">
+        <h4>@Messages.get("email.text.emails")</h4>
+        @editEmailsTemplateView(emailCreateForm, primaryEmail, userEmails)
+
+        <h4>@Messages.get("phone.text.phones")</h4>
+        @editPhonesTemplateView(phoneCreateForm, primaryPhone, userPhones)
+    </div>
+</div>
+
+<hr />
+<h3>@Messages.get("info.text.info")</h3>
+<hr />
+<div class="clearfix">
+    <div class="col-md-12">
+        @editInfoTemplateView(infoEditForm)
+    </div>
+</div>

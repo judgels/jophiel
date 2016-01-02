@@ -1,12 +1,12 @@
 package org.iatoki.judgels.jophiel.controllers.api.client.v1;
 
-import org.iatoki.judgels.jophiel.AccessToken;
-import org.iatoki.judgels.jophiel.User;
+import org.iatoki.judgels.jophiel.oauth2.AccessToken;
+import org.iatoki.judgels.jophiel.user.User;
 import org.iatoki.judgels.jophiel.controllers.api.AbstractJophielAPIController;
 import org.iatoki.judgels.jophiel.controllers.api.object.v1.UserFindByUsernameAndPasswordRequestV1;
 import org.iatoki.judgels.jophiel.controllers.api.object.v1.UserV1;
-import org.iatoki.judgels.jophiel.services.ClientService;
-import org.iatoki.judgels.jophiel.services.UserService;
+import org.iatoki.judgels.jophiel.client.ClientService;
+import org.iatoki.judgels.jophiel.user.UserService;
 import org.iatoki.judgels.play.apis.JudgelsAPINotFoundException;
 import org.iatoki.judgels.play.apis.JudgelsAppClientAPIIdentity;
 import play.data.DynamicForm;

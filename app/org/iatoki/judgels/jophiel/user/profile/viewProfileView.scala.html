@@ -1,0 +1,25 @@
+@import org.iatoki.judgels.jophiel.user.profile.info.UserInfo
+@import play.i18n.Messages
+@import org.iatoki.judgels.jophiel.user.User
+@import org.iatoki.judgels.jophiel.user.profile.html.viewBasicProfileTemplateView
+@import org.iatoki.judgels.jophiel.user.profile.info.html.viewInfoTemplateView
+
+@(user: User, userInfo: UserInfo)
+
+<hr />
+<h3>@Messages.get("basicProfile.text.basicProfile")</h3>
+<hr />
+<div class="clearfix">
+    <div class="col-md-12">
+        @viewBasicProfileTemplateView(user)
+    </div>
+</div>
+
+<hr />
+<h3>@Messages.get("info.text.info")</h3>
+<hr />
+<div class="clearfix">
+    <div class="col-md-12">
+        @viewInfoTemplateView(userInfo)
+    </div>
+</div>

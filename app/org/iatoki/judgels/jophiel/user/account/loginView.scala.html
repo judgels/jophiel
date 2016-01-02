@@ -1,0 +1,7 @@
+@import org.iatoki.judgels.jophiel.user.account.routes
+@import org.iatoki.judgels.jophiel.user.account.LoginForm
+@import org.iatoki.judgels.jophiel.user.account.html.loginTemplateView
+
+@(loginForm: Form[LoginForm])
+
+@loginTemplateView(loginForm, routes.UserAccountController.postLogin())

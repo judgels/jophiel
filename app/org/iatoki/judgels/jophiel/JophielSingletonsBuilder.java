@@ -1,7 +1,7 @@
 package org.iatoki.judgels.jophiel;
 
-import org.iatoki.judgels.jophiel.models.daos.ActivityLogDao;
-import org.iatoki.judgels.jophiel.services.impls.ActivityLogServiceImpl;
+import org.iatoki.judgels.jophiel.activity.ActivityLogDao;
+import org.iatoki.judgels.jophiel.activity.ActivityLogServiceImpl;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;

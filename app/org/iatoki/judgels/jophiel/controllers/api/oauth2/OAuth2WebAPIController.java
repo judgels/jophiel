@@ -8,12 +8,12 @@ import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
 import com.nimbusds.openid.connect.sdk.AuthenticationSuccessResponse;
-import org.iatoki.judgels.jophiel.Client;
-import org.iatoki.judgels.jophiel.controllers.AbstractJophielController;
-import org.iatoki.judgels.jophiel.services.ClientService;
-import org.iatoki.judgels.jophiel.services.UserActivityService;
-import org.iatoki.judgels.jophiel.services.UserService;
-import org.iatoki.judgels.jophiel.views.html.oauth2.serviceAuthView;
+import org.iatoki.judgels.jophiel.AbstractJophielController;
+import org.iatoki.judgels.jophiel.activity.UserActivityService;
+import org.iatoki.judgels.jophiel.client.Client;
+import org.iatoki.judgels.jophiel.client.ClientService;
+import org.iatoki.judgels.jophiel.oauth2.html.serviceAuthView;
+import org.iatoki.judgels.jophiel.user.UserService;
 import org.iatoki.judgels.play.HtmlTemplate;
 import org.iatoki.judgels.play.controllers.ControllerUtils;
 import play.Logger;
@@ -42,7 +42,7 @@ public final class OAuth2WebAPIController extends AbstractJophielController {
     @Transactional
     public Result auth() {
         if (!isLoggedIn()) {
-            return redirect((org.iatoki.judgels.jophiel.controllers.routes.UserAccountController.serviceLogin(ControllerUtils.getCurrentUrl(request()))));
+            return redirect((org.iatoki.judgels.jophiel.user.account.routes.UserAccountController.serviceLogin(ControllerUtils.getCurrentUrl(request()))));
         }
 
         String path = request().uri().substring(request().uri().indexOf("?") + 1);

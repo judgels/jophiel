@@ -1,0 +1,39 @@
+@import org.iatoki.judgels.jophiel.oauth2.Scope
+@import org.iatoki.judgels.jophiel.client.Client
+@import org.iatoki.judgels.jophiel.client.ClientEditForm
+@import play.i18n.Messages
+@import org.iatoki.judgels.play.views.html.form.globalFormErrorsView
+@import org.iatoki.judgels.jophiel.client.routes
+
+@(client: Client, clientEditForm: Form[ClientEditForm])
+
+@implicitFieldConstructor = @{ b3.horizontal.fieldConstructor("col-md-2", "col-md-10") }
+
+@globalFormErrorsView(clientEditForm)
+
+@b3.form(routes.ClientController.postEditClient(client.getId)) {
+
+    @helper.CSRF.formField
+
+    @b3.text(clientEditForm("name"), '_label -> Messages.get("client.field.name"))
+    @b3.text(clientEditForm("redirectURIs"), '_label -> Messages.get("client.field.redirectURIs"))
+    <div class="form-group" id="">
+        <label class="control-label col-xs-2">@Messages.get("client.field.scopes")</label>
+        <div class="col-xs-10">
+            <div class="multi-checkbox-list">
+            @for(scope <- Scope.values().zipWithIndex) {
+                <div class="checkbox-wrap">
+                    <div class="checkbox">
+                        <label for="scopes_@scope._2">
+                            <input type="checkbox" id="scopes_@scope._2" name="scopes[@scope._2]" value="@scope._1" @if(!clientEditForm.hasErrors && clientEditForm.get.scopes != null && clientEditForm.get.scopes.contains(scope._1.toString)) { checked }>
+                            @scope._1
+                        </label>
+                    </div>
+                </div>
+            }
+            </div>
+        </div>
+    </div>
+
+    @b3.submit('class -> "btn btn-primary") { @Messages.get("commons.button.save") }
+}

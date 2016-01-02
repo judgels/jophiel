@@ -7,7 +7,7 @@ import com.typesafe.config.ConfigFactory;
 import org.iatoki.judgels.AWSFileSystemProvider;
 import org.iatoki.judgels.FileSystemProvider;
 import org.iatoki.judgels.LocalFileSystemProvider;
-import org.iatoki.judgels.jophiel.config.AvatarFileSystemProvider;
+import org.iatoki.judgels.jophiel.user.profile.AvatarFileSystemProvider;
 import org.iatoki.judgels.play.JudgelsPlayProperties;
 import org.iatoki.judgels.play.config.AbstractJudgelsPlayModule;
 import org.iatoki.judgels.play.general.GeneralName;

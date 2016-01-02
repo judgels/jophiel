@@ -1,0 +1,70 @@
+@import org.iatoki.judgels.jophiel.user.profile.info.Institution
+@import play.i18n.Messages
+@import org.iatoki.judgels.jophiel.user.profile.info.InstitutionUploadForm
+@import org.iatoki.judgels.jophiel.user.profile.info.InstitutionCreateForm
+@import org.iatoki.judgels.play.views.html.action.deleteActionView
+@import org.iatoki.judgels.play.views.html.table.tableView
+@import org.iatoki.judgels.play.views.html.table.tableHeadersView
+@import org.iatoki.judgels.play.views.html.table.searchView
+@import org.iatoki.judgels.play.views.html.table.paginationView
+@import org.iatoki.judgels.play.views.html.form.globalFormErrorsView
+@import org.iatoki.judgels.jophiel.user.profile.info.routes
+@import org.iatoki.judgels.play.Page
+
+@(pageOfInstitutions: Page[Institution], orderBy: String, orderDir: String, filterString: String, institutionCreateForm: Form[InstitutionCreateForm], institutionUploadForm: Form[InstitutionUploadForm])
+
+@implicitFieldConstructor = @{ b3.horizontal.fieldConstructor("col-md-3", "col-md-9") }
+
+<h4>@Messages.get("institution.text.import")</h4>
+
+@globalFormErrorsView(institutionUploadForm)
+
+@b3.form(routes.InstitutionController.postUploadInstitution(pageOfInstitutions.getPageIndex, orderBy, orderDir, filterString), 'enctype->"multipart/form-data") {
+
+    @helper.CSRF.formField
+
+    @b3.file(institutionUploadForm("institutions"), '_label -> Messages.get("institution.field.file"), 'class -> "form-control", '_help -> Messages.get("institution.help.file"))
+
+    @b3.submit('class -> "btn btn-primary") { @Messages.get("commons.button.upload") }
+}
+
+
+<h4>@Messages.get("institution.text.manualCreate")</h4>
+
+@globalFormErrorsView(institutionCreateForm)
+
+@b3.form(routes.InstitutionController.postCreateInstitution(pageOfInstitutions.getPageIndex, orderBy, orderDir, filterString)) {
+
+    @helper.CSRF.formField
+
+    @b3.text(institutionCreateForm("name"), '_label -> Messages.get("institution.field.name"), 'class -> "form-control")
+
+    @b3.submit('class -> "btn btn-primary") { @Messages.get("commons.button.new") }
+}
+
+
+@searchView(pageOfInstitutions.getPageIndex, orderBy, orderDir, filterString, routes.InstitutionController.listCreateInstitutions)
+
+<div class="clearfix"></div>
+
+@tableView() {
+    @tableHeadersView(pageOfInstitutions.getPageIndex, orderBy, orderDir, filterString, routes.InstitutionController.listCreateInstitutions)(
+        "id" -> Messages.get("commons.field.id"),
+        "" -> Messages.get("institution.field.name"),
+        "" -> Messages.get("institution.field.referencesCount")
+    )
+    <tbody>
+    @for(institution <- pageOfInstitutions.getData) {
+        <tr>
+            <td>@institution.getId</td>
+            <td>@institution.getName</td>
+            <td>@institution.getReferenceCount</td>
+            <td class="text-center">
+                @deleteActionView(routes.InstitutionController.deleteInstitution(institution.getId))
+            </td>
+        </tr>
+    }
+    </tbody>
+}
+
+@paginationView(pageOfInstitutions, orderBy, orderDir, filterString, routes.InstitutionController.listCreateInstitutions)

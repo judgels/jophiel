@@ -1,0 +1,9 @@
+@import org.iatoki.judgels.jophiel.activity.routes
+@import org.iatoki.judgels.jophiel.activity.html.listUsersActivitiesTemplateView
+@import org.iatoki.judgels.jophiel.activity.UserActivity
+
+@(pageOfUserActivities: org.iatoki.judgels.play.Page[UserActivity], orderBy: String, orderDir: String, filterString: String, clientNames: String, usernames: String)
+
+@listFunc(newPageIndex: scala.Long, newOrderBy: String, newOrderDir: String, newFilterString: String) = @{routes.UserActivityController.listUsersActivities(newPageIndex, newOrderBy, newOrderDir, newFilterString, clientNames, usernames)}
+
+@listUsersActivitiesTemplateView(pageOfUserActivities, orderBy, orderDir, filterString, clientNames, usernames, routes.UserActivityController.listUsersActivities(pageOfUserActivities.getPageIndex, orderBy, orderDir, filterString, clientNames, usernames), listFunc, true)

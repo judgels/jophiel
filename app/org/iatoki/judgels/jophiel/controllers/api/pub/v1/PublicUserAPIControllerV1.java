@@ -2,11 +2,11 @@ package org.iatoki.judgels.jophiel.controllers.api.pub.v1;
 
 import com.google.common.collect.ImmutableList;
 import org.iatoki.judgels.AutoComplete;
-import org.iatoki.judgels.jophiel.User;
+import org.iatoki.judgels.jophiel.user.User;
 import org.iatoki.judgels.jophiel.controllers.api.AbstractJophielAPIController;
 import org.iatoki.judgels.jophiel.controllers.api.object.v1.UserV1;
-import org.iatoki.judgels.jophiel.services.UserProfileService;
-import org.iatoki.judgels.jophiel.services.UserService;
+import org.iatoki.judgels.jophiel.user.profile.phone.UserProfileService;
+import org.iatoki.judgels.jophiel.user.UserService;
 import org.iatoki.judgels.play.apis.JudgelsAPINotFoundException;
 import play.db.jpa.Transactional;
 import play.mvc.Result;
