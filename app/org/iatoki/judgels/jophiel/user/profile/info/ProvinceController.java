@@ -8,7 +8,7 @@ import org.iatoki.judgels.jophiel.controllers.securities.Authorized;
 import org.iatoki.judgels.jophiel.controllers.securities.HasRole;
 import org.iatoki.judgels.jophiel.controllers.securities.LoggedIn;
 import org.iatoki.judgels.jophiel.user.profile.info.html.listCreateProvincesView;
-import org.iatoki.judgels.play.HtmlTemplate;
+import org.iatoki.judgels.play.template.HtmlTemplate;
 import org.iatoki.judgels.play.Page;
 import play.data.Form;
 import play.db.jpa.Transactional;
@@ -115,7 +115,7 @@ public final class ProvinceController extends AbstractAutosuggestionController {
     }
 
     private Result showListCreateProvince(Page<Province> pageOfProvinces, String orderBy, String orderDir, String filterString, Form<ProvinceCreateForm> provinceCreateForm, Form<ProvinceUploadForm> provinceUploadForm) {
-        HtmlTemplate template = new HtmlTemplate();
+        HtmlTemplate template = getBaseHtmlTemplate();
 
         template.setContent(listCreateProvincesView.render(pageOfProvinces, orderBy, orderDir, filterString, provinceCreateForm, provinceUploadForm));
         template.markBreadcrumbLocation(Messages.get("province.text.provinces"), routes.ProvinceController.index());

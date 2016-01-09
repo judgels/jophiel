@@ -7,13 +7,12 @@ import org.iatoki.judgels.jophiel.forms.UserProfileSearchForm;
 import org.iatoki.judgels.jophiel.views.html.sidebar.linkedClientsView;
 import org.iatoki.judgels.jophiel.views.html.sidebar.userProfileSearchView;
 import org.iatoki.judgels.jophiel.views.html.sidebar.userProfileView;
-import org.iatoki.judgels.play.HtmlTemplate;
+import org.iatoki.judgels.play.template.HtmlTemplate;
 import org.iatoki.judgels.play.IdentityUtils;
 import org.iatoki.judgels.play.views.html.sidebar.guestView;
 import play.api.mvc.Call;
 import play.data.Form;
 import play.i18n.Messages;
-import play.mvc.Result;
 import play.twirl.api.Html;
 
 public abstract class AbstractJophielController extends AbstractBaseJophielController {
@@ -35,7 +34,9 @@ public abstract class AbstractJophielController extends AbstractBaseJophielContr
     }
 
     @Override
-    protected Result renderTemplate(HtmlTemplate template) {
+    protected HtmlTemplate getBaseHtmlTemplate() {
+        HtmlTemplate template = super.getBaseHtmlTemplate();
+
         String linkedClientsAPIEndpoint = getAbsoluteUrl(org.iatoki.judgels.jophiel.controllers.api.client.v1.routes.ClientClientAPIControllerV1.getLinkedClients());
         Html linkedClientsWidget = linkedClientsView.render(linkedClientsAPIEndpoint);
         template.addLowerSidebarWidget(linkedClientsWidget);
@@ -69,6 +70,6 @@ public abstract class AbstractJophielController extends AbstractBaseJophielContr
         Html userProfileSearchWidget =  userProfileSearchView.render(userProfileSearchForm, autocompleteUserAPIEndpoint, postSearchUserProfileUrl);
         template.addLowerSidebarWidget(userProfileSearchWidget);
 
-        return super.renderTemplate(template);
+        return template;
     }
 }

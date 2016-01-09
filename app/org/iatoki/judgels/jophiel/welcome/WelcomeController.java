@@ -8,7 +8,7 @@ import org.iatoki.judgels.jophiel.controllers.securities.Authenticated;
 import org.iatoki.judgels.jophiel.controllers.securities.HasRole;
 import org.iatoki.judgels.jophiel.controllers.securities.LoggedIn;
 import org.iatoki.judgels.jophiel.welcome.html.welcomeView;
-import org.iatoki.judgels.play.HtmlTemplate;
+import org.iatoki.judgels.play.template.HtmlTemplate;
 import play.db.jpa.Transactional;
 import play.i18n.Messages;
 import play.mvc.Result;
@@ -39,7 +39,7 @@ public class WelcomeController extends AbstractJophielController {
     }
 
     private Result showWelcome(Map<String, String> linkedClients) {
-        HtmlTemplate template = new HtmlTemplate();
+        HtmlTemplate template = getBaseHtmlTemplate();
 
         template.setContent(welcomeView.render(linkedClients));
         template.setMainTitle(Messages.get("welcome.text.welcome"));

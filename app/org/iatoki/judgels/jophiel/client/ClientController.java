@@ -13,7 +13,7 @@ import org.iatoki.judgels.jophiel.controllers.securities.Authenticated;
 import org.iatoki.judgels.jophiel.controllers.securities.Authorized;
 import org.iatoki.judgels.jophiel.controllers.securities.HasRole;
 import org.iatoki.judgels.jophiel.controllers.securities.LoggedIn;
-import org.iatoki.judgels.play.HtmlTemplate;
+import org.iatoki.judgels.play.template.HtmlTemplate;
 import org.iatoki.judgels.play.Page;
 import play.data.Form;
 import play.db.jpa.Transactional;
@@ -124,22 +124,26 @@ public final class ClientController extends AbstractJophielController {
     }
 
     @Override
-    protected Result renderTemplate(HtmlTemplate template) {
+    protected HtmlTemplate getBaseHtmlTemplate() {
+        HtmlTemplate template = super.getBaseHtmlTemplate();
+
         template.markBreadcrumbLocation(Messages.get("client.text.clients"), routes.ClientController.index());
 
-        return super.renderTemplate(template);
+        return template;
     }
 
-    protected Result renderTemplate(HtmlTemplate template, Client client) {
+    protected HtmlTemplate getBaseHtmlTemplate(Client client) {
+        HtmlTemplate template = getBaseHtmlTemplate();
+
         template.markBreadcrumbLocation(client.getName(), routes.ClientController.viewClient(client.getId()));
         template.setMainTitle("#" + client.getId() + ": " + client.getName());
         template.setPageTitle(client.getName());
 
-        return renderTemplate(template);
+        return template;
     }
 
     private Result showListClients(Page<Client> pageOfClients, String orderBy, String orderDir, String filterString) {
-        HtmlTemplate template = new HtmlTemplate();
+        HtmlTemplate template = getBaseHtmlTemplate();
 
         template.setContent(listClientsView.render(pageOfClients, orderBy, orderDir, filterString));
         template.setMainTitle(Messages.get("client.text.list"));
@@ -149,15 +153,15 @@ public final class ClientController extends AbstractJophielController {
     }
 
     private Result showViewClient(Client client) {
-        HtmlTemplate template = new HtmlTemplate();
+        HtmlTemplate template = getBaseHtmlTemplate(client);
 
         template.setContent(viewClientView.render(client));
 
-        return renderTemplate(template, client);
+        return renderTemplate(template);
     }
 
     private Result showCreateClient(Form<ClientCreateForm> clientCreateForm) {
-        HtmlTemplate template = new HtmlTemplate();
+        HtmlTemplate template = getBaseHtmlTemplate();
 
         template.setContent(createClientView.render(clientCreateForm));
         template.setMainTitle(Messages.get("client.text.new"));
@@ -167,11 +171,11 @@ public final class ClientController extends AbstractJophielController {
     }
 
     private Result showEditClient(Client client, Form<ClientEditForm> clientEditForm) {
-        HtmlTemplate template = new HtmlTemplate();
+        HtmlTemplate template = getBaseHtmlTemplate(client);
 
         template.setContent(editClientView.render(client, clientEditForm));
         template.markBreadcrumbLocation(Messages.get("commons.text.edit"), routes.ClientController.editClient(client.getId()));
 
-        return renderTemplate(template, client);
+        return renderTemplate(template);
     }
 }

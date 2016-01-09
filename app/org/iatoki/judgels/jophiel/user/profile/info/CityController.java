@@ -8,7 +8,7 @@ import org.iatoki.judgels.jophiel.controllers.securities.Authorized;
 import org.iatoki.judgels.jophiel.controllers.securities.HasRole;
 import org.iatoki.judgels.jophiel.controllers.securities.LoggedIn;
 import org.iatoki.judgels.jophiel.user.profile.info.html.listCreateCitiesView;
-import org.iatoki.judgels.play.HtmlTemplate;
+import org.iatoki.judgels.play.template.HtmlTemplate;
 import org.iatoki.judgels.play.Page;
 import play.data.Form;
 import play.db.jpa.Transactional;
@@ -114,7 +114,7 @@ public final class CityController extends AbstractAutosuggestionController {
     }
 
     private Result showListCreateCities(Page<City> pageOfCities, String orderBy, String orderDir, String filterString, Form<CityCreateForm> cityCreateForm, Form<CityUploadForm> cityUploadForm) {
-        HtmlTemplate template = new HtmlTemplate();
+        HtmlTemplate template = getBaseHtmlTemplate();
 
         template.setContent(listCreateCitiesView.render(pageOfCities, orderBy, orderDir, filterString, cityCreateForm, cityUploadForm));
         template.markBreadcrumbLocation(Messages.get("city.text.cities"), routes.CityController.index());

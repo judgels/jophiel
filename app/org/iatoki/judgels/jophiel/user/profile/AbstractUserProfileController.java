@@ -14,7 +14,7 @@ import org.iatoki.judgels.jophiel.user.profile.phone.UserPhone;
 import org.iatoki.judgels.jophiel.user.profile.phone.UserPhoneCreateForm;
 import org.iatoki.judgels.jophiel.user.profile.phone.UserPhoneService;
 import org.iatoki.judgels.jophiel.user.profile.phone.UserProfileService;
-import org.iatoki.judgels.play.HtmlTemplate;
+import org.iatoki.judgels.play.template.HtmlTemplate;
 import org.iatoki.judgels.play.JudgelsPlayUtils;
 import play.data.Form;
 import play.i18n.Messages;
@@ -150,7 +150,7 @@ public abstract class AbstractUserProfileController extends AbstractJophielContr
     }
 
     private Result showEditProfile(User user, Form<UserProfileEditForm> profileEditForm, Form<UserAvatarForm> avatarForm, Form<UserEmailCreateForm> emailCreateForm, UserEmail primaryEmail, List<UserEmail> userEmails, Form<UserPhoneCreateForm> phoneCreateForm, UserPhone primaryPhone, List<UserPhone> userPhones, Form<UserInfoEditForm> infoEditForm) {
-        HtmlTemplate template = new HtmlTemplate();
+        HtmlTemplate template = getBaseHtmlTemplate();
 
         template.setContent(editProfileView.render(profileEditForm, avatarForm, user.getProfilePictureUrl().toString(), emailCreateForm, primaryEmail, userEmails, phoneCreateForm, primaryPhone, userPhones, infoEditForm));
 

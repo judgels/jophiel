@@ -12,7 +12,7 @@ import org.iatoki.judgels.jophiel.user.account.html.activationView;
 import org.iatoki.judgels.jophiel.user.profile.AbstractUserProfileController;
 import org.iatoki.judgels.jophiel.user.profile.phone.UserPhoneService;
 import org.iatoki.judgels.jophiel.user.profile.phone.UserProfileService;
-import org.iatoki.judgels.play.HtmlTemplate;
+import org.iatoki.judgels.play.template.HtmlTemplate;
 import play.data.Form;
 import play.db.jpa.Transactional;
 import play.filters.csrf.RequireCSRFCheck;
@@ -194,7 +194,7 @@ public final class UserEmailController extends AbstractUserProfileController {
     }
 
     private Result showAfterActivateEmail() {
-        HtmlTemplate template = new HtmlTemplate();
+        HtmlTemplate template = getBaseHtmlTemplate();
 
         template.setContent(activationView.render());
         template.setMainTitle(Messages.get("activation.text.successful"));

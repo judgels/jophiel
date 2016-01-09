@@ -15,7 +15,7 @@ import org.iatoki.judgels.jophiel.user.profile.info.UserInfo;
 import org.iatoki.judgels.jophiel.user.profile.info.UserInfoEditForm;
 import org.iatoki.judgels.jophiel.user.profile.phone.UserPhoneService;
 import org.iatoki.judgels.jophiel.user.profile.phone.UserProfileService;
-import org.iatoki.judgels.play.HtmlTemplate;
+import org.iatoki.judgels.play.template.HtmlTemplate;
 import org.iatoki.judgels.play.JudgelsPlayUtils;
 import org.iatoki.judgels.play.views.html.layouts.messageView;
 import play.Logger;
@@ -192,7 +192,7 @@ public final class UserProfileController extends AbstractUserProfileController {
     }
 
     private Result showViewProfile(User user, UserInfo userInfo) {
-        HtmlTemplate template = new HtmlTemplate();
+        HtmlTemplate template = getBaseHtmlTemplate();
 
         template.setContent(viewProfileView.render(user, userInfo));
 
@@ -200,7 +200,7 @@ public final class UserProfileController extends AbstractUserProfileController {
     }
 
     private Result showUserNotFound() {
-        HtmlTemplate template = new HtmlTemplate();
+        HtmlTemplate template = getBaseHtmlTemplate();
 
         template.setContent(messageView.render(Messages.get("user.search.notFound")));
 

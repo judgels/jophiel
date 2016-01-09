@@ -8,7 +8,7 @@ import org.iatoki.judgels.jophiel.controllers.securities.Authorized;
 import org.iatoki.judgels.jophiel.controllers.securities.HasRole;
 import org.iatoki.judgels.jophiel.controllers.securities.LoggedIn;
 import org.iatoki.judgels.jophiel.user.profile.info.html.listCreateInstitutionsView;
-import org.iatoki.judgels.play.HtmlTemplate;
+import org.iatoki.judgels.play.template.HtmlTemplate;
 import org.iatoki.judgels.play.Page;
 import play.data.Form;
 import play.db.jpa.Transactional;
@@ -115,7 +115,7 @@ public final class InstitutionController extends AbstractAutosuggestionControlle
     }
 
     private Result showListCreateInstitution(Page<Institution> pageOfInstitutions, String orderBy, String orderDir, String filterString, Form<InstitutionCreateForm> institutionCreateForm, Form<InstitutionUploadForm> institutionUploadForm) {
-        HtmlTemplate template = new HtmlTemplate();
+        HtmlTemplate template = getBaseHtmlTemplate();
 
         template.setContent(listCreateInstitutionsView.render(pageOfInstitutions, orderBy, orderDir, filterString, institutionCreateForm, institutionUploadForm));
         template.markBreadcrumbLocation(Messages.get("institution.text.institutions"), routes.InstitutionController.index());

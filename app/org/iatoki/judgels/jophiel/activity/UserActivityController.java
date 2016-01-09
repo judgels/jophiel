@@ -9,7 +9,7 @@ import org.iatoki.judgels.jophiel.controllers.securities.Authorized;
 import org.iatoki.judgels.jophiel.controllers.securities.HasRole;
 import org.iatoki.judgels.jophiel.controllers.securities.LoggedIn;
 import org.iatoki.judgels.jophiel.user.UserService;
-import org.iatoki.judgels.play.HtmlTemplate;
+import org.iatoki.judgels.play.template.HtmlTemplate;
 import org.iatoki.judgels.play.Page;
 import play.db.jpa.Transactional;
 import play.i18n.Messages;
@@ -72,7 +72,7 @@ public final class UserActivityController extends AbstractJophielController {
     }
 
     private Result showListUsersActivites(Page<UserActivity> pageOfActivities, String orderBy, String orderDir, String filterString, String clientNames, String usernames) {
-        HtmlTemplate template = new HtmlTemplate();
+        HtmlTemplate template = getBaseHtmlTemplate();
 
         template.setContent(listUsersActivitiesView.render(pageOfActivities, orderBy, orderDir, filterString, clientNames, usernames));
 

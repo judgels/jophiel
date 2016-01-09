@@ -14,7 +14,7 @@ import org.iatoki.judgels.jophiel.client.Client;
 import org.iatoki.judgels.jophiel.client.ClientService;
 import org.iatoki.judgels.jophiel.oauth2.html.serviceAuthView;
 import org.iatoki.judgels.jophiel.user.UserService;
-import org.iatoki.judgels.play.HtmlTemplate;
+import org.iatoki.judgels.play.template.HtmlTemplate;
 import org.iatoki.judgels.play.controllers.ControllerUtils;
 import play.Logger;
 import play.db.jpa.Transactional;
@@ -60,7 +60,7 @@ public final class OAuth2WebAPIController extends AbstractJophielController {
                 return postAuth(path);
             }
 
-            HtmlTemplate template = new HtmlTemplate();
+            HtmlTemplate template = getBaseHtmlTemplate();
 
             template.setContent(serviceAuthView.render(path, client, scopes));
             template.setMainTitle(Messages.get("auth.text.request"));
