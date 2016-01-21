@@ -6,7 +6,7 @@ import org.iatoki.judgels.jophiel.oauth2.AccessToken;
 import org.iatoki.judgels.jophiel.oauth2.IdToken;
 import org.iatoki.judgels.jophiel.oauth2.RefreshToken;
 import org.iatoki.judgels.play.Page;
-import org.iatoki.judgels.play.services.JudgelsAppClientService;
+import org.iatoki.judgels.play.api.JudgelsAppClientService;
 
 import java.util.List;
 

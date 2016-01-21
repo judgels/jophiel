@@ -1,7 +1,5 @@
 package org.iatoki.judgels.jophiel.activity;
 
-import org.iatoki.judgels.jophiel.NoEntityActivityKey;
-
 public final class JophielActivityKeys {
 
     public static final NoEntityActivityKey LOGIN = new NoEntityActivityKey() {

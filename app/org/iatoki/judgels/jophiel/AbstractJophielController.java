@@ -1,14 +1,14 @@
 package org.iatoki.judgels.jophiel;
 
+import org.iatoki.judgels.jophiel.activity.ActivityKey;
 import org.iatoki.judgels.jophiel.activity.ActivityLogServiceImpl;
 import org.iatoki.judgels.jophiel.activity.UserActivityService;
-import org.iatoki.judgels.jophiel.controllers.AbstractBaseJophielController;
-import org.iatoki.judgels.jophiel.forms.UserProfileSearchForm;
-import org.iatoki.judgels.jophiel.views.html.sidebar.linkedClientsView;
-import org.iatoki.judgels.jophiel.views.html.sidebar.userProfileSearchView;
-import org.iatoki.judgels.jophiel.views.html.sidebar.userProfileView;
-import org.iatoki.judgels.play.template.HtmlTemplate;
+import org.iatoki.judgels.jophiel.client.html.linkedClientsView;
+import org.iatoki.judgels.jophiel.profile.UserProfileSearchForm;
+import org.iatoki.judgels.jophiel.profile.html.userProfileSearchView;
+import org.iatoki.judgels.jophiel.profile.html.userProfileView;
 import org.iatoki.judgels.play.IdentityUtils;
+import org.iatoki.judgels.play.template.HtmlTemplate;
 import org.iatoki.judgels.play.views.html.sidebar.guestView;
 import play.api.mvc.Call;
 import play.data.Form;

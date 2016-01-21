@@ -2,7 +2,7 @@ package org.iatoki.judgels.jophiel;
 
 import org.hibernate.Session;
 import org.hibernate.internal.SessionImpl;
-import org.iatoki.judgels.play.JidService;
+import org.iatoki.judgels.play.jid.JidService;
 import org.iatoki.judgels.play.migration.AbstractBaseDataMigrationServiceImpl;
 import play.db.jpa.JPA;
 

@@ -1,7 +1,5 @@
 package org.iatoki.judgels.jophiel.activity;
 
-import org.iatoki.judgels.jophiel.models.daos.hibernate.AbstractActivityLogHibernateDao;
-
 import javax.inject.Singleton;
 
 @Singleton

@@ -5,7 +5,7 @@ import org.iatoki.judgels.jophiel.controllers.api.AbstractJophielAPIController;
 import org.iatoki.judgels.jophiel.controllers.api.object.v1.ActivityMessageV1;
 import org.iatoki.judgels.jophiel.client.ClientService;
 import org.iatoki.judgels.jophiel.activity.UserActivityService;
-import org.iatoki.judgels.play.apis.JudgelsAppClientAPIIdentity;
+import org.iatoki.judgels.play.api.JudgelsAppClientAPIIdentity;
 import play.db.jpa.Transactional;
 import play.mvc.Result;
 

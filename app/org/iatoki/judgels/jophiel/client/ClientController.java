@@ -3,7 +3,7 @@ package org.iatoki.judgels.jophiel.client;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.iatoki.judgels.jophiel.AbstractJophielController;
-import org.iatoki.judgels.jophiel.BasicActivityKeys;
+import org.iatoki.judgels.jophiel.activity.BasicActivityKeys;
 import org.iatoki.judgels.jophiel.activity.UserActivityService;
 import org.iatoki.judgels.jophiel.client.html.createClientView;
 import org.iatoki.judgels.jophiel.client.html.editClientView;

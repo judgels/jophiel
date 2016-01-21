@@ -1,7 +1,7 @@
 package org.iatoki.judgels.jophiel.user.profile.info;
 
 import org.apache.commons.io.FileUtils;
-import org.iatoki.judgels.jophiel.BasicActivityKeys;
+import org.iatoki.judgels.jophiel.activity.BasicActivityKeys;
 import org.iatoki.judgels.jophiel.activity.UserActivityService;
 import org.iatoki.judgels.jophiel.controllers.securities.Authenticated;
 import org.iatoki.judgels.jophiel.controllers.securities.Authorized;

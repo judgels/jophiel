@@ -1,6 +1,5 @@
 package org.iatoki.judgels.jophiel.activity;
 
-import org.iatoki.judgels.jophiel.models.daos.jedishibernate.AbstractActivityLogJedisHibernateDao;
 import redis.clients.jedis.JedisPool;
 
 import javax.inject.Inject;

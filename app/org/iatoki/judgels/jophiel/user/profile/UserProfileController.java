@@ -1,12 +1,12 @@
 package org.iatoki.judgels.jophiel.user.profile;
 
 import org.apache.commons.io.FilenameUtils;
-import org.iatoki.judgels.jophiel.BasicActivityKeys;
+import org.iatoki.judgels.jophiel.activity.BasicActivityKeys;
 import org.iatoki.judgels.jophiel.activity.UserActivityService;
 import org.iatoki.judgels.jophiel.controllers.securities.Authenticated;
 import org.iatoki.judgels.jophiel.controllers.securities.HasRole;
 import org.iatoki.judgels.jophiel.controllers.securities.LoggedIn;
-import org.iatoki.judgels.jophiel.forms.UserProfileSearchForm;
+import org.iatoki.judgels.jophiel.profile.UserProfileSearchForm;
 import org.iatoki.judgels.jophiel.user.User;
 import org.iatoki.judgels.jophiel.user.UserService;
 import org.iatoki.judgels.jophiel.user.profile.email.UserEmailService;

@@ -7,8 +7,8 @@ import org.iatoki.judgels.jophiel.controllers.api.object.v1.UserFindByUsernameAn
 import org.iatoki.judgels.jophiel.controllers.api.object.v1.UserV1;
 import org.iatoki.judgels.jophiel.client.ClientService;
 import org.iatoki.judgels.jophiel.user.UserService;
-import org.iatoki.judgels.play.apis.JudgelsAPINotFoundException;
-import org.iatoki.judgels.play.apis.JudgelsAppClientAPIIdentity;
+import org.iatoki.judgels.play.api.JudgelsAPINotFoundException;
+import org.iatoki.judgels.play.api.JudgelsAppClientAPIIdentity;
 import play.data.DynamicForm;
 import play.mvc.Result;
 

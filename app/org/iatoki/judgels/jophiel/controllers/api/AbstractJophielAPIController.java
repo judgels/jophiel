@@ -7,7 +7,7 @@ import org.iatoki.judgels.jophiel.user.User;
 import org.iatoki.judgels.jophiel.api.JophielUserAPIIdentity;
 import org.iatoki.judgels.jophiel.client.ClientService;
 import org.iatoki.judgels.jophiel.user.UserService;
-import org.iatoki.judgels.play.apis.JudgelsAPIUnauthorizedException;
+import org.iatoki.judgels.play.api.JudgelsAPIUnauthorizedException;
 import org.iatoki.judgels.play.controllers.apis.AbstractJudgelsAPIController;
 
 public abstract class AbstractJophielAPIController extends AbstractJudgelsAPIController {

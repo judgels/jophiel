@@ -7,7 +7,7 @@ import org.iatoki.judgels.jophiel.controllers.api.AbstractJophielAPIController;
 import org.iatoki.judgels.jophiel.controllers.api.object.v1.UserV1;
 import org.iatoki.judgels.jophiel.user.profile.phone.UserProfileService;
 import org.iatoki.judgels.jophiel.user.UserService;
-import org.iatoki.judgels.play.apis.JudgelsAPINotFoundException;
+import org.iatoki.judgels.play.api.JudgelsAPINotFoundException;
 import play.db.jpa.Transactional;
 import play.mvc.Result;
 

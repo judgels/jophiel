@@ -1,8 +1,5 @@
 package org.iatoki.judgels.jophiel.activity;
 
-import org.iatoki.judgels.jophiel.ActivityKey;
-import org.iatoki.judgels.jophiel.BasicActivityKeyUtils;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

@@ -1,6 +1,6 @@
 package org.iatoki.judgels.jophiel.client;
 
-import org.iatoki.judgels.play.JudgelsAppClient;
+import org.iatoki.judgels.play.api.JudgelsAppClient;
 
 import java.util.List;
 import java.util.Set;
