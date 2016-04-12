@@ -178,7 +178,7 @@ public final class JophielProperties {
             avatarAWSSecretKey = requireStringValue("aws.avatar.key.secret");
             avatarAWSS3BucketName = requireStringValue("aws.avatar.s3.bucket.name");
             avatarAWSS3BucketRegion = Region.fromValue(requireStringValue("aws.avatar.s3.bucket.regionId"));
-            avatarAWSCloudFrontUrl = requireStringValue("aws.avatar.cloudFront.baseUrl");
+            avatarAWSCloudFrontUrl = getStringValue("aws.avatar.cloudFront.baseUrl");
         } else {
             try {
                 avatarLocalDir = new File(jophielBaseDataDir, "avatar");
