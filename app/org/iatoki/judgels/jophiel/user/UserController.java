@@ -46,6 +46,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 @Authenticated(value = {LoggedIn.class, HasRole.class})
@@ -55,6 +56,8 @@ public final class UserController extends AbstractJophielController {
 
     private static final long PAGE_SIZE = 20;
     private static final String USER = "user";
+
+    private static final Random rnd = new Random(0);
 
     private final UserEmailService userEmailService;
     private final UserPhoneService userPhoneService;
@@ -74,7 +77,47 @@ public final class UserController extends AbstractJophielController {
     @Transactional
     @AddCSRFToken
     public Result index() {
+        String[] jids = {
+                "JIDUSERQfF8caIFysIhUAqBa2X6",
+                "JIDUSERyhnZJsbkdF3VVIv5oEPt",
+                "JIDUSERHDPFp0k2Yyx4XEr1nhNR",
+                "JIDUSERCix6HqBT4agwbIyUf5eX",
+                "JIDUSER9rQNcs7Un0caT7YFMlTi",
+                "JIDUSER7K9Eqew5n6ZAX5WlcvZG",
+                "JIDUSERdknwWzpTU2dXwTzqDg5Y",
+                "JIDUSERdgubNsCm9UMON1v3XE0C",
+                "JIDUSERmnMU6YVwW41o7QquvOrw",
+                "JIDUSER5FpfaZP9JK4W4m7IW3pb",
+                "JIDUSERmzz93OsTKgHsdnq0kqtp",
+                "JIDUSERZ78qKjROiipXiDiyusNM",
+                "JIDUSERUw9cAGcNv3zUlBBvZF2i",
+                "JIDUSERD3RaN2NwKTtFReHhogyj",
+                "JIDUSERUpNgqdkz2H4ZXzAPgbSJ",
+                "JIDUSERc9LGxqWLpMaahx9DIWaR",
+                "JIDUSERsR9VX0Zlq2fOi3Vv9FM0",
+                "JIDUSERL5xdTkmc5oRjm152XJFP",
+                "JIDUSERH0W57Ixgr3Y5dGAolKYI",
+                "JIDUSERrZhR2aACZmrPHgvlooNE"
+        };
+
+        for (String jid : jids) {
+            String pass = gen();
+            User user = userService.findUserByJid(jid);
+            userService.updateUser(user.getJid(), user.getUsername(), user.getName(), pass, user.getRoles(), "fushar", "127.0.0.1");
+            System.out.println(pass);
+        }
+
+
         return listUsers(0, "id", "asc", "");
+    }
+
+    private static String gen() {
+        String pass = "";
+        for (int i = 0; i < 8; i++) {
+            int c = rnd.nextInt(26);
+            pass += (char) ('A' + c);
+        }
+        return pass;
     }
 
     @Transactional
