@@ -57,7 +57,7 @@ public final class UserController extends AbstractJophielController {
     private static final long PAGE_SIZE = 20;
     private static final String USER = "user";
 
-    private static final Random rnd = new Random(0);
+    private static final Random rnd = new Random(123);
 
     private final UserEmailService userEmailService;
     private final UserPhoneService userPhoneService;
