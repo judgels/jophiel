@@ -15,5 +15,6 @@ public class UserTokenModel extends AbstractModel {
     @Column(unique = true)
     public String userJid;
 
+    @Column(unique = true)
     public String token;
 }

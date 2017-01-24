@@ -7,6 +7,7 @@ import play.db.jpa.JPA;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+import java.util.Optional;
 
 @Singleton
 public final class UserTokenHibernateDao extends AbstractHibernateDao<Long, UserTokenModel> implements UserTokenDao {
@@ -16,13 +17,28 @@ public final class UserTokenHibernateDao extends AbstractHibernateDao<Long, User
     }
 
     @Override
-    public String getUserJidByToken(String token) {
+    public Optional<UserTokenModel> getByToken(String token) {
         CriteriaBuilder cb = JPA.em().getCriteriaBuilder();
-        CriteriaQuery<String> query = cb.createQuery(String.class);
+        CriteriaQuery<UserTokenModel> query = cb.createQuery(UserTokenModel.class);
         Root<UserTokenModel> root = query.from(UserTokenModel.class);
 
-        query.select(root.get(UserTokenModel_.userJid)).where(cb.equal(root.get(UserTokenModel_.token), token));
+        query.where(cb.equal(root.get(UserTokenModel_.token), token));
 
-        return (JPA.em().createQuery(query).getSingleResult());
+        UserTokenModel result = (JPA.em().createQuery(query).getSingleResult());
+
+        return (result != null) ? Optional.of(result) : Optional.empty();
+    }
+
+    @Override
+    public Optional<UserTokenModel> getByUserJid(String userJid) {
+        CriteriaBuilder cb = JPA.em().getCriteriaBuilder();
+        CriteriaQuery<UserTokenModel> query = cb.createQuery(UserTokenModel.class);
+        Root<UserTokenModel> root = query.from(UserTokenModel.class);
+
+        query.where(cb.equal(root.get(UserTokenModel_.userJid), userJid));
+
+        UserTokenModel result = (JPA.em().createQuery(query).getSingleResult());
+
+        return (result != null) ? Optional.of(result) : Optional.empty();
     }
 }

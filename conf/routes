@@ -83,6 +83,10 @@ POST           /api/oauth2/auth                                             org.
 POST           /api/oauth2/token                                            org.iatoki.judgels.jophiel.controllers.api.oauth2.OAuth2APIController.token()
 GET            /api/oauth2/userinfo                                         org.iatoki.judgels.jophiel.controllers.api.oauth2.OAuth2APIController.userInfo()
 
+# Auth API
+POST          /api/auth                                                     org.iatoki.judgels.jophiel.controllers.api.internal.InternalAuthApiController.postApiLogin()
+GET           /api/auth/token                                               org.iatoki.judgels.jophiel.controllers.api.internal.InternalAuthApiController.getUserInfoByToken(token: String)
+
 # Internal API
 
 GET            /api/cities/autocomplete                                     org.iatoki.judgels.jophiel.controllers.api.internal.InternalCityAPIController.autocompleteCity(term ?= null)
