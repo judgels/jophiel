@@ -17,4 +17,6 @@ public class UserTokenModel extends AbstractModel {
 
     @Column(unique = true)
     public String token;
+
+    public long expireTime;
 }

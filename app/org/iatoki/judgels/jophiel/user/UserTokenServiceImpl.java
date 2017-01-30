@@ -10,6 +10,8 @@ import java.util.UUID;
 @Singleton
 public class UserTokenServiceImpl implements UserTokenService {
 
+    private static final long TOKEN_EXPIRE_TIME = 24 * 60 * 60 * 1000;
+
     private final UserTokenDao userTokenDao;
 
     @Inject
@@ -21,7 +23,8 @@ public class UserTokenServiceImpl implements UserTokenService {
     public Optional<UserToken> getUserTokenByToken(String token) {
         Optional<UserTokenModel> tokenModel = userTokenDao.getByToken(token);
 
-        return tokenModel.map(x -> new UserToken(x.userJid, x.token));
+        return tokenModel.filter(x -> x.expireTime > System.currentTimeMillis())
+                .map(x -> new UserToken(x.userJid, x.token));
     }
 
     @Override
@@ -32,6 +35,7 @@ public class UserTokenServiceImpl implements UserTokenService {
         UserTokenModel userTokenModel = new UserTokenModel();
         userTokenModel.userJid = userJid;
         userTokenModel.token = UUID.randomUUID().toString();
+        userTokenModel.expireTime = System.currentTimeMillis() +TOKEN_EXPIRE_TIME;
         userTokenDao.persist(userTokenModel, userCreateJid, userIpAddress);
 
         return new UserToken(userTokenModel.userJid, userTokenModel.token);
