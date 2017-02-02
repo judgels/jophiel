@@ -84,8 +84,8 @@ POST           /api/oauth2/token                                            org.
 GET            /api/oauth2/userinfo                                         org.iatoki.judgels.jophiel.controllers.api.oauth2.OAuth2APIController.userInfo()
 
 # Auth API
-POST          /api/auth                                                     org.iatoki.judgels.jophiel.controllers.api.internal.InternalAuthApiController.postApiLogin()
-GET           /api/auth/token                                               org.iatoki.judgels.jophiel.controllers.api.internal.InternalAuthApiController.getUserInfoByToken(token: String)
+POST           /api/auth                                                    org.iatoki.judgels.jophiel.controllers.api.internal.InternalAuthApiController.postApiLogin()
+GET            /api/auth/token                                              org.iatoki.judgels.jophiel.controllers.api.internal.InternalAuthApiController.getUserInfoByToken(token: String)
 
 # Internal API
 
@@ -96,6 +96,9 @@ GET            /api/clients/autocomplete                                    org.
 GET            /api/institutions/autocomplete                               org.iatoki.judgels.jophiel.controllers.api.internal.InternalInstitutionAPIController.autocompleteInstitution(term ?= null)
 
 GET            /api/provinces/autocomplete                                  org.iatoki.judgels.jophiel.controllers.api.internal.InternalProvinceAPIController.autocompleteProvince(term ?= null)
+
+POST           /api/users/changePass                                        org.iatoki.judgels.jophiel.controllers.api.internal.InternalUserAccountApiController.changePassword(code ?= null)
+POST           /api/users/forgotPass                                        org.iatoki.judgels.jophiel.controllers.api.internal.InternalUserAccountApiController.forgotPassword()
 
 # Client API
 

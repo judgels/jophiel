@@ -51,6 +51,7 @@ forgotPassword.text.requestSent                     = Forgot Password Request Se
 forgotPassword.text.emailSentTo                     = An email with instruction for changing your password has been sent to {0}. Please check your inbox/spam.
 forgotPassword.email.subject                        = {0} Change Password Request
 forgotPassword.email.body                           = <p>A request to change password has been made for your account on {0}.</p><p>To change your password please click <a href="{1}">this link</a>.</p>
+forgotPassword.code.invalid                         = Invalid forgot password code
 
 forgotPassword.error.usernameNotExists              = Username not exists
 forgotPassword.error.emailInvalid                   = Email invalid
@@ -210,3 +211,5 @@ province.field.file                                 = File
 province.help.file                                  = Text file containing newline-separated provinces
 province.field.name                                 = Name
 province.field.referencesCount                      = References Count
+
+api.param.invalid                                   = Invalid input parameter
