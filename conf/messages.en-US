@@ -212,4 +212,10 @@ province.help.file                                  = Text file containing newli
 province.field.name                                 = Name
 province.field.referencesCount                      = References Count
 
-api.param.invalid                                   = Invalid input parameter
+api.param.invalid                                   = INVALID_PARAMETER
+api.email.not_verified                              = EMAIL_NOT_VERIFIED
+api.email.not_owned                                 = EMAIL_NOT_OWNED
+api.email.primary                                   = EMAIL_IS_PRIMARY_EMAIL
+api.email.already_verified                          = EMAIL_ALREADY_VERIFIED
+api.email.already_owned                             = EMAIL_ALREADY_OWNED
+api.email.invalid_code                              = INVALID_ACTIVATION_CODE
