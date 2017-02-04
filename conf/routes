@@ -123,6 +123,9 @@ GET            /api/v1/users/email/:emailJid/verify                         org.
 
 GET            /api/v1/users/phone                                          org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientUserPhoneAPIControllerV1.getAllUserPhone()
 GET            /api/v1/users/phone/primary                                  org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientUserPhoneAPIControllerV1.getPrimaryPhone()
+POST           /api/v1/users/phone                                          org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientUserPhoneAPIControllerV1.createPhone()
+GET            /api/v1/users/phone/:phoneJid/primary                        org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientUserPhoneAPIControllerV1.makePhonePrimary(phoneJid: String)
+GET            /api/v1/users/phone/:phoneJid/delete                         org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientUserPhoneAPIControllerV1.deletePhone(phoneJid: String)
 
 # Public API
 

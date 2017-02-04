@@ -92,6 +92,9 @@ public class ClientUserEmailAPIControllerV1 extends AbstractJophielAPIController
     public Result makeEmailPrimary(String emailJid) {
         User user = userService.findUserByJid(getCurrentUserJid());
         UserEmail userEmail = userEmailService.findEmailByJid(emailJid);
+        if (userEmail == null) {
+            return notFoundAsJson(ApiErrorCodeV1.EMAIL_NOT_FOUND);
+        }
 
         if (!user.getJid().equals(userEmail.getUserJid())) {
             return unauthorizeddAsJson(ApiErrorCodeV1.EMAIL_NOT_OWNED);
@@ -110,6 +113,9 @@ public class ClientUserEmailAPIControllerV1 extends AbstractJophielAPIController
     public Result deleteEmail(String emailJid) {
         User user = userService.findUserByJid(getCurrentUserJid());
         UserEmail userEmail = userEmailService.findEmailByJid(emailJid);
+        if (userEmail == null) {
+            return notFoundAsJson(ApiErrorCodeV1.EMAIL_NOT_FOUND);
+        }
 
         if (!user.getJid().equals(userEmail.getUserJid())) {
             return unauthorizeddAsJson(ApiErrorCodeV1.EMAIL_NOT_OWNED);
@@ -128,6 +134,9 @@ public class ClientUserEmailAPIControllerV1 extends AbstractJophielAPIController
     public Result resendEmailVerification(String emailJid) {
         UserEmail userEmail = userEmailService.findEmailByJid(emailJid);
         User user = userService.findUserByJid(userEmail.getUserJid());
+        if (userEmail == null) {
+            return notFoundAsJson(ApiErrorCodeV1.EMAIL_NOT_FOUND);
+        }
 
         if (!userEmailService.isEmailNotVerified(userEmail.getJid())) {
             return badRequestAsJson(ApiErrorCodeV1.EMAIL_ALREADY_VERIFIED);
@@ -142,6 +151,9 @@ public class ClientUserEmailAPIControllerV1 extends AbstractJophielAPIController
     @Transactional
     public Result activateEmail(String emailJid) {
         UserEmail userEmail = userEmailService.findEmailByJid(emailJid);
+        if (userEmail == null) {
+            return notFoundAsJson(ApiErrorCodeV1.EMAIL_NOT_FOUND);
+        }
 
         if (userEmailService.isEmailOwned(userEmail.getEmail())) {
             return badRequestAsJson(ApiErrorCodeV1.EMAIL_ALREADY_OWNED);

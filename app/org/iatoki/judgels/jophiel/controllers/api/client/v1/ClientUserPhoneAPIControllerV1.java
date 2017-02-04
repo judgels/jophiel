@@ -1,11 +1,15 @@
 package org.iatoki.judgels.jophiel.controllers.api.client.v1;
 
 import org.iatoki.judgels.jophiel.controllers.api.AbstractJophielAPIController;
+import org.iatoki.judgels.jophiel.controllers.api.object.v1.ApiErrorCodeV1;
 import org.iatoki.judgels.jophiel.controllers.api.object.v1.UserPhoneV1;
+import org.iatoki.judgels.jophiel.controllers.securities.Authenticated;
 import org.iatoki.judgels.jophiel.user.User;
 import org.iatoki.judgels.jophiel.user.UserService;
 import org.iatoki.judgels.jophiel.user.profile.phone.UserPhone;
+import org.iatoki.judgels.jophiel.user.profile.phone.UserPhoneCreateForm;
 import org.iatoki.judgels.jophiel.user.profile.phone.UserPhoneService;
+import play.data.Form;
 import play.db.jpa.Transactional;
 import play.mvc.Result;
 
@@ -42,6 +46,69 @@ public class ClientUserPhoneAPIControllerV1 extends AbstractJophielAPIController
         UserPhone primaryPhone = userPhoneService.findPhoneByJid(user.getPhoneJid());
 
         return okAsJson(primaryPhone);
+    }
+
+    @Authenticated
+    public Result createPhone() {
+        User user = userService.findUserByJid(getCurrentUserJid());
+
+        Form<UserPhoneCreateForm> userPhoneCreateForm = Form.form(UserPhoneCreateForm.class).bindFromRequest();
+
+        if (formHasErrors(userPhoneCreateForm)) {
+            return badRequestAsJson(ApiErrorCodeV1.INVALID_INPUT_PARAMETER);
+        }
+
+        UserPhoneCreateForm userPhoneCreateData = userPhoneCreateForm.get();
+        UserPhone userPhone;
+        if (user.getPhoneJid() == null) {
+            userPhone = userPhoneService.addFirstPhone(getCurrentUserJid(), userPhoneCreateData.phone, getCurrentUserJid());
+        } else {
+            userPhone = userPhoneService.addPhone(getCurrentUserJid(), userPhoneCreateData.phone, getCurrentUserJid());
+        }
+
+        return okJson();
+    }
+
+    @Transactional
+    public Result makePhonePrimary(String phoneJid) {
+        User user = userService.findUserByJid(getCurrentUserJid());
+        UserPhone userPhone = userPhoneService.findPhoneByJid(phoneJid);
+        if (userPhone == null) {
+            return notFoundAsJson(ApiErrorCodeV1.PHONE_NOT_FOUND);
+        }
+
+        if (!user.getJid().equals(userPhone.getUserJid())) {
+            return unauthorizeddAsJson(ApiErrorCodeV1.PHONE_NOT_OWNED);
+        }
+
+        if (!userPhone.isPhoneVerified()) {
+            return badRequestAsJson(ApiErrorCodeV1.PHONE_NOT_VERIFIED);
+        }
+
+        userPhoneService.makePhonePrimary(user.getJid(), userPhone.getJid(), getCurrentUserJid());
+
+        return okJson();
+    }
+
+    @Transactional
+    public Result deletePhone(String phoneJid) {
+        User user = userService.findUserByJid(getCurrentUserJid());
+        UserPhone userPhone = userPhoneService.findPhoneByJid(phoneJid);
+        if (userPhone == null) {
+            return notFoundAsJson(ApiErrorCodeV1.PHONE_NOT_FOUND);
+        }
+
+        if (!user.getJid().equals(userPhone.getUserJid())) {
+            return unauthorizeddAsJson(ApiErrorCodeV1.PHONE_NOT_OWNED);
+        }
+
+        if (user.getEmailJid().equals(userPhone.getJid())) {
+            return badRequestAsJson(ApiErrorCodeV1.PHONE_IS_PRIMARY);
+        }
+
+        userPhoneService.removePhone(userPhone.getJid());
+
+        return okJson();
     }
 
     private UserPhoneV1 createUserPhoneV1(UserPhone userPhone, String primaryPhone) {
