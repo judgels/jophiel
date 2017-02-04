@@ -48,7 +48,6 @@ public final class UserEmailController extends AbstractUserProfileController {
 
         if (userEmailService.isEmailOwned(userEmail.getEmail())) {
             flashError(Messages.get("email.verify.error.emailOwned"));
-            userEmailService.removeEmail(userEmail.getJid());
 
             return redirect(org.iatoki.judgels.jophiel.user.profile.routes.UserProfileController.index());
         }
