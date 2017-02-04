@@ -46,6 +46,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Authenticated(value = {LoggedIn.class, HasRole.class})
@@ -102,16 +103,10 @@ public final class UserController extends AbstractJophielController {
     public Result viewUser(long userId) throws UserNotFoundException {
         User user = userService.findUserById(userId);
 
-        UserEmail userPrimaryEmail = null;
-        if (user.getEmailJid() != null) {
-            userPrimaryEmail = userEmailService.findEmailByJid(user.getEmailJid()).orElse(null);
-        }
+        UserEmail userPrimaryEmail = userEmailService.findEmailByJid(user.getEmailJid()).orElse(null);;
         List<UserEmail> userEmails = userEmailService.getEmailsByUserJid(user.getJid());
 
-        UserPhone userPrimaryPhone = null;
-        if (user.getPhoneJid() != null) {
-            userPrimaryPhone = userPhoneService.findPhoneByJid(user.getPhoneJid()).orElse(null);
-        }
+        Optional<UserPhone> userPrimaryPhone = user.getPhoneJid().flatMap(userPhoneService::findPhoneByJid);
         List<UserPhone> userPhones = userPhoneService.getPhonesByUserJid(user.getJid());
 
         UserInfo userInfo = null;
@@ -119,7 +114,7 @@ public final class UserController extends AbstractJophielController {
             userInfo = userProfileService.findInfo(user.getJid());
         }
 
-        return showViewUser(user, userPrimaryEmail, userEmails, userPrimaryPhone, userPhones, userInfo);
+        return showViewUser(user, userPrimaryEmail, userEmails, userPrimaryPhone.orElse(null), userPhones, userInfo);
     }
 
     @Transactional

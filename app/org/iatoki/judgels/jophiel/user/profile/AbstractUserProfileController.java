@@ -21,6 +21,7 @@ import play.i18n.Messages;
 import play.mvc.Result;
 
 import java.util.List;
+import java.util.Optional;
 
 public abstract class AbstractUserProfileController extends AbstractJophielController {
 
@@ -135,18 +136,13 @@ public abstract class AbstractUserProfileController extends AbstractJophielContr
 
     protected Result showEditProfile(User user, Form<UserProfileEditForm> profileEditForm, Form<UserAvatarForm> avatarForm, Form<UserEmailCreateForm> emailCreateForm, Form<UserPhoneCreateForm> phoneCreateForm, Form<UserInfoEditForm> infoEditForm) {
         UserEmail userPrimaryEmail = null;
-        if (user.getEmailJid() != null) {
-            userPrimaryEmail = userEmailService.findEmailByJid(user.getEmailJid());
-        }
+        userPrimaryEmail = userEmailService.findEmailByJid(user.getEmailJid()).get();
         List<UserEmail> userEmails = userEmailService.getEmailsByUserJid(user.getJid());
 
-        UserPhone userPrimaryPhone = null;
-        if (user.getPhoneJid() != null) {
-            userPrimaryPhone = userPhoneService.findPhoneByJid(user.getPhoneJid());
-        }
+        Optional<UserPhone> userPrimaryPhone = user.getPhoneJid().flatMap(userPhoneService::findPhoneByJid);
         List<UserPhone> userPhones = userPhoneService.getPhonesByUserJid(user.getJid());
 
-        return showEditProfile(user, profileEditForm, avatarForm, emailCreateForm, userPrimaryEmail, userEmails, phoneCreateForm, userPrimaryPhone, userPhones, infoEditForm);
+        return showEditProfile(user, profileEditForm, avatarForm, emailCreateForm, userPrimaryEmail, userEmails, phoneCreateForm, userPrimaryPhone.orElse(null), userPhones, infoEditForm);
     }
 
     private Result showEditProfile(User user, Form<UserProfileEditForm> profileEditForm, Form<UserAvatarForm> avatarForm, Form<UserEmailCreateForm> emailCreateForm, UserEmail primaryEmail, List<UserEmail> userEmails, Form<UserPhoneCreateForm> phoneCreateForm, UserPhone primaryPhone, List<UserPhone> userPhones, Form<UserInfoEditForm> infoEditForm) {

@@ -116,7 +116,7 @@ public final class UserAccountServiceImpl implements UserAccountService {
                 userModel = userDao.findByUsername(usernameOrEmail);
                 emailModel = userEmailDao.findByJid(userModel.emailJid);
             } else if (userEmailDao.existsByEmail(usernameOrEmail)) {
-                emailModel = userEmailDao.findByEmail(usernameOrEmail);
+                emailModel = userEmailDao.findByEmail(usernameOrEmail).get();
                 userModel = userDao.findByJid(emailModel.userJid);
             } else {
                 throw new UserNotFoundException();

@@ -42,7 +42,7 @@ public class ClientUserEmailAPIControllerV1 extends AbstractJophielAPIController
     @Transactional
     public Result getPrimaryEmail() {
         User user = userService.findUserByJid(getCurrentUserJid());
-        UserEmail primaryEmail = userEmailService.findEmailByJid(user.getPhoneJid()).get();
+        UserEmail primaryEmail = userEmailService.findEmailByJid(user.getEmailJid()).get();
         return okAsJson(createUserEmailV1(primaryEmail, primaryEmail.getEmail()));
     }
 

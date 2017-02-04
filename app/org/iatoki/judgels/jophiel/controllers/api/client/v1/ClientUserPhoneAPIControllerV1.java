@@ -31,7 +31,7 @@ public class ClientUserPhoneAPIControllerV1 extends AbstractJophielAPIController
     @Transactional
     public Result getAllUserPhone() {
         User user = userService.findUserByJid(getCurrentUserJid());
-        Optional<UserPhone> primaryPhone = userPhoneService.findPhoneByJid(user.getPhoneJid());
+        Optional<UserPhone> primaryPhone = user.getPhoneJid().flatMap(userPhoneService::findPhoneByJid);
         List<UserPhone> userPhones = userPhoneService.getPhonesByUserJid(getCurrentUserJid());
 
         List<UserPhoneV1> userPhonesV1 = userPhones.stream()
@@ -44,7 +44,7 @@ public class ClientUserPhoneAPIControllerV1 extends AbstractJophielAPIController
     @Transactional
     public Result getPrimaryPhone() {
         User user = userService.findUserByJid(getCurrentUserJid());
-        Optional<UserPhone> primaryPhone = userPhoneService.findPhoneByJid(user.getPhoneJid());
+        Optional<UserPhone> primaryPhone = user.getPhoneJid().flatMap(userPhoneService::findPhoneByJid);
 
         if (primaryPhone.isPresent()) {
             return okAsJson(primaryPhone);

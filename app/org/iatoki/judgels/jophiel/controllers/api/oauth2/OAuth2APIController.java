@@ -30,6 +30,7 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -87,14 +88,8 @@ public final class OAuth2APIController extends AbstractJophielAPIController {
 
         AccessToken accessToken = clientService.getAccessTokenByAccessTokenString(token);
         User user = userService.findUserByJid(accessToken.getUserJid());
-        UserEmail userEmail = null;
-        if (user.getEmailJid() != null) {
-            userEmail = userEmailService.findEmailByJid(user.getEmailJid());
-        }
-        UserPhone userPhone = null;
-        if (user.getPhoneJid() != null) {
-            userPhone = userPhoneService.findPhoneByJid(user.getPhoneJid());
-        }
+        UserEmail userEmail = userEmailService.findEmailByJid(user.getEmailJid()).get();
+        Optional<UserPhone> userPhone = user.getPhoneJid().flatMap(userPhoneService::findPhoneByJid);
         UserInfo userInfo = null;
         if (userProfileService.infoExists(user.getJid())) {
             userInfo = userProfileService.findInfo(user.getJid());
@@ -111,10 +106,10 @@ public final class OAuth2APIController extends AbstractJophielAPIController {
             jsonResponse.put("email", userEmail.getEmail());
             jsonResponse.put("email_verified", userEmail.isEmailVerified());
         }
-        if (userPhone != null) {
-            jsonResponse.put("phone_number", userPhone.getPhone());
-            jsonResponse.put("phone_number_verified", userPhone.isPhoneVerified());
-        }
+        userPhone.ifPresent(p -> {
+            jsonResponse.put("phone_number", p.getPhone());
+            jsonResponse.put("phone_number_verified", p.isPhoneVerified());
+        });
         if (userInfo != null) {
             jsonResponse.put("gender", userInfo.getGender());
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");

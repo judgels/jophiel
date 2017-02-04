@@ -2,6 +2,7 @@ package org.iatoki.judgels.jophiel.user;
 
 import java.net.URL;
 import java.util.List;
+import java.util.Optional;
 
 public final class User {
 
@@ -10,7 +11,7 @@ public final class User {
     private String username;
     private String name;
     private String emailJid;
-    private String phoneJid;
+    private Optional<String> phoneJid;
     private boolean showName;
     private URL profilePictureUrl;
     private List<String> roles;
@@ -21,7 +22,7 @@ public final class User {
         this.username = username;
         this.name = name;
         this.emailJid = emailJid;
-        this.phoneJid = phoneJid;
+        this.phoneJid = Optional.ofNullable(phoneJid);
         this.showName = showName;
         this.profilePictureUrl = profilePictureUrl;
         this.roles = roles;
@@ -47,7 +48,7 @@ public final class User {
         return emailJid;
     }
 
-    public String getPhoneJid() {
+    public Optional<String> getPhoneJid() {
         return phoneJid;
     }
 
