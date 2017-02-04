@@ -107,7 +107,7 @@ GET            /api/v1/clients/linked                                       org.
 
 POST           /api/v1/activities                                           org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientActivityAPIControllerV1.createActivity()
 
-POST           /api/v1/users/changePass                                     org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientUserAccountApiControllerV1.changePassword(code ?= null)
+POST           /api/v1/users/changePass/:code                               org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientUserAccountApiControllerV1.changePassword(code: String)
 POST           /api/v1/users/forgotPass                                     org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientUserAccountApiControllerV1.forgotPassword()
 
 GET            /api/v1/users/info                                           org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientUserEmailAPIControllerV1.getUserInfo()
