@@ -17,6 +17,7 @@ import play.mvc.Result;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.Optional;
 
 @Singleton
 public final class UserPhoneController extends AbstractUserProfileController {
@@ -62,7 +63,11 @@ public final class UserPhoneController extends AbstractUserProfileController {
     @Transactional
     public Result makePhonePrimary(long phoneId) throws UserPhoneNotFoundException {
         User user = userService.findUserByJid(getCurrentUserJid());
-        UserPhone userPhone = userPhoneService.findPhoneById(phoneId);
+        Optional<UserPhone> userPhoneOpt = userPhoneService.findPhoneById(phoneId);
+        if (!userPhoneOpt.isPresent()) {
+            throw new UserPhoneNotFoundException("User phone not found.");
+        }
+        UserPhone userPhone = userPhoneOpt.get();
 
         if (!user.getJid().equals(userPhone.getUserJid())) {
             flashError(Messages.get("phone.makePrimary.error.notOwned"));
@@ -88,7 +93,11 @@ public final class UserPhoneController extends AbstractUserProfileController {
     @Transactional
     public Result deletePhone(long phoneId) throws UserPhoneNotFoundException {
         User user = userService.findUserByJid(getCurrentUserJid());
-        UserPhone userPhone = userPhoneService.findPhoneById(phoneId);
+        Optional<UserPhone> userPhoneOpt = userPhoneService.findPhoneById(phoneId);
+        if (!userPhoneOpt.isPresent()) {
+            throw new UserPhoneNotFoundException("User phone not found.");
+        }
+        UserPhone userPhone = userPhoneOpt.get();
 
         if (!user.getJid().equals(userPhone.getUserJid())) {
             flashError(Messages.get("phone.remove.error.notOwned"));

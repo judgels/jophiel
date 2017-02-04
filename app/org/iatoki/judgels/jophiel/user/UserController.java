@@ -104,13 +104,13 @@ public final class UserController extends AbstractJophielController {
 
         UserEmail userPrimaryEmail = null;
         if (user.getEmailJid() != null) {
-            userPrimaryEmail = userEmailService.findEmailByJid(user.getEmailJid());
+            userPrimaryEmail = userEmailService.findEmailByJid(user.getEmailJid()).orElse(null);
         }
         List<UserEmail> userEmails = userEmailService.getEmailsByUserJid(user.getJid());
 
         UserPhone userPrimaryPhone = null;
         if (user.getPhoneJid() != null) {
-            userPrimaryPhone = userPhoneService.findPhoneByJid(user.getPhoneJid());
+            userPrimaryPhone = userPhoneService.findPhoneByJid(user.getPhoneJid()).orElse(null);
         }
         List<UserPhone> userPhones = userPhoneService.getPhonesByUserJid(user.getJid());
 

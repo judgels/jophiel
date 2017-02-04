@@ -3,6 +3,7 @@ package org.iatoki.judgels.jophiel.user.profile.email;
 import com.google.inject.ImplementedBy;
 
 import java.util.List;
+import java.util.Optional;
 
 @ImplementedBy(UserEmailServiceImpl.class)
 public interface UserEmailService {
@@ -17,17 +18,17 @@ public interface UserEmailService {
 
     boolean isEmailNotVerified(String emailJid);
 
-    String getEmailCodeOfUnverifiedEmail(String emailJid);
+    Optional<String> getEmailCodeOfUnverifiedEmail(String emailJid);
 
     UserEmail addFirstEmail(String userJid, String email, String userIpAddress);
 
     UserEmail addEmail(String userJid, String email, String userIpAddress);
 
-    UserEmail findEmailById(long emailId) throws UserEmailNotFoundException;
+    Optional<UserEmail> findEmailById(long emailId);
 
-    UserEmail findEmailByJid(String emailJid);
+    Optional<UserEmail> findEmailByJid(String emailJid);
 
-    UserEmail findEmailByCode(String emailCode);
+    Optional<UserEmail> findEmailByCode(String emailCode);
 
     List<UserEmail> getEmailsByUserJid(String userJid);
 

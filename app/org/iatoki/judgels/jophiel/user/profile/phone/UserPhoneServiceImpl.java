@@ -6,6 +6,7 @@ import org.iatoki.judgels.jophiel.user.UserModel;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Singleton
@@ -21,19 +22,19 @@ public final class UserPhoneServiceImpl implements UserPhoneService {
     }
 
     @Override
-    public UserPhone findPhoneById(long phoneId) throws UserPhoneNotFoundException {
+    public Optional<UserPhone> findPhoneById(long phoneId) {
         UserPhoneModel userPhoneModel = userPhoneDao.findById(phoneId);
-
         if (userPhoneModel == null) {
-            throw new UserPhoneNotFoundException("User Phone Not Found.");
+            return Optional.empty();
         }
 
-        return UserPhoneServiceUtils.createUserPhoneFromModel(userPhoneModel);
+        return Optional.of(UserPhoneServiceUtils.createUserPhoneFromModel(userPhoneModel));
     }
 
     @Override
-    public UserPhone findPhoneByJid(String phoneJid) {
-        return UserPhoneServiceUtils.createUserPhoneFromModel(userPhoneDao.findByJid(phoneJid));
+    public Optional<UserPhone> findPhoneByJid(String phoneJid) {
+        Optional<UserPhoneModel> userPhoneModel = Optional.ofNullable(userPhoneDao.findByJid(phoneJid));
+        return userPhoneModel.map(UserPhoneServiceUtils::createUserPhoneFromModel);
     }
 
     @Override

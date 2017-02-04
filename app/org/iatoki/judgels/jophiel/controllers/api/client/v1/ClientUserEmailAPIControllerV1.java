@@ -12,6 +12,7 @@ import play.db.jpa.Transactional;
 import play.mvc.Result;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ClientUserEmailAPIControllerV1 extends AbstractJophielAPIController {
@@ -28,11 +29,11 @@ public class ClientUserEmailAPIControllerV1 extends AbstractJophielAPIController
     @Transactional
     public Result getAllUserEmail() {
         User user = userService.findUserByJid(getCurrentUserJid());
-        UserEmail primaryEmail = userEmailService.findEmailByJid(user.getEmailJid());
+        Optional<UserEmail> primaryEmail = userEmailService.findEmailByJid(user.getEmailJid());
         List<UserEmail> userEmails = userEmailService.getEmailsByUserJid(user.getEmailJid());
 
         List<UserEmailV1> userEmailV1 = userEmails.stream()
-                .map(x -> createUserEmailV1(x, primaryEmail.getEmail()))
+                .map(x -> createUserEmailV1(x, primaryEmail.map(UserEmail::getEmail).orElse(null)))
                 .collect(Collectors.toList());
 
         return okAsJson(userEmailV1);
@@ -41,7 +42,7 @@ public class ClientUserEmailAPIControllerV1 extends AbstractJophielAPIController
     @Transactional
     public Result getPrimaryEmail() {
         User user = userService.findUserByJid(getCurrentUserJid());
-        UserEmail primaryEmail = userEmailService.findEmailByJid(user.getPhoneJid());
+        UserEmail primaryEmail = userEmailService.findEmailByJid(user.getPhoneJid()).get();
         return okAsJson(createUserEmailV1(primaryEmail, primaryEmail.getEmail()));
     }
 
@@ -51,7 +52,7 @@ public class ClientUserEmailAPIControllerV1 extends AbstractJophielAPIController
             return notFoundAsJson(ApiErrorCodeV1.EMAIL_INVALID_CODE);
         }
 
-        UserEmail userEmail = userEmailService.findEmailByCode(emailCode);
+        UserEmail userEmail = userEmailService.findEmailByCode(emailCode).get();
 
         if (!userEmailService.isEmailNotVerified(userEmail.getEmail())) {
             return badRequestAsJson(ApiErrorCodeV1.EMAIL_ALREADY_VERIFIED);
@@ -83,7 +84,7 @@ public class ClientUserEmailAPIControllerV1 extends AbstractJophielAPIController
         } else {
             userEmail = userEmailService.addEmail(getCurrentUserJid(), userEmailCreateData.email, getCurrentUserIpAddress());
         }
-        userEmailService.sendEmailVerification(user.getName(), userEmailCreateData.email, getAbsoluteUrl(org.iatoki.judgels.jophiel.user.profile.email.routes.UserEmailController.verifyEmail(userEmailService.getEmailCodeOfUnverifiedEmail(userEmail.getJid()))));
+        userEmailService.sendEmailVerification(user.getName(), userEmailCreateData.email, getAbsoluteUrl(org.iatoki.judgels.jophiel.user.profile.email.routes.UserEmailController.verifyEmail(userEmailService.getEmailCodeOfUnverifiedEmail(userEmail.getJid()).get())));
 
         return okJson();
     }
@@ -91,10 +92,11 @@ public class ClientUserEmailAPIControllerV1 extends AbstractJophielAPIController
     @Transactional
     public Result makeEmailPrimary(String emailJid) {
         User user = userService.findUserByJid(getCurrentUserJid());
-        UserEmail userEmail = userEmailService.findEmailByJid(emailJid);
-        if (userEmail == null) {
+        Optional<UserEmail> userEmailOpt = userEmailService.findEmailByJid(emailJid);
+        if (!userEmailOpt.isPresent()) {
             return notFoundAsJson(ApiErrorCodeV1.EMAIL_NOT_FOUND);
         }
+        UserEmail userEmail = userEmailOpt.get();
 
         if (!user.getJid().equals(userEmail.getUserJid())) {
             return unauthorizeddAsJson(ApiErrorCodeV1.EMAIL_NOT_OWNED);
@@ -112,10 +114,11 @@ public class ClientUserEmailAPIControllerV1 extends AbstractJophielAPIController
     @Transactional
     public Result deleteEmail(String emailJid) {
         User user = userService.findUserByJid(getCurrentUserJid());
-        UserEmail userEmail = userEmailService.findEmailByJid(emailJid);
-        if (userEmail == null) {
+        Optional<UserEmail> userEmailOpt = userEmailService.findEmailByJid(emailJid);
+        if (!userEmailOpt.isPresent()) {
             return notFoundAsJson(ApiErrorCodeV1.EMAIL_NOT_FOUND);
         }
+        UserEmail userEmail = userEmailOpt.get();
 
         if (!user.getJid().equals(userEmail.getUserJid())) {
             return unauthorizeddAsJson(ApiErrorCodeV1.EMAIL_NOT_OWNED);
@@ -132,17 +135,18 @@ public class ClientUserEmailAPIControllerV1 extends AbstractJophielAPIController
 
     @Transactional
     public Result resendEmailVerification(String emailJid) {
-        UserEmail userEmail = userEmailService.findEmailByJid(emailJid);
-        User user = userService.findUserByJid(userEmail.getUserJid());
-        if (userEmail == null) {
+        Optional<UserEmail> userEmailOpt = userEmailService.findEmailByJid(emailJid);
+        if (!userEmailOpt.isPresent()) {
             return notFoundAsJson(ApiErrorCodeV1.EMAIL_NOT_FOUND);
         }
+        UserEmail userEmail = userEmailOpt.get();
+        User user = userService.findUserByJid(userEmail.getUserJid());
 
         if (!userEmailService.isEmailNotVerified(userEmail.getJid())) {
             return badRequestAsJson(ApiErrorCodeV1.EMAIL_ALREADY_VERIFIED);
         }
 
-        String emailCode = userEmailService.getEmailCodeOfUnverifiedEmail(userEmail.getJid());
+        String emailCode = userEmailService.getEmailCodeOfUnverifiedEmail(userEmail.getJid()).get();
         userEmailService.sendEmailVerification(user.getName(), userEmail.getEmail(), getAbsoluteUrl(org.iatoki.judgels.jophiel.user.profile.email.routes.UserEmailController.verifyEmail(emailCode)));
 
         return okJson();
@@ -150,16 +154,17 @@ public class ClientUserEmailAPIControllerV1 extends AbstractJophielAPIController
 
     @Transactional
     public Result activateEmail(String emailJid) {
-        UserEmail userEmail = userEmailService.findEmailByJid(emailJid);
-        if (userEmail == null) {
+        Optional<UserEmail> userEmailOpt = userEmailService.findEmailByJid(emailJid);
+        if (!userEmailOpt.isPresent()) {
             return notFoundAsJson(ApiErrorCodeV1.EMAIL_NOT_FOUND);
         }
+        UserEmail userEmail = userEmailOpt.get();
 
         if (userEmailService.isEmailOwned(userEmail.getEmail())) {
             return badRequestAsJson(ApiErrorCodeV1.EMAIL_ALREADY_OWNED);
         }
 
-        String code = userEmailService.getEmailCodeOfUnverifiedEmail(userEmail.getJid());
+        String code = userEmailService.getEmailCodeOfUnverifiedEmail(userEmail.getJid()).get();
         userEmailService.activateEmail(code, getCurrentUserIpAddress());
 
         return okJson();

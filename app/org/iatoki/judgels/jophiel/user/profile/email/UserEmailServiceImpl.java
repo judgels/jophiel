@@ -11,6 +11,7 @@ import play.libs.mailer.MailerClient;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Singleton
@@ -35,9 +36,10 @@ public final class UserEmailServiceImpl implements UserEmailService {
     @Override
     public boolean isEmailOwnedByUser(String email, String username) {
         UserModel userModel = userDao.findByUsername(username);
-        UserEmailModel emailModel = userEmailDao.findByEmail(email);
+        Optional<UserEmailModel> emailModel = userEmailDao.findByEmail(email);
 
-        return emailModel.userJid.equals(userModel.jid) && emailModel.emailVerified;
+        return emailModel.filter(e -> (e.userJid.equals(userModel.emailJid)) && e.emailVerified)
+                .isPresent();
     }
 
     @Override
@@ -51,8 +53,8 @@ public final class UserEmailServiceImpl implements UserEmailService {
             return false;
         }
 
-        UserEmailModel emailModel = userEmailDao.findByEmailCode(emailCode);
-        return !emailModel.emailVerified;
+        Optional<UserEmailModel> emailModel = userEmailDao.findByEmailCode(emailCode);
+        return emailModel.filter(e -> !e.emailVerified).isPresent();
     }
 
     @Override
@@ -61,9 +63,9 @@ public final class UserEmailServiceImpl implements UserEmailService {
     }
 
     @Override
-    public String getEmailCodeOfUnverifiedEmail(String emailJid) {
-        UserEmailModel userEmailModel = userEmailDao.findByJid(emailJid);
-        return userEmailModel.emailCode;
+    public Optional<String> getEmailCodeOfUnverifiedEmail(String emailJid) {
+        Optional<UserEmailModel> userEmailModel = Optional.ofNullable(userEmailDao.findByJid(emailJid));
+        return userEmailModel.map(e -> e.emailCode);
     }
 
     @Override
@@ -83,26 +85,24 @@ public final class UserEmailServiceImpl implements UserEmailService {
     }
 
     @Override
-    public UserEmail findEmailById(long emailId) throws UserEmailNotFoundException {
-        UserEmailModel userEmailModel = userEmailDao.findById(emailId);
+    public Optional<UserEmail> findEmailById(long emailId) {
+        Optional<UserEmailModel> userEmailModel = Optional.ofNullable(userEmailDao.findById(emailId));
 
-        if (userEmailModel == null) {
-            throw new UserEmailNotFoundException("User Email Not Found.");
-        }
-
-        return UserEmailServiceUtils.createUserEmailFromModel(userEmailModel);
+        return userEmailModel.map(UserEmailServiceUtils::createUserEmailFromModel);
     }
 
     @Override
-    public UserEmail findEmailByJid(String emailJid) {
-        return UserEmailServiceUtils.createUserEmailFromModel(userEmailDao.findByJid(emailJid));
+    public Optional<UserEmail> findEmailByJid(String emailJid) {
+        Optional<UserEmailModel> userEmailModel = Optional.ofNullable(userEmailDao.findByJid(emailJid));
+
+        return userEmailModel.map(UserEmailServiceUtils::createUserEmailFromModel);
     }
 
     @Override
-    public UserEmail findEmailByCode(String emailCode) {
-        UserEmailModel emailModel = userEmailDao.findByEmailCode(emailCode);
+    public Optional<UserEmail> findEmailByCode(String emailCode) {
+        Optional<UserEmailModel> userEmailModel = userEmailDao.findByEmailCode(emailCode);
 
-        return UserEmailServiceUtils.createUserEmailFromModel(emailModel);
+        return userEmailModel.map(UserEmailServiceUtils::createUserEmailFromModel);
     }
 
     @Override
@@ -122,10 +122,12 @@ public final class UserEmailServiceImpl implements UserEmailService {
 
     @Override
     public void activateEmail(String emailCode, String userIpAddress) {
-        UserEmailModel emailModel = userEmailDao.findByEmailCode(emailCode);
-        emailModel.emailVerified = true;
+        Optional<UserEmailModel> emailModel = userEmailDao.findByEmailCode(emailCode);
 
-        userEmailDao.edit(emailModel, emailModel.userJid, userIpAddress);
+        emailModel.ifPresent(e -> {
+            e.emailVerified = true;
+            userEmailDao.edit(e, e.userJid, userIpAddress);
+        });
     }
 
     @Override

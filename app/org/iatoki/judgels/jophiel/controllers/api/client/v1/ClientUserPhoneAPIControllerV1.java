@@ -14,6 +14,7 @@ import play.db.jpa.Transactional;
 import play.mvc.Result;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -30,11 +31,11 @@ public class ClientUserPhoneAPIControllerV1 extends AbstractJophielAPIController
     @Transactional
     public Result getAllUserPhone() {
         User user = userService.findUserByJid(getCurrentUserJid());
-        UserPhone primaryPhone = userPhoneService.findPhoneByJid(user.getPhoneJid());
+        Optional<UserPhone> primaryPhone = userPhoneService.findPhoneByJid(user.getPhoneJid());
         List<UserPhone> userPhones = userPhoneService.getPhonesByUserJid(getCurrentUserJid());
 
         List<UserPhoneV1> userPhonesV1 = userPhones.stream()
-                .map(x -> createUserPhoneV1(x, primaryPhone.getPhone()))
+                .map(x -> createUserPhoneV1(x, primaryPhone.map(UserPhone::getPhone).orElse(null)))
                 .collect(Collectors.toList());
 
         return okAsJson(userPhonesV1);
@@ -43,9 +44,13 @@ public class ClientUserPhoneAPIControllerV1 extends AbstractJophielAPIController
     @Transactional
     public Result getPrimaryPhone() {
         User user = userService.findUserByJid(getCurrentUserJid());
-        UserPhone primaryPhone = userPhoneService.findPhoneByJid(user.getPhoneJid());
+        Optional<UserPhone> primaryPhone = userPhoneService.findPhoneByJid(user.getPhoneJid());
 
-        return okAsJson(primaryPhone);
+        if (primaryPhone.isPresent()) {
+            return okAsJson(primaryPhone);
+        } else {
+            return notFoundAsJson(ApiErrorCodeV1.PHONE_NOT_FOUND);
+        }
     }
 
     @Authenticated
@@ -59,11 +64,10 @@ public class ClientUserPhoneAPIControllerV1 extends AbstractJophielAPIController
         }
 
         UserPhoneCreateForm userPhoneCreateData = userPhoneCreateForm.get();
-        UserPhone userPhone;
         if (user.getPhoneJid() == null) {
-            userPhone = userPhoneService.addFirstPhone(getCurrentUserJid(), userPhoneCreateData.phone, getCurrentUserJid());
+            userPhoneService.addFirstPhone(getCurrentUserJid(), userPhoneCreateData.phone, getCurrentUserJid());
         } else {
-            userPhone = userPhoneService.addPhone(getCurrentUserJid(), userPhoneCreateData.phone, getCurrentUserJid());
+            userPhoneService.addPhone(getCurrentUserJid(), userPhoneCreateData.phone, getCurrentUserJid());
         }
 
         return okJson();
@@ -72,10 +76,11 @@ public class ClientUserPhoneAPIControllerV1 extends AbstractJophielAPIController
     @Transactional
     public Result makePhonePrimary(String phoneJid) {
         User user = userService.findUserByJid(getCurrentUserJid());
-        UserPhone userPhone = userPhoneService.findPhoneByJid(phoneJid);
-        if (userPhone == null) {
+        Optional<UserPhone> userPhoneOpt = userPhoneService.findPhoneByJid(phoneJid);
+        if (!userPhoneOpt.isPresent()) {
             return notFoundAsJson(ApiErrorCodeV1.PHONE_NOT_FOUND);
         }
+        UserPhone userPhone = userPhoneOpt.get();
 
         if (!user.getJid().equals(userPhone.getUserJid())) {
             return unauthorizeddAsJson(ApiErrorCodeV1.PHONE_NOT_OWNED);
@@ -93,10 +98,11 @@ public class ClientUserPhoneAPIControllerV1 extends AbstractJophielAPIController
     @Transactional
     public Result deletePhone(String phoneJid) {
         User user = userService.findUserByJid(getCurrentUserJid());
-        UserPhone userPhone = userPhoneService.findPhoneByJid(phoneJid);
-        if (userPhone == null) {
+        Optional<UserPhone> userPhoneOpt = userPhoneService.findPhoneByJid(phoneJid);
+        if (!userPhoneOpt.isPresent()) {
             return notFoundAsJson(ApiErrorCodeV1.PHONE_NOT_FOUND);
         }
+        UserPhone userPhone = userPhoneOpt.get();
 
         if (!user.getJid().equals(userPhone.getUserJid())) {
             return unauthorizeddAsJson(ApiErrorCodeV1.PHONE_NOT_OWNED);
