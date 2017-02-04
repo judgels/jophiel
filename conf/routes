@@ -97,9 +97,6 @@ GET            /api/institutions/autocomplete                               org.
 
 GET            /api/provinces/autocomplete                                  org.iatoki.judgels.jophiel.controllers.api.internal.InternalProvinceAPIController.autocompleteProvince(term ?= null)
 
-POST           /api/users/changePass                                        org.iatoki.judgels.jophiel.controllers.api.internal.InternalUserAccountApiController.changePassword(code ?= null)
-POST           /api/users/forgotPass                                        org.iatoki.judgels.jophiel.controllers.api.internal.InternalUserAccountApiController.forgotPassword()
-
 # Client API
 
 POST           /api/v1/users/usernamePassword                               org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientUserAPIControllerV1.findUserByUsernameAndPassword()
@@ -109,6 +106,15 @@ GET            /api/v1/user/isLoggedIn                                      org.
 GET            /api/v1/clients/linked                                       org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientClientAPIControllerV1.getLinkedClients()
 
 POST           /api/v1/activities                                           org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientActivityAPIControllerV1.createActivity()
+
+POST           /api/v1/users/changePass                                     org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientUserAccountApiControllerV1.changePassword(code ?= null)
+POST           /api/v1/users/forgotPass                                     org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientUserAccountApiControllerV1.forgotPassword()
+
+GET            /api/v1/users/info                                           org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientUserEmailAPIControllerV1.getUserInfo()
+GET            /api/v1/users/email                                          org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientUserEmailAPIControllerV1.getAllUserEmail()
+GET            /api/v1/users/email/primary                                  org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientUserEmailAPIControllerV1.getPrimaryEmail()
+GET            /api/v1/users/phone                                          org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientUserPhoneAPIControllerV1.getAllUserPhone()
+GET            /api/v1/users/phone/primary                                  org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientUserPhoneAPIControllerV1.getPrimaryPhone()
 
 # Public API
 
