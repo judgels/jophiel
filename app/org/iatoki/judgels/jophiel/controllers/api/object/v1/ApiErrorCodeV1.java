@@ -20,4 +20,6 @@ public class ApiErrorCodeV1 {
     public static String PHONE_NOT_FOUND = "PHONE_NOT_FOUND";
     public static String PHONE_IS_PRIMARY = "PHONE_IS_PRIMARY";
     public static String PHONE_NOT_VERIFIED = "PHONE_NOT_VERIFIED";
+
+    public static String USER_NOT_FOUND = "USER_NOT_FOUND";
 }

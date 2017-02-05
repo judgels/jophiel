@@ -113,6 +113,8 @@ POST           /api/v1/users/forgotPass                                     org.
 GET            /api/v1/users/info                                           org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientUserAPIControllerV1.getUserInfo()
 POST           /api/v1/users/info                                           org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientUserAPIControllerV1.editUserInfo()
 POST           /api/v1/users/profile                                        org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientUserAPIControllerV1.editUserProfile()
+POST           /api/v1/users/search                                         org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientUserAPIControllerV1.searchUser()
+POST           /api/v1/users/info/search                                    org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientUserAPIControllerV1.searchUserInfo()
 
 GET            /api/v1/users/email                                          org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientUserEmailAPIControllerV1.getAllUserEmail()
 GET            /api/v1/users/email/primary                                  org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientUserEmailAPIControllerV1.getPrimaryEmail()

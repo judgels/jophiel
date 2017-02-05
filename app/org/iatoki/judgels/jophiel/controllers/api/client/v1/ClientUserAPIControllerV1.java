@@ -3,6 +3,7 @@ package org.iatoki.judgels.jophiel.controllers.api.client.v1;
 import org.iatoki.judgels.jophiel.controllers.api.object.v1.ApiErrorCodeV1;
 import org.iatoki.judgels.jophiel.controllers.api.object.v1.UserInfoV1;
 import org.iatoki.judgels.jophiel.oauth2.AccessToken;
+import org.iatoki.judgels.jophiel.profile.UserProfileSearchForm;
 import org.iatoki.judgels.jophiel.user.User;
 import org.iatoki.judgels.jophiel.controllers.api.AbstractJophielAPIController;
 import org.iatoki.judgels.jophiel.controllers.api.object.v1.UserFindByUsernameAndPasswordRequestV1;
@@ -133,6 +134,39 @@ public final class ClientUserAPIControllerV1 extends AbstractJophielAPIControlle
         }
 
         return okJson();
+    }
+
+    @Transactional
+    public Result searchUser() {
+        Form<UserProfileSearchForm> userProfileSearchForm = Form.form(UserProfileSearchForm.class).bindFromRequest();
+        if (formHasErrors(userProfileSearchForm)) {
+            return badRequestAsJson(ApiErrorCodeV1.INVALID_INPUT_PARAMETER);
+        }
+
+        String username = userProfileSearchForm.get().username;
+        Optional<User> user = userService.findUserByUsername(username);
+        if (!user.isPresent()) {
+            return notFoundAsJson(ApiErrorCodeV1.USER_NOT_FOUND);
+        } else {
+            return okAsJson(createUserV1FromUser(user.get()));
+        }
+    }
+
+    @Transactional
+    public Result searchUserInfo() {
+        Form<UserProfileSearchForm> userProfileSearchForm = Form.form(UserProfileSearchForm.class).bindFromRequest();
+        if (formHasErrors(userProfileSearchForm)) {
+            return badRequestAsJson(ApiErrorCodeV1.INVALID_INPUT_PARAMETER);
+        }
+
+        String username = userProfileSearchForm.get().username;
+        Optional<UserInfo> userInfo = userService.findUserByUsername(username)
+                .flatMap(u -> userProfileService.findInfo(u.getJid()));
+        if (!userInfo.isPresent()) {
+            return notFoundAsJson(ApiErrorCodeV1.USER_NOT_FOUND);
+        } else {
+            return okAsJson(createUserInfoV1(userInfo.get()));
+        }
     }
 
     private UserV1 createUserV1FromUser(User user) {
