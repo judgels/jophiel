@@ -98,11 +98,7 @@ public final class UserEmailController extends AbstractUserProfileController {
     @Transactional
     public Result makeEmailPrimary(long emailId) throws UserEmailNotFoundException {
         User user = userService.findUserByJid(getCurrentUserJid());
-        Optional<UserEmail> userEmailOpt = userEmailService.findEmailById(emailId);
-        if (!userEmailOpt.isPresent()) {
-            throw new UserEmailNotFoundException("User email not found.");
-        }
-        UserEmail userEmail = userEmailOpt.get();
+        UserEmail userEmail = userEmailService.findEmailById(emailId).orElseThrow(() -> new UserEmailNotFoundException("Email not found."));
 
         if (!user.getJid().equals(userEmail.getUserJid())) {
             flashError(Messages.get("email.makePrimary.error.notOwned"));
@@ -128,11 +124,7 @@ public final class UserEmailController extends AbstractUserProfileController {
     @Transactional
     public Result deleteEmail(long emailId) throws UserEmailNotFoundException {
         User user = userService.findUserByJid(getCurrentUserJid());
-        Optional<UserEmail> userEmailOpt = userEmailService.findEmailById(emailId);
-        if (!userEmailOpt.isPresent()) {
-            throw new UserEmailNotFoundException("User email not found.");
-        }
-        UserEmail userEmail = userEmailOpt.get();
+        UserEmail userEmail = userEmailService.findEmailById(emailId).orElseThrow(() -> new UserEmailNotFoundException("Email not found."));
 
         if (!user.getJid().equals(userEmail.getUserJid())) {
             flashError(Messages.get("email.remove.error.notOwned"));
@@ -155,11 +147,7 @@ public final class UserEmailController extends AbstractUserProfileController {
     @Authorized(value = "admin")
     @Transactional(readOnly = true)
     public Result resendEmailVerification(long emailId) throws UserEmailNotFoundException {
-        Optional<UserEmail> userEmailOpt = userEmailService.findEmailById(emailId);
-        if (!userEmailOpt.isPresent()) {
-            throw new UserEmailNotFoundException("User email not found.");
-        }
-        UserEmail userEmail = userEmailOpt.get();
+        UserEmail userEmail = userEmailService.findEmailById(emailId).orElseThrow(() -> new UserEmailNotFoundException("Email not found."));
         User user = userService.findUserByJid(userEmail.getUserJid());
 
         if (userEmailService.isEmailOwned(userEmail.getEmail())) {
@@ -186,11 +174,7 @@ public final class UserEmailController extends AbstractUserProfileController {
     @Authorized(value = "admin")
     @Transactional
     public Result activateEmail(long emailId) throws UserEmailNotFoundException {
-        Optional<UserEmail> userEmailOpt = userEmailService.findEmailById(emailId);
-        if (!userEmailOpt.isPresent()) {
-            throw new UserEmailNotFoundException("User email not found.");
-        }
-        UserEmail userEmail = userEmailOpt.get();
+        UserEmail userEmail = userEmailService.findEmailById(emailId).orElseThrow(() -> new UserEmailNotFoundException("Email not found."));
 
         if (userEmailService.isEmailOwned(userEmail.getEmail())) {
             flashError(Messages.get("email.activate.error.emailOwned"));

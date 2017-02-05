@@ -63,11 +63,7 @@ public final class UserPhoneController extends AbstractUserProfileController {
     @Transactional
     public Result makePhonePrimary(long phoneId) throws UserPhoneNotFoundException {
         User user = userService.findUserByJid(getCurrentUserJid());
-        Optional<UserPhone> userPhoneOpt = userPhoneService.findPhoneById(phoneId);
-        if (!userPhoneOpt.isPresent()) {
-            throw new UserPhoneNotFoundException("User phone not found.");
-        }
-        UserPhone userPhone = userPhoneOpt.get();
+        UserPhone userPhone = userPhoneService.findPhoneById(phoneId).orElseThrow(() -> new UserPhoneNotFoundException("Phone not found."));
 
         if (!user.getJid().equals(userPhone.getUserJid())) {
             flashError(Messages.get("phone.makePrimary.error.notOwned"));
@@ -93,11 +89,7 @@ public final class UserPhoneController extends AbstractUserProfileController {
     @Transactional
     public Result deletePhone(long phoneId) throws UserPhoneNotFoundException {
         User user = userService.findUserByJid(getCurrentUserJid());
-        Optional<UserPhone> userPhoneOpt = userPhoneService.findPhoneById(phoneId);
-        if (!userPhoneOpt.isPresent()) {
-            throw new UserPhoneNotFoundException("User phone not found.");
-        }
-        UserPhone userPhone = userPhoneOpt.get();
+        UserPhone userPhone = userPhoneService.findPhoneById(phoneId).orElseThrow(() -> new UserPhoneNotFoundException("Phone not found."));
 
         if (!user.getJid().equals(userPhone.getUserJid())) {
             flashError(Messages.get("phone.remove.error.notOwned"));
