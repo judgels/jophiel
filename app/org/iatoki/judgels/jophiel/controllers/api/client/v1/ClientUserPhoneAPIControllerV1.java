@@ -32,7 +32,7 @@ public class ClientUserPhoneAPIControllerV1 extends AbstractJophielAPIController
 
     @Transactional
     public Result getAllUserPhone() {
-        User user = userService.findUserByJid(getCurrentUserJid());
+        User user = userService.findUserByJid(getCurrentUserJid()).get();
         Optional<UserPhone> primaryPhone = user.getPhoneJid().flatMap(userPhoneService::findPhoneByJid);
         List<UserPhone> userPhones = userPhoneService.getPhonesByUserJid(getCurrentUserJid());
 
@@ -45,7 +45,7 @@ public class ClientUserPhoneAPIControllerV1 extends AbstractJophielAPIController
 
     @Transactional
     public Result getPrimaryPhone() {
-        User user = userService.findUserByJid(getCurrentUserJid());
+        User user = userService.findUserByJid(getCurrentUserJid()).get();
         Optional<UserPhone> primaryPhone = user.getPhoneJid().flatMap(userPhoneService::findPhoneByJid);
 
         if (primaryPhone.isPresent()) {
@@ -57,7 +57,7 @@ public class ClientUserPhoneAPIControllerV1 extends AbstractJophielAPIController
 
     @Authenticated
     public Result createPhone() {
-        User user = userService.findUserByJid(getCurrentUserJid());
+        User user = userService.findUserByJid(getCurrentUserJid()).get();
 
         Form<UserPhoneCreateForm> userPhoneCreateForm = Form.form(UserPhoneCreateForm.class).bindFromRequest();
 
@@ -77,7 +77,7 @@ public class ClientUserPhoneAPIControllerV1 extends AbstractJophielAPIController
 
     @Transactional
     public Result makePhonePrimary(String phoneJid) {
-        User user = userService.findUserByJid(getCurrentUserJid());
+        User user = userService.findUserByJid(getCurrentUserJid()).get();
         Optional<UserPhone> userPhoneOpt = userPhoneService.findPhoneByJid(phoneJid);
         if (!userPhoneOpt.isPresent()) {
             return notFoundAsJson(ApiErrorCodeV1.PHONE_NOT_FOUND);
@@ -99,7 +99,7 @@ public class ClientUserPhoneAPIControllerV1 extends AbstractJophielAPIController
 
     @Transactional
     public Result deletePhone(String phoneJid) {
-        User user = userService.findUserByJid(getCurrentUserJid());
+        User user = userService.findUserByJid(getCurrentUserJid()).get();
         Optional<UserPhone> userPhoneOpt = userPhoneService.findPhoneByJid(phoneJid);
         if (!userPhoneOpt.isPresent()) {
             return notFoundAsJson(ApiErrorCodeV1.PHONE_NOT_FOUND);

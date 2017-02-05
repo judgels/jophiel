@@ -16,6 +16,7 @@ import javax.persistence.metamodel.SingularAttribute;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @Singleton
 public final class UserHibernateDao extends AbstractJudgelsHibernateDao<UserModel> implements UserDao {
@@ -120,14 +121,14 @@ public final class UserHibernateDao extends AbstractJudgelsHibernateDao<UserMode
     }
 
     @Override
-    public UserModel findByUsername(String username) throws NoResultException {
+    public Optional<UserModel> findByUsername(String username) throws NoResultException {
         CriteriaBuilder cb = JPA.em().getCriteriaBuilder();
         CriteriaQuery<UserModel> query = cb.createQuery(UserModel.class);
         Root<UserModel> root = query.from(UserModel.class);
 
         query.where(cb.equal(root.get(UserModel_.username), username));
 
-        return JPA.em().createQuery(query).getSingleResult();
+        return Optional.ofNullable(JPA.em().createQuery(query).getSingleResult());
     }
 
     @Override

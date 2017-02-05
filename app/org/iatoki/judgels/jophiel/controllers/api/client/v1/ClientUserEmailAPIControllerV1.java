@@ -28,7 +28,7 @@ public class ClientUserEmailAPIControllerV1 extends AbstractJophielAPIController
 
     @Transactional
     public Result getAllUserEmail() {
-        User user = userService.findUserByJid(getCurrentUserJid());
+        User user = userService.findUserByJid(getCurrentUserJid()).get();
         Optional<UserEmail> primaryEmail = userEmailService.findEmailByJid(user.getEmailJid());
         List<UserEmail> userEmails = userEmailService.getEmailsByUserJid(user.getEmailJid());
 
@@ -41,7 +41,7 @@ public class ClientUserEmailAPIControllerV1 extends AbstractJophielAPIController
 
     @Transactional
     public Result getPrimaryEmail() {
-        User user = userService.findUserByJid(getCurrentUserJid());
+        User user = userService.findUserByJid(getCurrentUserJid()).get();
         UserEmail primaryEmail = userEmailService.findEmailByJid(user.getEmailJid()).get();
         return okAsJson(createUserEmailV1(primaryEmail, primaryEmail.getEmail()));
     }
@@ -64,7 +64,7 @@ public class ClientUserEmailAPIControllerV1 extends AbstractJophielAPIController
 
     @Transactional
     public Result createEmail() {
-        User user = userService.findUserByJid(getCurrentUserJid());
+        User user = userService.findUserByJid(getCurrentUserJid()).get();
 
         Form<UserEmailCreateForm> userEmailCreateForm = Form.form(UserEmailCreateForm.class).bindFromRequest();
 
@@ -91,7 +91,7 @@ public class ClientUserEmailAPIControllerV1 extends AbstractJophielAPIController
 
     @Transactional
     public Result makeEmailPrimary(String emailJid) {
-        User user = userService.findUserByJid(getCurrentUserJid());
+        User user = userService.findUserByJid(getCurrentUserJid()).get();
         Optional<UserEmail> userEmailOpt = userEmailService.findEmailByJid(emailJid);
         if (!userEmailOpt.isPresent()) {
             return notFoundAsJson(ApiErrorCodeV1.EMAIL_NOT_FOUND);
@@ -113,7 +113,7 @@ public class ClientUserEmailAPIControllerV1 extends AbstractJophielAPIController
 
     @Transactional
     public Result deleteEmail(String emailJid) {
-        User user = userService.findUserByJid(getCurrentUserJid());
+        User user = userService.findUserByJid(getCurrentUserJid()).get();
         Optional<UserEmail> userEmailOpt = userEmailService.findEmailByJid(emailJid);
         if (!userEmailOpt.isPresent()) {
             return notFoundAsJson(ApiErrorCodeV1.EMAIL_NOT_FOUND);
@@ -140,7 +140,7 @@ public class ClientUserEmailAPIControllerV1 extends AbstractJophielAPIController
             return notFoundAsJson(ApiErrorCodeV1.EMAIL_NOT_FOUND);
         }
         UserEmail userEmail = userEmailOpt.get();
-        User user = userService.findUserByJid(userEmail.getUserJid());
+        User user = userService.findUserByJid(userEmail.getUserJid()).get();
 
         if (!userEmailService.isEmailNotVerified(userEmail.getJid())) {
             return badRequestAsJson(ApiErrorCodeV1.EMAIL_ALREADY_VERIFIED);

@@ -62,7 +62,7 @@ public class InternalAuthApiController extends AbstractJophielAPIController {
 
         // TODO: refactor UserService.getByJid() to Optional
         if (userToken.isPresent()) {
-            User user = userService.findUserByJid(userToken.get().getUserJid());
+            User user = userService.findUserByJid(userToken.get().getUserJid()).get();
             return okAsJson(user);
         } else {
             return badRequestAsJson("INVALID_TOKEN");

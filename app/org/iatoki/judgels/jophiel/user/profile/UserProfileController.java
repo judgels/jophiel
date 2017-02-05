@@ -55,7 +55,7 @@ public final class UserProfileController extends AbstractUserProfileController {
     @Transactional
     @AddCSRFToken
     public Result index() {
-        User user = userService.findUserByJid(getCurrentUserJid());
+        User user = userService.findUserByJid(getCurrentUserJid()).get();
 
         return showEditProfile(user);
     }
@@ -63,7 +63,7 @@ public final class UserProfileController extends AbstractUserProfileController {
     @Transactional
     @RequireCSRFCheck
     public Result postEditOwnProfile() {
-        User user = userService.findUserByJid(getCurrentUserJid());
+        User user = userService.findUserByJid(getCurrentUserJid()).get();
 
         Form<UserProfileEditForm> userProfileEditForm = Form.form(UserProfileEditForm.class).bindFromRequest();
 
@@ -99,7 +99,7 @@ public final class UserProfileController extends AbstractUserProfileController {
     @Transactional
     @RequireCSRFCheck
     public Result postEditOwnAvatar() {
-        User user = userService.findUserByJid(getCurrentUserJid());
+        User user = userService.findUserByJid(getCurrentUserJid()).get();
 
         // TODO catch 413 http response
         Http.MultipartFormData body = request().body().asMultipartFormData();
@@ -141,7 +141,7 @@ public final class UserProfileController extends AbstractUserProfileController {
 
     @Transactional
     public Result postEditOwnInfo() {
-        User user = userService.findUserByJid(getCurrentUserJid());
+        User user = userService.findUserByJid(getCurrentUserJid()).get();
 
         Form<UserInfoEditForm> userInfoEditForm = Form.form(UserInfoEditForm.class).bindFromRequest();
 
@@ -161,11 +161,11 @@ public final class UserProfileController extends AbstractUserProfileController {
 
     @Transactional
     public Result viewProfile(String username) {
-        if (!userService.userExistsByUsername(username)) {
+        Optional<User> userOpt = userService.findUserByUsername(username);
+        if (!userOpt.isPresent()) {
             return redirect(routes.UserProfileController.userNotFound());
         }
-
-        User user = userService.findUserByUsername(username);
+        User user = userOpt.get();
 
         Optional<UserInfo> userInfo = userProfileService.findInfo(user.getJid());
 

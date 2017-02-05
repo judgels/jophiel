@@ -5,6 +5,7 @@ import org.iatoki.judgels.play.model.JudgelsDao;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @ImplementedBy(UserHibernateDao.class)
 public interface UserDao extends JudgelsDao<UserModel> {
@@ -19,5 +20,5 @@ public interface UserDao extends JudgelsDao<UserModel> {
 
     List<UserModel> getByJids(Collection<String> userJids, long first, long max);
 
-    UserModel findByUsername(String username);
+    Optional<UserModel> findByUsername(String username);
 }

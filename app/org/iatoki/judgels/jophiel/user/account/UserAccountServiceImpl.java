@@ -72,7 +72,7 @@ public final class UserAccountServiceImpl implements UserAccountService {
 
     @Override
     public String generateForgotPasswordRequest(String username, String email, String ipAddress) {
-        UserModel userModel = userDao.findByUsername(username);
+        UserModel userModel = userDao.findByUsername(username).get();
 
         String code = JudgelsPlayUtils.hashMD5(UUID.randomUUID().toString());
         UserForgotPasswordModel forgotPasswordModel = new UserForgotPasswordModel();
@@ -113,7 +113,7 @@ public final class UserAccountServiceImpl implements UserAccountService {
             UserModel userModel;
             UserEmailModel emailModel;
             if (userDao.existByUsername(usernameOrEmail)) {
-                userModel = userDao.findByUsername(usernameOrEmail);
+                userModel = userDao.findByUsername(usernameOrEmail).get();
                 emailModel = userEmailDao.findByJid(userModel.emailJid);
             } else if (userEmailDao.existsByEmail(usernameOrEmail)) {
                 emailModel = userEmailDao.findByEmail(usernameOrEmail).get();

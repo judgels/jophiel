@@ -101,7 +101,7 @@ public final class UserController extends AbstractJophielController {
 
     @Transactional
     public Result viewUser(long userId) throws UserNotFoundException {
-        User user = userService.findUserById(userId);
+        User user = userService.findUserById(userId).orElseThrow(() -> new UserNotFoundException("User not found."));
 
         UserEmail userPrimaryEmail = userEmailService.findEmailByJid(user.getEmailJid()).orElse(null);;
         List<UserEmail> userEmails = userEmailService.getEmailsByUserJid(user.getJid());
@@ -142,7 +142,7 @@ public final class UserController extends AbstractJophielController {
     @Transactional
     @AddCSRFToken
     public Result editUser(long userId) throws UserNotFoundException {
-        User user = userService.findUserById(userId);
+        User user = userService.findUserById(userId).orElseThrow(() -> new UserNotFoundException("User not found."));
         UserEditForm userEditData = new UserEditForm();
         userEditData.username = user.getUsername();
         userEditData.name = user.getName();
@@ -155,7 +155,7 @@ public final class UserController extends AbstractJophielController {
     @Transactional
     @RequireCSRFCheck
     public Result postEditUser(long userId) throws UserNotFoundException {
-        User user = userService.findUserById(userId);
+        User user = userService.findUserById(userId).orElseThrow(() -> new UserNotFoundException("User not found."));
         Form<UserEditForm> userEditForm = Form.form(UserEditForm.class).bindFromRequest();
 
         if (formHasErrors(userEditForm)) {

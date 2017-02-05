@@ -37,13 +37,13 @@ public abstract class AbstractJophielAPIController extends AbstractJudgelsAPICon
                 throw new JudgelsAPIUnauthorizedException("Bad credentials.");
             }
 
-            User user = userService.findUserByUsername(username);
+            User user = userService.findUserByUsername(username).get();
             return new JophielUserAPIIdentity(user.getJid(), user.getUsername());
         } else if ("Bearer".equals(method)) {
             String accessToken = new String(Base64.decodeBase64(credentialsString));
 
             AccessToken token = clientService.getAccessTokenByAccessTokenString(accessToken);
-            User user = userService.findUserByJid(token.getUserJid());
+            User user = userService.findUserByJid(token.getUserJid()).get();
             return new JophielUserAPIIdentity(user.getJid(), user.getUsername());
         } else {
             throw new JudgelsAPIUnauthorizedException("Basic/OAuth2 authentication required.");

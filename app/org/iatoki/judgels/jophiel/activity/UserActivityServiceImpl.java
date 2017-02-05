@@ -34,7 +34,7 @@ public final class UserActivityServiceImpl implements UserActivityService {
     @Override
     public Page<UserActivity> getPageOfUserActivities(long pageIndex, long pageSize, String orderBy, String orderDir, String filterString, Set<String> clientsNames, String username) {
         List<String> clientJids = clientDao.getJidsByNames(clientsNames);
-        String userJid = userDao.findByUsername(username).jid;
+        String userJid = userDao.findByUsername(username).get().jid;
 
         ImmutableMap.Builder<SingularAttribute<? super UserActivityModel, String>, List<String>> inBuilder = ImmutableMap.builder();
         if (!clientJids.isEmpty()) {

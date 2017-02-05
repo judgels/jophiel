@@ -35,10 +35,11 @@ public final class UserEmailServiceImpl implements UserEmailService {
 
     @Override
     public boolean isEmailOwnedByUser(String email, String username) {
-        UserModel userModel = userDao.findByUsername(username);
+        Optional<UserModel> userModel = userDao.findByUsername(username);
         Optional<UserEmailModel> emailModel = userEmailDao.findByEmail(email);
 
-        return emailModel.filter(e -> (e.userJid.equals(userModel.emailJid)) && e.emailVerified)
+        return userModel.isPresent() &&
+                emailModel.filter(e -> (e.userJid.equals(userModel.get().emailJid)) && e.emailVerified)
                 .isPresent();
     }
 

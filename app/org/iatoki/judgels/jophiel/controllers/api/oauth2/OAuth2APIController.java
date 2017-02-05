@@ -87,7 +87,7 @@ public final class OAuth2APIController extends AbstractJophielAPIController {
         }
 
         AccessToken accessToken = clientService.getAccessTokenByAccessTokenString(token);
-        User user = userService.findUserByJid(accessToken.getUserJid());
+        User user = userService.findUserByJid(accessToken.getUserJid()).get();
         UserEmail userEmail = userEmailService.findEmailByJid(user.getEmailJid()).get();
         Optional<UserPhone> userPhone = user.getPhoneJid().flatMap(userPhoneService::findPhoneByJid);
         Optional<UserInfo> userInfo = userProfileService.findInfo(user.getJid());

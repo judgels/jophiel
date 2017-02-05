@@ -21,7 +21,6 @@ import play.mvc.Result;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.Optional;
 
 @Singleton
 public final class UserEmailController extends AbstractUserProfileController {
@@ -63,7 +62,7 @@ public final class UserEmailController extends AbstractUserProfileController {
     @Transactional
     @RequireCSRFCheck
     public Result postCreateEmail() {
-        User user = userService.findUserByJid(getCurrentUserJid());
+        User user = userService.findUserByJid(getCurrentUserJid()).get();
 
         Form<UserEmailCreateForm> userEmailCreateForm = Form.form(UserEmailCreateForm.class).bindFromRequest();
 
@@ -97,7 +96,7 @@ public final class UserEmailController extends AbstractUserProfileController {
     @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Transactional
     public Result makeEmailPrimary(long emailId) throws UserEmailNotFoundException {
-        User user = userService.findUserByJid(getCurrentUserJid());
+        User user = userService.findUserByJid(getCurrentUserJid()).get();
         UserEmail userEmail = userEmailService.findEmailById(emailId).orElseThrow(() -> new UserEmailNotFoundException("Email not found."));
 
         if (!user.getJid().equals(userEmail.getUserJid())) {
@@ -123,7 +122,7 @@ public final class UserEmailController extends AbstractUserProfileController {
     @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Transactional
     public Result deleteEmail(long emailId) throws UserEmailNotFoundException {
-        User user = userService.findUserByJid(getCurrentUserJid());
+        User user = userService.findUserByJid(getCurrentUserJid()).get();
         UserEmail userEmail = userEmailService.findEmailById(emailId).orElseThrow(() -> new UserEmailNotFoundException("Email not found."));
 
         if (!user.getJid().equals(userEmail.getUserJid())) {
@@ -148,7 +147,7 @@ public final class UserEmailController extends AbstractUserProfileController {
     @Transactional(readOnly = true)
     public Result resendEmailVerification(long emailId) throws UserEmailNotFoundException {
         UserEmail userEmail = userEmailService.findEmailById(emailId).orElseThrow(() -> new UserEmailNotFoundException("Email not found."));
-        User user = userService.findUserByJid(userEmail.getUserJid());
+        User user = userService.findUserByJid(userEmail.getUserJid()).get();
 
         if (userEmailService.isEmailOwned(userEmail.getEmail())) {
             flashError(Messages.get("email.resend.error.emailOwned"));

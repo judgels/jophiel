@@ -38,7 +38,7 @@ public final class UserPhoneController extends AbstractUserProfileController {
     @Transactional
     @RequireCSRFCheck
     public Result postCreatePhone() {
-        User user = userService.findUserByJid(getCurrentUserJid());
+        User user = userService.findUserByJid(getCurrentUserJid()).get();
 
         Form<UserPhoneCreateForm> userPhoneCreateForm = Form.form(UserPhoneCreateForm.class).bindFromRequest();
 
@@ -62,7 +62,7 @@ public final class UserPhoneController extends AbstractUserProfileController {
     @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Transactional
     public Result makePhonePrimary(long phoneId) throws UserPhoneNotFoundException {
-        User user = userService.findUserByJid(getCurrentUserJid());
+        User user = userService.findUserByJid(getCurrentUserJid()).get();
         UserPhone userPhone = userPhoneService.findPhoneById(phoneId).orElseThrow(() -> new UserPhoneNotFoundException("Phone not found."));
 
         if (!user.getJid().equals(userPhone.getUserJid())) {
@@ -88,7 +88,7 @@ public final class UserPhoneController extends AbstractUserProfileController {
     @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Transactional
     public Result deletePhone(long phoneId) throws UserPhoneNotFoundException {
-        User user = userService.findUserByJid(getCurrentUserJid());
+        User user = userService.findUserByJid(getCurrentUserJid()).get();
         UserPhone userPhone = userPhoneService.findPhoneById(phoneId).orElseThrow(() -> new UserPhoneNotFoundException("Phone not found."));
 
         if (!user.getJid().equals(userPhone.getUserJid())) {
