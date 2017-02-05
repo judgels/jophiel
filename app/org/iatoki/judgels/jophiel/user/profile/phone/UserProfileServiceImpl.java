@@ -24,10 +24,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Singleton
@@ -89,10 +86,10 @@ public final class UserProfileServiceImpl implements UserProfileService {
     @Override
     public void upsertInfo(String userJid, String gender, Date birthDate, String streetAddress, int postalCode, String institution, String city, String provinceOrState, String country, String shirtSize, String userIpAddress) {
         UserInfoModel userInfoModel;
-        boolean recordExists = userInfoDao.existsByUserJid(userJid);
 
-        if (recordExists) {
-            userInfoModel = userInfoDao.findByUserJid(userJid);
+        Optional<UserInfoModel> userInfoModelOpt = userInfoDao.findByUserJid(userJid);
+        if (userInfoModelOpt.isPresent()) {
+            userInfoModel = userInfoModelOpt.get();
         } else {
             userInfoModel = new UserInfoModel();
             userInfoModel.userJid = userJid;
@@ -105,11 +102,11 @@ public final class UserProfileServiceImpl implements UserProfileService {
             if (!institutionDao.existsByName(institution)) {
                 InstitutionModel institutionModel = new InstitutionModel();
                 institutionModel.institution = institution;
-                institutionModel.referenceCount = 0;
+                institutionModel.referenceCount = 1;
 
                 institutionDao.persist(institutionModel, userJid, userIpAddress);
             } else {
-                InstitutionModel institutionModel = institutionDao.findByName(institution);
+                InstitutionModel institutionModel = institutionDao.findByName(institution).get();
                 institutionModel.referenceCount++;
 
                 institutionDao.edit(institutionModel, userJid, userIpAddress);
@@ -121,11 +118,11 @@ public final class UserProfileServiceImpl implements UserProfileService {
             if (!cityDao.existsByName(city)) {
                 CityModel cityModel = new CityModel();
                 cityModel.city = city;
-                cityModel.referenceCount = 0;
+                cityModel.referenceCount = 1;
 
                 cityDao.persist(cityModel, userJid, userIpAddress);
             } else {
-                CityModel cityModel = cityDao.findByName(city);
+                CityModel cityModel = cityDao.findByName(city).get();
                 cityModel.referenceCount++;
 
                 cityDao.edit(cityModel, userJid, userIpAddress);
@@ -140,7 +137,7 @@ public final class UserProfileServiceImpl implements UserProfileService {
 
                 provinceDao.persist(provinceModel, userJid, userIpAddress);
             } else {
-                ProvinceModel provinceModel = provinceDao.findByName(provinceOrState);
+                ProvinceModel provinceModel = provinceDao.findByName(provinceOrState).get();
                 provinceModel.referenceCount++;
 
                 provinceDao.edit(provinceModel, userJid, userIpAddress);
@@ -149,7 +146,7 @@ public final class UserProfileServiceImpl implements UserProfileService {
         userInfoModel.country = country;
         userInfoModel.shirtSize = shirtSize;
 
-        if (recordExists) {
+        if (userInfoModelOpt.isPresent()) {
             userInfoDao.edit(userInfoModel, userJid, userIpAddress);
         } else {
             userInfoDao.persist(userInfoModel, userJid, userIpAddress);
@@ -164,10 +161,10 @@ public final class UserProfileServiceImpl implements UserProfileService {
     }
 
     @Override
-    public UserInfo findInfo(String userJid) {
-        UserInfoModel userInfoModel = userInfoDao.findByUserJid(userJid);
+    public Optional<UserInfo> findInfo(String userJid) {
+        Optional<UserInfoModel> userInfoModel = userInfoDao.findByUserJid(userJid);
 
-        return createUserInfoFromModel(userInfoModel);
+        return userInfoModel.map(this::createUserInfoFromModel);
     }
 
     @Override

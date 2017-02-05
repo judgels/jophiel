@@ -1,5 +1,6 @@
 package org.iatoki.judgels.jophiel.controllers.api.client.v1;
 
+import org.iatoki.judgels.jophiel.controllers.api.object.v1.ApiErrorCodeV1;
 import org.iatoki.judgels.jophiel.controllers.api.object.v1.UserInfoV1;
 import org.iatoki.judgels.jophiel.oauth2.AccessToken;
 import org.iatoki.judgels.jophiel.user.User;
@@ -8,17 +9,23 @@ import org.iatoki.judgels.jophiel.controllers.api.object.v1.UserFindByUsernameAn
 import org.iatoki.judgels.jophiel.controllers.api.object.v1.UserV1;
 import org.iatoki.judgels.jophiel.client.ClientService;
 import org.iatoki.judgels.jophiel.user.UserService;
+import org.iatoki.judgels.jophiel.user.profile.UserProfileEditApiForm;
 import org.iatoki.judgels.jophiel.user.profile.email.UnverifiedUserEmail;
 import org.iatoki.judgels.jophiel.user.profile.info.UserInfo;
+import org.iatoki.judgels.jophiel.user.profile.info.UserInfoEditForm;
 import org.iatoki.judgels.jophiel.user.profile.phone.UserProfileService;
+import org.iatoki.judgels.play.JudgelsPlayUtils;
 import org.iatoki.judgels.play.Page;
 import org.iatoki.judgels.play.api.JudgelsAPINotFoundException;
 import org.iatoki.judgels.play.api.JudgelsAppClientAPIIdentity;
 import play.data.DynamicForm;
+import play.data.Form;
 import play.db.jpa.Transactional;
 import play.mvc.Result;
 
 import javax.inject.Inject;
+import java.util.Date;
+import java.util.Optional;
 
 public final class ClientUserAPIControllerV1 extends AbstractJophielAPIController {
 
@@ -87,13 +94,45 @@ public final class ClientUserAPIControllerV1 extends AbstractJophielAPIControlle
 
     @Transactional
     public Result getUserInfo() {
-        UserInfo userInfo = null;
-        if (userProfileService.infoExists(getCurrentUserJid())) {
-            userInfo = userProfileService.findInfo(getCurrentUserJid());
-            return okAsJson(createUserInfoV1(userInfo));
+        Optional<UserInfo> userInfo = userProfileService.findInfo(getCurrentUserJid());
+        if (userInfo.isPresent()) {
+            return okAsJson(createUserInfoV1(userInfo.get()));
         } else {
             return okAsJson(new UserInfoV1());
         }
+    }
+
+    @Transactional
+    public Result editUserInfo() {
+        Form<UserInfoEditForm> userInfoEditForm = Form.form(UserInfoEditForm.class).bindFromRequest();
+
+        if (formHasErrors(userInfoEditForm)) {
+            return badRequestAsJson(ApiErrorCodeV1.INVALID_INPUT_PARAMETER);
+        }
+
+        UserInfoEditForm userInfoEditData = userInfoEditForm.get();
+        userProfileService.upsertInfo(getCurrentUserJid(), userInfoEditData.gender, new Date(JudgelsPlayUtils.parseDate(userInfoEditData.birthDate)), userInfoEditData.streetAddress, userInfoEditData.postalCode, userInfoEditData.institution, userInfoEditData.city, userInfoEditData.provinceOrState, userInfoEditData.country, userInfoEditData.shirtSize, getCurrentUserIpAddress());
+
+        return okJson();
+    }
+
+    @Transactional
+    public Result editUserProfile() {
+        Form<UserProfileEditApiForm> userProfileEditForm = Form.form(UserProfileEditApiForm.class).bindFromRequest();
+
+        if (formHasErrors(userProfileEditForm)) {
+            return badRequestAsJson(ApiErrorCodeV1.INVALID_INPUT_PARAMETER);
+        }
+
+        UserProfileEditApiForm userProfileEditData = userProfileEditForm.get();
+
+        if (!userProfileEditData.password.isEmpty()) {
+            userProfileService.updateProfile(getCurrentUserJid(), userProfileEditData.name, userProfileEditData.showName, userProfileEditData.password, getCurrentUserIpAddress());
+        } else {
+            userProfileService.updateProfile(getCurrentUserJid(), userProfileEditData.name, userProfileEditData.showName, getCurrentUserIpAddress());
+        }
+
+        return okJson();
     }
 
     private UserV1 createUserV1FromUser(User user) {

@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
+import java.util.Optional;
 
 @Authenticated(value = {LoggedIn.class, HasRole.class})
 @Singleton
@@ -166,12 +167,9 @@ public final class UserProfileController extends AbstractUserProfileController {
 
         User user = userService.findUserByUsername(username);
 
-        UserInfo userInfo = null;
-        if (userProfileService.infoExists(user.getJid())) {
-            userInfo = userProfileService.findInfo(user.getJid());
-        }
+        Optional<UserInfo> userInfo = userProfileService.findInfo(user.getJid());
 
-        return showViewProfile(user, userInfo);
+        return showViewProfile(user, userInfo.orElse(null));
     }
 
     @Transactional

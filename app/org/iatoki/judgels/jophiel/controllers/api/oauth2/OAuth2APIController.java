@@ -90,10 +90,7 @@ public final class OAuth2APIController extends AbstractJophielAPIController {
         User user = userService.findUserByJid(accessToken.getUserJid());
         UserEmail userEmail = userEmailService.findEmailByJid(user.getEmailJid()).get();
         Optional<UserPhone> userPhone = user.getPhoneJid().flatMap(userPhoneService::findPhoneByJid);
-        UserInfo userInfo = null;
-        if (userProfileService.infoExists(user.getJid())) {
-            userInfo = userProfileService.findInfo(user.getJid());
-        }
+        Optional<UserInfo> userInfo = userProfileService.findInfo(user.getJid());
 
         ObjectNode jsonResponse = Json.newObject();
         jsonResponse.put("sub", user.getJid());
@@ -110,18 +107,18 @@ public final class OAuth2APIController extends AbstractJophielAPIController {
             jsonResponse.put("phone_number", p.getPhone());
             jsonResponse.put("phone_number_verified", p.isPhoneVerified());
         });
-        if (userInfo != null) {
-            jsonResponse.put("gender", userInfo.getGender());
+        userInfo.ifPresent(info -> {
+            jsonResponse.put("gender", info.getGender());
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            jsonResponse.put("birthdate", simpleDateFormat.format(userInfo.getBirthDate()));
+            jsonResponse.put("birthdate", simpleDateFormat.format(info.getBirthDate()));
             ObjectNode jsonAddress = Json.newObject();
-            jsonAddress.put("street_address", userInfo.getStreetAddress());
-            jsonAddress.put("locality", userInfo.getCity());
-            jsonAddress.put("region", userInfo.getProvinceOrState());
-            jsonAddress.put("postal_code", userInfo.getPostalCode());
-            jsonAddress.put("country", userInfo.getCountry());
+            jsonAddress.put("street_address", info.getStreetAddress());
+            jsonAddress.put("locality", info.getCity());
+            jsonAddress.put("region", info.getProvinceOrState());
+            jsonAddress.put("postal_code", info.getPostalCode());
+            jsonAddress.put("country", info.getCountry());
             jsonResponse.set("address", jsonAddress);
-        }
+        });
 
         return ok(jsonResponse);
     }

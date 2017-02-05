@@ -1,5 +1,6 @@
 package org.iatoki.judgels.jophiel.controllers.api.client.v1;
 
+import com.google.inject.Inject;
 import org.iatoki.judgels.jophiel.controllers.api.AbstractJophielAPIController;
 import org.iatoki.judgels.jophiel.controllers.api.object.v1.ApiErrorCodeV1;
 import org.iatoki.judgels.jophiel.controllers.api.object.v1.UserPhoneV1;
@@ -23,6 +24,7 @@ public class ClientUserPhoneAPIControllerV1 extends AbstractJophielAPIController
     private final UserPhoneService userPhoneService;
     private final UserService userService;
 
+    @Inject
     public ClientUserPhoneAPIControllerV1(UserPhoneService userPhoneService, UserService userService) {
         this.userPhoneService = userPhoneService;
         this.userService = userService;

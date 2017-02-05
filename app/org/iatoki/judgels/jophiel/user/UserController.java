@@ -109,12 +109,9 @@ public final class UserController extends AbstractJophielController {
         Optional<UserPhone> userPrimaryPhone = user.getPhoneJid().flatMap(userPhoneService::findPhoneByJid);
         List<UserPhone> userPhones = userPhoneService.getPhonesByUserJid(user.getJid());
 
-        UserInfo userInfo = null;
-        if (userProfileService.infoExists(user.getJid())) {
-            userInfo = userProfileService.findInfo(user.getJid());
-        }
+        Optional<UserInfo> userInfo = userProfileService.findInfo(user.getJid());
 
-        return showViewUser(user, userPrimaryEmail, userEmails, userPrimaryPhone.orElse(null), userPhones, userInfo);
+        return showViewUser(user, userPrimaryEmail, userEmails, userPrimaryPhone.orElse(null), userPhones, userInfo.orElse(null));
     }
 
     @Transactional
