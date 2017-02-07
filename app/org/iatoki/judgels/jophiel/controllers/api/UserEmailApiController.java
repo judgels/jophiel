@@ -1,12 +1,17 @@
-package org.iatoki.judgels.jophiel.controllers.api.client.v1;
+package org.iatoki.judgels.jophiel.controllers.api;
 
 import com.google.inject.Inject;
-import org.iatoki.judgels.jophiel.controllers.api.AbstractJophielAPIController;
 import org.iatoki.judgels.jophiel.controllers.api.object.v1.ApiErrorCodeV1;
 import org.iatoki.judgels.jophiel.controllers.api.object.v1.UserEmailV1;
 import org.iatoki.judgels.jophiel.user.User;
 import org.iatoki.judgels.jophiel.user.UserService;
-import org.iatoki.judgels.jophiel.user.profile.email.*;
+import org.iatoki.judgels.jophiel.user.profile.email.UserEmail;
+import org.iatoki.judgels.jophiel.user.profile.email.UserEmailCreateForm;
+import org.iatoki.judgels.jophiel.user.profile.email.UserEmailService;
+import org.iatoki.judgels.play.api.JudgelsAPIBadRequestException;
+import org.iatoki.judgels.play.api.JudgelsAPINotFoundException;
+import org.iatoki.judgels.play.controllers.apis.AbstractJudgelsAPIController;
+import org.iatoki.judgels.play.controllers.apis.JudgelsAPIGuard;
 import play.data.Form;
 import play.db.jpa.Transactional;
 import play.mvc.Result;
@@ -15,20 +20,20 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class ClientUserEmailAPIControllerV1 extends AbstractJophielAPIController {
-
+@JudgelsAPIGuard
+public final class UserEmailApiController extends AbstractJudgelsAPIController {
     private final UserEmailService userEmailService;
     private final UserService userService;
 
     @Inject
-    public ClientUserEmailAPIControllerV1(UserEmailService userEmailService, UserService userService) {
+    public UserEmailApiController(UserEmailService userEmailService, UserService userService) {
         this.userEmailService = userEmailService;
         this.userService = userService;
     }
 
     @Transactional
-    public Result getAllUserEmail() {
-        User user = userService.findUserByJid(getCurrentUserJid()).get();
+    public Result getAllUserEmail(String userJid) {
+        User user = userService.findUserByJid(userJid).orElseThrow(() -> new JudgelsAPINotFoundException(ApiErrorCodeV1.USER_NOT_FOUND));
         Optional<UserEmail> primaryEmail = userEmailService.findEmailByJid(user.getEmailJid());
         List<UserEmail> userEmails = userEmailService.getEmailsByUserJid(user.getEmailJid());
 
@@ -40,8 +45,8 @@ public class ClientUserEmailAPIControllerV1 extends AbstractJophielAPIController
     }
 
     @Transactional
-    public Result getPrimaryEmail() {
-        User user = userService.findUserByJid(getCurrentUserJid()).get();
+    public Result getUserPrimaryEmail(String userJid) {
+        User user = userService.findUserByJid(userJid).orElseThrow(() -> new JudgelsAPINotFoundException(ApiErrorCodeV1.USER_NOT_FOUND));
         UserEmail primaryEmail = userEmailService.findEmailByJid(user.getEmailJid()).get();
         return okAsJson(createUserEmailV1(primaryEmail, primaryEmail.getEmail()));
     }
@@ -49,7 +54,7 @@ public class ClientUserEmailAPIControllerV1 extends AbstractJophielAPIController
     @Transactional
     public Result verifyEmail(String emailCode) {
         if (!userEmailService.isEmailCodeValid(emailCode)) {
-            return notFoundAsJson(ApiErrorCodeV1.EMAIL_INVALID_CODE);
+            throw new JudgelsAPINotFoundException(ApiErrorCodeV1.EMAIL_INVALID_CODE);
         }
 
         UserEmail userEmail = userEmailService.findEmailByCode(emailCode).get();
@@ -63,8 +68,8 @@ public class ClientUserEmailAPIControllerV1 extends AbstractJophielAPIController
     }
 
     @Transactional
-    public Result createEmail() {
-        User user = userService.findUserByJid(getCurrentUserJid()).get();
+    public Result createUserEmail(String userJid) {
+        User user = userService.findUserByJid(userJid).orElseThrow(() -> new JudgelsAPINotFoundException(ApiErrorCodeV1.USER_NOT_FOUND));
 
         Form<UserEmailCreateForm> userEmailCreateForm = Form.form(UserEmailCreateForm.class).bindFromRequest();
 
@@ -80,9 +85,9 @@ public class ClientUserEmailAPIControllerV1 extends AbstractJophielAPIController
 
         UserEmail userEmail;
         if (user.getEmailJid() == null) {
-            userEmail = userEmailService.addFirstEmail(getCurrentUserJid(), userEmailCreateData.email, getCurrentUserIpAddress());
+            userEmail = userEmailService.addFirstEmail(userJid, userEmailCreateData.email, getCurrentUserIpAddress());
         } else {
-            userEmail = userEmailService.addEmail(getCurrentUserJid(), userEmailCreateData.email, getCurrentUserIpAddress());
+            userEmail = userEmailService.addEmail(userJid, userEmailCreateData.email, getCurrentUserIpAddress());
         }
         userEmailService.sendEmailVerification(user.getName(), userEmailCreateData.email, getAbsoluteUrl(org.iatoki.judgels.jophiel.user.profile.email.routes.UserEmailController.verifyEmail(userEmailService.getEmailCodeOfUnverifiedEmail(userEmail.getJid()).get())));
 
@@ -90,20 +95,16 @@ public class ClientUserEmailAPIControllerV1 extends AbstractJophielAPIController
     }
 
     @Transactional
-    public Result makeEmailPrimary(String emailJid) {
-        User user = userService.findUserByJid(getCurrentUserJid()).get();
-        Optional<UserEmail> userEmailOpt = userEmailService.findEmailByJid(emailJid);
-        if (!userEmailOpt.isPresent()) {
-            return notFoundAsJson(ApiErrorCodeV1.EMAIL_NOT_FOUND);
-        }
-        UserEmail userEmail = userEmailOpt.get();
+    public Result makeEmailPrimary(String userJid, String emailJid) {
+        User user = userService.findUserByJid(userJid).orElseThrow(() -> new JudgelsAPINotFoundException(ApiErrorCodeV1.USER_NOT_FOUND));
+        UserEmail userEmail = userEmailService.findEmailByJid(emailJid).orElseThrow(() -> new JudgelsAPINotFoundException(ApiErrorCodeV1.EMAIL_NOT_FOUND));
 
         if (!user.getJid().equals(userEmail.getUserJid())) {
-            return unauthorizeddAsJson(ApiErrorCodeV1.EMAIL_NOT_OWNED);
+            throw new JudgelsAPIBadRequestException(ApiErrorCodeV1.EMAIL_NOT_OWNED);
         }
 
         if (!userEmail.isEmailVerified()) {
-            return badRequestAsJson(ApiErrorCodeV1.EMAIL_NOT_VERIFIED);
+            throw new JudgelsAPIBadRequestException(ApiErrorCodeV1.EMAIL_NOT_VERIFIED);
         }
 
         userEmailService.makeEmailPrimary(user.getJid(), userEmail.getJid(), getCurrentUserIpAddress());
@@ -112,20 +113,16 @@ public class ClientUserEmailAPIControllerV1 extends AbstractJophielAPIController
     }
 
     @Transactional
-    public Result deleteEmail(String emailJid) {
-        User user = userService.findUserByJid(getCurrentUserJid()).get();
-        Optional<UserEmail> userEmailOpt = userEmailService.findEmailByJid(emailJid);
-        if (!userEmailOpt.isPresent()) {
-            return notFoundAsJson(ApiErrorCodeV1.EMAIL_NOT_FOUND);
-        }
-        UserEmail userEmail = userEmailOpt.get();
+    public Result deleteEmail(String userJid, String emailJid) {
+        User user = userService.findUserByJid(userJid).orElseThrow(() -> new JudgelsAPINotFoundException(ApiErrorCodeV1.USER_NOT_FOUND));
+        UserEmail userEmail = userEmailService.findEmailByJid(emailJid).orElseThrow(() -> new JudgelsAPINotFoundException(ApiErrorCodeV1.EMAIL_NOT_FOUND));
 
         if (!user.getJid().equals(userEmail.getUserJid())) {
-            return unauthorizeddAsJson(ApiErrorCodeV1.EMAIL_NOT_OWNED);
+            throw new JudgelsAPIBadRequestException(ApiErrorCodeV1.EMAIL_NOT_OWNED);
         }
 
         if (user.getEmailJid().equals(userEmail.getJid())) {
-            return badRequestAsJson(ApiErrorCodeV1.EMAIL_IS_PRIMARY);
+            throw new JudgelsAPIBadRequestException(ApiErrorCodeV1.EMAIL_IS_PRIMARY);
         }
 
         userEmailService.removeEmail(userEmail.getJid());
@@ -134,16 +131,16 @@ public class ClientUserEmailAPIControllerV1 extends AbstractJophielAPIController
     }
 
     @Transactional
-    public Result resendEmailVerification(String emailJid) {
-        Optional<UserEmail> userEmailOpt = userEmailService.findEmailByJid(emailJid);
-        if (!userEmailOpt.isPresent()) {
-            return notFoundAsJson(ApiErrorCodeV1.EMAIL_NOT_FOUND);
+    public Result resendEmailVerification(String userJid, String emailJid) {
+        UserEmail userEmail = userEmailService.findEmailByJid(emailJid).orElseThrow(() -> new JudgelsAPINotFoundException(ApiErrorCodeV1.EMAIL_NOT_FOUND));
+        User user = userService.findUserByJid(userJid).orElseThrow(() -> new JudgelsAPINotFoundException(ApiErrorCodeV1.USER_NOT_FOUND));
+
+        if (!user.getJid().equals(userEmail.getUserJid())) {
+            throw new JudgelsAPIBadRequestException(ApiErrorCodeV1.EMAIL_NOT_OWNED);
         }
-        UserEmail userEmail = userEmailOpt.get();
-        User user = userService.findUserByJid(userEmail.getUserJid()).get();
 
         if (!userEmailService.isEmailNotVerified(userEmail.getJid())) {
-            return badRequestAsJson(ApiErrorCodeV1.EMAIL_ALREADY_VERIFIED);
+            throw new JudgelsAPIBadRequestException(ApiErrorCodeV1.EMAIL_ALREADY_VERIFIED);
         }
 
         String emailCode = userEmailService.getEmailCodeOfUnverifiedEmail(userEmail.getJid()).get();
@@ -154,14 +151,10 @@ public class ClientUserEmailAPIControllerV1 extends AbstractJophielAPIController
 
     @Transactional
     public Result activateEmail(String emailJid) {
-        Optional<UserEmail> userEmailOpt = userEmailService.findEmailByJid(emailJid);
-        if (!userEmailOpt.isPresent()) {
-            return notFoundAsJson(ApiErrorCodeV1.EMAIL_NOT_FOUND);
-        }
-        UserEmail userEmail = userEmailOpt.get();
+        UserEmail userEmail = userEmailService.findEmailByJid(emailJid).orElseThrow(() -> new JudgelsAPINotFoundException(ApiErrorCodeV1.EMAIL_NOT_FOUND));
 
         if (userEmailService.isEmailOwned(userEmail.getEmail())) {
-            return badRequestAsJson(ApiErrorCodeV1.EMAIL_ALREADY_OWNED);
+            throw new JudgelsAPIBadRequestException(ApiErrorCodeV1.EMAIL_ALREADY_OWNED);
         }
 
         String code = userEmailService.getEmailCodeOfUnverifiedEmail(userEmail.getJid()).get();

@@ -76,6 +76,31 @@ POST           /autosuggestions/provinces                                   org.
 POST           /autosuggestions/provinces/upload                            org.iatoki.judgels.jophiel.user.profile.info.ProvinceController.postUploadProvince(pageIndex: Long ?= 0, orderBy ?= "id", orderDir ?= "asc", filterString ?= "")
 GET            /autosuggestions/provinces/:provinceId/delete                org.iatoki.judgels.jophiel.user.profile.info.ProvinceController.deleteProvince(provinceId: Long)
 
+# API
+
+POST           /api/users/changePass/:code                                  org.iatoki.judgels.jophiel.controllers.api.UserAccountApiController.changePassword(code: String)
+POST           /api/users/forgotPass                                        org.iatoki.judgels.jophiel.controllers.api.UserAccountApiController.forgotPassword()
+
+GET            /api/users/:userJid/info                                     org.iatoki.judgels.jophiel.controllers.api.UserApiController.getUserInfo(userJid: String)
+POST           /api/users/:userJid/info                                     org.iatoki.judgels.jophiel.controllers.api.UserApiController.editUserInfo(userJid: String)
+POST           /api/users/:userJid/profile                                  org.iatoki.judgels.jophiel.controllers.api.UserApiController.editUserProfile(userJid: String)
+GET            /api/users/search/:username                                  org.iatoki.judgels.jophiel.controllers.api.UserApiController.searchUser(username: String)
+GET            /api/users/info/search/:username                             org.iatoki.judgels.jophiel.controllers.api.UserApiController.searchUserInfo(username: String)
+
+GET            /api/users/:userJid/email                                    org.iatoki.judgels.jophiel.controllers.api.UserEmailApiController.getAllUserEmail(userJid: String)
+GET            /api/users/:userJid/email/primary                            org.iatoki.judgels.jophiel.controllers.api.UserEmailApiController.getUserPrimaryEmail(userJid: String)
+GET            /api/users/email/verify:code                                 org.iatoki.judgels.jophiel.controllers.api.UserEmailApiController.verifyEmail(code: String)
+POST           /api/users/:userJid/email                                    org.iatoki.judgels.jophiel.controllers.api.UserEmailApiController.createUserEmail(userJid: String)
+POST           /api/users/:userJid/email/:emailJid/primary                  org.iatoki.judgels.jophiel.controllers.api.UserEmailApiController.makeEmailPrimary(userJid: String, emailJid: String)
+GET            /api/users/:userJid/email/:emailJid/delete                   org.iatoki.judgels.jophiel.controllers.api.UserEmailApiController.deleteEmail(userJid: String, emailJid: String)
+GET            /api/users/:userJid/email/:emailJid/resendVerification       org.iatoki.judgels.jophiel.controllers.api.UserEmailApiController.resendEmailVerification(emailJid: String, userJid: String)
+
+GET            /api/users/:userJid/phone                                    org.iatoki.judgels.jophiel.controllers.api.UserPhoneApiController.getAllUserPhone(userJid: String)
+GET            /api/users/:userJid/phone/primary                            org.iatoki.judgels.jophiel.controllers.api.UserPhoneApiController.getUserPrimaryPhone(userJid: String)
+POST           /api/users/:userJid/phone                                    org.iatoki.judgels.jophiel.controllers.api.UserPhoneApiController.createPhone(userJid: String)
+POST           /api/users/:userJid/phone/:phoneJid/primary                  org.iatoki.judgels.jophiel.controllers.api.UserPhoneApiController.makePhonePrimary(userJid: String, phoneJid: String)
+GET            /api/users/:userJid/phone/:phoneJid/delete                   org.iatoki.judgels.jophiel.controllers.api.UserPhoneApiController.deleteUserPhone(userJid: String, phoneJid: String)
+
 # OAuth2 API
 
 GET            /api/oauth2/auth                                             org.iatoki.judgels.jophiel.controllers.api.oauth2.OAuth2WebAPIController.auth()
@@ -106,30 +131,6 @@ GET            /api/v1/user/isLoggedIn                                      org.
 GET            /api/v1/clients/linked                                       org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientClientAPIControllerV1.getLinkedClients()
 
 POST           /api/v1/activities                                           org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientActivityAPIControllerV1.createActivity()
-
-POST           /api/v1/users/changePass/:code                               org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientUserAccountApiControllerV1.changePassword(code: String)
-POST           /api/v1/users/forgotPass                                     org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientUserAccountApiControllerV1.forgotPassword()
-
-GET            /api/v1/users/info                                           org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientUserAPIControllerV1.getUserInfo()
-POST           /api/v1/users/info                                           org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientUserAPIControllerV1.editUserInfo()
-POST           /api/v1/users/profile                                        org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientUserAPIControllerV1.editUserProfile()
-POST           /api/v1/users/search                                         org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientUserAPIControllerV1.searchUser()
-POST           /api/v1/users/info/search                                    org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientUserAPIControllerV1.searchUserInfo()
-
-GET            /api/v1/users/email                                          org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientUserEmailAPIControllerV1.getAllUserEmail()
-GET            /api/v1/users/email/primary                                  org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientUserEmailAPIControllerV1.getPrimaryEmail()
-GET            /api/v1/users/email/verify:code                              org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientUserEmailAPIControllerV1.verifyEmail(code: String)
-POST           /api/v1/users/email                                          org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientUserEmailAPIControllerV1.createEmail()
-POST           /api/v1/users/email/:emailJid/primary                        org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientUserEmailAPIControllerV1.makeEmailPrimary(emailJid: String)
-GET            /api/v1/users/email/:emailJid/delete                         org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientUserEmailAPIControllerV1.deleteEmail(emailJid: String)
-GET            /api/v1/users/email/:emailJid/resendVerification             org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientUserEmailAPIControllerV1.resendEmailVerification(emailJid: String)
-GET            /api/v1/users/email/:emailJid/verify                         org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientUserEmailAPIControllerV1.activateEmail(emailJid: String)
-
-GET            /api/v1/users/phone                                          org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientUserPhoneAPIControllerV1.getAllUserPhone()
-GET            /api/v1/users/phone/primary                                  org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientUserPhoneAPIControllerV1.getPrimaryPhone()
-POST           /api/v1/users/phone                                          org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientUserPhoneAPIControllerV1.createPhone()
-GET            /api/v1/users/phone/:phoneJid/primary                        org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientUserPhoneAPIControllerV1.makePhonePrimary(phoneJid: String)
-GET            /api/v1/users/phone/:phoneJid/delete                         org.iatoki.judgels.jophiel.controllers.api.client.v1.ClientUserPhoneAPIControllerV1.deletePhone(phoneJid: String)
 
 # Public API
 
