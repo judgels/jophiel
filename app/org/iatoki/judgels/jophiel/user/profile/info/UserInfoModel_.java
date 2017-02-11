@@ -22,4 +22,5 @@ public abstract class UserInfoModel_ extends AbstractModel_ {
     public static volatile SingularAttribute<UserInfoModel, String> provinceOrState;
     public static volatile SingularAttribute<UserInfoModel, String> country;
     public static volatile SingularAttribute<UserInfoModel, String> shirtSize;
+    public static volatile SingularAttribute<UserInfoModel, String> biodata;
 }

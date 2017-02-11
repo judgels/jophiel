@@ -151,7 +151,7 @@ public final class UserProfileController extends AbstractUserProfileController {
         }
 
         UserInfoEditForm userInfoEditData = userInfoEditForm.get();
-        userProfileService.upsertInfo(getCurrentUserJid(), userInfoEditData.gender, new Date(JudgelsPlayUtils.parseDate(userInfoEditData.birthDate)), userInfoEditData.streetAddress, userInfoEditData.postalCode, userInfoEditData.institution, userInfoEditData.city, userInfoEditData.provinceOrState, userInfoEditData.country, userInfoEditData.shirtSize, getCurrentUserIpAddress());
+        userProfileService.upsertInfo(getCurrentUserJid(), userInfoEditData.gender, new Date(JudgelsPlayUtils.parseDate(userInfoEditData.birthDate)), userInfoEditData.streetAddress, userInfoEditData.postalCode, userInfoEditData.institution, userInfoEditData.city, userInfoEditData.provinceOrState, userInfoEditData.country, userInfoEditData.shirtSize, userInfoEditData.biodata, getCurrentUserIpAddress());
 
         addActivityLog(BasicActivityKeys.EDIT_IN.construct(USER, user.getJid(), user.getUsername(), INFO, user.getJid(), user.getUsername()));
 

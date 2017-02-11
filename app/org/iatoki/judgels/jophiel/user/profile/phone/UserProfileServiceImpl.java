@@ -87,7 +87,7 @@ public final class UserProfileServiceImpl implements UserProfileService {
     }
 
     @Override
-    public void upsertInfo(String userJid, String gender, Date birthDate, String streetAddress, int postalCode, String institution, String city, String provinceOrState, String country, String shirtSize, String userIpAddress) {
+    public void upsertInfo(String userJid, String gender, Date birthDate, String streetAddress, int postalCode, String institution, String city, String provinceOrState, String country, String shirtSize, String biodata, String userIpAddress) {
         UserInfoModel userInfoModel;
         boolean recordExists = userInfoDao.existsByUserJid(userJid);
 
@@ -148,6 +148,7 @@ public final class UserProfileServiceImpl implements UserProfileService {
         }
         userInfoModel.country = country;
         userInfoModel.shirtSize = shirtSize;
+        userInfoModel.biodata = biodata;
 
         if (recordExists) {
             userInfoDao.edit(userInfoModel, userJid, userIpAddress);
@@ -202,6 +203,7 @@ public final class UserProfileServiceImpl implements UserProfileService {
                 .setProvinceOrState(userInfoModel.provinceOrState)
                 .setShirtSize(userInfoModel.shirtSize)
                 .setStreetAddress(userInfoModel.streetAddress)
+                .setBiodata(userInfoModel.biodata)
                 .setUserJid(userInfoModel.userJid);
 
         return userInfoBuilder.createUserInfo();

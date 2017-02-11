@@ -13,6 +13,7 @@ public class UserInfoBuilder {
     private String provinceOrState;
     private String country;
     private String shirtSize;
+    private String biodata;
 
     public UserInfoBuilder setId(long id) {
         this.id = id;
@@ -69,7 +70,12 @@ public class UserInfoBuilder {
         return this;
     }
 
+    public UserInfoBuilder setBiodata(String biodata){
+        this.biodata = biodata;
+        return this;
+    }
+
     public UserInfo createUserInfo() {
-        return new UserInfo(id, userJid, gender, birthDate, streetAddress, postalCode, institution, city, provinceOrState, country, shirtSize);
+        return new UserInfo(id, userJid, gender, birthDate, streetAddress, postalCode, institution, city, provinceOrState, country, shirtSize, biodata);
     }
 }
