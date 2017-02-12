@@ -6,6 +6,7 @@ import org.iatoki.judgels.play.Page;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @ImplementedBy(UserServiceImpl.class)
 public interface UserService {
@@ -24,11 +25,11 @@ public interface UserService {
 
     Page<UnverifiedUserEmail> getPageOfUnverifiedUsers(long pageIndex, long pageSize, String orderBy, String orderDir, String filterString);
 
-    User findUserById(long userId) throws UserNotFoundException;
+    Optional<User> findUserById(long userId);
 
-    User findUserByJid(String userJid);
+    Optional<User> findUserByJid(String userJid);
 
-    User findUserByUsername(String username);
+    Optional<User> findUserByUsername(String username);
 
     User createUser(String username, String name, String email, String password, List<String> roles, String userJid, String userIpAddress);
 

@@ -44,7 +44,7 @@ public final class ClientUserAPIControllerV1 extends AbstractJophielAPIControlle
             throw new JudgelsAPINotFoundException();
         }
 
-        User user = userService.findUserByJid(requestBody.username);
+        User user = userService.findUserByJid(requestBody.username).get();
         return okAsJson(createUserV1FromUser(user));
     }
 
@@ -61,7 +61,7 @@ public final class ClientUserAPIControllerV1 extends AbstractJophielAPIControlle
             throw new JudgelsAPINotFoundException();
         }
 
-        User user = userService.findUserByJid(accessTokenObj.getUserJid());
+        User user = userService.findUserByJid(accessTokenObj.getUserJid()).get();
         return okAsJson(createUserV1FromUser(user));
     }
 

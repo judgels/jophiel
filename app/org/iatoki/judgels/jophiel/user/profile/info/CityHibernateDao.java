@@ -10,6 +10,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import javax.persistence.metamodel.SingularAttribute;
 import java.util.List;
+import java.util.Optional;
 
 @Singleton
 public final class CityHibernateDao extends AbstractHibernateDao<Long, CityModel> implements CityDao {
@@ -30,14 +31,14 @@ public final class CityHibernateDao extends AbstractHibernateDao<Long, CityModel
     }
 
     @Override
-    public CityModel findByName(String name) {
+    public Optional<CityModel> findByName(String name) {
         CriteriaBuilder cb = JPA.em().getCriteriaBuilder();
         CriteriaQuery<CityModel> query = cb.createQuery(CityModel.class);
         Root<CityModel> root = query.from(CityModel.class);
 
         query.where(cb.equal(root.get(CityModel_.city), name));
 
-        return JPA.em().createQuery(query).getSingleResult();
+        return Optional.ofNullable(JPA.em().createQuery(query).getSingleResult());
     }
 
     @Override

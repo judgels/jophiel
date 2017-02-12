@@ -46,21 +46,15 @@ public final class PublicUserAPIControllerV1 extends AbstractJophielAPIControlle
 
     @Transactional(readOnly = true)
     public Result findUserByJid(String userJid) {
-        if (!userService.userExistsByJid(userJid)) {
-            throw new JudgelsAPINotFoundException();
-        }
+        User user = userService.findUserByJid(userJid).orElseThrow(JudgelsAPINotFoundException::new);
 
-        User user = userService.findUserByJid(userJid);
         return okAsJson(createUserV1FromUser(user));
     }
 
     @Transactional(readOnly = true)
     public Result findUserByUsername(String username) {
-        if (!userService.userExistsByUsername(username)) {
-            throw new JudgelsAPINotFoundException();
-        }
+        User user = userService.findUserByUsername(username).orElseThrow(JudgelsAPINotFoundException::new);
 
-        User user = userService.findUserByUsername(username);
         return okAsJson(createUserV1FromUser(user));
     }
 

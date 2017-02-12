@@ -22,6 +22,6 @@ public final class UserPhoneNotFoundException extends EntityNotFoundException {
 
     @Override
     public String getEntityName() {
-        return "User Email";
+        return "User Phone";
     }
 }

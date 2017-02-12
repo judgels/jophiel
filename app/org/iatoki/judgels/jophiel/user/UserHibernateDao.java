@@ -2,6 +2,7 @@ package org.iatoki.judgels.jophiel.user;
 
 import com.google.common.collect.ImmutableList;
 import org.iatoki.judgels.play.model.AbstractJudgelsHibernateDao;
+import org.iatoki.judgels.play.model.AbstractJudgelsModel_;
 import play.db.jpa.JPA;
 
 import javax.inject.Singleton;
@@ -16,6 +17,7 @@ import javax.persistence.metamodel.SingularAttribute;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @Singleton
 public final class UserHibernateDao extends AbstractJudgelsHibernateDao<UserModel> implements UserDao {
@@ -120,14 +122,34 @@ public final class UserHibernateDao extends AbstractJudgelsHibernateDao<UserMode
     }
 
     @Override
-    public UserModel findByUsername(String username) throws NoResultException {
+    public Optional<UserModel> findByUsername(String username) throws NoResultException {
         CriteriaBuilder cb = JPA.em().getCriteriaBuilder();
         CriteriaQuery<UserModel> query = cb.createQuery(UserModel.class);
         Root<UserModel> root = query.from(UserModel.class);
 
         query.where(cb.equal(root.get(UserModel_.username), username));
 
-        return JPA.em().createQuery(query).getSingleResult();
+        try {
+            return Optional.ofNullable(JPA.em().createQuery(query).getSingleResult());
+        } catch (NoResultException e) {
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public UserModel findByJid(String jid) {
+        CriteriaBuilder cb = JPA.em().getCriteriaBuilder();
+        CriteriaQuery<UserModel> query = cb.createQuery(getModelClass());
+
+        Root<UserModel> root = query.from(getModelClass());
+
+        query.where(cb.equal(root.get(UserModel_.jid), jid));
+
+        try {
+            return JPA.em().createQuery(query).getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
     }
 
     @Override

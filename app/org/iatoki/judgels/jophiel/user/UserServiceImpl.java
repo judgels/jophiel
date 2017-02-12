@@ -17,6 +17,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Singleton
@@ -38,11 +39,12 @@ public final class UserServiceImpl implements UserService {
 
     @Override
     public boolean userExistsByUsernameAndPassword(String username, String password) {
-        if (!userDao.existByUsername(username)) {
+        Optional<UserModel> userModelOpt = userDao.findByUsername(username);
+        if (!userModelOpt.isPresent()) {
             return false;
         }
 
-        UserModel userModel = userDao.findByUsername(username);
+        UserModel userModel = userModelOpt.get();
         if (userModel.password.contains(":")) {
             try {
                 return PasswordHash.validatePassword(password, userModel.password);
@@ -149,29 +151,24 @@ public final class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findUserById(long userId) throws UserNotFoundException {
-        UserModel userModel = userDao.findById(userId);
-        if (userModel == null) {
-            throw new UserNotFoundException("User not found.");
-        }
+    public Optional<User> findUserById(long userId) {
+        Optional<UserModel> userModel = Optional.of(userDao.findById(userId));
 
-        User user = UserServiceUtils.createUserFromModel(userModel);
-
-        return user;
+        return userModel.map(UserServiceUtils::createUserFromModel);
     }
 
     @Override
-    public User findUserByJid(String userJid) {
-        UserModel userModel = userDao.findByJid(userJid);
+    public Optional<User> findUserByJid(String userJid) {
+        Optional<UserModel> userModel = Optional.ofNullable(userDao.findByJid(userJid));
 
-        return UserServiceUtils.createUserFromModel(userModel);
+        return userModel.map(UserServiceUtils::createUserFromModel);
     }
 
     @Override
-    public User findUserByUsername(String username) {
-        UserModel userModel = userDao.findByUsername(username);
+    public Optional<User> findUserByUsername(String username) {
+        Optional<UserModel> userModel = userDao.findByUsername(username);
 
-        return UserServiceUtils.createUserFromModel(userModel);
+        return userModel.map(UserServiceUtils::createUserFromModel);
     }
 
     @Override

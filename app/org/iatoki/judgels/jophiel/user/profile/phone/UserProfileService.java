@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @ImplementedBy(UserProfileServiceImpl.class)
 public interface UserProfileService {
@@ -22,7 +23,7 @@ public interface UserProfileService {
 
     List<UserInfo> getUsersInfoByUserJids(Collection<String> userJids);
 
-    UserInfo findInfo(String userJid);
+    Optional<UserInfo> findInfo(String userJid);
 
     String updateAvatarWithGeneratedFilename(String userJid, File imageFile, String imageType, String ipAddress) throws IOException;
 

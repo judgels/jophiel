@@ -12,6 +12,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import javax.persistence.metamodel.SingularAttribute;
 import java.util.List;
+import java.util.Optional;
 
 @Singleton
 public final class ProvinceJedisHibernateDao extends AbstractJedisHibernateDao<Long, ProvinceModel> implements ProvinceDao {
@@ -33,14 +34,14 @@ public final class ProvinceJedisHibernateDao extends AbstractJedisHibernateDao<L
     }
 
     @Override
-    public ProvinceModel findByName(String name) {
+    public Optional<ProvinceModel> findByName(String name) {
         CriteriaBuilder cb = JPA.em().getCriteriaBuilder();
         CriteriaQuery<ProvinceModel> query = cb.createQuery(ProvinceModel.class);
         Root<ProvinceModel> root = query.from(ProvinceModel.class);
 
         query.where(cb.equal(root.get(ProvinceModel_.province), name));
 
-        return JPA.em().createQuery(query).getSingleResult();
+        return Optional.ofNullable(JPA.em().createQuery(query).getSingleResult());
     }
 
     @Override

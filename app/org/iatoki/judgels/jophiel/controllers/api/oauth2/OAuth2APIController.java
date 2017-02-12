@@ -30,6 +30,7 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -86,19 +87,10 @@ public final class OAuth2APIController extends AbstractJophielAPIController {
         }
 
         AccessToken accessToken = clientService.getAccessTokenByAccessTokenString(token);
-        User user = userService.findUserByJid(accessToken.getUserJid());
-        UserEmail userEmail = null;
-        if (user.getEmailJid() != null) {
-            userEmail = userEmailService.findEmailByJid(user.getEmailJid());
-        }
-        UserPhone userPhone = null;
-        if (user.getPhoneJid() != null) {
-            userPhone = userPhoneService.findPhoneByJid(user.getPhoneJid());
-        }
-        UserInfo userInfo = null;
-        if (userProfileService.infoExists(user.getJid())) {
-            userInfo = userProfileService.findInfo(user.getJid());
-        }
+        User user = userService.findUserByJid(accessToken.getUserJid()).get();
+        UserEmail userEmail = userEmailService.findEmailByJid(user.getEmailJid()).get();
+        Optional<UserPhone> userPhone = user.getPhoneJid().flatMap(userPhoneService::findPhoneByJid);
+        Optional<UserInfo> userInfo = userProfileService.findInfo(user.getJid());
 
         ObjectNode jsonResponse = Json.newObject();
         jsonResponse.put("sub", user.getJid());
@@ -111,22 +103,22 @@ public final class OAuth2APIController extends AbstractJophielAPIController {
             jsonResponse.put("email", userEmail.getEmail());
             jsonResponse.put("email_verified", userEmail.isEmailVerified());
         }
-        if (userPhone != null) {
-            jsonResponse.put("phone_number", userPhone.getPhone());
-            jsonResponse.put("phone_number_verified", userPhone.isPhoneVerified());
-        }
-        if (userInfo != null) {
-            jsonResponse.put("gender", userInfo.getGender());
+        userPhone.ifPresent(p -> {
+            jsonResponse.put("phone_number", p.getPhone());
+            jsonResponse.put("phone_number_verified", p.isPhoneVerified());
+        });
+        userInfo.ifPresent(info -> {
+            jsonResponse.put("gender", info.getGender());
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            jsonResponse.put("birthdate", simpleDateFormat.format(userInfo.getBirthDate()));
+            jsonResponse.put("birthdate", simpleDateFormat.format(info.getBirthDate()));
             ObjectNode jsonAddress = Json.newObject();
-            jsonAddress.put("street_address", userInfo.getStreetAddress());
-            jsonAddress.put("locality", userInfo.getCity());
-            jsonAddress.put("region", userInfo.getProvinceOrState());
-            jsonAddress.put("postal_code", userInfo.getPostalCode());
-            jsonAddress.put("country", userInfo.getCountry());
+            jsonAddress.put("street_address", info.getStreetAddress());
+            jsonAddress.put("locality", info.getCity());
+            jsonAddress.put("region", info.getProvinceOrState());
+            jsonAddress.put("postal_code", info.getPostalCode());
+            jsonAddress.put("country", info.getCountry());
             jsonResponse.set("address", jsonAddress);
-        }
+        });
 
         return ok(jsonResponse);
     }

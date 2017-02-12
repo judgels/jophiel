@@ -3,13 +3,14 @@ package org.iatoki.judgels.jophiel.user.profile.phone;
 import com.google.inject.ImplementedBy;
 
 import java.util.List;
+import java.util.Optional;
 
 @ImplementedBy(UserPhoneServiceImpl.class)
 public interface UserPhoneService {
 
-    UserPhone findPhoneById(long phoneId) throws UserPhoneNotFoundException;
+    Optional<UserPhone> findPhoneById(long phoneId);
 
-    UserPhone findPhoneByJid(String phoneJid);
+    Optional<UserPhone> findPhoneByJid(String phoneJid);
 
     List<UserPhone> getPhonesByUserJid(String userJid);
 

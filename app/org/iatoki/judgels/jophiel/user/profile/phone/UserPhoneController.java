@@ -17,6 +17,7 @@ import play.mvc.Result;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.Optional;
 
 @Singleton
 public final class UserPhoneController extends AbstractUserProfileController {
@@ -37,7 +38,7 @@ public final class UserPhoneController extends AbstractUserProfileController {
     @Transactional
     @RequireCSRFCheck
     public Result postCreatePhone() {
-        User user = userService.findUserByJid(getCurrentUserJid());
+        User user = userService.findUserByJid(getCurrentUserJid()).get();
 
         Form<UserPhoneCreateForm> userPhoneCreateForm = Form.form(UserPhoneCreateForm.class).bindFromRequest();
 
@@ -61,8 +62,8 @@ public final class UserPhoneController extends AbstractUserProfileController {
     @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Transactional
     public Result makePhonePrimary(long phoneId) throws UserPhoneNotFoundException {
-        User user = userService.findUserByJid(getCurrentUserJid());
-        UserPhone userPhone = userPhoneService.findPhoneById(phoneId);
+        User user = userService.findUserByJid(getCurrentUserJid()).get();
+        UserPhone userPhone = userPhoneService.findPhoneById(phoneId).orElseThrow(() -> new UserPhoneNotFoundException("Phone not found."));
 
         if (!user.getJid().equals(userPhone.getUserJid())) {
             flashError(Messages.get("phone.makePrimary.error.notOwned"));
@@ -87,8 +88,8 @@ public final class UserPhoneController extends AbstractUserProfileController {
     @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Transactional
     public Result deletePhone(long phoneId) throws UserPhoneNotFoundException {
-        User user = userService.findUserByJid(getCurrentUserJid());
-        UserPhone userPhone = userPhoneService.findPhoneById(phoneId);
+        User user = userService.findUserByJid(getCurrentUserJid()).get();
+        UserPhone userPhone = userPhoneService.findPhoneById(phoneId).orElseThrow(() -> new UserPhoneNotFoundException("Phone not found."));
 
         if (!user.getJid().equals(userPhone.getUserJid())) {
             flashError(Messages.get("phone.remove.error.notOwned"));

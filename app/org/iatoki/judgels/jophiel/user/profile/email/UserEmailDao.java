@@ -5,6 +5,7 @@ import org.iatoki.judgels.play.model.JudgelsDao;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @ImplementedBy(UserEmailHibernateDao.class)
 public interface UserEmailDao extends JudgelsDao<UserEmailModel> {
@@ -27,7 +28,7 @@ public interface UserEmailDao extends JudgelsDao<UserEmailModel> {
 
     List<UserEmailModel> getByUserJids(Collection<String> userJidSet, long first, long max);
 
-    UserEmailModel findByEmail(String email);
+    Optional<UserEmailModel> findByEmail(String email);
 
-    UserEmailModel findByEmailCode(String emailCode);
+    Optional<UserEmailModel> findByEmailCode(String emailCode);
 }

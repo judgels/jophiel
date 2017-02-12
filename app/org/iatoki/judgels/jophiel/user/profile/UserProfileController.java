@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
+import java.util.Optional;
 
 @Authenticated(value = {LoggedIn.class, HasRole.class})
 @Singleton
@@ -54,7 +55,7 @@ public final class UserProfileController extends AbstractUserProfileController {
     @Transactional
     @AddCSRFToken
     public Result index() {
-        User user = userService.findUserByJid(getCurrentUserJid());
+        User user = userService.findUserByJid(getCurrentUserJid()).get();
 
         return showEditProfile(user);
     }
@@ -62,7 +63,7 @@ public final class UserProfileController extends AbstractUserProfileController {
     @Transactional
     @RequireCSRFCheck
     public Result postEditOwnProfile() {
-        User user = userService.findUserByJid(getCurrentUserJid());
+        User user = userService.findUserByJid(getCurrentUserJid()).get();
 
         Form<UserProfileEditForm> userProfileEditForm = Form.form(UserProfileEditForm.class).bindFromRequest();
 
@@ -98,7 +99,7 @@ public final class UserProfileController extends AbstractUserProfileController {
     @Transactional
     @RequireCSRFCheck
     public Result postEditOwnAvatar() {
-        User user = userService.findUserByJid(getCurrentUserJid());
+        User user = userService.findUserByJid(getCurrentUserJid()).get();
 
         // TODO catch 413 http response
         Http.MultipartFormData body = request().body().asMultipartFormData();
@@ -140,7 +141,7 @@ public final class UserProfileController extends AbstractUserProfileController {
 
     @Transactional
     public Result postEditOwnInfo() {
-        User user = userService.findUserByJid(getCurrentUserJid());
+        User user = userService.findUserByJid(getCurrentUserJid()).get();
 
         Form<UserInfoEditForm> userInfoEditForm = Form.form(UserInfoEditForm.class).bindFromRequest();
 
@@ -160,18 +161,15 @@ public final class UserProfileController extends AbstractUserProfileController {
 
     @Transactional
     public Result viewProfile(String username) {
-        if (!userService.userExistsByUsername(username)) {
+        Optional<User> userOpt = userService.findUserByUsername(username);
+        if (!userOpt.isPresent()) {
             return redirect(routes.UserProfileController.userNotFound());
         }
+        User user = userOpt.get();
 
-        User user = userService.findUserByUsername(username);
+        Optional<UserInfo> userInfo = userProfileService.findInfo(user.getJid());
 
-        UserInfo userInfo = null;
-        if (userProfileService.infoExists(user.getJid())) {
-            userInfo = userProfileService.findInfo(user.getJid());
-        }
-
-        return showViewProfile(user, userInfo);
+        return showViewProfile(user, userInfo.orElse(null));
     }
 
     @Transactional

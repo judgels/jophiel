@@ -44,7 +44,7 @@ public final class UserEmailController extends AbstractUserProfileController {
             return notFound();
         }
 
-        UserEmail userEmail = userEmailService.findEmailByCode(emailCode);
+        UserEmail userEmail = userEmailService.findEmailByCode(emailCode).get();
 
         if (userEmailService.isEmailOwned(userEmail.getEmail())) {
             flashError(Messages.get("email.verify.error.emailOwned"));
@@ -61,7 +61,7 @@ public final class UserEmailController extends AbstractUserProfileController {
     @Transactional
     @RequireCSRFCheck
     public Result postCreateEmail() {
-        User user = userService.findUserByJid(getCurrentUserJid());
+        User user = userService.findUserByJid(getCurrentUserJid()).get();
 
         Form<UserEmailCreateForm> userEmailCreateForm = Form.form(UserEmailCreateForm.class).bindFromRequest();
 
@@ -83,7 +83,7 @@ public final class UserEmailController extends AbstractUserProfileController {
         } else {
             userEmail = userEmailService.addEmail(getCurrentUserJid(), userEmailCreateData.email, getCurrentUserIpAddress());
         }
-        userEmailService.sendEmailVerification(user.getName(), userEmailCreateData.email, getAbsoluteUrl(routes.UserEmailController.verifyEmail(userEmailService.getEmailCodeOfUnverifiedEmail(userEmail.getJid()))));
+        userEmailService.sendEmailVerification(user.getName(), userEmailCreateData.email, getAbsoluteUrl(routes.UserEmailController.verifyEmail(userEmailService.getEmailCodeOfUnverifiedEmail(userEmail.getJid()).get())));
 
         flashInfo(Messages.get("email.verify.text.verificationSentTo", userEmailCreateData.email));
 
@@ -95,8 +95,8 @@ public final class UserEmailController extends AbstractUserProfileController {
     @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Transactional
     public Result makeEmailPrimary(long emailId) throws UserEmailNotFoundException {
-        User user = userService.findUserByJid(getCurrentUserJid());
-        UserEmail userEmail = userEmailService.findEmailById(emailId);
+        User user = userService.findUserByJid(getCurrentUserJid()).get();
+        UserEmail userEmail = userEmailService.findEmailById(emailId).orElseThrow(() -> new UserEmailNotFoundException("Email not found."));
 
         if (!user.getJid().equals(userEmail.getUserJid())) {
             flashError(Messages.get("email.makePrimary.error.notOwned"));
@@ -121,8 +121,8 @@ public final class UserEmailController extends AbstractUserProfileController {
     @Authenticated(value = {LoggedIn.class, HasRole.class})
     @Transactional
     public Result deleteEmail(long emailId) throws UserEmailNotFoundException {
-        User user = userService.findUserByJid(getCurrentUserJid());
-        UserEmail userEmail = userEmailService.findEmailById(emailId);
+        User user = userService.findUserByJid(getCurrentUserJid()).get();
+        UserEmail userEmail = userEmailService.findEmailById(emailId).orElseThrow(() -> new UserEmailNotFoundException("Email not found."));
 
         if (!user.getJid().equals(userEmail.getUserJid())) {
             flashError(Messages.get("email.remove.error.notOwned"));
@@ -145,8 +145,8 @@ public final class UserEmailController extends AbstractUserProfileController {
     @Authorized(value = "admin")
     @Transactional(readOnly = true)
     public Result resendEmailVerification(long emailId) throws UserEmailNotFoundException {
-        UserEmail userEmail = userEmailService.findEmailById(emailId);
-        User user = userService.findUserByJid(userEmail.getUserJid());
+        UserEmail userEmail = userEmailService.findEmailById(emailId).orElseThrow(() -> new UserEmailNotFoundException("Email not found."));
+        User user = userService.findUserByJid(userEmail.getUserJid()).get();
 
         if (userEmailService.isEmailOwned(userEmail.getEmail())) {
             flashError(Messages.get("email.resend.error.emailOwned"));
@@ -160,7 +160,7 @@ public final class UserEmailController extends AbstractUserProfileController {
             return redirect(org.iatoki.judgels.jophiel.user.routes.UserController.viewUnverifiedUsers());
         }
 
-        String emailCode = userEmailService.getEmailCodeOfUnverifiedEmail(userEmail.getJid());
+        String emailCode = userEmailService.getEmailCodeOfUnverifiedEmail(userEmail.getJid()).get();
         userEmailService.sendEmailVerification(user.getName(), userEmail.getEmail(), getAbsoluteUrl(routes.UserEmailController.verifyEmail(emailCode)));
 
         flashInfo(Messages.get("email.verify.text.verificationSentTo") + " " + userEmail.getEmail() + ".");
@@ -172,7 +172,7 @@ public final class UserEmailController extends AbstractUserProfileController {
     @Authorized(value = "admin")
     @Transactional
     public Result activateEmail(long emailId) throws UserEmailNotFoundException {
-        UserEmail userEmail = userEmailService.findEmailById(emailId);
+        UserEmail userEmail = userEmailService.findEmailById(emailId).orElseThrow(() -> new UserEmailNotFoundException("Email not found."));
 
         if (userEmailService.isEmailOwned(userEmail.getEmail())) {
             flashError(Messages.get("email.activate.error.emailOwned"));
@@ -186,7 +186,7 @@ public final class UserEmailController extends AbstractUserProfileController {
             return redirect(org.iatoki.judgels.jophiel.user.routes.UserController.viewUnverifiedUsers());
         }
 
-        String code = userEmailService.getEmailCodeOfUnverifiedEmail(userEmail.getJid());
+        String code = userEmailService.getEmailCodeOfUnverifiedEmail(userEmail.getJid()).get();
         userEmailService.activateEmail(code, getCurrentUserIpAddress());
 
         return redirect(org.iatoki.judgels.jophiel.user.routes.UserController.viewUnverifiedUsers());
