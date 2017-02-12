@@ -4,6 +4,7 @@ import org.iatoki.judgels.play.model.AbstractJudgelsHibernateDao;
 import play.db.jpa.JPA;
 
 import javax.inject.Singleton;
+import javax.persistence.NoResultException;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
@@ -25,5 +26,21 @@ public final class UserPhoneHibernateDao extends AbstractJudgelsHibernateDao<Use
         query.where(cb.equal(root.get(UserPhoneModel_.userJid), userJid));
 
         return JPA.em().createQuery(query).getResultList();
+    }
+
+    @Override
+    public UserPhoneModel findByJid(String jid) {
+        CriteriaBuilder cb = JPA.em().getCriteriaBuilder();
+        CriteriaQuery<UserPhoneModel> query = cb.createQuery(getModelClass());
+
+        Root<UserPhoneModel> root = query.from(getModelClass());
+
+        query.where(cb.equal(root.get(UserPhoneModel_.jid), jid));
+
+        try {
+            return JPA.em().createQuery(query).getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
     }
 }

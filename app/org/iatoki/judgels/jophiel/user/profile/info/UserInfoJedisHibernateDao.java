@@ -6,6 +6,7 @@ import redis.clients.jedis.JedisPool;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.persistence.NoResultException;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
@@ -38,6 +39,10 @@ public final class UserInfoJedisHibernateDao extends AbstractJedisHibernateDao<L
 
         query.where(cb.equal(root.get(UserInfoModel_.userJid), userJid));
 
-        return Optional.ofNullable(JPA.em().createQuery(query).getSingleResult());
+        try {
+            return Optional.ofNullable(JPA.em().createQuery(query).getSingleResult());
+        } catch (NoResultException e) {
+            return Optional.empty();
+        }
     }
 }

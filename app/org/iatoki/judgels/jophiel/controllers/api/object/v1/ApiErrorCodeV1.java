@@ -5,6 +5,7 @@ public class ApiErrorCodeV1 {
     public static String INVALID_INPUT_PARAMETER = "INVALID_INPUT_PARAMETER";
 
     public static String INVALID_USERNAME = "INVALID_USERNAME";
+    public static String INVALID_PASSWORD = "INVALID_PASSWORD";
     public static String INVALID_EMAIL = "INVALID_EMAIL";
     public static String INVALID_FORGOT_PASSWORD_CODE = "INVALID_FORGOT_PASSWORD_CODE";
 

@@ -38,6 +38,12 @@ public final class UserApiController extends AbstractJudgelsAPIController{
     }
 
     @Transactional
+    public Result getUser(String userJid) {
+        User user = userService.findUserByJid(userJid).orElseThrow(() -> new JudgelsAPINotFoundException(ApiErrorCodeV1.USER_NOT_FOUND));
+        return okAsJson(createUserV1FromUser(user));
+    }
+
+    @Transactional
     public Result getUserInfo(String userJid) {
         if (userService.userExistsByJid(userJid)) throw new JudgelsAPINotFoundException(ApiErrorCodeV1.USER_NOT_FOUND);
         Optional<UserInfo> userInfo = userProfileService.findInfo(userJid);

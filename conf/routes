@@ -78,9 +78,12 @@ GET            /autosuggestions/provinces/:provinceId/delete                org.
 
 # API
 
+POST           /api/users/auth                                              org.iatoki.judgels.jophiel.controllers.api.UserAccountApiController.authLogin()
+
 POST           /api/users/changePass/:code                                  org.iatoki.judgels.jophiel.controllers.api.UserAccountApiController.changePassword(code: String)
 POST           /api/users/forgotPass                                        org.iatoki.judgels.jophiel.controllers.api.UserAccountApiController.forgotPassword()
 
+GET            /api/users/:userJid                                          org.iatoki.judgels.jophiel.controllers.api.UserApiController.getUser(userJid: String)
 GET            /api/users/:userJid/info                                     org.iatoki.judgels.jophiel.controllers.api.UserApiController.getUserInfo(userJid: String)
 POST           /api/users/:userJid/info                                     org.iatoki.judgels.jophiel.controllers.api.UserApiController.editUserInfo(userJid: String)
 POST           /api/users/:userJid/profile                                  org.iatoki.judgels.jophiel.controllers.api.UserApiController.editUserProfile(userJid: String)

@@ -4,6 +4,7 @@ import org.iatoki.judgels.play.model.AbstractJudgelsHibernateDao;
 import play.db.jpa.JPA;
 
 import javax.inject.Singleton;
+import javax.persistence.NoResultException;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Order;
@@ -154,7 +155,11 @@ public final class UserEmailHibernateDao extends AbstractJudgelsHibernateDao<Use
 
         query.where(cb.equal(root.get(UserEmailModel_.email), email));
 
-        return Optional.ofNullable(JPA.em().createQuery(query).getSingleResult());
+        try {
+            return Optional.ofNullable(JPA.em().createQuery(query).getSingleResult());
+        } catch (NoResultException e) {
+            return Optional.empty();
+        }
     }
 
     @Override
@@ -165,6 +170,26 @@ public final class UserEmailHibernateDao extends AbstractJudgelsHibernateDao<Use
 
         query.where(cb.equal(root.get(UserEmailModel_.emailCode), emailCode));
 
-        return Optional.ofNullable(JPA.em().createQuery(query).getSingleResult());
+        try {
+            return Optional.ofNullable(JPA.em().createQuery(query).getSingleResult());
+        } catch (NoResultException e) {
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public UserEmailModel findByJid(String jid) {
+        CriteriaBuilder cb = JPA.em().getCriteriaBuilder();
+        CriteriaQuery<UserEmailModel> query = cb.createQuery(getModelClass());
+
+        Root<UserEmailModel> root = query.from(getModelClass());
+
+        query.where(cb.equal(root.get(UserEmailModel_.jid), jid));
+
+        try {
+            return JPA.em().createQuery(query).getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
     }
 }

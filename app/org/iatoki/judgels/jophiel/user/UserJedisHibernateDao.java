@@ -2,6 +2,7 @@ package org.iatoki.judgels.jophiel.user;
 
 import com.google.common.collect.ImmutableList;
 import org.iatoki.judgels.play.model.AbstractJudgelsJedisHibernateDao;
+import org.iatoki.judgels.play.model.AbstractJudgelsModel_;
 import play.db.jpa.JPA;
 import redis.clients.jedis.JedisPool;
 
@@ -131,7 +132,11 @@ public final class UserJedisHibernateDao extends AbstractJudgelsJedisHibernateDa
 
         query.where(cb.equal(root.get(UserModel_.username), username));
 
-        return Optional.ofNullable(JPA.em().createQuery(query).getSingleResult());
+        try {
+            return Optional.ofNullable(JPA.em().createQuery(query).getSingleResult());
+        } catch (NoResultException e) {
+            return Optional.empty();
+        }
     }
 
     @Override

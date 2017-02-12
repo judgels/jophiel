@@ -6,6 +6,7 @@ import redis.clients.jedis.JedisPool;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.persistence.NoResultException;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Order;
@@ -157,7 +158,11 @@ public final class UserEmailJedisHibernateDao extends AbstractJudgelsJedisHibern
 
         query.where(cb.equal(root.get(UserEmailModel_.email), email));
 
-        return Optional.ofNullable(JPA.em().createQuery(query).getSingleResult());
+        try {
+            return Optional.ofNullable(JPA.em().createQuery(query).getSingleResult());
+        } catch (NoResultException e) {
+            return Optional.empty();
+        }
     }
 
     @Override
@@ -168,6 +173,10 @@ public final class UserEmailJedisHibernateDao extends AbstractJudgelsJedisHibern
 
         query.where(cb.equal(root.get(UserEmailModel_.emailCode), emailCode));
 
-        return Optional.ofNullable(JPA.em().createQuery(query).getSingleResult());
+        try {
+            return Optional.ofNullable(JPA.em().createQuery(query).getSingleResult());
+        } catch (NoResultException e) {
+            return Optional.empty();
+        }
     }
 }
