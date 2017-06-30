@@ -3,6 +3,7 @@ package org.iatoki.judgels.jophiel.user;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import org.apache.commons.lang3.StringUtils;
 import org.iatoki.judgels.jophiel.PasswordHash;
 import org.iatoki.judgels.jophiel.user.profile.email.UnverifiedUserEmail;
@@ -10,6 +11,7 @@ import org.iatoki.judgels.jophiel.user.profile.email.UserEmailDao;
 import org.iatoki.judgels.jophiel.user.profile.email.UserEmailModel;
 import org.iatoki.judgels.play.JudgelsPlayUtils;
 import org.iatoki.judgels.play.Page;
+import org.testng.collections.Lists;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -80,26 +82,28 @@ public final class UserServiceImpl implements UserService {
 
     @Override
     public Page<User> getPageOfUsers(long pageIndex, long pageSize, String orderBy, String orderDir, String filterString) {
-        List<String> userUserJid = userDao.getJidsByFilter(filterString);
-        List<String> emailUserJid = userEmailDao.getUserJidsByFilter(filterString);
+        List<String> userUserJids = userDao.getJidsByFilter(filterString);
+        List<String> emailUserJids = userEmailDao.getUserJidsByFilter(filterString);
 
-        ImmutableSet.Builder<String> setBuilder = ImmutableSet.builder();
-        setBuilder.addAll(userUserJid);
-        setBuilder.addAll(emailUserJid);
+        ImmutableSet<String> userJidSet = ImmutableSet.copyOf(
+                Sets.union(
+                        ImmutableSet.copyOf(userUserJids),
+                        ImmutableSet.copyOf(emailUserJids)
+                )
+        );
 
-        ImmutableSet<String> userJidSet = setBuilder.build();
         long totalRow = userJidSet.size();
         ImmutableList.Builder<User> listBuilder = ImmutableList.builder();
 
         if (totalRow > 0) {
             List<String> sortedUserJids;
             if (orderBy.equals("email")) {
-                sortedUserJids = userEmailDao.getSortedUserJidsByEmail(userJidSet, orderBy, orderDir);
+                sortedUserJids = userEmailDao.getSortedUserJidsByEmail(userJidSet, orderBy, orderDir, pageIndex * pageSize, pageSize);
             } else {
-                sortedUserJids = userDao.getSortedJidsByOrder(userJidSet, orderBy, orderDir);
+                sortedUserJids = userDao.getSortedJidsByOrder(userJidSet, orderBy, orderDir, pageIndex * pageSize, pageSize);
             }
 
-            List<UserModel> userModels = userDao.getByJids(sortedUserJids, pageIndex * pageSize, pageSize);
+            List<UserModel> userModels = userDao.getByJids(sortedUserJids);
 
             for (int i = 0; i < userModels.size(); ++i) {
                 UserModel userModel = userModels.get(i);
@@ -113,30 +117,32 @@ public final class UserServiceImpl implements UserService {
     @Override
     public Page<UnverifiedUserEmail> getPageOfUnverifiedUsers(long pageIndex, long pageSize, String orderBy, String orderDir, String filterString) {
         List<String> unverifiedEmailUserJids = userEmailDao.getUserJidsWithUnverifiedEmail();
-        List<String> userUserJids = userDao.getJidsByFilter(filterString);
-        List<String> emailUserJids = userEmailDao.getUserJidsByFilter(filterString);
+        List<String> userUserJids = Lists.newArrayList(userDao.getJidsByFilter(filterString));
+        List<String> emailUserJids = Lists.newArrayList(userEmailDao.getUserJidsByFilter(filterString));
 
         userUserJids.retainAll(unverifiedEmailUserJids);
         emailUserJids.retainAll(unverifiedEmailUserJids);
 
-        ImmutableSet.Builder<String> setBuilder = ImmutableSet.builder();
-        setBuilder.addAll(userUserJids);
-        setBuilder.addAll(emailUserJids);
+        ImmutableSet<String> userJidSet = ImmutableSet.copyOf(
+                Sets.union(
+                        ImmutableSet.copyOf(userUserJids),
+                        ImmutableSet.copyOf(emailUserJids)
+                )
+        );
 
-        ImmutableSet<String> userJidSet = setBuilder.build();
         long totalRow = userJidSet.size();
         ImmutableList.Builder<UnverifiedUserEmail> listBuilder = ImmutableList.builder();
 
         if (totalRow > 0) {
             List<String> sortedUserJid;
             if (orderBy.equals("email")) {
-                sortedUserJid = userEmailDao.getSortedUserJidsByEmail(userJidSet, orderBy, orderDir);
+                sortedUserJid = userEmailDao.getSortedUserJidsByEmail(userJidSet, orderBy, orderDir, pageIndex * pageSize, pageSize);
             } else {
-                sortedUserJid = userDao.getSortedJidsByOrder(userJidSet, orderBy, orderDir);
+                sortedUserJid = userDao.getSortedJidsByOrder(userJidSet, orderBy, orderDir, pageIndex * pageSize, pageSize);
             }
 
-            List<UserModel> userModels = userDao.getByJids(sortedUserJid, pageIndex * pageSize, pageSize);
-            List<UserEmailModel> emailModels = userEmailDao.getByUserJids(sortedUserJid, pageIndex * pageSize, pageSize);
+            List<UserModel> userModels = userDao.getByJids(sortedUserJid);
+            List<UserEmailModel> emailModels = userEmailDao.getByUserJids(sortedUserJid);
 
             for (int i = 0; i < userModels.size(); ++i) {
                 UserModel userModel = userModels.get(i);

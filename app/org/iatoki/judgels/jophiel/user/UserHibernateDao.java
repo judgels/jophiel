@@ -1,6 +1,7 @@
 package org.iatoki.judgels.jophiel.user;
 
 import com.google.common.collect.ImmutableList;
+import org.apache.commons.lang3.StringUtils;
 import org.iatoki.judgels.play.model.AbstractJudgelsHibernateDao;
 import play.db.jpa.JPA;
 
@@ -56,19 +57,24 @@ public final class UserHibernateDao extends AbstractJudgelsHibernateDao<UserMode
         CriteriaQuery<String> query = cb.createQuery(String.class);
         Root<UserModel> root = query.from(UserModel.class);
 
-        List<Predicate> predicates = new ArrayList<>();
-        predicates.add(cb.like(root.get(UserModel_.username), "%" + filter + "%"));
-        predicates.add(cb.like(root.get(UserModel_.name), "%" + filter + "%"));
-        predicates.add(cb.like(root.get(UserModel_.roles), "%" + filter + "%"));
+        query = query.select(root.get(UserModel_.jid));
 
-        Predicate condition = cb.or(predicates.toArray(new Predicate[predicates.size()]));
+        if (!StringUtils.isEmpty(filter)) {
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(cb.like(root.get(UserModel_.username), "%" + filter + "%"));
+            predicates.add(cb.like(root.get(UserModel_.name), "%" + filter + "%"));
+            predicates.add(cb.like(root.get(UserModel_.roles), "%" + filter + "%"));
 
-        query.select(root.get(UserModel_.jid)).where(condition);
+            Predicate condition = cb.or(predicates.toArray(new Predicate[predicates.size()]));
+
+            query = query.where(condition);
+        }
+
         return JPA.em().createQuery(query).getResultList();
     }
 
     @Override
-    public List<String> getSortedJidsByOrder(Collection<String> userJids, String sortBy, String order) {
+    public List<String> getSortedJidsByOrder(Collection<String> userJids, String sortBy, String order, long first, long max) {
         CriteriaBuilder cb = JPA.em().getCriteriaBuilder();
         CriteriaQuery<String> query = cb.createQuery(String.class);
         Root<UserModel> root = query.from(UserModel.class);
@@ -83,7 +89,7 @@ public final class UserHibernateDao extends AbstractJudgelsHibernateDao<UserMode
         }
 
         query.select(root.get(UserModel_.jid)).where(condition).orderBy(orderBy);
-        return JPA.em().createQuery(query).getResultList();
+        return JPA.em().createQuery(query).setFirstResult((int) first).setMaxResults((int) max).getResultList();
     }
 
     @Override
