@@ -5,10 +5,16 @@ import org.iatoki.judgels.play.model.AbstractJudgelsModel;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Index;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "jophiel_user")
+@Table(name = "jophiel_user", indexes = {
+        @Index(name = "jid", columnList = "jid"),
+        @Index(name = "username", columnList = "username"),
+        @Index(name = "email", columnList = "emailJid"),
+        @Index(name = "phone", columnList = "phoneJid"),
+})
 @JidPrefix("USER")
 public final class UserModel extends AbstractJudgelsModel {
 

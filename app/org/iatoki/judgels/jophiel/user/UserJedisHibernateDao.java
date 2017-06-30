@@ -71,7 +71,7 @@ public final class UserJedisHibernateDao extends AbstractJudgelsJedisHibernateDa
     }
 
     @Override
-    public List<String> getSortedJidsByOrder(Collection<String> userJids, String sortBy, String order) {
+    public List<String> getSortedJidsByOrder(Collection<String> userJids, String sortBy, String order, long first, long max) {
         CriteriaBuilder cb = JPA.em().getCriteriaBuilder();
         CriteriaQuery<String> query = cb.createQuery(String.class);
         Root<UserModel> root = query.from(UserModel.class);
@@ -86,7 +86,7 @@ public final class UserJedisHibernateDao extends AbstractJudgelsJedisHibernateDa
         }
 
         query.select(root.get(UserModel_.jid)).where(condition).orderBy(orderBy);
-        return JPA.em().createQuery(query).getResultList();
+        return JPA.em().createQuery(query).setFirstResult((int) first).setMaxResults((int) max).getResultList();
     }
 
     @Override

@@ -10,7 +10,9 @@ import play.libs.mailer.MailerClient;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Singleton
@@ -109,7 +111,20 @@ public final class UserEmailServiceImpl implements UserEmailService {
     public List<UserEmail> getEmailsByUserJid(String userJid) {
         List<UserEmailModel> userEmailModels = userEmailDao.getByUserJid(userJid);
 
-        return userEmailModels.stream().map(m -> UserEmailServiceUtils.createUserEmailFromModel(m)).collect(Collectors.toList());
+        return userEmailModels
+                .stream()
+                .map(UserEmailServiceUtils::createUserEmailFromModel)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Map<String, List<UserEmail>> getEmailsMapByUserJids(Collection<String> userJids) {
+        List<UserEmailModel> userEmailModels = userEmailDao.getByUserJids(userJids);
+
+        return userEmailModels
+                .stream()
+                .map(UserEmailServiceUtils::createUserEmailFromModel)
+                .collect(Collectors.groupingBy(UserEmail::getUserJid));
     }
 
     @Override

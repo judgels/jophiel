@@ -23,9 +23,9 @@ public interface UserEmailDao extends JudgelsDao<UserEmailModel> {
 
     List<String> getUserJidsWithUnverifiedEmail();
 
-    List<String> getSortedUserJidsByEmail(Collection<String> userJids, String sortBy, String order);
+    List<String> getSortedUserJidsByEmail(Collection<String> userJids, String sortBy, String order, long first, long max);
 
-    List<UserEmailModel> getByUserJids(Collection<String> userJidSet, long first, long max);
+    List<UserEmailModel> getByUserJids(Collection<String> userJidSet);
 
     UserEmailModel findByEmail(String email);
 

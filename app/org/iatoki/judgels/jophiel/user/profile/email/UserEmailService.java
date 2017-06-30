@@ -2,7 +2,9 @@ package org.iatoki.judgels.jophiel.user.profile.email;
 
 import com.google.inject.ImplementedBy;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 @ImplementedBy(UserEmailServiceImpl.class)
 public interface UserEmailService {
@@ -30,6 +32,8 @@ public interface UserEmailService {
     UserEmail findEmailByCode(String emailCode);
 
     List<UserEmail> getEmailsByUserJid(String userJid);
+
+    Map<String, List<UserEmail>> getEmailsMapByUserJids(Collection<String> userJids);
 
     void makeEmailPrimary(String userJid, String emailJid, String userIpAddress);
 

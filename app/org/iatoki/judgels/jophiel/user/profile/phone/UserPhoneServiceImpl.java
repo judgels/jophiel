@@ -5,7 +5,9 @@ import org.iatoki.judgels.jophiel.user.UserModel;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Singleton
@@ -40,7 +42,20 @@ public final class UserPhoneServiceImpl implements UserPhoneService {
     public List<UserPhone> getPhonesByUserJid(String userJid) {
         List<UserPhoneModel> userPhoneModels = userPhoneDao.getByUserJid(userJid);
 
-        return userPhoneModels.stream().map(m -> UserPhoneServiceUtils.createUserPhoneFromModel(m)).collect(Collectors.toList());
+        return userPhoneModels
+                .stream()
+                .map(UserPhoneServiceUtils::createUserPhoneFromModel)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Map<String, List<UserPhone>> getPhonesMapByUserJids(Collection<String> userJids) {
+        List<UserPhoneModel> userPhoneModels = userPhoneDao.getByUserJids(userJids);
+
+        return userPhoneModels
+                .stream()
+                .map(UserPhoneServiceUtils::createUserPhoneFromModel)
+                .collect(Collectors.groupingBy(UserPhone::getUserJid));
     }
 
     @Override

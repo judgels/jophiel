@@ -71,6 +71,7 @@ user.text.all                                       = All Users
 user.text.unverified                                = Unverified Users
 user.text.listUnverified                            = Unverified Users
 user.button.new                                     = New User
+user.field.jid                                      = Jid
 user.field.username                                 = Username
 user.field.name                                     = Name
 user.field.password                                 = Password

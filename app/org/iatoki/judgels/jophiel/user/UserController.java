@@ -8,8 +8,8 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.iatoki.judgels.jophiel.AbstractJophielController;
-import org.iatoki.judgels.jophiel.activity.BasicActivityKeys;
 import org.iatoki.judgels.jophiel.JophielUtils;
+import org.iatoki.judgels.jophiel.activity.BasicActivityKeys;
 import org.iatoki.judgels.jophiel.activity.UserActivityService;
 import org.iatoki.judgels.jophiel.controllers.securities.Authenticated;
 import org.iatoki.judgels.jophiel.controllers.securities.Authorized;
@@ -194,9 +194,15 @@ public final class UserController extends AbstractJophielController {
             try {
                 String[] usernames = FileUtils.readFileToString(userFile).split("\n");
                 List<User> users = userService.getUsersByUsernames(Arrays.asList(usernames));
-                Map<String, UserInfo> mapJidToUserInfo = userProfileService.getUsersInfoByUserJids(users.stream().map(User::getJid).collect(Collectors.toList())).stream().collect(Collectors.toMap(i -> i.getUserJid(), i -> i));
+                List<String> userJids = users.stream().map(User::getJid).collect(Collectors.toList());
+                Map<String, UserInfo> mapJidToUserInfo =
+                        userProfileService.getUsersInfoByUserJids(userJids)
+                                .stream()
+                                .collect(Collectors.toMap(UserInfo::getUserJid, i -> i));
+                Map<String, List<UserEmail>> mapJidToUserEmail = userEmailService.getEmailsMapByUserJids(userJids);
+                Map<String, List<UserPhone>> mapJidToUserPhone = userPhoneService.getPhonesMapByUserJids(userJids);
 
-                Workbook workbook = generateUserData(users, mapJidToUserInfo);
+                Workbook workbook = generateUserData(users, mapJidToUserInfo, mapJidToUserEmail, mapJidToUserPhone);
 
                 try {
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -283,7 +289,11 @@ public final class UserController extends AbstractJophielController {
         return renderTemplate(template, user);
     }
 
-    private Workbook generateUserData(List<User> users, Map<String, UserInfo> userInfoMap) {
+    private Workbook generateUserData(
+            List<User> users,
+            Map<String, UserInfo> userInfoMap,
+            Map<String, List<UserEmail>> mapJidToUserEmail,
+            Map<String, List<UserPhone>> mapJidToUserPhone) {
         Workbook workbook = new HSSFWorkbook();
         Sheet sheet = workbook.createSheet(Messages.get("user.text.users"));
 
@@ -291,6 +301,8 @@ public final class UserController extends AbstractJophielController {
         int cellNum = 0;
         Row row = sheet.createRow(rowNum++);
         Cell cell = row.createCell(cellNum++);
+        cell.setCellValue(Messages.get("user.field.jid"));
+        cell = row.createCell(cellNum++);
         cell.setCellValue(Messages.get("user.field.username"));
         cell = row.createCell(cellNum++);
         cell.setCellValue(Messages.get("user.field.name"));
@@ -316,6 +328,8 @@ public final class UserController extends AbstractJophielController {
             cellNum = 0;
             row = sheet.createRow(rowNum++);
             cell = row.createCell(cellNum++);
+            cell.setCellValue(user.getJid());
+            cell = row.createCell(cellNum++);
             cell.setCellValue(user.getUsername());
             cell = row.createCell(cellNum++);
             cell.setCellValue(user.getName());
@@ -339,6 +353,60 @@ public final class UserController extends AbstractJophielController {
                 cell.setCellValue(userInfo.getCountry());
                 cell = row.createCell(cellNum++);
                 cell.setCellValue(userInfo.getShirtSize());
+            }
+        }
+
+        sheet = workbook.createSheet(Messages.get("email.text.emails"));
+        rowNum = 0;
+        cellNum = 0;
+        row = sheet.createRow(rowNum++);
+        cell = row.createCell(cellNum++);
+        cell.setCellValue(Messages.get("userJid"));
+        cell = row.createCell(cellNum++);
+        cell.setCellValue(Messages.get("jid"));
+        cell = row.createCell(cellNum++);
+        cell.setCellValue(Messages.get("email"));
+        cell = row.createCell(cellNum++);
+        cell.setCellValue(Messages.get("emailVerified"));
+        for (String userJid : mapJidToUserEmail.keySet()) {
+            for (UserEmail userEmail : mapJidToUserEmail.get(userJid)) {
+                cellNum = 0;
+                row = sheet.createRow(rowNum++);
+                cell = row.createCell(cellNum++);
+                cell.setCellValue(userEmail.getUserJid());
+                cell = row.createCell(cellNum++);
+                cell.setCellValue(userEmail.getJid());
+                cell = row.createCell(cellNum++);
+                cell.setCellValue(userEmail.getEmail());
+                cell = row.createCell(cellNum++);
+                cell.setCellValue(userEmail.isEmailVerified());
+            }
+        }
+
+        sheet = workbook.createSheet(Messages.get("phone.text.phones"));
+        rowNum = 0;
+        cellNum = 0;
+        row = sheet.createRow(rowNum++);
+        cell = row.createCell(cellNum++);
+        cell.setCellValue(Messages.get("userJid"));
+        cell = row.createCell(cellNum++);
+        cell.setCellValue(Messages.get("jid"));
+        cell = row.createCell(cellNum++);
+        cell.setCellValue(Messages.get("phone"));
+        cell = row.createCell(cellNum++);
+        cell.setCellValue(Messages.get("phoneVerified"));
+        for (String userJid : mapJidToUserPhone.keySet()) {
+            for (UserPhone userPhone : mapJidToUserPhone.get(userJid)) {
+                cellNum = 0;
+                row = sheet.createRow(rowNum++);
+                cell = row.createCell(cellNum++);
+                cell.setCellValue(userPhone.getUserJid());
+                cell = row.createCell(cellNum++);
+                cell.setCellValue(userPhone.getJid());
+                cell = row.createCell(cellNum++);
+                cell.setCellValue(userPhone.getPhone());
+                cell = row.createCell(cellNum++);
+                cell.setCellValue(userPhone.isPhoneVerified());
             }
         }
 

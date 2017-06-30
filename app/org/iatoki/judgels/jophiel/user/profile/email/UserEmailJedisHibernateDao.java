@@ -105,7 +105,7 @@ public final class UserEmailJedisHibernateDao extends AbstractJudgelsJedisHibern
     }
 
     @Override
-    public List<String> getSortedUserJidsByEmail(Collection<String> userJids, String sortBy, String order) {
+    public List<String> getSortedUserJidsByEmail(Collection<String> userJids, String sortBy, String order, long first, long max) {
         CriteriaBuilder cb = JPA.em().getCriteriaBuilder();
         CriteriaQuery<String> query = cb.createQuery(String.class);
         Root<UserEmailModel> root = query.from(UserEmailModel.class);
@@ -120,11 +120,11 @@ public final class UserEmailJedisHibernateDao extends AbstractJudgelsJedisHibern
         }
 
         query.select(root.get(UserEmailModel_.userJid)).where(condition).orderBy(orderBy);
-        return JPA.em().createQuery(query).getResultList();
+        return JPA.em().createQuery(query).setFirstResult((int) first).setMaxResults((int) max).getResultList();
     }
 
     @Override
-    public List<UserEmailModel> getByUserJids(Collection<String> userJids, long first, long max) {
+    public List<UserEmailModel> getByUserJids(Collection<String> userJids) {
         CriteriaBuilder cb = JPA.em().getCriteriaBuilder();
         CriteriaQuery<UserEmailModel> query = cb.createQuery(UserEmailModel.class);
         Root<UserEmailModel> root = query.from(UserEmailModel.class);
@@ -143,9 +143,7 @@ public final class UserEmailJedisHibernateDao extends AbstractJudgelsJedisHibern
             .where(condition)
             .orderBy(order);
 
-        List<UserEmailModel> list = JPA.em().createQuery(query).setFirstResult((int) first).setMaxResults((int) max).getResultList();
-
-        return list;
+        return JPA.em().createQuery(query).getResultList();
     }
 
     @Override
