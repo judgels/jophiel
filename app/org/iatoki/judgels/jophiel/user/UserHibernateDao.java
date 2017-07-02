@@ -9,6 +9,7 @@ import javax.inject.Singleton;
 import javax.persistence.NoResultException;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
@@ -93,7 +94,7 @@ public final class UserHibernateDao extends AbstractJudgelsHibernateDao<UserMode
     }
 
     @Override
-    public List<UserModel> getByJids(Collection<String> userJids, long first, long max) {
+    public List<UserModel> getByJidsOrdered(Collection<String> userJids) {
         CriteriaBuilder cb = JPA.em().getCriteriaBuilder();
         CriteriaQuery<UserModel> query = cb.createQuery(UserModel.class);
         Root<UserModel> root = query.from(UserModel.class);
@@ -107,20 +108,14 @@ public final class UserHibernateDao extends AbstractJudgelsHibernateDao<UserMode
 
         Predicate condition = root.get(UserModel_.jid).in(userJids);
 
-        CriteriaBuilder.Case<Long> orderCase = cb.selectCase();
-        long i = 0;
-        for (String userJid : userJids) {
-            orderCase = orderCase.when(cb.equal(root.get(UserModel_.jid), userJid), i);
-            ++i;
-        }
-        Order order = cb.asc(orderCase.otherwise(i));
+        Order order = cb.asc(cb.function("FIELD", Expression.class, cb.literal(userJids)));
 
         query
             .multiselect(selection)
             .where(condition)
             .orderBy(order);
 
-        List<UserModel> list = JPA.em().createQuery(query).setFirstResult((int) first).setMaxResults((int) max).getResultList();
+        List<UserModel> list = JPA.em().createQuery(query).getResultList();
 
         return list;
     }

@@ -103,7 +103,7 @@ public final class UserServiceImpl implements UserService {
                 sortedUserJids = userDao.getSortedJidsByOrder(userJidSet, orderBy, orderDir, pageIndex * pageSize, pageSize);
             }
 
-            List<UserModel> userModels = userDao.getByJids(sortedUserJids);
+            List<UserModel> userModels = userDao.getByJidsOrdered(sortedUserJids);
 
             for (int i = 0; i < userModels.size(); ++i) {
                 UserModel userModel = userModels.get(i);
@@ -141,7 +141,7 @@ public final class UserServiceImpl implements UserService {
                 sortedUserJid = userDao.getSortedJidsByOrder(userJidSet, orderBy, orderDir, pageIndex * pageSize, pageSize);
             }
 
-            List<UserModel> userModels = userDao.getByJids(sortedUserJid);
+            List<UserModel> userModels = userDao.getByJidsOrdered(sortedUserJid);
             List<UserEmailModel> emailModels = userEmailDao.getByUserJids(sortedUserJid);
 
             for (int i = 0; i < userModels.size(); ++i) {
