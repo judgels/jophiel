@@ -1,5 +1,6 @@
 package org.iatoki.judgels.jophiel.user.profile.email;
 
+import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang3.StringUtils;
 import org.iatoki.judgels.play.model.AbstractJudgelsHibernateDao;
 import play.db.jpa.JPA;
@@ -109,6 +110,10 @@ public final class UserEmailHibernateDao extends AbstractJudgelsHibernateDao<Use
 
     @Override
     public List<String> getSortedUserJidsByEmail(Collection<String> userJids, String sortBy, String order, long first, long max) {
+        if (userJids.isEmpty()) {
+            return ImmutableList.of();
+        }
+
         CriteriaBuilder cb = JPA.em().getCriteriaBuilder();
         CriteriaQuery<String> query = cb.createQuery(String.class);
         Root<UserEmailModel> root = query.from(UserEmailModel.class);
@@ -128,6 +133,10 @@ public final class UserEmailHibernateDao extends AbstractJudgelsHibernateDao<Use
 
     @Override
     public List<UserEmailModel> getByUserJids(Collection<String> userJids) {
+        if (userJids.isEmpty()) {
+            return ImmutableList.of();
+        }
+
         CriteriaBuilder cb = JPA.em().getCriteriaBuilder();
         CriteriaQuery<UserEmailModel> query = cb.createQuery(UserEmailModel.class);
         Root<UserEmailModel> root = query.from(UserEmailModel.class);
