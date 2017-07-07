@@ -1,5 +1,6 @@
 package org.iatoki.judgels.jophiel.user.profile.phone;
 
+import com.google.common.collect.ImmutableList;
 import org.iatoki.judgels.play.model.AbstractJudgelsHibernateDao;
 import play.db.jpa.JPA;
 
@@ -32,6 +33,10 @@ public final class UserPhoneHibernateDao extends AbstractJudgelsHibernateDao<Use
 
     @Override
     public List<UserPhoneModel> getByUserJids(Collection<String> userJids) {
+        if (userJids.isEmpty()) {
+            return ImmutableList.of();
+        }
+
         CriteriaBuilder cb = JPA.em().getCriteriaBuilder();
         CriteriaQuery<UserPhoneModel> query = cb.createQuery(UserPhoneModel.class);
         Root<UserPhoneModel> root = query.from(UserPhoneModel.class);
