@@ -27,6 +27,7 @@
 
     @b3.select(infoEditForm("shirtSize"), UserInfoShirtSizes.values.map(e => (e.name() -> Messages.get("info.field.shirtSize." + e.name()))).toSeq, '_label -> Messages.get("info.field.shirtSize"), 'class -> "form-control selectpicker")
 
+    @b3.text(infoEditForm("biodata"), '_label -> Messages.get("info.field.biodata"))
     @b3.submit('class -> "btn btn-primary") { @Messages.get("commons.button.save") }
 }
 

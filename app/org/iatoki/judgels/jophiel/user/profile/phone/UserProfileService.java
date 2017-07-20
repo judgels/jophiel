@@ -18,7 +18,7 @@ public interface UserProfileService {
 
     void updateProfile(String userJid, String name, boolean showName, String password, String userIpAddress);
 
-    void upsertInfo(String userJid, String gender, Date birthDate, String streetAddress, int postalCode, String institution, String city, String provinceOrState, String country, String shirtSize, String userIpAddress);
+    void upsertInfo(String userJid, String gender, Date birthDate, String streetAddress, int postalCode, String institution, String city, String provinceOrState, String country, String shirtSize, String biodata, String userIpAddress);
 
     List<UserInfo> getUsersInfoByUserJids(Collection<String> userJids);
 

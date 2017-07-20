@@ -13,8 +13,9 @@ public final class UserInfo {
     private final String provinceOrState;
     private final String country;
     private final String shirtSize;
+    private final String biodata;
 
-    public UserInfo(long id, String userJid, String gender, long birthDate, String streetAddress, int postalCode, String institution, String city, String provinceOrState, String country, String shirtSize) {
+    public UserInfo(long id, String userJid, String gender, long birthDate, String streetAddress, int postalCode, String institution, String city, String provinceOrState, String country, String shirtSize, String biodata) {
         this.id = id;
         this.userJid = userJid;
         this.gender = gender;
@@ -26,6 +27,7 @@ public final class UserInfo {
         this.provinceOrState = provinceOrState;
         this.country = country;
         this.shirtSize = shirtSize;
+        this.biodata = biodata;
     }
 
     public long getId() {
@@ -71,4 +73,6 @@ public final class UserInfo {
     public String getShirtSize() {
         return shirtSize;
     }
+
+    public String getBiodata() {return biodata;}
 }

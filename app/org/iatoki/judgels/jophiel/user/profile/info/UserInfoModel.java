@@ -38,4 +38,6 @@ public final class UserInfoModel extends AbstractModel {
     public String country;
 
     public String shirtSize;
+
+    public String biodata;
 }

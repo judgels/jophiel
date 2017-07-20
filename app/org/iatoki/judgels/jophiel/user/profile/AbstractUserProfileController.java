@@ -114,6 +114,7 @@ public abstract class AbstractUserProfileController extends AbstractJophielContr
             infoEditDta.provinceOrState = userInfo.getProvinceOrState();
             infoEditDta.shirtSize = userInfo.getShirtSize();
             infoEditDta.streetAddress = userInfo.getStreetAddress();
+            infoEditDta.biodata = userInfo.getBiodata();
         } else {
             infoEditDta.birthDate = JudgelsPlayUtils.formatDate(0);
             infoEditDta.gender = UserInfoGenders.DO_NOT_WANT_TO_STATE.name();

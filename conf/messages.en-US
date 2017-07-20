@@ -171,6 +171,7 @@ info.field.shirtSize.L                              = L
 info.field.shirtSize.XL                             = XL
 info.field.shirtSize.XXL                            = XXL
 info.field.shirtSize.DO_NOT_WANT_TO_STATE           = Don''t want to state
+info.field.biodata                                  = Biodata
 
 activity.text.activities                            = Activities
 activity.field.clients                              = Clients
